@@ -471,3 +471,32 @@
 .mixtape-detail-cassette:hover {
   transform: scale(1.03) translateY(-3px);
 }
+
+/* ============================================================
+   COVER THUMBNAIL FIX — songs under albums & mixtapes
+   Authoritative override (last-loaded stylesheet wins).
+   Goal: every song cover is a perfect square that the image
+   fully fills, with slightly rounded corners. No page redesign.
+   ============================================================ */
+
+/* The square frame — works in all view modes (grid/cards & list) */
+.album-beat-grid .album-beat-card:not(.expanded) .ab-cover-wrap,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap {
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* The image fills the frame edge-to-edge */
+.album-beat-card:not(.expanded) .ab-cover-wrap .ab-cover,
+.album-beat-card:not(.expanded) .ab-cover-wrap .ab-cover-ph {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: inherit !important;
+}
