@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <link rel="icon" type="image/png" sizes="256x256" href="assets/favicon.png">
+<!--
+AI / MARCUS MAINTENANCE NOTES — oppdatert mai 2026
+Music Vault er nå en multi-fil app. Koden er fordelt slik:
+
+STRUKTUR:
+  index.html       — Ren HTML-markup. Ingen inline CSS/JS. Script/CSS lastes eksternt.
+  css/main.css     — Basisstiler, CSS-variabler, layout, tab-transitions
+  css/ui.css       — Hero-seksjon, stats-kort, knapper, hero-vinyl posisjonering
+  css/track-cards.css — Beat-kort (grid/liste/studio-visning), album-beat-listmode
+  css/archive.css  — Arkiv-tab, trekasse-animasjoner, fa-* selektorer
+  css/mixtape.css  — PNG-kassett-kort, mixtape-grid, mixtape-søk
+
+  js/lock.js       — Innloggingsskjerm (brukernavn→epost→Supabase), viewer-modus
+  js/db.js         — State (localStorage), renderAll/renderActiveTab (dirty-flag), tab-handler
+  js/app.js        — Produsentmodus, arkiv-installer IIFE, album-detail-render
+  js/track-cards.js — Én IIFE: view mode (list/cards/studio), beat-kort enhancer
+  js/archive.js    — Arkiv-renderer (trekasse-design), dynamisk opprettet #archiveTab
+  js/mixtape.js    — Mixtape-søk (performance-versjon)
+  js/r2-storage.js — Cloudflare R2 opplasting/sletting/flytte + lagringswidget
+  js/audio-compress.js — Lydkomprimering (deaktivert, MediaRecorder er sanntid)
+  js/supabase.js   — Supabase admin-login + datasynk (push/pull)
+  js/beats-tab.js  — Beats-oversiktsfane med søk, sortering og ⋯-meny
+  js/changelog.js  — Endringslogg injisert i Integrasjoner-tabben
+  assets/          — favicon.png, crate-back/front/empty.png, vinyl-label.png, cassette.png
+
+VIKTIGE REGLER:
+- Tab-synlighet styres av hidden-klassen OG tab-visible (opacity). Begge må håndteres.
+- Arkiv-tabben er IKKE statisk HTML — den opprettes dynamisk av archive.js.
+  Tab-handleren i db.js har et spesialtilfelle for data-tab="archive".
+- View mode (liste/kort/studio) styres i track-cards.js. localStorage KEY: 'musicVaultTrackViewMode'.
+  setTrackViewMode() er definert BARE i track-cards.js (siste definisjon vinner).
+- Beat-telling skal alltid filtrere arkiverte beats:
+  beatsFromIds() returnerer kun ikke-arkiverte beats.
+- Lydfiler lagres i Cloudflare R2 via beat-vault.marcus-aas-mekiassen.workers.dev
+  Metadata synkes til Supabase automatisk etter opplasting (via saveState → schedulePush).
+- Kassettdesign bruker nå assets/cassette.png — ikke CSS-tegnet kassett.
+  Navn og beat-antall vises som tekstoverlay via .cass-png-label.
+- USERNAME_MAP i lock.js mapper brukernavn til Supabase-epost.
+
+AKTIVE BRUKERE:
+  marcus → marcus.aas.mekiassen@gmail.com (admin)
+  erik   → erikalfsen11@gmail.com (admin)
+-->
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/lyriclab.css?v=202605161400">
+  <link rel="stylesheet" href="css/pipeline.css?v=202605161400">
+  <link rel="stylesheet" href="css/main.css?v=202605161400">
+  <link rel="stylesheet" href="css/ui.css?v=202606151000">
+  <link rel="stylesheet" href="css/track-cards.css?v=202605161400">
+  <link rel="stylesheet" href="css/archive.css?v=202605161400">
+  <link rel="stylesheet" href="css/mixtape.css?v=202605161400">
+  <style>html,body{background:#090705 !important}
+  /* Label-brukere kan ikke arkivere eller slette */
+  body.pkg-label #archiveMixtapeBtn,
+  body.pkg-label #deleteMixtapeBtn,
+  body.pkg-label #archiveAlbumBtn,
+  body.pkg-label #deleteAlbumBtn,
+  body.pkg-label [onclick*="archiveCurrentCollection"],
+  body.pkg-label [onclick*="deleteBeat"],
+  body.pkg-label [onclick*="archiveBeat"],
+  body.pkg-label .beats-delete-btn,
+  body.pkg-label .beats-archive-btn { display:none !important; }
+  </style>
+</head>
+<body>
+<!-- Viewer mode login shortcut -->
+<button id="viewerLoginBtn" onclick="returnToPasswordScreen()" title="Logg inn som admin" style="display:none;position:fixed;top:14px;right:16px;z-index:8000;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:#aaa4bd;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.04em;gap:6px;align-items:center;font-family:inherit">
+  🔐 Admin
+</button>
+<!-- PASSWORD SCREEN -->
+<!-- Viewer mode login shortcut (legacy, hidden) -->
+<button id="viewerLoginBtn" onclick="returnToPasswordScreen()" style="display:none"></button>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0c0b">
+
+  <!-- Ambient gradient - subtle -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(244,164,67,.07),transparent 70%),radial-gradient(ellipse 40% 50% at 80% 100%,rgba(124,58,237,.04),transparent 70%);pointer-events:none"></div>
+
+  <!-- Spinning vinyl background — real PNG -->
+  <div id="lockVinyl" style="position:absolute;width:min(780px,140vw);height:min(780px,140vw);top:50%;left:50%;pointer-events:none;border-radius:50%;overflow:hidden">
+    <img src="assets/vinyl-label.png" alt="" style="width:100%;height:100%;display:block;object-fit:cover;opacity:.22;filter:brightness(.6) contrast(1.2)">
+  </div>
+
+  <!-- Login card -->
+  <div id="lockCard" style="position:relative;z-index:2;width:min(360px,90vw);display:grid;gap:0;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
+    <div style="text-align:center;margin-bottom:40px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,164,67,.7);font-family:system-ui;margin-bottom:12px">Music Vault</div>
+      <div style="font-size:38px;font-weight:900;letter-spacing:-.06em;color:#f4ede4;line-height:1;font-family:Georgia,serif">Din musikk.<br>Din vault.</div>
+    </div>
+
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);padding:28px;display:grid;gap:12px;backdrop-filter:blur(24px)">
+      <input id="adminUsername" type="text" placeholder="Brukernavn eller e-post" autocomplete="username"
+        onkeydown="if(event.key==='Enter')document.getElementById('adminPassword').focus()"
+        style="background:rgba(20,16,12,.8);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.8) inset;-webkit-text-fill-color:#f4ede4"
+        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+      />
+      <input id="adminPassword" type="password" placeholder="Passord" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')loginWithUsername()"
+        style="background:rgba(20,16,12,.8);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.8) inset;-webkit-text-fill-color:#f4ede4"
+        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+      />
+      <button id="lockLoginBtn" onclick="loginWithUsername()"
+        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
+        style="background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:14px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
+      >Logg inn</button>
+      <div id="lockError" style="color:#fb7185;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px;letter-spacing:.01em"></div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
+      <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
+      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v2.6</div>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
+    </div>
+  </div>
+
+  <!-- REGISTER CARD -->
+  <div id="registerCard" style="position:relative;z-index:2;width:min(380px,90vw);display:none;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,164,67,.7);font-family:system-ui;margin-bottom:10px">Music Vault</div>
+      <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:#f4ede4;line-height:1.1;font-family:Georgia,serif">Opprett konto</div>
+    </div>
+
+    <!-- Package picker -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div class="pkg-card" data-pkg="artist" onclick="selectPkg(this)" style="border:1px solid rgba(244,164,67,.5);background:rgba(244,164,67,.08);cursor:pointer;padding:12px;transition:all .15s">
+        <div style="font-size:13px;font-weight:800;color:#f4a443;margin-bottom:4px">🎤 Artist</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Beats · Mixtapes<br>Albumer · Lyric Lab</div>
+      </div>
+      <div class="pkg-card" data-pkg="pro" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
+        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px">⚡ PRO</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i Artist<br>+ Pipeline · AI · Stats</div>
+      </div>
+      <div class="pkg-card" data-pkg="label" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
+        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px">🏷 Label</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i PRO<br><span style="color:rgba(244,164,67,.6)">Krever invitasjonskode</span></div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);padding:24px;display:grid;gap:10px">
+      <input id="regUsername" type="text" placeholder="Brukernavn"
+        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
+        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+      />
+      <input id="regEmail" type="email" placeholder="E-post"
+        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
+        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+      />
+      <input id="regPassword" type="password" placeholder="Passord (min. 6 tegn)"
+        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
+        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+      />
+      <div id="regInviteWrap" style="display:none">
+        <input id="regInvite" type="text" placeholder="Invitasjonskode (LABEL-XXXXXXXX)"
+          style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
+          onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
+          onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        />
+      </div>
+      <button id="regBtn" onclick="registerUser()"
+        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
+        style="background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:13px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
+      >Opprett konto</button>
+      <div id="regError" style="color:#fb7185;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px"></div>
+    </div>
+
+    <div style="text-align:center;margin-top:14px">
+      <button onclick="showLogin()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">← Tilbake til innlogging</button>
+    </div>
+  </div>
+
+  <input id="pwInput" type="hidden" value="" />
+  <div id="pwError" style="display:none"></div>
+  <div id="lockCardAdmin" style="display:none"></div>
+  <div id="lockCardViewer" style="display:none"></div>
+  <button id="lockTabAdmin" style="display:none"></button>
+  <button id="lockTabViewer" style="display:none"></button>
+</div>
+
+<style>
+#lockVinyl { animation: lockVinylSpin 18s linear infinite; }
+#lockVinyl.exiting { animation: lockVinylExit 1.1s ease-in forwards; }
+@keyframes lockVinylSpin {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+@keyframes lockVinylExit {
+  0%   { opacity:.22; transform:translate(-50%,-50%) rotate(0deg) scale(1); }
+  60%  { opacity:.32; transform:translate(-50%,-50%) rotate(720deg) scale(1.06); }
+  100% { opacity:0;   transform:translate(-50%,-50%) rotate(1080deg) scale(1.15); }
+}
+@keyframes lockCardEnter {
+  from { opacity:0; transform:translateY(28px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+#lockScreen input,
+#lockScreen input:focus,
+#lockScreen input:hover {
+  border-radius: 0 !important;
+  background: rgba(20,16,12,.85) !important;
+  -webkit-box-shadow: 0 0 0 100px rgba(20,16,12,.85) inset !important;
+  -webkit-text-fill-color: #f4ede4 !important;
+  color: #f4ede4 !important;
+}
+#lockLoginBtn {
+  border-radius: 0 !important;
+}
+</style>
+
+<script>
+(function(){
+  // Exit animation on unlock
+  const _orig = window.unlockAs;
+  window.unlockAs = function(role){
+    const vinyl  = document.getElementById('lockVinyl');
+    const screen = document.getElementById('lockScreen');
+    if(vinyl)  vinyl.classList.add('exiting');
+    setTimeout(()=>{ if(screen){ screen.style.transition='opacity .7s'; screen.style.opacity='0'; } }, 250);
+    setTimeout(()=>{ if(_orig) _orig(role); }, 950);
+  };
+})();
+</script>
+<main class="app">
+<button id="producerLoginBtn" class="producer-login-btn" onclick="returnToPasswordScreen()">Logg inn</button>
+
+
+
+<header class="mv-header" id="mainTabs">
+  <!-- Logo / brand -->
+  <div class="mv-header-brand">
+    <span class="mv-logo">Music Vault</span>
+    <div id="mvSyncDot" class="mv-sync-dot" title="Synket"></div>
+  </div>
+
+  <!-- Tab navigation -->
+  <nav class="mv-tabs" role="navigation" aria-label="Hovednavigasjon">
+    <button class="tab-btn active" data-tab="hjem">🏠 Hjem</button>
+    <button class="tab-btn" data-tab="beats">🎵 Beats</button>
+    <button class="tab-btn" data-tab="mixtapes">📼 Mixtapes</button>
+    <button class="tab-btn" data-tab="albums">📁 Albumer</button>
+    <button class="tab-btn" data-tab="pipeline">📊 Pipeline</button>
+    <button class="tab-btn" data-tab="archive">🗄️ Arkivert</button>
+    <button class="tab-btn" data-tab="lyriclab">✍️ Lyric Lab</button>
+    <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none">🏷 Label</button>
+    <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none">🛠 Admin</button>
+    <button class="tab-btn" data-tab="integrations">🔌 Integrasjoner</button>
+  </nav>
+
+  <!-- User controls (filled by lock.js) -->
+  <div class="mv-header-right" id="mvHeaderRight">
+    <!-- admin badge | username | notif bell | gear -->
+  </div>
+</header>
+
+<!-- BEATS -->
+<section id="hjemTab" class="tab-view tab-visible">
+  <div class="hjem-wrap">
+    <div class="dash-inner">
+      <!-- Greeting + quick actions -->
+      <div class="dash-greeting-row">
+        <div>
+          <div class="dash-greeting" id="dashGreeting">Hei &#128075;</div>
+          <div id="dashSub"></div>
+        </div>
+        <div class="dash-quick">
+          <button class="dq-btn accent" onclick="dashUploadTrigger()">&#xFF0B; Ny sang</button>
+          <button class="dq-btn" onclick="dashNewAlbum()">&#xFF0B; Nytt album</button>
+          <button class="dq-btn" onclick="dashNewMixtape()">&#xFF0B; Ny mixtape</button>
+          <button class="dq-btn" onclick="dashOpenLyricLab()">&#9998; Lyric Lab</button>
+          <input type="file" accept="audio/*" multiple hidden id="dashUploadInput" onchange="dashUpload(this.files)">
+        </div>
+      </div>
+
+      <!-- Siste prosjekter -->
+      <div class="dash-sec-hd"><div class="dash-section-label">Siste prosjekter</div></div>
+      <div class="dash-projects-grid" id="dashProjects"></div>
+
+      <!-- Fortsett der du slapp -->
+      <div class="dash-sec-hd" style="margin-top:16px"><div class="dash-section-label">Fortsett der du slapp</div></div>
+      <div id="dashLastBeat" class="last-beat-card"></div>
+
+      <!-- Nylig lastet opp -->
+      <div class="dash-sec-hd" style="margin-top:16px"><div class="dash-section-label">Nylig lastet opp</div></div>
+      <div id="dashBeats"></div>
+
+      <!-- Kommentarfeed -->
+      <div class="dash-sec-hd" style="margin-top:18px">
+        <div class="dash-section-label">&#128172; Kommentarer</div>
+      </div>
+      <div id="dashCommentFeed" class="cf-feed">
+        <div class="cf-loading">Laster kommentarer&#8230;</div>
+      </div>
+
+      <!-- Bunn-grid: Aktivitet + Varsler + Fremdrift -->
+      <div class="hjem-bottom-row" style="margin-top:18px">
+        <div class="hjem-bot-card" id="dashActivityCard">
+          <div class="dash-section-label" style="margin-bottom:12px">Aktivitet siste 7 dager</div>
+          <div class="act-bars" id="dashActivity"></div>
+          <div class="act-streak" id="dashStreak"></div>
+        </div>
+        <div class="hjem-bot-card" id="dashAlertsCard">
+          <div class="dash-section-label" style="margin-bottom:12px">Varsler</div>
+          <div id="dashSmartAlerts"></div>
+        </div>
+        <div class="hjem-bot-card" id="dashProgressCard">
+          <div class="dash-section-label" style="margin-bottom:12px">Fremdrift</div>
+          <div id="dashProgress"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="beatsTab" class="tab-view hidden">
+  <div id="beatsTabContent"></div>
+</section>
+
+<section id="mixtapesTab" class="tab-view hidden">
+  <div class="content-panel glass">
+    <div id="mixtapesListView">
+      <div class="section-title">
+        <h2>Mixtapes</h2>
+        <button class="primary-btn" id="newMixtapeBtn" onclick="openNewMixtapeModal()">+ Ny mixtape</button>
+      </div>
+      <p class="hint" style="margin-bottom:24px">Organiser beats i kasetter. Klikk på en kasett for å åpne den.</p>
+      <div id="mixtapeGrid" class="mixtape-grid"></div>
+    </div>
+    <div id="mixtapeDetailView" class="hidden">
+      <div style="margin-bottom:18px"><button class="ghost-btn" id="backToMixtapesBtn">← Tilbake til mixtapes</button></div>
+      <div class="album-detail-hd" id="mixtapeDetailHd"></div>
+      <div class="toolbar" style="margin-bottom:18px">
+        <button class="primary-btn" id="addBeatsToMixtapeBtn">+ Legg til eksisterende</button>
+        <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <select id="mixtapeSortSelect" class="mixtape-sort-select" title="Sorter beats">
+          <option value="custom">Sorter: Egen rekkefølge</option>
+          <option value="favorite">Favoritter først</option>
+          <option value="rating">Høyest rating</option>
+          <option value="newest">Nyest først</option>
+          <option value="name">Navn A–Å</option>
+        </select>
+        <label class="ghost-btn" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
+        <button class="ghost-btn" id="archiveMixtapeBtn" onclick="archiveCurrentCollection('mixtape')">Arkiver mixtape</button>
+        <button class="small-btn danger" id="deleteMixtapeBtn">Slett mixtape</button>
+        <div class="track-view-toggle" id="mixtapeViewToggle" style="margin-left:auto">
+          <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
+          <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
+          <button type="button" data-track-view="studio" onclick="event.stopPropagation();advancedSetTrackViewMode('studio')">▤ Studio</button>
+        </div>
+      </div>
+      <div id="mixtapeDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMixtapeDrop(event)">
+        <div class="drop-hint">🎵 Slipp lydfiler her for å legge til beats</div>
+      </div>
+      <div id="mixtapeBeatList" class="beat-list"></div>
+      <div id="mixtapeComments" class="collection-comments"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ALBUMER -->
+<section id="albumsTab" class="tab-view hidden">
+  <div class="content-panel glass">
+    <div id="albumsListView">
+      <div class="section-title">
+        <h2>Albumer</h2>
+        <button class="primary-btn" id="newAlbumBtn">+ Nytt album</button>
+      </div>
+      <p class="hint" style="margin-bottom:20px">Organiser beats i mapper. Klikk på et album for å åpne det og se innholdet.</p>
+      <div id="albumGrid" class="album-grid"></div>
+    </div>
+    <div id="albumDetailView" class="hidden">
+      <div style="margin-bottom:18px"><button class="ghost-btn" id="backToAlbumsBtn">← Tilbake til albumer</button></div>
+      <div class="album-detail-hd" id="albumDetailHd"></div>
+      <div class="toolbar" style="margin-bottom:18px">
+        <button class="primary-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
+        <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
+        <button class="ghost-btn" id="archiveAlbumBtn" onclick="archiveCurrentCollection('album')">Arkiver album</button>
+        <button class="small-btn danger" id="deleteAlbumBtn">Slett album</button>
+        <div class="track-view-toggle" id="albumViewToggle" style="margin-left:auto">
+          <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
+          <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
+          <button type="button" data-track-view="studio" onclick="event.stopPropagation();advancedSetTrackViewMode('studio')">▤ Studio</button>
+        </div>
+      </div>
+      <div id="albumDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleAlbumDrop(event)">
+        <div class="drop-hint">🎵 Slipp lydfiler her for å legge til beats</div>
+      </div>
+      <div id="albumBeatList" class="beat-list"></div>
+      <div id="albumComments" class="collection-comments"></div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipelineTab" class="tab-view hidden">
+  <section class="content-panel glass">
+    <div class="section-title"><h2>Album-pipeline</h2><span class="hint">Fremgang per sang i hvert album, basert på ferdigstillelse %.</span></div>
+    <div id="pipelineBoard"></div>
+  </section>
+</section>
+
+</section>
+
+<!-- INTEGRASJONER -->
+<section id="integrationsTab" class="tab-view hidden">
+  <div class="layout">
+    <aside class="sidebar glass">
+      <div class="section-title"><h2>Last opp sang</h2></div>
+      <p class="hint">Last opp lydfiler direkte fra skrivebordet. Filen lagres i Cloudflare R2 og synkes til Supabase automatisk.</p>
+      <div class="input-group">
+        <label>Velg lydfil(er)</label>
+        <input id="beatFiles" type="file" accept="audio/*" multiple />
+      </div>
+      <p class="hint" style="font-size:11px;color:var(--muted);margin-top:4px">Støttede formater: MP3, WAV, FLAC, M4A, OGG, AAC</p>
+
+      <div class="section-title" style="margin-top:24px"><h2>Legg til via URL</h2></div>
+      <p class="hint">Lenk direkte til en lydfil på nett.</p>
+      <div class="input-group">
+        <input id="beatNameInput" placeholder="Sangnavn" />
+        <input id="beatUrlInput" placeholder="https://..." />
+        <button class="primary-btn" id="addBeatUrlBtn">Legg til</button>
+      </div>
+
+      <div class="section-title" style="margin-top:24px"><h2>Data</h2></div>
+      <div style="display:grid;gap:8px;margin-top:4px">
+        <button class="ghost-btn" id="exportBtn">⬇ Eksporter backup (JSON)</button>
+        <label class="ghost-btn" style="text-align:center;cursor:pointer">⬆ Importer backup<input id="importInput" type="file" accept="application/json" hidden /></label>
+      </div>
+
+      <!-- Hidden legacy inputs kept for JS compatibility -->
+      <input id="driveFolderId" type="hidden" />
+      <input id="driveApiKey" type="hidden" />
+      <button id="saveDriveSettingsBtn" style="display:none"></button>
+      <button id="mockDriveImportBtn" style="display:none"></button>
+    </aside>
+
+    <section class="content-panel glass">
+      <!-- Admin panel + R2 widget + Supabase sync injected here by JS -->
+
+      <div class="settings-card" id="soundcloudCard">
+        <h2>🎵 SoundCloud</h2>
+        <p class="hint">Proxy-URL for private SoundCloud-tracks. Offentlige tracks fungerer uten proxy.</p>
+        <div class="input-group">
+          <label>Proxy URL (valgfritt)</label>
+          <input id="soundcloudProxy" placeholder="https://din-server.no/oembed?url=" />
+        </div>
+        <button class="primary-btn" id="saveSCSettingsBtn">Lagre</button>
+      </div>
+
+      <div class="settings-card" id="dataToolsCard">
+        <h2>🛠 Data-verktøy</h2>
+        <p class="hint">Bruk med forsiktighet. Backup anbefales alltid først.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+          <button class="ghost-btn" id="resetLocalBtn" onclick="if(confirm('Slett ALL lokal data? Dette kan ikke angres.')){localStorage.clear();sessionStorage.clear();location.reload();}">🗑 Reset lokal data</button>
+          <button class="ghost-btn admin-only-btn" id="pushAllBtn" onclick="window.pushToSupabase?.()">☁ Push alt til Supabase</button>
+        </div>
+      </div>
+
+      <div class="settings-card" id="wavConvertCard">
+        <h2>🔄 WAV → MP3 konvertering</h2>
+        <p class="hint">Konverterer WAV-beats til MP3 for bedre støtte på mobil og inkognito. WAV-filer er store og spilles ikke av overalt.</p>
+        <div style="margin-top:12px">
+          <button class="ghost-btn" onclick="window.convertAllWavBeats()" style="display:flex;align-items:center;gap:8px">
+            🔄 Konverter WAV-beats til MP3
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+
+<!-- ── Mobile bottom navigation ─────────────────────────────────────── -->
+<nav class="mv-mobile-nav" id="mvMobileNav" aria-label="Mobilnavigasjon">
+  <button class="mv-mob-btn active" data-mob-tab="hjem" onclick="mvMobileTab('hjem')">
+    <span class="mv-mob-icon">🏠</span>
+    <span class="mv-mob-lbl">Hjem</span>
+  </button>
+  <button class="mv-mob-btn" data-mob-tab="beats" onclick="mvMobileTab('beats')">
+    <span class="mv-mob-icon">🎵</span>
+    <span class="mv-mob-lbl">Beats</span>
+  </button>
+  <button class="mv-mob-btn" data-mob-tab="mixtapes" onclick="mvMobileTab('mixtapes')">
+    <span class="mv-mob-icon">📼</span>
+    <span class="mv-mob-lbl">Mixtapes</span>
+  </button>
+  <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
+    <span class="mv-mob-icon">📁</span>
+    <span class="mv-mob-lbl">Albumer</span>
+  </button>
+  <button class="mv-mob-btn" data-mob-tab="lyriclab" onclick="mvMobileTab('lyriclab')">
+    <span class="mv-mob-icon">✍️</span>
+    <span class="mv-mob-lbl">Lab</span>
+  </button>
+  <button class="mv-mob-btn" onclick="mvMobileMore()">
+    <span class="mv-mob-icon">⋯</span>
+    <span class="mv-mob-lbl">Mer</span>
+  </button>
+</nav>
+
+<!-- ── Mobile "Mer" bottom sheet ────────────────────────────────────── -->
+<div class="mv-mob-sheet-bg" id="mvMobSheetBg" onclick="mvMobileMoreClose()" style="display:none"></div>
+<div class="mv-mob-sheet" id="mvMobSheet" style="display:none">
+  <div class="mv-mob-sheet-handle"></div>
+  <div class="mv-mob-sheet-grid">
+    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('pipeline');mvMobileMoreClose()">
+      <span>📊</span><span>Pipeline</span>
+    </button>
+    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('archive');mvMobileMoreClose()">
+      <span>🗄️</span><span>Arkivert</span>
+    </button>
+    <button class="mv-mob-sheet-btn admin-tab-hidden" onclick="mvMobileTab('label');mvMobileMoreClose()">
+      <span>🏷</span><span>Label</span>
+    </button>
+    <button class="mv-mob-sheet-btn admin-tab-hidden" onclick="mvMobileTab('adminpanel');mvMobileMoreClose()">
+      <span>🛠</span><span>Admin</span>
+    </button>
+    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('integrations');mvMobileMoreClose()">
+      <span>🔌</span><span>Integrasjoner</span>
+    </button>
+  </div>
+</div>
+
+<script>
+window.mvMobileTab = function(tab) {
+  const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
+  if (btn) btn.click();
+  document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
+    b.classList.toggle('active', b.dataset.mobTab === tab));
+};
+window.mvMobileMore = function() {
+  document.getElementById('mvMobSheet').style.display = 'block';
+  document.getElementById('mvMobSheetBg').style.display = 'block';
+  requestAnimationFrame(() => {
+    document.getElementById('mvMobSheet').classList.add('open');
+  });
+};
+window.mvMobileMoreClose = function() {
+  const s = document.getElementById('mvMobSheet');
+  s.classList.remove('open');
+  setTimeout(() => {
+    s.style.display = 'none';
+    document.getElementById('mvMobSheetBg').style.display = 'none';
+  }, 280);
+};
+// Keep mobile nav in sync with desktop tab clicks
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn[data-tab]');
+  if (!btn) return;
+  const t = btn.dataset.tab;
+  document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
+    b.classList.toggle('active', b.dataset.mobTab === t));
+});
+</script>
+
+</main>
+
+<div id="bottomPlayer" class="bottom-player" aria-live="polite">
+  <div class="bp-track">
+    <div id="bpCover" class="bp-cover">🎵</div>
+    <div class="bp-meta">
+      <div id="bpTitle" class="bp-title">Ingen sang valgt</div>
+      <div id="bpSub" class="bp-sub">Trykk play på en beat, et album eller en mixtape</div>
+    </div>
+  </div>
+  <div class="bp-center">
+    <div class="bp-controls">
+      <button class="bp-btn" onclick="bottomPrev()" title="Forrige">⏮</button>
+      <button id="bpPlayBtn" class="bp-btn bp-play" onclick="bottomTogglePlay()" title="Play / pause">▶</button>
+      <button class="bp-btn" onclick="bottomNext()" title="Neste">⏭</button>
+    </div>
+    <div class="bp-progress">
+      <span id="bpCurrent" class="bp-time">0:00</span>
+      <input id="bpSeek" class="bp-seek" type="range" min="0" max="1000" value="0" oninput="bottomSeek(this.value)" />
+      <span id="bpDuration" class="bp-time">0:00</span>
+    </div>
+  </div>
+  <div class="bp-actions">
+    <span style="color:var(--muted);font-size:15px">🔊</span>
+    <input id="bpVolume" class="bp-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="bottomSetVolume(this.value)" />
+    <button class="bp-btn bp-close" onclick="bottomStop()" title="Stopp og lukk">✕</button>
+  </div>
+</div>
+
+<!-- DEMO EDIT MODAL -->
+<div id="editDemoModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <div class="modal-hd-left">
+        <h2 id="editModalTitle">Demo</h2>
+        <div class="hint" id="editModalSub"></div>
+      </div>
+      <div class="modal-hd-right">
+        <div class="modal-score-wrap">
+          <div class="modal-score-num" id="editModalScore">—</div>
+          <div class="modal-score-lbl">Release Score</div>
+        </div>
+        <button class="close-btn" id="closeModalBtn">×</button>
+      </div>
+    </div>
+    <div class="modal-tabs">
+      <button class="mtab active" data-mtab="overview">Oversikt</button>
+      <button class="mtab" data-mtab="versions">Versjonslogg</button>
+      <button class="mtab" data-mtab="notes">Notater</button>
+    </div>
+    <input id="editDemoId" type="hidden" />
+
+    <div id="mtab-overview" class="mtab-content active">
+      <div id="editEmbedWrap" style="margin-bottom:18px"></div>
+      <div class="input-group" style="margin-bottom:16px">
+        <label>Pipeline Stage</label>
+        <div class="pipeline-sel" id="editPipelineSel"></div>
+      </div>
+      <div class="row" style="margin-bottom:16px">
+        <div class="input-group">
+          <label>Mix / Ferdigstillelse %</label>
+          <input type="range" id="editCompl" min="0" max="100" style="padding:0;border:none;background:transparent;accent-color:var(--accent);cursor:pointer;width:100%" oninput="document.getElementById('editComplVal').textContent=this.value+'%'">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>0%</span><span id="editComplVal">0%</span><span>100%</span></div>
+        </div>
+        <div class="input-group">
+          <label>Rangering (1-10)</label>
+          <div class="rating-stars" id="editRatingStars"></div>
+        </div>
+      </div>
+      <div class="input-group" style="margin-bottom:20px">
+        <label>Notater</label>
+        <textarea id="editNotes" rows="4" style="min-height:90px" placeholder="Hva mangler?"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="primary-btn" id="saveOverviewBtn">💾 Lagre endringer</button>
+        <button class="small-btn danger" id="deleteDemoBtn">🗑 Slett demo</button>
+      </div>
+    </div>
+
+    <div id="mtab-versions" class="mtab-content">
+      <div class="input-group">
+        <label>Nytt versjonsnotat</label>
+        <textarea id="editVerInput" rows="3" placeholder="Beskriv endringen – f.eks. Ny hook-melodi, fjernet bridge" style="min-height:80px"></textarea>
+        <div style="margin-top:8px"><button class="primary-btn" id="addModalVerBtn">+ Legg til</button></div>
+      </div>
+      <div id="editVerList"></div>
+    </div>
+
+    <div id="mtab-notes" class="mtab-content">
+      <div class="input-group">
+        <label>Lyrics / Ideer / Tekst</label>
+        <textarea id="editDemoNotes" rows="14" placeholder="Skriv tekst, hooks, broer, punchlines..." style="min-height:340px"></textarea>
+      </div>
+      <button class="primary-btn" id="saveDemoNotesBtn">💾 Lagre notater</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW ALBUM MODAL -->
+<div id="newAlbumModal" class="modal">
+  <div class="modal-card modal-sm">
+    <div class="modal-hd">
+      <div class="modal-hd-left"><h2>Nytt album</h2></div>
+      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('newAlbumModal')">×</button></div>
+    </div>
+    <div style="padding:22px 28px 28px;display:grid;gap:14px">
+      <div class="input-group"><label>Albumnavn</label><input id="newAlbumName" placeholder="F.eks. Noe som får deg opp om morran" /></div>
+      <div class="input-group">
+        <label>Forsidebilde (kvadratisk)</label>
+        <input id="newAlbumCoverInput" type="file" accept="image/*" />
+        <div id="albumCoverPreviewWrap" style="margin-top:8px;display:none;justify-content:center">
+          <img id="albumCoverPreview" style="width:120px;height:120px;border-radius:12px;object-fit:cover;border:1px solid var(--border)" />
+        </div>
+      </div>
+      <button class="primary-btn" id="saveNewAlbumBtn">Opprett album</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD BEATS TO ALBUM MODAL -->
+<div id="addBeatsModal" class="modal">
+  <div class="modal-card modal-sm">
+    <div class="modal-hd">
+      <div class="modal-hd-left"><h2>Legg til beats</h2></div>
+      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('addBeatsModal')">×</button></div>
+    </div>
+    <div style="padding:22px 28px 28px;display:grid;gap:14px">
+      <p class="hint">Velg beats du vil legge til i albumet.</p>
+      <input id="beatSearchInput" class="beat-search-input" placeholder="Søk etter beat..." autocomplete="off" />
+      <div id="beatCheckList" class="beat-check-list"></div>
+      <button class="primary-btn" id="confirmAddBeatsBtn">Legg til valgte</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW MIXTAPE MODAL -->
+<div id="newMixtapeModal" class="modal">
+  <div class="modal-card modal-sm">
+    <div class="modal-hd">
+      <div class="modal-hd-left"><h2>Ny mixtape</h2></div>
+      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('newMixtapeModal')">×</button></div>
+    </div>
+    <div style="padding:22px 28px 28px;display:grid;gap:14px">
+      <div class="input-group"><label>Mixtape-navn</label><input id="newMixtapeName" placeholder="F.eks. Late Night Sessions" /></div>
+      <div class="input-group">
+        <label>Kassettbilde <span style="color:var(--muted);font-weight:500">(valgfritt)</span></label>
+        <label class="ghost-btn" style="cursor:pointer;justify-content:center">🖼️ Last opp bilde<input id="newMixtapeCoverInput" type="file" accept="image/*" hidden /></label>
+        <div id="newMixtapeCoverPreviewWrap" style="display:none;align-items:center;gap:10px;margin-top:8px">
+          <img id="newMixtapeCoverPreview" style="width:120px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
+          <span class="hint">Bildet maskes til fargefeltet på kasetten.</span>
+        </div>
+      </div>
+      <button class="primary-btn" id="saveNewMixtapeBtn">Opprett mixtape</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD BEATS TO MIXTAPE MODAL -->
+<div id="addBeatsToMixtapeModal" class="modal">
+  <div class="modal-card modal-sm">
+    <div class="modal-hd">
+      <div class="modal-hd-left"><h2>Legg til beats</h2></div>
+      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('addBeatsToMixtapeModal')">×</button></div>
+    </div>
+    <div style="padding:22px 28px 28px;display:grid;gap:14px">
+      <p class="hint">Velg beats du vil legge til i mixtapen.</p>
+      <input id="mixtapeBeatSearchInput" class="beat-search-input" placeholder="Søk etter beat..." autocomplete="off" />
+      <div id="mixtapeBeatCheckList" class="beat-check-list"></div>
+      <button class="primary-btn" id="confirmAddBeatsToMixtapeBtn">Legg til valgte</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="deleteConfirmModal" class="modal">
+  <div class="modal-card modal-sm" style="max-width:400px">
+    <div class="modal-hd">
+      <div class="modal-hd-left"><h2 id="deleteConfirmTitle" style="font-size:16px;color:#fb7185">Bekreft sletting</h2></div>
+      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('deleteConfirmModal')">×</button></div>
+    </div>
+    <div style="padding:20px 28px 26px;display:grid;gap:14px">
+      <p class="hint" id="deleteConfirmMsg" style="font-size:14px;line-height:1.6"></p>
+      <p class="hint">Skriv <strong style="color:var(--text)">slett</strong> for å bekrefte:</p>
+      <input id="deleteConfirmInput" type="text" placeholder="slett" style="text-align:center;font-size:15px;letter-spacing:2px" oninput="document.getElementById('deleteConfirmBtn').disabled=this.value.toLowerCase()!=='slett'"/>
+      <button class="primary-btn" id="deleteConfirmBtn" disabled onclick="executeDelete()" style="background:linear-gradient(135deg,#ef4444,#b91c1c);opacity:.5;transition:opacity .2s">Slett permanent</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUPABASE ADMIN LOGIN -->
+
+<!-- SUPABASE DATA SYNC: beats, albums, mixtapes -->
+
+<!-- === MUSIC VAULT: Arkivert vinylkasse prototype override v2 - fixed tab visibility === -->
+
+<!-- === /MUSIC VAULT: Arkivert vinylkasse prototype override === -->
+
+<!-- FINAL OVERRIDE: robust, self-contained Arkivert page with realistic crate image -->
+
+<!-- PATCH: hver arkiverte plate får sin egen realistiske trekasse-kort, 4-5 synlige -->
+
+<!-- === FINAL PATCH: minimalistisk arkivside med 3 synlige trekasser, kvadratiske vinylsleeves og roterende plate === -->
+
+<!-- === HOTFIX: bruk realistisk trekassebilde i den aktive MV3-arkivvisningen === -->
+
+<!-- === PATCH: midtstill vinyl/sleeve og fjern avrunding på sleeves === -->
+
+<!-- PATCH: hyperrealistisk vinyl + større, ryddigere sleeves i arkivet -->
+
+<!-- PATCH: større arkivkasser, sleeves og vinyler – nesten kant i kant -->
+
+<!-- === FORCE PATCH: større MV3 arkiv-elementer, 3 stk nesten kant-i-kant === -->
+
+<!-- === PATCH: mindre vinyl-utstikk + sørg for at crate-bildet ligger bak === -->
+
+<!-- === FINAL PATCH: transparent PNG crate + hyperreal vinyl PNG + less vinyl peek === -->
+
+<!-- === LAYERED CRATE PATCH: back layer + vinyl/sleeve + front layer === -->
+
+<!-- === VINYL REFINEMENT PATCH: better vinyl + barely visible === -->
+
+<!-- === USER-SELECTED VINYL PATCH === -->
+
+<!-- === FINAL VINYL POSITION + BORDER CLEANUP PATCH === -->
+
+<!-- === DIRECT DISC POSITION FIX === -->
+
+<!-- === ALT METHOD: shifted vinyl asset itself === -->
+
+<!-- === OUTSIDE-THE-BOX VINYL FIX: ignore old disc; create new hidden-under-sleeve peek === -->
+
+<!-- === V9: BIGGER VINYL PEEK, SAME SIZE AS SLEEVE === -->
+
+<!-- === V10: dynamic vinyl same size as sleeve === -->
+
+<!-- === V11: only slight vinyl reveal === -->
+
+<!-- === V12: correct slight peek math === -->
+
+<!-- === ARCHIVE TAB ISOLATION FIX: archive only appears under Arkivert tab === -->
+
+<!-- === CLEAN ARCHIVE MODULE: single source of truth for Arkivert tab === -->
+<!-- === FIX: tab panels restored after visiting Arkivert === -->
+<!-- Removed unused duplicate CA PNG hard-render block. Current archive uses marcus-final-archive-png-js for FA cards. -->
+
+<!-- === FINAL USER PATCH: realistisk arkivkasse, hover, samlinger, mobil-swipe og scroll-restore === -->
+
+<!-- === GLOBAL ANGULAR UI REDESIGN: less rounded, sharper music-vault interface === -->
+
+<!-- MARCUS HERO VINYL IMPERFECTIONS PATCH
+  Purpose:
+  - Make the hero vinyl feel a little more physical.
+  - Add very subtle dust specks and tiny scuff / nick marks.
+  - Keep the effect restrained so it still looks clean and premium.
+  Notes:
+  - The specks/scuffs live inside `.hero-vinyl-disc`, so they rotate together
+    with the record and help communicate motion more clearly.
+-->
+
+<!-- MARCUS HERO VINYL CLEANUP PATCH
+  Purpose:
+  - Remove the small elongated marker from the hero vinyl label.
+  - Keep the vinyl cleaner and more minimal.
+-->
+
+<!-- MARCUS ARCHIVE STYLE ALIGNMENT PATCH
+  Purpose:
+  - Make the archive page match the newer, cleaner site style.
+  - Reduce the older rounded / pill-heavy framing.
+  - Keep functionality intact while making panels more structured.
+-->
+
+<!-- MARCUS UNIFIED PAGE STYLE PATCH
+  Purpose:
+  - Make the archive page use the same visual language as Pipeline/other pages.
+  - Remove the separate oversized archive hero feeling.
+  - Keep archive functionality intact; this is CSS-only.
+  Design notes for future AI/editors:
+  - Archive UI is rendered with `.fa-*` classes.
+  - This patch intentionally overrides only layout, radii, spacing and controls.
+  - Do not add another archive renderer for style-only changes.
+-->
+
+<!-- MARCUS ARCHIVE MATCHES ALL PAGES PATCH
+  Purpose:
+  - Make the archive page feel like the same design system as Pipeline / Albums / Mixtapes.
+  - Reduce remaining oversized title + rounded frame feeling.
+  - Keep only the archive crate/cards as the distinctive content motif.
+-->
+
+<!-- === ARCHIVE DEMO CRATES OVERRIDE === -->
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- R2 config — set this to your deployed Cloudflare Worker URL -->
+  <script>window.R2_WORKER_URL = 'https://beat-vault.marcus-aas-mekiassen.workers.dev';</script>
+
+  <!-- App scripts (load order matters) -->
+  <script src="js/audio-compress.js?v=202605161400"></script>
+  <script src="js/lock.js?v=202606150100"></script>
+  <script src="js/pipeline.js?v=202605161400"></script>
+  <script src="js/lyriclab.js?v=202605161400"></script>
+  <script src="js/audio-compress.js?v=202605261500"></script>
+  <script src="js/audio-compress.js?v=202605261900"></script>
+  <script src="js/app.js?v=202606150100"></script>
+  <script src="js/track-cards.js?v=202605161400"></script>
+  <script src="js/r2-storage.js?v=202605161400"></script>
+  <script src="js/archive.js?v=202605262300"></script>
+  <script src="js/mixtape.js?v=202605161400"></script>
+  <script src="js/changelog.js?v=202606150400"></script>
+  <script src="js/beats-tab.js?v=202605251400"></script>
+  <script src="js/supabase.js?v=202605251400"></script>
+  <script src="js/db.js?v=202606151000"></script>
+
+    <!-- LYRIC LAB TAB -->
+    <section id="lyriclabTab" class="tab-view hidden">
+      <div id="lyricLabContent"></div>
+    </section>
+
+  <section id="labelTab" class="tab-view hidden"></section>
+  <section id="adminPanelTab" class="tab-view hidden"></section>
+
+  <script src="js/packages.js?v=202605251400"></script>
+  <script src="js/label.js?v=202605251400"></script>
+  <script src="js/admin-panel.js?v=202605251400"></script>
+
+<button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
+</body>
+</html>

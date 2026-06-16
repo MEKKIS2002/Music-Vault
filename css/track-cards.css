@@ -1,0 +1,1327 @@
+/* === cleanTrackCardsCss === */
+/* RENERE AVSPILLINGSSIDER + SANGKORT */
+.album-beat-grid{
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;
+  gap:16px!important;
+  align-items:start!important;
+}
+.album-beat-card{
+  border-radius:24px!important;
+  overflow:hidden!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032))!important;
+  border:1px solid rgba(255,255,255,.115)!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.album-beat-card:hover{
+  transform:translateY(-3px)!important;
+  border-color:rgba(255,186,94,.38)!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.30),0 0 0 1px rgba(255,186,94,.08)!important;
+}
+.album-beat-card.expanded{
+  grid-column:1/-1!important;
+  transform:none!important;
+}
+.album-beat-card:not(.expanded) .ab-top{display:block!important}
+.album-beat-card.expanded .ab-top{display:grid!important;grid-template-columns:minmax(230px,320px) 1fr!important}
+.ab-cover-wrap{
+  aspect-ratio:1/1!important;
+  background:linear-gradient(135deg,rgba(255,186,94,.22),rgba(124,58,237,.16))!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+.ab-cover,.ab-cover-ph{
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  display:block!important;
+}
+/* Title always visible on collapsed cards */
+.album-beat-card:not(.expanded) .ab-title{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  font-size:13px!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.album-beat-card.expanded .ab-cover,.album-beat-card.expanded .ab-cover-ph{height:100%!important;min-height:230px!important}
+.ab-cover-wrap::after{
+  content:"Åpne"!important;
+  right:12px!important;
+  bottom:12px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+  padding:6px 9px!important;
+  border-radius:999px!important;
+  color:#fff!important;
+  background:rgba(0,0,0,.46)!important;
+  border:1px solid rgba(255,255,255,.14)!important;
+  backdrop-filter:blur(10px)!important;
+}
+.album-beat-card.expanded .ab-cover-wrap::after{content:"Lukk"!important}
+.ab-body{padding:14px 15px 15px!important;gap:8px!important}
+.ab-title{font-size:15px!important;font-weight:900!important;letter-spacing:-.035em!important;line-height:1.2!important}
+.album-beat-card:not(.expanded) .ab-body>.ab-stars,
+.album-beat-card:not(.expanded) .ab-body>.progress-wrap,
+.album-beat-card:not(.expanded) .hint:not(:first-child){display:none!important}
+.album-beat-card:not(.expanded) .star-btn{opacity:.65!important}
+.album-beat-card:not(.expanded) .star-btn.active{opacity:1!important;color:var(--gold)!important}
+.album-beat-card:not(.expanded)::after{
+  content:"Klikk på bildet for spiller, tekst og innstillinger";
+  display:block;
+  padding:0 15px 15px;
+  color:var(--muted);
+  font-size:12px;
+}
+.album-beat-card.expanded .ab-expand{
+  display:grid!important;
+  grid-template-columns:minmax(260px,1fr) minmax(220px,360px)!important;
+  gap:18px!important;
+  background:rgba(0,0,0,.16)!important;
+}
+.ab-expand textarea{min-height:320px!important}
+.reorder-hint{
+  padding:10px 14px!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  color:var(--muted)!important;
+}
+#albumDrop.active,#mixtapeDrop.active{padding:12px!important;min-height:auto!important;border-radius:18px!important}
+#albumDrop.active .drop-hint,#mixtapeDrop.active .drop-hint{font-size:13px!important;opacity:.75!important}
+.mixtape-detail-head{align-items:center!important;padding:4px 0 10px!important}
+.mixtape-detail-copy h2{font-size:clamp(28px,4vw,46px)!important;line-height:1!important}
+.mixtape-detail-kicker{opacity:.85!important}
+.mixtape-detail-actions .primary-btn{border-radius:999px!important}
+@media(max-width:760px){
+  .album-beat-card.expanded .ab-top{grid-template-columns:1fr!important}
+  .album-beat-card.expanded .ab-expand{grid-template-columns:1fr!important}
+  .album-beat-grid{grid-template-columns:1fr!important}
+}
+/* merged from lyricsTextColorFixCss */
+
+/* Fiks: lyrics/tekst under beats og demoer skal være lys/hvit på mørk bakgrunn */
+.beat-expand textarea,
+.ab-expand textarea,
+.lyrics-editor,
+.rich-lyrics-editor,
+.rich-lyrics-editor *,
+.lyrics-editor *{
+  color:#f7f3ea !important;
+  caret-color:#f7f3ea !important;
+}
+.beat-expand textarea::placeholder,
+.ab-expand textarea::placeholder,
+.lyrics-editor:empty:before,
+.rich-lyrics-editor:empty:before{
+  color:rgba(247,243,234,.45) !important;
+}
+.beat-expand textarea,
+.ab-expand textarea,
+.lyrics-editor,
+.rich-lyrics-editor{
+  background:rgba(0,0,0,.28) !important;
+}
+/* merged from trackCardSpacingActionsNoBatchOverride */
+
+/* Finjustering: mer luft mellom cover og info, kortere progresjon, favoritt ved play, ingen masseredigering */
+.batch-bar,
+.select-beat-check{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.album-beat-card.is-batch-selected{
+  transform:none!important;
+  border-color:rgba(255,255,255,.115)!important;
+  box-shadow:0 18px 46px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.album-beat-card:not(.expanded) .ab-top,
+.album-beat-card.expanded .ab-top{
+  column-gap:34px!important;
+  grid-template-columns:minmax(170px,280px) minmax(0,1fr)!important;
+}
+.album-beat-card:not(.expanded) .ab-cover-wrap,
+.album-beat-card.expanded .ab-cover-wrap{
+  border-right:0!important;
+}
+.album-beat-card:not(.expanded) .ab-body,
+.album-beat-card.expanded .ab-body{
+  padding-left:0!important;
+  padding-right:22px!important;
+}
+.album-beat-card .ab-body > div:first-child{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:14px!important;
+}
+.track-card-actions{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  gap:8px!important;
+  flex:0 0 auto!important;
+  margin-left:auto!important;
+}
+.track-card-actions .quick-play-btn,
+.track-card-actions .star-btn{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  font-size:14px!important;
+  line-height:1!important;
+}
+.track-card-actions .star-btn{
+  background:rgba(255,255,255,.08)!important;
+  border:0!important;
+  color:var(--muted)!important;
+}
+.track-card-actions .star-btn.active{
+  color:var(--gold)!important;
+  background:rgba(255,186,94,.12)!important;
+}
+.album-beat-listmode .quick-play-btn,
+.album-beat-listmode .track-card-actions{
+  position:static!important;
+  right:auto!important;
+  top:auto!important;
+}
+.album-beat-card:not(.expanded) .progress-wrap,
+.album-beat-card.expanded .progress-wrap{
+  max-width:300px!important;
+  width:100%!important;
+}
+.album-beat-card:not(.expanded) .progress-wrap input[type="range"],
+.album-beat-card.expanded .progress-wrap input[type="range"]{
+  max-width:300px!important;
+}
+@media(max-width:720px){
+  .album-beat-card:not(.expanded) .ab-top,
+  .album-beat-card.expanded .ab-top{column-gap:0!important;}
+  .album-beat-card:not(.expanded) .ab-body,
+  .album-beat-card.expanded .ab-body{padding:18px 20px!important;}
+  .album-beat-card:not(.expanded) .progress-wrap,
+  .album-beat-card.expanded .progress-wrap{max-width:100%!important;}
+}
+/* Card layout — cover left, content right (grid and studio modes) */
+.album-beat-grid .album-beat-card:not(.expanded) .ab-top,
+.album-beat-studio .album-beat-card:not(.expanded) .ab-top{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+}
+.album-beat-card.expanded .ab-top{
+  display:grid!important;
+  grid-template-columns:minmax(230px,320px) 1fr!important;
+  align-items:stretch!important;
+}
+.album-beat-grid .album-beat-card:not(.expanded) .ab-cover-wrap,
+.album-beat-studio .album-beat-card:not(.expanded) .ab-cover-wrap{
+  aspect-ratio:1/1!important;
+  width:100%!important;
+  border-bottom:1px solid rgba(255,255,255,.08)!important;
+  border-right:0!important;
+  cursor:pointer!important;
+}
+.album-beat-card.expanded .ab-cover-wrap{
+  aspect-ratio:1/1!important;
+  border-bottom:0!important;
+  border-right:1px solid rgba(255,255,255,.08)!important;
+  cursor:pointer!important;
+}
+.ab-cover-wrap::after,
+.album-beat-card.expanded .ab-cover-wrap::after{
+  content:none!important;
+  display:none!important;
+}
+/* Card collapsed body: compact below cover */
+.album-beat-grid .album-beat-card:not(.expanded) .ab-body,
+.album-beat-studio .album-beat-card:not(.expanded) .ab-body{
+  padding:10px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:0!important;
+}
+.album-beat-card.expanded .ab-body{
+  padding:18px 20px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:10px!important;
+  min-width:0!important;
+}
+.ab-title{
+  cursor:pointer!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  max-width:100%!important;
+  width:100%!important;
+  display:block!important;
+}
+.ab-title:hover{text-decoration:underline!important;text-underline-offset:3px!important;}
+.album-beat-card:not(.expanded) .ab-body>.ab-stars,
+.album-beat-card:not(.expanded) .ab-body>.progress-wrap,
+.album-beat-card:not(.expanded) .hint:not(:first-child){
+  display:flex!important;
+}
+.album-beat-card:not(.expanded) .progress-wrap{display:grid!important;max-width:460px!important;}
+.album-beat-card:not(.expanded)::after{content:none!important;display:none!important;}
+.album-beat-card:not(.expanded) .star-btn{opacity:1!important;}
+.album-beat-card.expanded .ab-expand{border-top:1px solid rgba(255,255,255,.08)!important;}
+@media(max-width:720px){
+  .album-beat-card:not(.expanded) .ab-top,
+  .album-beat-card.expanded .ab-top{grid-template-columns:1fr!important;}
+  .album-beat-card:not(.expanded) .ab-cover-wrap,
+  .album-beat-card.expanded .ab-cover-wrap{border-right:0!important;border-bottom:1px solid rgba(255,255,255,.08)!important;}
+}
+/* merged from marcus-minimal-track-list-fix */
+
+/* Minimal listevisning: kun tittel, varighet, favoritt og play. */
+.acp-minimal-list .acp-list-head{grid-template-columns:44px minmax(220px,1fr) 90px 92px!important;}
+.acp-minimal-list .acp-list-row{grid-template-columns:44px minmax(220px,1fr) 90px 92px!important;min-height:54px!important;}
+.acp-list-duration,.track-duration{color:#b9aa96;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.acp-fav-action.active,.track-card-actions .star-btn.active{color:#ffd36d!important;background:rgba(255,211,109,.13)!important;}
+.acp-minimal-list .acp-list-copy small{color:#8f8375!important;}
+.acp-minimal-list .acp-list-kind,.acp-minimal-list .acp-list-progress,.acp-minimal-list .acp-list-date{display:none!important;}
+
+.album-beat-listmode{gap:0!important;padding:0!important;display:flex!important;flex-direction:column!important;}
+/* ── List mode overrides ──────────────────────────────────── */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-top{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  height:64px!important;padding:0!important;gap:0!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap{
+  width:64px!important;height:64px!important;min-width:64px!important;min-height:64px!important;
+  flex-shrink:0!important;overflow:hidden!important;
+  aspect-ratio:1/1!important;border-right:0!important;border-bottom:0!important;
+  margin-right:14px!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph{
+  width:64px!important;height:64px!important;
+  object-fit:cover!important;object-position:center!important;
+  aspect-ratio:1/1!important;display:block!important;border-radius:0!important;
+}
+  min-height:64px!important;max-height:64px!important;overflow:hidden!important;
+  border-bottom:1px solid rgba(255,255,255,.05)!important;border-radius:0!important;
+  background:transparent!important;border:none!important;box-shadow:none!important;
+  transition:background .12s!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded):hover{background:rgba(255,255,255,.06)!important;border-radius:6px!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-top{
+  display:grid!important;
+  grid-template-columns:64px minmax(0,1fr) auto!important;
+  align-items:center!important;height:64px!important;padding:0 12px 0 0!important;gap:0!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph{
+  width:64px!important;height:64px!important;min-height:64px!important;min-width:64px!important;
+  border-radius:0!important;flex-shrink:0!important;aspect-ratio:1/1!important;overflow:hidden!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover{
+  width:64px!important;height:64px!important;min-height:64px!important;min-width:64px!important;
+  border-radius:0!important;object-fit:cover!important;object-position:center!important;
+  aspect-ratio:1/1!important;flex-shrink:0!important;display:block!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap{margin:0 14px 0 0!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body{
+  padding:0!important;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;min-height:0!important;gap:8px!important;overflow:hidden!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body::before{display:none!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-title{
+  font-size:14px!important;font-weight:700!important;white-space:nowrap!important;
+  overflow:hidden!important;text-overflow:ellipsis!important;line-height:1!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-stars{display:none!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .progress-wrap{display:none!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .beat-chip-row{display:none!important;}
+.album-beat-listmode .album-beat-card:not(.expanded) .hint{font-size:11px!important;color:var(--muted)!important;white-space:nowrap!important;}
+/* Duration and actions on right side */
+.album-beat-listmode .album-beat-card:not(.expanded) .track-card-actions{
+  display:flex!important;align-items:center!important;gap:8px!important;flex-shrink:0!important;margin-left:auto!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .track-duration{
+  font-size:12px!important;color:var(--muted)!important;font-variant-numeric:tabular-nums!important;min-width:32px!important;text-align:right!important;
+}
+.track-card-actions{display:flex!important;align-items:center!important;gap:8px!important;flex-shrink:0!important;margin-left:auto!important;}
+.track-card-actions .track-duration{min-width:42px!important;text-align:right!important;}
+.track-card-actions .star-btn,.track-card-actions .quick-play-btn{width:32px!important;height:32px!important;padding:0!important;border-radius:999px!important;display:inline-grid!important;place-items:center!important;margin:0!important;font-size:14px!important;}
+.track-card-actions .star-btn{background:rgba(255,255,255,.06)!important;color:rgba(255,255,255,.42)!important;}
+.track-card-actions .quick-play-btn{background:rgba(255,255,255,.09)!important;color:#fff!important;}
+.track-card-actions .quick-play-btn:hover{background:#f2a13a!important;color:#160c04!important;}
+@media(max-width:700px){.acp-minimal-list .acp-list-head{display:none!important}.acp-minimal-list .acp-list-row{grid-template-columns:32px minmax(0,1fr) 50px 72px!important}.album-beat-listmode .track-card-actions .track-duration{display:inline!important}.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap{display:none!important}.album-beat-listmode .album-beat-card:not(.expanded) .ab-top{grid-template-columns:1fr!important}}
+
+/* === trackListModeAndPlaceholderCss === */
+/* Fjerner lilla musikklogo på track-kort uten cover, og legger til listevisning */
+.ab-cover-ph{
+  font-size:0!important;
+  color:transparent!important;
+  position:relative!important;
+}
+.ab-cover-ph::before,.ab-cover-ph::after{content:none!important;display:none!important;}
+.track-view-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.13);
+  background:rgba(255,255,255,.055);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+.track-view-toggle button{
+  border:0;
+  cursor:pointer;
+  padding:8px 11px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+  background:transparent;
+  transition:background .18s ease,color .18s ease,transform .18s ease;
+}
+.track-view-toggle button:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.track-view-toggle button.active{
+  color:#17110a;
+  background:linear-gradient(180deg,#ffbd65,#df7f22);
+  box-shadow:0 10px 20px rgba(223,127,34,.18),inset 0 1px 0 rgba(255,255,255,.30);
+}
+/* old listmode removed — see Spotify-style listmode above */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap::after{
+  content:"Åpne"!important;
+  right:7px!important;
+  bottom:7px!important;
+  padding:4px 7px!important;
+  font-size:10px!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph{
+  width:76px!important;
+  height:76px!important;
+  min-height:76px!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body{
+  padding:12px 14px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  min-width:0!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-title{font-size:15px!important;max-width:100%!important}
+.album-beat-listmode .album-beat-card:not(.expanded) .beat-chip-row{margin-top:5px!important;max-height:24px!important;overflow:hidden!important}
+.album-beat-listmode .album-beat-card:not(.expanded) .hint{display:none!important}
+.album-beat-listmode .album-beat-card.expanded{grid-column:1/-1!important}
+.album-beat-listmode .select-beat-check{top:8px!important;left:8px!important;width:25px!important;height:25px!important}
+@media(max-width:640px){
+  .track-view-toggle{width:100%;justify-content:center}.track-view-toggle button{flex:1}
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-top{grid-template-columns:68px minmax(0,1fr)!important;min-height:68px!important}
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap,
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph{width:68px!important;height:68px!important;min-height:68px!important}
+}
+/* merged from clean-song-detail-fields */
+
+/* Ryddigere sangvisning: skjul gamle metadatafelter hvis de finnes i lagret/eldre DOM */
+.ux-extra-fields,
+.full-meta-extra,
+.meta-mini-grid,
+.structure-tags,
+.loop-controls,
+.waveform{display:none!important;}
+
+/* === advanced-music-vault-upgrades-css === */
+/* Ekstra forbedringer: søk/filter, studio-visning, renere åpnet sangkort og bedre mini-player */
+.collection-tools{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-2px 0 18px;
+  padding:10px;border-radius:20px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.075)
+}
+.collection-search{min-width:220px;flex:1;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:999px!important;padding:11px 14px!important;color:var(--text)!important;font-family:inherit!important;outline:none!important}
+.collection-filter{border:1px solid rgba(255,255,255,.11);background:rgba(255,255,255,.055);color:var(--muted);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;transition:.18s ease}
+.collection-filter:hover{color:var(--text);background:rgba(255,255,255,.08)}
+.collection-filter.active{color:#1c1208;background:linear-gradient(180deg,#ffbd65,#df7f22);box-shadow:0 12px 22px rgba(223,127,34,.16)}
+.collection-count{color:var(--muted);font-size:12px;font-weight:800;padding:0 4px;white-space:nowrap}
+.track-view-toggle button[data-track-view="studio"]{display:inline-flex!important;align-items:center;gap:4px}
+.album-beat-card:not(.expanded)::after{content:"Klikk for spiller og tekst"!important}
+.album-beat-card:not(.expanded) .quick-play-btn{display:inline-flex!important}
+.quick-play-btn{align-items:center;justify-content:center;border:0;border-radius:999px;padding:6px 10px;background:rgba(255,255,255,.08);color:var(--text);font-size:12px;font-weight:900;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.quick-play-btn:hover{background:linear-gradient(180deg,#ffbd65,#df7f22);color:#201207}.quick-play-btn.playing{background:var(--accent);color:#180d05}
+.album-beat-card.expanded{grid-column:1/-1!important}.album-beat-card.expanded .ab-top{grid-template-columns:minmax(180px,280px) minmax(0,1fr)!important;align-items:stretch!important}
+.album-beat-card.expanded .ab-cover-wrap{min-height:210px!important;border-radius:22px!important;margin:14px!important;overflow:hidden!important;border:1px solid rgba(255,255,255,.10)!important;box-shadow:0 18px 45px rgba(0,0,0,.28)!important}
+.album-beat-card.expanded .ab-cover-wrap::after{content:"Lukk"!important}.album-beat-card.expanded .ab-body{padding:18px!important;justify-content:center!important}.album-beat-card.expanded .ab-title{font-size:clamp(22px,3vw,34px)!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}.album-beat-card.expanded .ab-expand{grid-template-columns:1fr!important;padding:0 16px 16px!important}.album-beat-card.expanded .ab-expand-left{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.075);border-radius:20px;padding:14px}.album-beat-card.expanded .ab-expand-right{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:end!important;gap:12px!important;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:12px!important}.album-beat-card.expanded .ab-expand-right>div{min-width:190px;flex:1}.ab-expand textarea,.rich-lyrics-editor{min-height:220px!important}
+.studio-board{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;width:100%}.studio-col{border:1px solid rgba(255,255,255,.085);background:rgba(255,255,255,.035);border-radius:20px;padding:10px;min-height:160px}.studio-col-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:2px 2px 10px;font-weight:950;color:var(--text)}.studio-col-head span:last-child{color:var(--muted);font-size:12px}.studio-track{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px;border-radius:16px;border:1px solid rgba(255,255,255,.075);background:rgba(0,0,0,.16);margin-bottom:8px;cursor:pointer}.studio-track:hover{background:rgba(255,255,255,.065);transform:translateY(-1px)}.studio-thumb{width:46px;height:46px;border-radius:12px;object-fit:cover;background:linear-gradient(135deg,rgba(255,189,101,.3),rgba(255,255,255,.04))}.studio-title{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.studio-sub{font-size:12px;color:var(--muted);margin-top:2px}.studio-actions{display:flex;gap:5px}.studio-actions button{border:0;border-radius:999px;background:rgba(255,255,255,.08);color:var(--text);cursor:pointer;padding:7px 9px;font-weight:900}.studio-empty{color:var(--muted);font-size:12px;padding:12px;text-align:center;border:1px dashed rgba(255,255,255,.12);border-radius:16px}.album-beat-listmode .quick-play-btn{position:absolute;right:46px;top:22px}.bottom-player{backdrop-filter:blur(22px)!important}.bottom-player .bp-cover{overflow:hidden}.bottom-player .bp-cover img{width:100%;height:100%;object-fit:cover;border-radius:inherit}.bp-open-current{display:none}.bottom-player.show .bp-open-current{display:inline-flex}
+.empty.upgraded-empty{padding:28px!important;border-radius:24px!important;text-align:center!important;background:linear-gradient(135deg,rgba(255,189,101,.10),rgba(255,255,255,.035))!important;border:1px dashed rgba(255,189,101,.28)!important}.empty.upgraded-empty strong{display:block;font-size:18px;color:var(--text);margin-bottom:6px}.empty.upgraded-empty span{color:var(--muted);font-size:13px}
+@media(max-width:900px){.studio-board{grid-template-columns:1fr 1fr}.album-beat-card.expanded .ab-top{grid-template-columns:1fr!important}.album-beat-card.expanded .ab-cover-wrap{min-height:220px!important}}@media(max-width:640px){.studio-board{grid-template-columns:1fr}.collection-tools{align-items:stretch}.collection-search{min-width:100%}.collection-filter,.collection-count{flex:1;text-align:center}.album-beat-listmode .quick-play-btn{position:static;margin-top:6px;width:max-content}.album-beat-card.expanded .ab-expand-right{flex-direction:column!important;align-items:stretch!important}}
+
+/* === marcus-song-page-redesign-css === */
+/* Main opened song card: less rounded, more header-like */
+.album-beat-card.expanded{
+  border-radius:14px!important;
+  border:1px solid rgba(245,154,42,.18)!important;
+  background:
+    radial-gradient(circle at 0% 0%,rgba(245,154,42,.10),transparent 34%),
+    linear-gradient(180deg,rgba(30,25,20,.82),rgba(12,10,8,.96))!important;
+  box-shadow:0 22px 70px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.045)!important;
+  overflow:hidden!important;
+}
+.album-beat-card.expanded .ab-top{
+  padding:18px 18px 16px!important;
+  border-bottom:1px solid rgba(255,255,255,.075)!important;
+  background:linear-gradient(90deg,rgba(255,255,255,.025),rgba(255,255,255,0))!important;
+}
+.album-beat-card.expanded .ab-cover-wrap{
+  border-radius:10px!important;
+  margin:0!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 18px 45px rgba(0,0,0,.34)!important;
+}
+.album-beat-card.expanded .ab-cover-wrap::after{
+  border-radius:999px!important;
+  right:10px!important;
+  bottom:10px!important;
+  padding:4px 9px!important;
+  font-size:10px!important;
+  letter-spacing:.08em!important;
+  background:rgba(10,8,6,.66)!important;
+  color:#e7d6bd!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+}
+.album-beat-card.expanded .ab-body{
+  padding:0 0 0 2px!important;
+  min-width:0!important;
+}
+.album-beat-card.expanded .ab-kicker,
+.album-beat-card.expanded .tag,
+.album-beat-card.expanded .pill{
+  border-radius:999px!important;
+  background:rgba(245,154,42,.08)!important;
+  border:1px solid rgba(245,154,42,.22)!important;
+  color:#d8bf98!important;
+}
+.album-beat-card.expanded .ab-title{
+  font-size:clamp(30px,4.1vw,48px)!important;
+  letter-spacing:-.075em!important;
+  line-height:.96!important;
+  max-width:780px!important;
+  color:#fff8ef!important;
+  text-shadow:0 14px 36px rgba(0,0,0,.44)!important;
+}
+.album-beat-card.expanded .stars,
+.album-beat-card.expanded .rating-stars{
+  color:#f5c05f!important;
+  letter-spacing:.06em!important;
+}
+
+/* Expanded content area: fewer nested bubbles */
+.album-beat-card.expanded .ab-expand{
+  padding:18px!important;
+  background:transparent!important;
+}
+.album-beat-card.expanded .ab-expand-left,
+.album-beat-card.expanded .ab-expand-right{
+  border-radius:12px!important;
+  background:rgba(255,255,255,.028)!important;
+  border:1px solid rgba(255,255,255,.075)!important;
+  box-shadow:none!important;
+}
+.album-beat-card.expanded .ab-expand-left{
+  padding:18px!important;
+}
+.album-beat-card.expanded .ab-expand-right{
+  padding:14px 16px!important;
+}
+
+/* Marker toolbar: flatter, less rounded */
+.album-beat-card.expanded .markerbar,
+.album-beat-card.expanded .marker-bar,
+.album-beat-card.expanded .highlight-toolbar,
+.album-beat-card.expanded [class*="marker"]:has(button),
+.album-beat-card.expanded [class*="Marker"]:has(button){
+  border-radius:10px!important;
+  background:rgba(255,255,255,.04)!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:none!important;
+}
+.album-beat-card.expanded .color-dot,
+.album-beat-card.expanded .marker-color,
+.album-beat-card.expanded button[style*="background"]{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 16px rgba(0,0,0,.20)!important;
+}
+
+/* Lyrics/editor field: rectangular studio console feel */
+.album-beat-card.expanded .rich-lyrics-editor,
+.album-beat-card.expanded .lyrics-editor,
+.album-beat-card.expanded textarea{
+  border-radius:10px!important;
+  border:1px solid rgba(255,255,255,.105)!important;
+  background:rgba(3,3,3,.28)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035)!important;
+  padding:20px!important;
+  line-height:1.85!important;
+}
+.album-beat-card.expanded .rich-lyrics-editor:focus,
+.album-beat-card.expanded .lyrics-editor:focus,
+.album-beat-card.expanded textarea:focus{
+  border-color:rgba(245,154,42,.44)!important;
+  box-shadow:0 0 0 3px rgba(245,154,42,.10), inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+
+/* Text-only buttons that become pills on hover */
+.album-beat-card.expanded button,
+.album-beat-card.expanded .primary-btn,
+.album-beat-card.expanded .ghost-btn,
+.album-beat-card.expanded .small-btn,
+.album-beat-card.expanded label.ghost-btn{
+  border-radius:999px!important;
+  border:1px solid transparent!important;
+  background:transparent!important;
+  color:#d9c8ae!important;
+  box-shadow:none!important;
+  padding:9px 13px!important;
+  min-height:0!important;
+  font-weight:900!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease!important;
+}
+.album-beat-card.expanded button:hover,
+.album-beat-card.expanded .primary-btn:hover,
+.album-beat-card.expanded .ghost-btn:hover,
+.album-beat-card.expanded .small-btn:hover,
+.album-beat-card.expanded label.ghost-btn:hover,
+.album-beat-card.expanded button:focus-visible,
+.album-beat-card.expanded .primary-btn:focus-visible,
+.album-beat-card.expanded .ghost-btn:focus-visible,
+.album-beat-card.expanded .small-btn:focus-visible,
+.album-beat-card.expanded label.ghost-btn:focus-visible{
+  background:rgba(245,154,42,.105)!important;
+  border-color:rgba(245,154,42,.24)!important;
+  color:#fff3df!important;
+  transform:translateY(-1px)!important;
+}
+
+/* Keep the main play action visible, but calmer than before */
+.album-beat-card.expanded .ab-expand .primary-btn:first-child,
+.album-beat-card.expanded button[onclick*="playSingleBeat"]{
+  background:rgba(245,154,42,.12)!important;
+  border-color:rgba(245,154,42,.30)!important;
+  color:#ffd89d!important;
+}
+.album-beat-card.expanded .ab-expand .primary-btn:first-child:hover,
+.album-beat-card.expanded button[onclick*="playSingleBeat"]:hover{
+  background:linear-gradient(180deg,rgba(255,190,103,.95),rgba(214,118,28,.92))!important;
+  border-color:rgba(255,214,156,.50)!important;
+  color:#1e1107!important;
+}
+
+/* Bottom actions: left aligned text actions with hover-pills */
+.album-beat-card.expanded .beat-expand-actions,
+.album-beat-card.expanded .ab-actions,
+.album-beat-card.expanded .actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  flex-wrap:wrap!important;
+  padding-top:14px!important;
+}
+
+/* Details below opened song: reduce roundness too */
+.album-beat-card.expanded ~ .content-card,
+.album-beat-card.expanded .content-card,
+.album-beat-card.expanded .section-card{
+  border-radius:12px!important;
+}
+
+@media(max-width:900px){
+  .album-beat-card.expanded .ab-top{padding:16px!important;}
+  .album-beat-card.expanded .ab-title{font-size:34px!important;}
+  .album-beat-card.expanded .ab-expand{padding:14px!important;}
+}
+/* merged from marcus-marker-color-visibility-patch-css */
+
+.album-beat-card.expanded .color-toolbar{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-height:52px!important;
+  padding:8px 10px!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.026))!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+.album-beat-card.expanded .color-toolbar span{
+  margin-right:6px!important;
+  color:rgba(255,238,211,.72)!important;
+  font-size:11px!important;
+  font-weight:950!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+.album-beat-card.expanded .color-toolbar .color-chip{
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  min-height:24px!important;
+  padding:0!important;
+  display:inline-block!important;
+  border-radius:50%!important;
+  background:var(--chip)!important;
+  border:1px solid rgba(255,255,255,.55)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.45),
+    0 0 0 2px rgba(0,0,0,.38),
+    0 8px 18px rgba(0,0,0,.34)!important;
+  opacity:1!important;
+  cursor:pointer!important;
+  transform:none!important;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease!important;
+}
+.album-beat-card.expanded .color-toolbar .color-chip:hover,
+.album-beat-card.expanded .color-toolbar .color-chip:focus-visible{
+  transform:translateY(-2px) scale(1.08)!important;
+  border-color:rgba(255,255,255,.90)!important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    0 0 0 3px rgba(245,154,42,.34),
+    0 12px 24px rgba(0,0,0,.42)!important;
+  outline:none!important;
+}
+.album-beat-card.expanded .color-toolbar .color-clear{
+  margin-left:8px!important;
+  height:32px!important;
+  padding:0 12px!important;
+  border-radius:8px!important;
+  border:1px solid transparent!important;
+  background:transparent!important;
+  color:rgba(255,238,211,.70)!important;
+  font-size:12px!important;
+  font-weight:850!important;
+  cursor:pointer!important;
+}
+.album-beat-card.expanded .color-toolbar .color-clear:hover,
+.album-beat-card.expanded .color-toolbar .color-clear:focus-visible{
+  border-radius:999px!important;
+  background:rgba(255,255,255,.075)!important;
+  border-color:rgba(255,255,255,.12)!important;
+  color:#fff3df!important;
+  outline:none!important;
+}
+/* merged from marcus-square-cover-patch-css */
+
+/* Compact list mode: real square cover tiles */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-top{
+  grid-template-columns:72px minmax(0,1fr)!important;
+  min-height:76px!important;
+  column-gap:14px!important;
+  padding:8px 10px!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap{
+  width:64px!important;
+  height:64px!important;
+  min-width:64px!important;
+  min-height:64px!important;
+  aspect-ratio:1/1!important;
+  align-self:center!important;
+  justify-self:start!important;
+  border-radius:8px!important;
+  overflow:hidden!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph{
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  display:block!important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body{
+  min-height:64px!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+}
+
+/* Opened / expanded beat card: keep art square like an album cover */
+.album-beat-card.expanded .ab-top{
+  grid-template-columns:minmax(220px,280px) minmax(0,1fr)!important;
+  align-items:start!important;
+}
+.album-beat-card.expanded .ab-cover-wrap{
+  width:min(280px,100%)!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:1/1!important;
+  align-self:start!important;
+  justify-self:start!important;
+  margin:16px!important;
+  border-radius:22px!important;
+  overflow:hidden!important;
+}
+.album-beat-card.expanded .ab-cover,
+.album-beat-card.expanded .ab-cover-ph{
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  aspect-ratio:1/1!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  display:block!important;
+}
+@media(max-width:900px){
+  .album-beat-card.expanded .ab-top{grid-template-columns:1fr!important;}
+  .album-beat-card.expanded .ab-cover-wrap{
+    width:min(320px,100%)!important;
+    margin:16px auto 0!important;
+  }
+}
+
+/* === marcus-rating-bottom-cleanup-css === */
+/* Rating stars must stay visually selected even after the text-button redesign. */
+.album-beat-card.expanded .ab-stars{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  flex-wrap:wrap!important;
+}
+.album-beat-card.expanded .ab-stars button{
+  appearance:none!important;
+  width:26px!important;
+  height:30px!important;
+  padding:0!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  color:rgba(226,211,188,.36)!important;
+  font-size:24px!important;
+  line-height:1!important;
+  text-align:center!important;
+  text-shadow:none!important;
+  box-shadow:none!important;
+  transform:none!important;
+  cursor:pointer!important;
+  transition:color .16s ease, text-shadow .16s ease, transform .16s ease, background .16s ease!important;
+}
+.album-beat-card.expanded .ab-stars button.on,
+.album-beat-card.expanded .ab-stars button.active,
+.album-beat-card.expanded .ab-stars button.selected,
+.album-beat-card.expanded .ab-stars button[aria-checked="true"],
+.album-beat-card.expanded .ab-stars button[aria-pressed="true"]{
+  color:#f4a437!important;
+  text-shadow:0 0 16px rgba(244,164,55,.38),0 5px 18px rgba(0,0,0,.25)!important;
+}
+.album-beat-card.expanded .ab-stars button:hover,
+.album-beat-card.expanded .ab-stars button:focus-visible{
+  color:#ffd08a!important;
+  background:rgba(245,154,42,.10)!important;
+  transform:translateY(-1px) scale(1.05)!important;
+  outline:none!important;
+}
+
+/* Clean up the bottom section under the lyric editor. */
+.album-beat-card.expanded .ab-expand-right{
+  display:grid!important;
+  grid-template-columns:minmax(220px,1fr) minmax(330px,1.35fr) auto!important;
+  align-items:end!important;
+  gap:22px!important;
+  padding:18px!important;
+  border-radius:10px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.032),rgba(255,255,255,.018))!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+}
+.album-beat-card.expanded .ab-expand-right > div{
+  min-width:0!important;
+}
+.album-beat-card.expanded .ab-expand-right label{
+  color:#c7b69d!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  letter-spacing:.02em!important;
+  margin-bottom:9px!important;
+}
+
+/* Make the native file input look less random/cluttered. */
+.album-beat-card.expanded .ab-expand-right input[type="file"]{
+  width:100%!important;
+  min-height:43px!important;
+  padding:9px 10px!important;
+  border-radius:8px!important;
+  border:1px solid rgba(255,255,255,.10)!important;
+  background:rgba(0,0,0,.20)!important;
+  color:#d9c8ae!important;
+  font:inherit!important;
+  font-size:12px!important;
+}
+.album-beat-card.expanded .ab-expand-right input[type="file"]::file-selector-button{
+  border:0!important;
+  border-radius:999px!important;
+  background:rgba(245,154,42,.13)!important;
+  color:#ffd89d!important;
+  font-weight:900!important;
+  padding:7px 11px!important;
+  margin-right:10px!important;
+  cursor:pointer!important;
+}
+.album-beat-card.expanded .ab-expand-right input[type="file"]::file-selector-button:hover{
+  background:rgba(245,154,42,.22)!important;
+}
+
+/* Danger/remove action: text-only until hover, aligned cleanly on the right. */
+.album-beat-card.expanded .ab-expand-right .ab-expand-actions{
+  margin:0!important;
+  padding:0!important;
+  justify-self:end!important;
+  align-self:end!important;
+}
+.album-beat-card.expanded .ab-expand-right .small-btn.danger{
+  color:#d8c0a2!important;
+  background:transparent!important;
+  border:1px solid transparent!important;
+  border-radius:999px!important;
+  padding:10px 13px!important;
+  white-space:nowrap!important;
+  box-shadow:none!important;
+}
+.album-beat-card.expanded .ab-expand-right .small-btn.danger:hover,
+.album-beat-card.expanded .ab-expand-right .small-btn.danger:focus-visible{
+  color:#ffc7b8!important;
+  background:rgba(255,107,89,.09)!important;
+  border-color:rgba(255,107,89,.22)!important;
+  transform:translateY(-1px)!important;
+}
+
+@media(max-width:980px){
+  .album-beat-card.expanded .ab-expand-right{
+    grid-template-columns:1fr!important;
+    align-items:stretch!important;
+    gap:16px!important;
+  }
+  .album-beat-card.expanded .ab-expand-right .ab-expand-actions{
+    justify-self:start!important;
+  }
+}
+/* merged from marcus-remove-bottom-rating-css */
+
+.album-beat-card.expanded .ab-expand-right{
+  grid-template-columns:minmax(260px,520px) auto!important;
+  align-items:end!important;
+}
+.album-beat-card.expanded .ab-expand-right > div:nth-child(2):has(.ab-stars[id^="abistars-"]){
+  display:none!important;
+}
+.album-beat-card.expanded .ab-expand-right .ab-expand-actions{
+  justify-self:end!important;
+}
+@media(max-width:980px){
+  .album-beat-card.expanded .ab-expand-right{
+    grid-template-columns:1fr!important;
+  }
+  .album-beat-card.expanded .ab-expand-right .ab-expand-actions{
+    justify-self:start!important;
+  }
+}
+/* Studio (kanban) view */
+.album-beat-studio {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+  gap: 12px !important;
+}
+.album-beat-studio .album-beat-card {
+  width: 100% !important;
+  min-height: 120px;
+}
+
+.album-beat-listmode .album-beat-card:not(.expanded) .star-btn {
+  display:block !important;
+  font-size:16px !important;
+  padding:2px !important;
+  background:none !important;
+  border:none !important;
+  cursor:pointer !important;
+  color:rgba(255,255,255,.25) !important;
+  flex-shrink:0 !important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .star-btn.active {
+  color:#f4a443 !important;
+}
+
+/* ================================================================
+   LISTMODE FINAL OVERRIDE — legges sist for å vinne alle konflikter
+   Kun nummer + tittel + play + star. Absolutt ingenting annet.
+================================================================ */
+.album-beat-listmode .album-beat-card:not(.expanded) {
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded):hover {
+  background: rgba(255,255,255,.04) !important;
+}
+
+/* ab-top: horisontal rad */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  height: 64px !important;
+  padding: 0 12px 0 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Bilde: kvadratisk, fyller rammen */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  max-width: 64px !important;
+  max-height: 64px !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  aspect-ratio: 1/1 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 14px 0 0 !important;
+  position: relative !important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  border-radius: 0 !important;
+  aspect-ratio: 1/1 !important;
+}
+
+/* ab-body: flex row med tittel til venstre, actions til høyre */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Tittel: synlig, trunkert */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-title {
+  flex: 1 !important;
+  min-width: 0 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: var(--text, #f4ede4) !important;
+}
+
+/* Skjul ALT annet i listmodus — ingen chips, ingen hints, ingen stjerner i body */
+.album-beat-listmode .album-beat-card:not(.expanded) .beat-chip-row,
+.album-beat-listmode .album-beat-card:not(.expanded) .hint,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-stars,
+.album-beat-listmode .album-beat-card:not(.expanded) .progress-wrap,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-beatname,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body > div:not(:first-child):not(.track-card-actions) {
+  display: none !important;
+}
+
+/* Ikke vis ::before pseudo-element fra ab-body (TAKE/DEMO) */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-body::before,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap::before,
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* track-card-actions: play + star på høyre side */
+.album-beat-listmode .album-beat-card:not(.expanded) .track-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+.album-beat-listmode .album-beat-card:not(.expanded) .track-card-actions .quick-play-btn,
+.album-beat-listmode .album-beat-card:not(.expanded) .track-card-actions .star-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* Status dot: vis men kompakt */
+.album-beat-listmode .album-beat-card:not(.expanded) .ab-status-dot {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  margin: 0 4px !important;
+}
+
+/* ================================================================
+   ABI-LIST-ROW — ny, ren listevisning (bygget fra bunnen av)
+   Ingen konflikter med eksisterende CSS — helt nye klasser
+================================================================ */
+.abi-list-row {
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  background: transparent;
+  transition: background .12s;
+}
+.abi-list-row:hover > .abi-row-inner { background: rgba(255,255,255,.04); }
+.abi-list-row.expanded > .abi-row-inner { background: rgba(255,255,255,.06); }
+
+.abi-row-inner {
+  display: flex;
+  align-items: center;
+  height: 66px;
+  padding: 0 12px 0 0;
+  gap: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bilde — kvadratisk, fyller rammen */
+.abi-row-cover {
+  width: 66px;
+  height: 66px;
+  flex-shrink: 0;
+  overflow: hidden;
+  margin-right: 14px;
+  background: rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.abi-row-cover img,
+.abi-row-cover .ab-cover {
+  width: 66px !important;
+  height: 66px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+}
+.abi-row-cover .ab-cover-ph {
+  width: 66px !important;
+  height: 66px !important;
+  background: linear-gradient(135deg, rgba(244,164,67,.18), rgba(124,58,237,.12));
+  display: block !important;
+}
+
+/* Nummer */
+.abi-row-num {
+  font-size: 12px;
+  color: rgba(255,255,255,.25);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-family: system-ui;
+  flex-shrink: 0;
+  width: 28px;
+  margin-right: 12px;
+  text-align: right;
+}
+
+/* Info: tittel + uploader */
+.abi-row-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+.abi-row-title {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text, #f4ede4);
+  letter-spacing: -.01em;
+}
+.abi-row-by {
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  font-family: system-ui;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Varighet */
+.abi-row-dur {
+  font-size: 12px;
+  color: rgba(255,255,255,.3);
+  font-family: system-ui;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  margin: 0 12px 0 8px;
+}
+
+/* Status-dot */
+.abi-row-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+/* Spilleknapp */
+.abi-row-play {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,.1);
+  color: #f4ede4;
+  font-size: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.abi-row-play:hover,
+.abi-row-play:active { background: rgba(244,164,67,.3); color: #f4a443; }
+
+/* Favorittknapp */
+.abi-row-fav {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: none;
+  color: rgba(255,255,255,.25);
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  transition: color .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.abi-row-fav.active { color: #f4a443; }
+.abi-row-fav:hover { color: #f4a443; }
+
+/* Expand-panel */
+.abi-list-row .ab-expand { display: none; }
+.abi-list-row.expanded .ab-expand { display: block; }
+
+/* ── Forhindre at expanded-regler ødelegger abi-list-row ───── */
+.abi-list-row.expanded .abi-row-inner {
+  display: flex !important;
+  height: 66px !important;
+  background: rgba(255,255,255,.06) !important;
+}
+.abi-list-row.expanded .abi-row-cover,
+.abi-list-row.expanded .abi-row-cover img,
+.abi-list-row.expanded .abi-row-cover .ab-cover,
+.abi-list-row.expanded .abi-row-cover .ab-cover-ph {
+  width: 66px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  max-height: 66px !important;
+  object-fit: cover !important;
+}
+.abi-list-row.expanded .ab-top { display: none !important; }
+.abi-list-row .ab-expand { display: none !important; }
+.abi-list-row.expanded .ab-expand {
+  display: block !important;
+  border-top: 1px solid rgba(255,255,255,.07) !important;
+}
+
+/* ── Fix: cover-bilde alltid kvadratisk i listevisning ─────── */
+.abi-row-inner {
+  align-items: stretch !important;
+}
+.abi-row-cover {
+  display: flex !important;
+  align-items: center !important;
+  width: 66px !important;
+  min-width: 66px !important;
+  max-width: 66px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  max-height: 66px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+.abi-row-cover img,
+.abi-row-cover .ab-cover {
+  width: 66px !important;
+  height: 66px !important;
+  min-width: 66px !important;
+  min-height: 66px !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+}
+.abi-row-cover .ab-cover-ph {
+  width: 66px !important;
+  height: 66px !important;
+  min-height: 66px !important;
+  display: block !important;
+}
+/* Midtstill innhold (num, info, knapper) vertikalt */
+.abi-row-num,
+.abi-row-info,
+.abi-row-dur,
+.abi-row-dot,
+.abi-row-play,
+.abi-row-fav {
+  align-self: center !important;
+}
+/* ── Row action buttons ── */
+.album-beat-card:hover .ab-rename-btn,
+.album-beat-card:hover .ab-remove-btn { opacity: 1 !important; }
+.ab-rename-btn:hover { background: rgba(255,255,255,.09) !important; }
+.ab-remove-btn:hover { background: rgba(251,113,133,.12) !important; color: #fb7185 !important; }
+/* Album header actions */
+.album-hd-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:14px; }
