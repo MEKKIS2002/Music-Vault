@@ -1,0 +1,23 @@
+# OS-filer
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logger og midlertidige filer
+*.log
+*.tmp
+tmp/
+
+# Miljøvariabler / hemmeligheter (legg ALDRI nøkler i git)
+.env
+.env.*
+*.local
+
+# Avhengigheter (om du senere legger til et byggesteg)
+node_modules/

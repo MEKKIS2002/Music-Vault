@@ -2,7 +2,7 @@
 
 Personlig hiphop-studioapp for én artist. Samler beats, tekster, innspillinger og prosjektflyt på én skjerm — kjører direkte i nettleseren uten server eller installasjon.
 
-**Live:** [mekkis2002.github.io/musikk-test-vault](https://mekkis2002.github.io/musikk-test-vault/)
+**Live:** [mekkis2002.github.io/Music-Vault](https://mekkis2002.github.io/Music-Vault/)
 
 ---
 
