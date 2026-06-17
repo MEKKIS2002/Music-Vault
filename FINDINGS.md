@@ -37,6 +37,11 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   `index.html`** or the deployed change won't load for users (GitHub Pages + browser cache).
   Use the date + a counter, e.g. `?v=202606170004`.
 - **No inline CSS/JS in `index.html`.** Markup only. Styles go in `css/`, logic in `js/`.
+- **Never remove the viewport/charset meta tags** (`index.html` head). Without
+  `<meta name="viewport" ...>` the whole mobile layout breaks (phone renders the
+  zoomed-out desktop and no `@media` rules fire). `viewport-fit=cover` enables safe-area insets.
+- **`css/mobile.css` must stay the LAST stylesheet** linked in `index.html` so it overrides
+  desktop rules. See §11.
 - **Validate JS after edits:** `node --check js/<file>.js` (pre-approved for admin-panel.js
   and lyriclab.js). Do this before considering a JS change done.
 - **localStorage is the source of truth client-side.** Key: `musicVault.v4` (also
@@ -150,8 +155,37 @@ npx serve .      # or: python3 -m http.server 8080
 ```
 Web Audio API requires HTTP, not `file://`. Deploy = push to `main` (GitHub Pages auto).
 
-## 11. Work log (newest first)
+## 11. Mobile / phone layout (rebuilt juni 2026)
 
+The mobile view **reuses desktop tab content** — it does NOT re-render screens. How it works:
+- A fixed bottom **footer nav** (`#mvMobileNav` in `index.html`) with buttons Hjem, Beats,
+  Mixtapes, Albumer, Lab, and "Mer". Each button calls `mvMobileTab('<tab>')` (inline script
+  in `index.html`), which just `.click()`s the matching desktop `.tab-btn[data-tab=...]`.
+  The "Mer" button opens a bottom sheet with the remaining tabs (Pipeline, Arkivert, Label,
+  Admin, Integrasjoner).
+- All phone styling lives in **`css/mobile.css`** (single source of truth, loaded last,
+  one breakpoint `@media (max-width: 768px)`). It hides the desktop `.mv-tabs` row, shows the
+  footer/sheet/FAB, reflows grids to 1–2 columns, stacks toolbars, sizes touch targets ≥44px,
+  forces inputs to 16px (avoids iOS zoom), and repositions the bottom player above the footer.
+  Tunable constants are CSS vars at the top (`--mv-footer-h`, `--mv-mini-player-h`, etc.).
+
+**To add a tab to mobile:** add one `<button class="mv-mob-btn" data-mob-tab="X"
+onclick="mvMobileTab('X')">` to the footer (or a `.mv-mob-sheet-btn` to the "Mer" sheet)
+pointing at an existing `data-tab`. No new render code needed.
+
+Notes / gotchas:
+- `beats-tab.js` injects its OWN mobile grid rules at `@768`; `lyriclab.css` self-collapses at
+  760/1200px. `mobile.css` complements these, doesn't duplicate the beats grid.
+- The old broken approach (`js/mobile.js` + `#mvMobileApp` full-screen overlay) was **deleted** —
+  it referenced undefined functions (`buildOverlay`, `showScreen`) and was never loaded.
+
+## 12. Work log (newest first)
+
+- **2026-06-17** — Rebuilt mobile/phone view from scratch (see §11). Added missing
+  `charset`/`viewport` meta tags (the root cause: no media queries fired on phones); authored
+  fresh `css/mobile.css` as the single mobile source of truth; removed the old scattered mobile
+  block from `ui.css` (was lines ~2145–2431); kept the proxy footer-nav architecture; deleted
+  broken/unused `js/mobile.js`. Bumped `ui.css` + linked `mobile.css` last in `index.html`.
 - **2026-06-17** — Slimmed `README.md` down to a user-facing description + how-to-use;
   moved all technical/dev detail (data model, Worker API, Lyric Lab internals, stack,
   conventions) into this file.
@@ -161,6 +195,7 @@ Web Audio API requires HTTP, not `file://`. Deploy = push to `main` (GitHub Page
 ---
 
 ### How to update this file
-When you finish a task, add a dated bullet to **§11 Work log**, and revise any section whose
-facts changed (versions in §5, new gotchas in §4, new conventions in §3, data model in §6).
+When you finish a task, add a dated bullet to **§12 Work log**, and revise any section whose
+facts changed (versions in §5, new gotchas in §4, new conventions in §3, data model in §6,
+mobile in §11).
 Bump the "_Last updated_" date at the top.
