@@ -158,11 +158,14 @@ Web Audio API requires HTTP, not `file://`. Deploy = push to `main` (GitHub Page
 ## 11. Mobile / phone layout (rebuilt juni 2026)
 
 The mobile view **reuses desktop tab content** — it does NOT re-render screens. How it works:
-- A fixed bottom **footer nav** (`#mvMobileNav` in `index.html`) with buttons Hjem, Beats,
+- A fixed bottom **footer nav** (`#mvMobileNav` in `index.html`) with buttons Beats,
   Mixtapes, Albumer, Lab, and "Mer". Each button calls `mvMobileTab('<tab>')` (inline script
   in `index.html`), which just `.click()`s the matching desktop `.tab-btn[data-tab=...]`.
-  The "Mer" button opens a bottom sheet with the remaining tabs (Pipeline, Arkivert, Label,
-  Admin, Integrasjoner).
+  The "Mer" button opens a bottom sheet with the remaining tabs (Hjem, Pipeline, Arkivert,
+  Label, Admin, Integrasjoner).
+- **Hjem is not in the footer** (dropped on purpose). On phones (`innerWidth <= 768`) the app
+  auto-lands on **Beats** instead of the Hjem dashboard (see the `load` handler in the inline
+  mobile script); Hjem stays reachable via the "Mer" sheet.
 - All phone styling lives in **`css/mobile.css`** (single source of truth, loaded last,
   one breakpoint `@media (max-width: 768px)`). It hides the desktop `.mv-tabs` row, shows the
   footer/sheet/FAB, reflows grids to 1–2 columns, stacks toolbars, sizes touch targets ≥44px,
@@ -181,6 +184,8 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-17** — Mobile footer: dropped Hjem, leaving the four tabs (Beats, Mixtapes,
+  Albumer, Lab) + "Mer". Moved Hjem into the "Mer" sheet; phones now auto-land on Beats.
 - **2026-06-17** — Rebuilt mobile/phone view from scratch (see §11). Added missing
   `charset`/`viewport` meta tags (the root cause: no media queries fired on phones); authored
   fresh `css/mobile.css` as the single mobile source of truth; removed the old scattered mobile

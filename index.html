@@ -488,11 +488,7 @@ AKTIVE BRUKERE:
 
 <!-- ── Mobile bottom navigation ─────────────────────────────────────── -->
 <nav class="mv-mobile-nav" id="mvMobileNav" aria-label="Mobilnavigasjon">
-  <button class="mv-mob-btn active" data-mob-tab="hjem" onclick="mvMobileTab('hjem')">
-    <span class="mv-mob-icon">🏠</span>
-    <span class="mv-mob-lbl">Hjem</span>
-  </button>
-  <button class="mv-mob-btn" data-mob-tab="beats" onclick="mvMobileTab('beats')">
+  <button class="mv-mob-btn active" data-mob-tab="beats" onclick="mvMobileTab('beats')">
     <span class="mv-mob-icon">🎵</span>
     <span class="mv-mob-lbl">Beats</span>
   </button>
@@ -519,6 +515,9 @@ AKTIVE BRUKERE:
 <div class="mv-mob-sheet" id="mvMobSheet" style="display:none">
   <div class="mv-mob-sheet-handle"></div>
   <div class="mv-mob-sheet-grid">
+    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('hjem');mvMobileMoreClose()">
+      <span>🏠</span><span>Hjem</span>
+    </button>
     <button class="mv-mob-sheet-btn" onclick="mvMobileTab('pipeline');mvMobileMoreClose()">
       <span>📊</span><span>Pipeline</span>
     </button>
@@ -566,6 +565,10 @@ document.addEventListener('click', e => {
   const t = btn.dataset.tab;
   document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.mobTab === t));
+});
+// On phones Hjem is not in the footer, so land on Beats instead of the dashboard.
+window.addEventListener('load', () => {
+  if (window.innerWidth <= 768) setTimeout(() => window.mvMobileTab('beats'), 0);
 });
 </script>
 
