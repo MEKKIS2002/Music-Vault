@@ -246,17 +246,18 @@ async function loginWithUsername(){
       try {
         const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+        // Sikker oppslag via RPC (anon kan ikke lenger dumpe alle eposter)
         const res = await fetch(
-          `${SB_URL}/rest/v1/profiles?username=eq.${encodeURIComponent(username)}&select=email`,
-          {headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}
+          `${SB_URL}/rest/v1/rpc/lookup_login_email`,
+          {method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_username:username})}
         );
-        const profiles = await res.json();
-        if(!profiles.length || !profiles[0].email){
+        const foundEmail = res.ok ? await res.json() : null;
+        if(!foundEmail){
           if(errEl){errEl.textContent='Ukjent brukernavn.';errEl.style.display='block';}
           if(btn){btn.disabled=false;btn.textContent='Logg inn';}
           return;
         }
-        loginEmail = profiles[0].email;
+        loginEmail = foundEmail;
       } catch(e) {
         if(errEl){errEl.textContent='Kunne ikke koble til. Prøv igjen.';errEl.style.display='block';}
         if(btn){btn.disabled=false;btn.textContent='Logg inn';}

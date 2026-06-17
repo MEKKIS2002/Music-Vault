@@ -1111,10 +1111,10 @@ window.openShareModal = async function(contentType, contentId, contentName){
   // Hent brukernavn for eksisterende tilganger
   let granteeNames = {};
   if(existing.length){
-    const ids = existing.map(r=>r.grantee_id).join(',');
+    const ids = existing.map(r=>r.grantee_id).filter(Boolean);
     const pr = await fetch(
-      `${SB_URL}/rest/v1/profiles?id=in.(${ids})&select=id,username`,
-      {headers: sbHeaders(token)}
+      `${SB_URL}/rest/v1/rpc/get_usernames`,
+      {method:'POST', headers: sbHeaders(token), body: JSON.stringify({p_ids: ids})}
     );
     if(pr.ok){const profiles = await pr.json(); profiles.forEach(p=>granteeNames[p.id]=p.username||p.id);}
   }
@@ -1180,8 +1180,8 @@ window.doShare = async function(contentType, contentId, contentName){
   const token = session?.access_token;
   const uid = window._mvCurrentUserId;
 
-  // Finn grantee via username
-  const pr = await fetch(`${SB_URL}/rest/v1/profiles?username=eq.${encodeURIComponent(username)}&select=id`, {headers:sbHeaders(token)});
+  // Finn grantee via username (sikker RPC)
+  const pr = await fetch(`${SB_URL}/rest/v1/rpc/get_user_id_by_username`, {method:'POST', headers:sbHeaders(token), body: JSON.stringify({p_username: username})});
   const profiles = pr.ok ? await pr.json() : [];
   if(!profiles.length){ if(status) status.textContent=`Finner ingen bruker med brukernavn "${username}"`; return; }
   const granteeId = profiles[0].id;

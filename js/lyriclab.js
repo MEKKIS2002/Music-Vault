@@ -145,6 +145,14 @@
     const have = new Set((getSections(beat)||[]).filter(s=>s.done || s.text.trim()).map(s=>s.type));
     return ['hook','verse','bridge'].filter(t=>!have.has(t));
   }
+  // Writing progress 0–100: done sections count full, sections with text count partial.
+  function writingProgress(beat) {
+    const secs = (getSections(beat)||[]).filter(s => ['hook','verse','bridge','outro'].includes(s.type) || s.text.trim());
+    if (!secs.length) return 0;
+    let score = 0;
+    secs.forEach(s => { score += s.done ? 1 : (s.text.trim() ? 0.55 : 0); });
+    return Math.min(100, Math.round((score / secs.length) * 100));
+  }
 
   // ── Status bar ────────────────────────────────────────────────────────────
   function updateStatusBar() {
@@ -224,6 +232,7 @@
     const lines    = countLines(txt);
     const repeated = repeatedWords(txt);
     const missing  = missingSections(beat);
+    const prog     = writingProgress(beat);
     const status   = beat.lyricLabStatus || 'utkast';
     const dur      = fmtDur(beat.duration);
     const coverEl  = beat.cover
@@ -232,75 +241,89 @@
 
     container.innerHTML = `
 <div class="ll-wrap">
-<div class="ll-header">\n  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>\n  <span class="ll-header-sep">|</span>\n  <span class="ll-header-beat">✍️ Lyric Lab · ${esc(beat.name)}</span>\n  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>\n</div>
+<div class="ll-header">\n  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>\n  <span class="ll-header-title">✍️ Lyric Lab</span>\n  <span class="ll-header-beat-name">${esc(beat.name)}</span>\n  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>\n  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>\n</div>
 <div class="ll-layout">
 
-  <!-- LEFT: Beat info -->
+  <!-- LEFT: Beat -->
   <div class="ll-left">
-    <div class="ll-cover-wrap">
-      ${coverEl}
-      <div class="ll-play-overlay" onclick="llPlayBeat()">
-        <button class="ll-play-overlay-btn" id="llPlayBtn">▶</button>
-      </div>
-    </div>
-
-    <div class="ll-card ll-info-card">
-      <div class="ll-beat-title">${esc(beat.name)}</div>
-      ${beat.source ? `<div class="ll-beat-source">prod. ${esc(beat.source)}</div>` : ''}
-
-      <div style="background:rgba(0,0,0,.3);border-radius:12px;border:1px solid rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px">
-        <div id="llWaveSurfer" style="width:100%;height:64px;cursor:crosshair;display:block"></div>
-        <div style="display:flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.06)">
-          <button id="llWavePlayBtn" onclick="llWavePlay()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:11px;font-weight:800;font-family:inherit;padding:5px 10px;cursor:pointer;white-space:nowrap">▶</button>
-          <button id="llWaveLoopBtn" onclick="llToggleLoop()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:11px;font-weight:800;font-family:inherit;padding:5px 10px;cursor:pointer;white-space:nowrap">↺ Loop</button>
-          <button onclick="llClearLoop()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#fff;font-size:11px;font-weight:800;font-family:inherit;padding:5px 10px;cursor:pointer;white-space:nowrap">✕ Fjern</button>
+    <div class="ll-beat-card">
+      <div class="ll-beat-head">
+        <div class="ll-cover-wrap">
+          ${coverEl}
+          <div class="ll-play-overlay" onclick="llWavePlay()">
+            <button class="ll-play-overlay-btn" id="llPlayBtn">▶</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px 8px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.04)">
-          <span style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;white-space:nowrap;flex-shrink:0">🔍 Zoom</span>
-          <input type="range" id="llWaveZoom" min="1" max="20" value="1"
-            style="flex:1;accent-color:#f4a443;cursor:pointer"
-            oninput="llZoomWave(this.value)">
-          <span id="llWaveZoomVal" style="font-size:11px;color:rgba(255,255,255,.4);min-width:28px;text-align:right;font-weight:700;flex-shrink:0">1×</span>
+        <div class="ll-beat-head-info">
+          <div class="ll-beat-title">${esc(beat.name)}</div>
+          ${beat.source ? `<div class="ll-beat-source">prod. ${esc(beat.source)}</div>` : ''}
+          <div class="ll-chip-row">
+            <span class="ll-chip"><span class="ll-chip-k">BPM</span><span class="ll-chip-v">${beat.bpm?esc(String(beat.bpm)):'–'}</span></span>
+            <span class="ll-chip"><span class="ll-chip-k">Key</span><span class="ll-chip-v">${beat.key?esc(beat.key):'–'}</span></span>
+            <span class="ll-chip"><span class="ll-chip-k">Tid</span><span class="ll-chip-v">${dur}</span></span>
+            ${beat.mood?`<span class="ll-chip"><span class="ll-chip-k">Mood</span><span class="ll-chip-v">${esc(beat.mood)}</span></span>`:''}
+          </div>
         </div>
-        <div style="font-size:10px;color:rgba(255,255,255,.2);text-align:center;padding:4px 0 6px;background:rgba(0,0,0,.2)">Klikk og dra for å markere loopområde</div>
       </div>
 
-      <div class="ll-meta-row"><span class="ll-meta-key">Varighet</span><span class="ll-meta-val">${dur}</span></div>
-      ${beat.bpm ? `<div class="ll-meta-row"><span class="ll-meta-key">BPM</span><span class="ll-meta-val">${esc(String(beat.bpm))}</span></div>` : ''}
-      ${beat.key  ? `<div class="ll-meta-row"><span class="ll-meta-key">Toneart</span><span class="ll-meta-val">${esc(beat.key)}</span></div>` : ''}
-      ${beat.mood ? `<div class="ll-meta-row"><span class="ll-meta-key">Mood</span><span class="ll-meta-val">${esc(beat.mood)}</span></div>` : ''}
+      <div class="ll-player">
+        <div id="llWaveSurfer" class="ll-wave"></div>
+        <div class="ll-player-row">
+          <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()">▶</button>
+          <span class="ll-time"><span id="llWaveCur">0:00</span><span class="ll-time-sep">/</span><span id="llWaveTot">${dur}</span></span>
+          <span class="ll-player-spacer"></span>
+          <button class="ll-icon-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på">↺</button>
+        </div>
+        <div class="ll-zoom-row">
+          <span class="ll-zoom-ico">🔍</span>
+          <input type="range" id="llWaveZoom" class="ll-zoom-slider" min="0" max="100" value="0" oninput="llZoomWave(this.value)">
+          <span class="ll-zoom-val" id="llWaveZoomVal">1×</span>
+        </div>
+        <div class="ll-loop-bar" id="llLoopBar" style="display:none">
+          <span class="ll-loop-tag">LOOP</span>
+          <span class="ll-loop-times"><b id="llLoopStart">0:00</b><span class="ll-loop-arrow">→</span><b id="llLoopEnd">0:00</b></span>
+          <span class="ll-loop-dur" id="llLoopDur">0s</span>
+          <button class="ll-loop-clear" onclick="llClearLoop()" title="Fjern loop">✕</button>
+        </div>
+        <div class="ll-player-hint" id="llPlayerHint">Dra over bølgeformen for å markere et loopområde</div>
+      </div>
 
-      <div>
-        <div class="ll-meta-key" style="margin-bottom:4px">Status</div>
+      <div class="ll-status-block">
+        <label class="ll-mini-label">Status</label>
         <select class="ll-status-select" onchange="llSetStatus(this.value)">
           ${STATUS_OPTIONS.map(s=>`<option value="${s}"${s===status?' selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
         </select>
       </div>
     </div>
 
-    <div class="ll-action-btns">
-      <button class="ll-btn primary" onclick="llPlayBeat()">▶ Spill beat</button>
-      <button class="ll-btn" id="llTakeBtn" onclick="llRecordTake()" style="background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.3);color:#fb7185">🎙️ Spill inn over beat</button>
-      <button class="ll-btn muted" id="llMemoBtn" onclick="llRecordMemo()">⬤ Hurtigmemo</button>
-    </div>
-    <div style="margin-top:8px;display:flex;flex-direction:column;gap:5px">
-      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase">Takes</div>
-      <div id="llTakeList"></div>
-    </div>
-    <div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.06);padding-top:8px;display:flex;flex-direction:column;gap:5px">
-      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase">Memoer</div>
-      <div id="llMemoList"></div>
+    <div class="ll-rec-card">
+      <div class="ll-rec-btns">
+        <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten">🎙️ Take</button>
+        <button class="ll-rec-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo">⬤ Memo</button>
+      </div>
+      <details class="ll-rec-details">
+        <summary>Takes <span class="ll-count-badge" id="llTakeCount"></span></summary>
+        <div id="llTakeList"></div>
+      </details>
+      <details class="ll-rec-details">
+        <summary>Memoer <span class="ll-count-badge" id="llMemoCount"></span></summary>
+        <div id="llMemoList"></div>
+      </details>
     </div>
   </div>
 
   <!-- CENTER: Editor -->
   <div class="ll-center">
     <div class="ll-editor-header">
-      <div class="ll-editor-title">✍️ ${esc(beat.name)}</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <button class="ll-add-section-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">💡 Inspirer</button>
-        <button class="ll-add-section-btn" onclick="llShare()" title="Generer delbar demo-side">🔗 Del</button>
-        <button class="ll-add-section-btn" onclick="llAddSection()">+ Seksjon</button>
+      <div class="ll-editor-progress">
+        <div class="ll-progbar"><div class="ll-progbar-fill" id="llProgFill" style="width:${prog}%"></div></div>
+        <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
+      </div>
+      <div class="ll-editor-actions">
+        <button class="ll-tool-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">🌊 Flow</button>
+        <button class="ll-tool-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">💡 Inspirer</button>
+        <button class="ll-tool-btn" onclick="llShare()" title="Generer delbar demo-side">🔗 Del</button>
+        <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
       </div>
     </div>
     <div id="llInspirasjonBox" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;margin-bottom:8px"></div>
@@ -322,27 +345,42 @@
 
   <!-- RIGHT: Analysis -->
   <div class="ll-right">
-    <div class="ll-card ll-stat-card">
-      <div class="ll-stat-title">Statistikk</div>
-      <div class="ll-stats-grid">
-        <div class="ll-stat-item"><span class="ll-stat-num" id="llRightWords">${words}</span><span class="ll-stat-lbl">Ord</span></div>
-        <div class="ll-stat-item"><span class="ll-stat-num" id="llRightLines">${lines}</span><span class="ll-stat-lbl">Linjer</span></div>
-        <div class="ll-stat-item"><span class="ll-stat-num">${sections.filter(s=>s.text.trim()).length}</span><span class="ll-stat-lbl">Seksjoner</span></div>
-        <div class="ll-stat-item"><span class="ll-stat-num" id="llRightDur">${estimateDuration(words)}</span><span class="ll-stat-lbl">Est. tid</span></div>
+    <div class="ll-card ll-progress-card">
+      <div class="ll-ring-wrap">
+        <div class="ll-ring" id="llRing" style="--pct:${prog}"></div>
+        <span class="ll-ring-val" id="llRingVal">${prog}%</span>
+      </div>
+      <div class="ll-progress-meta">
+        <div class="ll-pm-row"><span>Ord</span><b id="llRightWords">${words}</b></div>
+        <div class="ll-pm-row"><span>Linjer</span><b id="llRightLines">${lines}</b></div>
+        <div class="ll-pm-row"><span>Seksjoner</span><b id="llRightSecs">${sections.filter(s=>s.text.trim()).length}</b></div>
+        <div class="ll-pm-row"><span>Est. tid</span><b id="llRightDur">${estimateDuration(words)}</b></div>
       </div>
     </div>
 
-    ${missing.length ? `
-    <div class="ll-card ll-stat-card">
-      <div class="ll-stat-title">Mangler</div>
-      <div class="ll-missing-list">
-        ${missing.map(t=>`<div class="ll-missing-item">${TYPE_LABELS[t]||t}</div>`).join('')}
+    <div class="ll-card ll-stat-card" id="llMissingCard">${missingCardHTML(beat)}</div>
+
+    <div class="ll-card ll-stat-card" id="llRhymeCard">
+      <div class="ll-stat-title">Rimbank</div>
+      <div class="ll-rhyme-search">
+        <input id="llRhymeInput" type="text" placeholder="Skriv et ord..." onkeydown="if(event.key==='Enter')llFindRhymes()">
+        <button onclick="llFindRhymes()">Finn</button>
       </div>
-    </div>` : `
+      <div id="llRhymeResults" class="ll-rhyme-results">
+        <p class="ll-muted-hint">Skriv et ord, eller høyreklikk et ord i teksten</p>
+      </div>
+    </div>
+
     <div class="ll-card ll-stat-card">
-      <div class="ll-stat-title">Seksjoner</div>
-      <div style="font-size:12px;color:#34d399;font-weight:800">✓ Alle hoveddeler er med</div>
-    </div>`}
+      <div class="ll-stat-title">Notater</div>
+      <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva sangen handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
+    </div>
+
+    <div class="ll-card ll-stat-card">
+      <div class="ll-stat-title">Tags</div>
+      <div class="ll-tags" id="llTagList"></div>
+      <input id="llTagInput" class="ll-tag-input" placeholder="+ legg til tag (Enter)" onkeydown="if(event.key==='Enter'){llAddTag(this.value);this.value='';}">
+    </div>
 
     ${repeated.length ? `
     <div class="ll-card ll-stat-card">
@@ -354,8 +392,7 @@
 
     <div class="ll-card ll-stat-card">
       <div class="ll-stat-title">Fargemark</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.3);margin-bottom:8px">Marker tekst i en seksjon, velg farge</div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="ll-color-row">
         <button class="ll-color-dot" style="background:#f59e0b" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f59e0b')" title="Gul"></button>
         <button class="ll-color-dot" style="background:#10b981" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#10b981')" title="Grønn"></button>
         <button class="ll-color-dot" style="background:#3b82f6" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#3b82f6')" title="Blå"></button>
@@ -364,21 +401,7 @@
         <button class="ll-color-dot" style="background:#a855f7" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a855f7')" title="Lilla"></button>
         <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge">✕</button>
       </div>
-      <div id="llColorHint" style="font-size:10px;color:rgba(255,255,255,.2);margin-top:6px">Marker tekst i editoren, klikk så farge</div>
-    </div>
-
-    <div class="ll-card ll-stat-card" id="llRhymeCard">
-      <div class="ll-stat-title">Rimbank</div>
-      <div style="display:flex;gap:6px;margin-bottom:10px">
-        <input id="llRhymeInput" type="text" placeholder="Skriv et ord..."
-          style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;color:var(--text);font-family:inherit;font-size:12px;outline:none"
-          onkeydown="if(event.key==='Enter')llFindRhymes()"
-          >
-        <button onclick="llFindRhymes()" style="background:rgba(244,164,67,.15);border:1px solid rgba(244,164,67,.3);border-radius:8px;padding:6px 10px;color:#f4a443;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap">Finn rim</button>
-      </div>
-      <div id="llRhymeResults" style="min-height:40px">
-        <p style="font-size:11px;color:rgba(255,255,255,.25);margin:0">Skriv et ord, eller høyreklikk et ord i teksten</p>
-      </div>
+      <div id="llColorHint" class="ll-color-hint">Marker tekst i editoren, klikk så farge</div>
     </div>
   </div>
 
@@ -386,10 +409,9 @@
 </div><!-- /.ll-wrap -->
 `;
     _lastSaved = null;
-    setTimeout(()=>{ renderMemoList(); renderTakeList(); initWaveSurfer(beat); }, 100);
+    setTimeout(()=>{ renderMemoList(); renderTakeList(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
-      const first = container.querySelector('.ll-textarea:not([data-has-content])');
       const emptyTa = Array.from(container.querySelectorAll('.ll-textarea')).find(el=>!(el.value||el.textContent||'').trim());
       if (emptyTa) emptyTa.focus();
     }, 100);
@@ -722,6 +744,8 @@
     const el   = document.getElementById('llMemoList');
     if(!el || !beat) return;
     const memos = beat.memos || [];
+    const badge = document.getElementById('llMemoCount');
+    if (badge) badge.textContent = memos.length || '';
     el.innerHTML = memos.length
       ? memos.map((m,i) => `
           <div class="ll-memo-row">
@@ -743,7 +767,60 @@
     const beat = getBeat(window.currentLyricLabBeatId);
     if (!beat) return;
     beat.lyricLabStatus = val;
+    const pill = document.querySelector('.ll-status-pill');
+    if (pill) { pill.className = 'll-status-pill ll-status-' + val; pill.textContent = val; }
     if (typeof saveState === 'function') saveState();
+  };
+
+  // ── Notater (debounced autosave) ──────────────────────────────────────────
+  let _notesTimer = null;
+  window.llSaveNotes = function(val) {
+    const beat = getBeat(window.currentLyricLabBeatId);
+    if (!beat) return;
+    beat.lyricNotes = val;
+    clearTimeout(_notesTimer);
+    _notesTimer = setTimeout(() => { if (typeof saveState === 'function') saveState(); }, 700);
+  };
+
+  // ── Tags ──────────────────────────────────────────────────────────────────
+  window.llAddTag = function(val) {
+    const beat = getBeat(window.currentLyricLabBeatId);
+    if (!beat) return;
+    const tag = (val||'').trim().replace(/^#/,'');
+    if (!tag) return;
+    if (!Array.isArray(beat.lyricTags)) beat.lyricTags = [];
+    if (beat.lyricTags.some(t => t.toLowerCase() === tag.toLowerCase())) return;
+    beat.lyricTags.push(tag);
+    renderTags(beat);
+    if (typeof saveState === 'function') saveState();
+  };
+  window.llRemoveTag = function(i) {
+    const beat = getBeat(window.currentLyricLabBeatId);
+    if (!beat || !Array.isArray(beat.lyricTags)) return;
+    beat.lyricTags.splice(i, 1);
+    renderTags(beat);
+    if (typeof saveState === 'function') saveState();
+  };
+
+  // ── Smart "Mangler" → add/jump to that section ────────────────────────────
+  window.llAddMissing = function(type) {
+    const beat = getBeat(window.currentLyricLabBeatId);
+    if (!beat) return;
+    const secs = getSections(beat);
+    let target = secs.find(s => s.type === type && !s.text.trim());
+    let created = false;
+    if (!target) {
+      target = { id: uid(), type, title: TYPE_LABELS[type]||type, text: '', collapsed: false, order: secs.length };
+      secs.push(target);
+      saveSections(beat);
+      renderLyricLab();
+      created = true;
+    }
+    setTimeout(() => {
+      const ta = document.getElementById(`lltxt-${target.id}`);
+      if (ta) { ta.scrollIntoView({ behavior:'smooth', block:'center' }); ta.focus(); }
+      refreshMissing(beat);
+    }, created ? 160 : 60);
   };
 
   // ── Empty state actions ────────────────────────────────────────────────────
@@ -863,18 +940,58 @@
     if (typeof showToast === 'function') showToast('Opprett en sang i Mixtapes eller Albumer først');
   };
 
+  // ── Smart "Mangler"-panel ─────────────────────────────────────────────────
+  function missingCardHTML(beat) {
+    const missing = missingSections(beat);
+    if (!missing.length) {
+      return `<div class="ll-stat-title">Struktur</div>
+        <div class="ll-struct-ok">✓ Alle hoveddeler er med</div>`;
+    }
+    return `<div class="ll-stat-title">Mangler</div>
+      <div class="ll-missing-list">
+        ${missing.map(t=>`<button class="ll-missing-item" onclick="llAddMissing('${t}')">
+          <span class="ll-missing-dot ll-type-${t}"></span>
+          <span class="ll-missing-name">${esc(TYPE_LABELS[t]||t)}</span>
+          <span class="ll-missing-add">+ legg til</span>
+        </button>`).join('')}
+      </div>`;
+  }
+  function refreshMissing(beat) {
+    const card = document.getElementById('llMissingCard');
+    if (card) card.innerHTML = missingCardHTML(beat);
+  }
+
+  // ── Tags ──────────────────────────────────────────────────────────────────
+  function renderTags(beat) {
+    const wrap = document.getElementById('llTagList');
+    if (!wrap) return;
+    const tags = beat.lyricTags || [];
+    wrap.innerHTML = tags.length
+      ? tags.map((t,i)=>`<span class="ll-tag">${esc(t)}<button class="ll-tag-x" onclick="llRemoveTag(${i})" title="Fjern">✕</button></span>`).join('')
+      : `<span class="ll-muted-hint">Ingen tags ennå</span>`;
+  }
+
   // ── Update right panel without full re-render ─────────────────────────────
   function updateRightPanel(beat) {
     const txt      = allText(beat);
     const w        = countWords(txt);
     const l        = countLines(txt);
+    const secs     = (getSections(beat)||[]).filter(s=>s.text.trim()).length;
+    const prog     = writingProgress(beat);
     const setTxt   = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
     setTxt('llRightWords', w);
     setTxt('llRightLines', l);
+    setTxt('llRightSecs',  secs);
     setTxt('llRightDur',   estimateDuration(w));
     setTxt('llStatWords',  w);
     setTxt('llStatLines',  l);
     setTxt('llStatDur',    estimateDuration(w));
+    // progress ring + center bar
+    const ring = document.getElementById('llRing'); if (ring) ring.style.setProperty('--pct', prog);
+    setTxt('llRingVal', prog + '%');
+    setTxt('llProgPct', prog + '%');
+    const fill = document.getElementById('llProgFill'); if (fill) fill.style.width = prog + '%';
+    refreshMissing(beat);
   }
 
 
@@ -1094,6 +1211,8 @@
     const el   = document.getElementById('llTakeList');
     if(!el || !beat) return;
     const takes = beat.takes || [];
+    const badge = document.getElementById('llTakeCount');
+    if (badge) badge.textContent = takes.length || '';
     el.innerHTML = takes.length
       ? takes.map((t,i) => {
           const m = Math.floor((t.dur||0)/60), s = String((t.dur||0)%60).padStart(2,'0');
@@ -1188,16 +1307,38 @@
 
   // ── WaveSurfer waveform + Regions plugin for loop ───────────────────────────
   let _ws       = null;
-  let _wsRegion = null;   // WaveSurfer Region object
+  let _wsRegion = null;   // active WaveSurfer Region object (or {start,end} fallback)
+  let _wsRegions = null;  // Regions plugin instance
   let _wsLooping = false;
 
   const WS_URL      = 'https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js';
   const REGIONS_URL = 'https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js';
 
+  function fmtT(sec) {
+    sec = Math.max(0, Number(sec) || 0);
+    return Math.floor(sec/60) + ':' + String(Math.floor(sec%60)).padStart(2,'0');
+  }
+  function _setPlayIcon(playing) {
+    const b = document.getElementById('llWavePlayBtn'); if (b) b.textContent = playing ? '⏸' : '▶';
+    const o = document.getElementById('llPlayBtn');     if (o) o.textContent = playing ? '⏸' : '▶';
+  }
+  function _setLoopBtn(on) {
+    const b = document.getElementById('llWaveLoopBtn');
+    if (b) { b.classList.toggle('active', !!on); b.title = on ? 'Loop på' : 'Loop av'; }
+  }
+  function _showLoopBar(start, end) {
+    const bar = document.getElementById('llLoopBar'); if (!bar) return;
+    bar.style.display = 'flex';
+    const s = document.getElementById('llLoopStart'); if (s) s.textContent = fmtT(start);
+    const e = document.getElementById('llLoopEnd');   if (e) e.textContent = fmtT(end);
+    const d = document.getElementById('llLoopDur');   if (d) d.textContent = Math.round(end-start) + 's';
+    const hint = document.getElementById('llPlayerHint'); if (hint) hint.style.display = 'none';
+  }
+
   function initWaveSurfer(beat) {
     const container = document.getElementById('llWaveSurfer');
     if (!container) return;
-    if (_ws) { try { _ws.destroy(); } catch(e) {} _ws = null; _wsRegion = null; }
+    if (_ws) { try { _ws.destroy(); } catch(e) {} _ws = null; _wsRegion = null; _wsRegions = null; _wsLooping = false; }
 
     const audioUrl = beat.audio_url || beat.url || null;
     if (!audioUrl) {
@@ -1229,58 +1370,55 @@
     const RegionsCtor = window.WaveSurfer?.Regions;
     let regions = null;
     try { regions = RegionsCtor ? RegionsCtor.create() : null; } catch(e) {}
+    _wsRegions = regions;
     const plugins = regions ? [regions] : [];
 
     try {
       _ws = WaveSurfer.create({
         container,
-        waveColor:      'rgba(244,164,67,.45)',
-        progressColor:  'rgba(244,164,67,.9)',
-        cursorColor:    '#f4a443',
-        height: 64, barWidth: 2, barGap: 1, barRadius: 2,
+        waveColor:      'rgba(244,164,67,.4)',
+        progressColor:  'rgba(244,164,67,.95)',
+        cursorColor:    '#fff',
+        cursorWidth:    2,
+        height: 72, barWidth: 2, barGap: 1, barRadius: 3,
         normalize: true, url: audioUrl,
         plugins,
       });
 
-      _ws.on('play',   () => { const b=document.getElementById('llWavePlayBtn'); if(b) b.textContent='⏸'; });
-      _ws.on('pause',  () => { const b=document.getElementById('llWavePlayBtn'); if(b) b.textContent='▶'; });
+      _ws.on('play',  () => _setPlayIcon(true));
+      _ws.on('pause', () => _setPlayIcon(false));
       _ws.on('finish', () => {
-        const b=document.getElementById('llWavePlayBtn'); if(b) b.textContent='▶';
-        if (_wsLooping && _wsRegion) {
-          setTimeout(() => { _ws.setTime(_wsRegion.start); _ws.play(); }, 30);
-        }
+        _setPlayIcon(false);
+        if (_wsLooping && _wsRegion) setTimeout(() => { _ws.setTime(_wsRegion.start); _ws.play(); }, 20);
       });
 
-      // Loop timeupdate — check every frame
+      const setTot = () => { const t=document.getElementById('llWaveTot'); if(t) t.textContent = fmtT(_ws.getDuration()); };
+      _ws.on('decode', setTot);
+      _ws.on('ready',  setTot);
+
       _ws.on('timeupdate', t => {
-        if (_wsLooping && _wsRegion && t >= _wsRegion.end - 0.05) {
+        const cur = document.getElementById('llWaveCur'); if (cur) cur.textContent = fmtT(t);
+        if (_wsLooping && _wsRegion && t >= _wsRegion.end - 0.03) {
           _ws.setTime(_wsRegion.start);
           if (!_ws.isPlaying()) _ws.play();
         }
       });
 
-      // Use RegionsPlugin for visual region if available
       if (regions) {
-        let dragging = false, dragT0 = null;
-
-        // On ready: enable drag-to-create
         _ws.on('ready', () => {
-          if (regions.enableDragSelection) {
-            regions.enableDragSelection({ color: 'rgba(244,164,67,.18)' });
-          }
-          regions.on('region-created', reg => {
-            // Clear old regions
-            try { regions.getRegions().forEach(r => { if(r !== reg) r.remove(); }); } catch(e) {}
-            try { reg.setOptions({ color: 'rgba(244,164,67,.18)' }); } catch(e) {}
-            _wsRegion  = reg;
-            _wsLooping = true;
-            const lb = document.getElementById('llWaveLoopBtn');
-            if (lb) { lb.classList.add('active'); lb.textContent = '↺ Looper'; }
-          });
-          regions.on('region-updated', reg => { _wsRegion = reg; });
+          if (regions.enableDragSelection) regions.enableDragSelection({ color: 'rgba(244,164,67,.18)' });
         });
+        regions.on('region-created', reg => {
+          try { regions.getRegions().forEach(r => { if (r !== reg) r.remove(); }); } catch(e) {}
+          try { reg.setOptions({ color: 'rgba(244,164,67,.18)', resize: true, drag: true }); } catch(e) {}
+          _wsRegion  = reg;
+          _wsLooping = true;
+          _setLoopBtn(true);
+          _showLoopBar(reg.start, reg.end);
+        });
+        regions.on('region-updated', reg => { _wsRegion = reg; _showLoopBar(reg.start, reg.end); });
+        regions.on('region-clicked', (reg, e) => { e.stopPropagation(); _ws.setTime(reg.start); _ws.play(); });
       } else {
-        // Fallback: manual drag overlay
         _buildManualDrag(container);
       }
 
@@ -1310,8 +1448,8 @@
       _wsRegion={start:s,end:en};
       _wsLooping=true;
       _drawFallbackRegion(s,en);
-      const lb=document.getElementById('llWaveLoopBtn');
-      if(lb){lb.classList.add('active');lb.textContent='↺ Looper';}
+      _setLoopBtn(true);
+      _showLoopBar(s,en);
     });
   }
   function _tFromEvent(e) {
@@ -1331,29 +1469,35 @@
   window.llWavePlay = function() {
     if (!_ws) return;
     if (_ws.isPlaying()) { _ws.pause(); return; }
-    if (_wsLooping && _wsRegion) _ws.setTime(_wsRegion.start || _wsRegion.start);
+    if (_wsLooping && _wsRegion && (_ws.getCurrentTime() < _wsRegion.start || _ws.getCurrentTime() >= _wsRegion.end - 0.02)) {
+      _ws.setTime(_wsRegion.start);
+    }
     _ws.play();
   };
   window.llToggleLoop = function() {
+    if (!_wsRegion) {
+      if (typeof showToast === 'function') showToast('Dra over bølgeformen for å lage et loopområde først');
+      return;
+    }
     _wsLooping = !_wsLooping;
-    const btn = document.getElementById('llWaveLoopBtn');
-    if (btn) { btn.classList.toggle('active', _wsLooping); btn.textContent = _wsLooping ? '↺ Looper' : '↺ Loop'; }
+    _setLoopBtn(_wsLooping);
   };
   window.llClearLoop = function() {
     _wsLooping = false;
+    try { _wsRegions?.getRegions().forEach(r => r.remove()); } catch(e){}
     if (_wsRegion?.remove) { try { _wsRegion.remove(); } catch(e){} }
     _wsRegion = null;
     document.getElementById('llWaveRegion')?.remove();
-    const btn = document.getElementById('llWaveLoopBtn');
-    if (btn) { btn.classList.remove('active'); btn.textContent = '↺ Loop'; }
+    const bar = document.getElementById('llLoopBar'); if (bar) bar.style.display = 'none';
+    const hint = document.getElementById('llPlayerHint'); if (hint) hint.style.display = '';
+    _setLoopBtn(false);
   };
   window.llZoomWave = function(val) {
     if (!_ws) return;
-    const n = Number(val);
-    // val=1 → fully zoomed out (auto-fit), val>1 → zoom in
-    _ws.zoom(n <= 1 ? 0 : n * 12);
+    const n = Number(val);                       // 0–100 slider
+    try { _ws.zoom(n <= 0 ? 0 : Math.round((n/100) * 260)); } catch(e) {}
     const lbl = document.getElementById('llWaveZoomVal');
-    if (lbl) lbl.textContent = n <= 1 ? '1×' : n + '×';
+    if (lbl) lbl.textContent = (1 + (n/100) * 15).toFixed(1).replace(/\.0$/,'') + '×';
   };
 
 

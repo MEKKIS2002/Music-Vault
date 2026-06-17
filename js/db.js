@@ -835,8 +835,8 @@ window.mvShare = async function(btn) {
     const r=await fetch(`${SBU}/rest/v1/content_access?content_type=eq.${contentType}&content_id=eq.${contentId}&select=*`,{headers:hdrs});
     if(r.ok) existing=await r.json();
     if(existing.length){
-      const ids=existing.map(x=>x.grantee_id).filter(Boolean).join(',');
-      if(ids){const pr=await fetch(`${SBU}/rest/v1/profiles?id=in.(${ids})&select=id,username`,{headers:hdrs});if(pr.ok)(await pr.json()).forEach(p=>names[p.id]=p.username||p.id);}
+      const ids=existing.map(x=>x.grantee_id).filter(Boolean);
+      if(ids.length){const pr=await fetch(`${SBU}/rest/v1/rpc/get_usernames`,{method:'POST',headers:hdrs,body:JSON.stringify({p_ids:ids})});if(pr.ok)(await pr.json()).forEach(p=>names[p.id]=p.username||p.id);}
     }
   }catch(e){}
   const typeLabel={beat:'Beat',album:'Album',mixtape:'Mixtape'}[contentType]||contentType;
@@ -875,7 +875,7 @@ window.mvShare = async function(btn) {
     if(!username){if(statusEl)statusEl.textContent='Skriv inn brukernavn';return;}
     if(statusEl){statusEl.style.color='rgba(255,255,255,.4)';statusEl.textContent='S\u00f8ker...';}
     try{
-      const pr=await fetch(`${SBU}/rest/v1/profiles?username=eq.${encodeURIComponent(username)}&select=id`,{headers:hdrs});
+      const pr=await fetch(`${SBU}/rest/v1/rpc/get_user_id_by_username`,{method:'POST',headers:hdrs,body:JSON.stringify({p_username:username})});
       const profiles=pr.ok?await pr.json():[];
       if(!profiles.length){if(statusEl){statusEl.style.color='#fb7185';statusEl.textContent='Finner ikke bruker: '+username;}return;}
       const granteeId=profiles[0].id;

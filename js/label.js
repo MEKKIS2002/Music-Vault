@@ -877,10 +877,10 @@
     const token = await getToken();
     const uid   = await getUid();
 
-    // Finn artist via brukernavn
+    // Finn artist via brukernavn (sikker RPC)
     const pr = await fetch(
-      `${SB_URL}/rest/v1/profiles?username=eq.${encodeURIComponent(username)}&select=id,username`,
-      {headers: sbH(token)}
+      `${SB_URL}/rest/v1/rpc/get_user_id_by_username`,
+      {method:'POST', headers: sbH(token), body: JSON.stringify({p_username: username})}
     );
     const profiles = pr.ok ? await pr.json() : [];
     if(!profiles.length){ if(status){ status.style.color='#fb7185'; status.textContent=`Finner ingen bruker med brukernavn "${username}".`; } return; }
@@ -1075,7 +1075,7 @@
     const senderIds = [...new Set(notifs.map(n=>n.sender_id).filter(Boolean))];
     let senderNames = {};
     if(senderIds.length){
-      const pr = await fetch(`${SB_URL}/rest/v1/profiles?id=in.(${senderIds.join(',')})&select=id,username`, {headers:sbH(token)});
+      const pr = await fetch(`${SB_URL}/rest/v1/rpc/get_usernames`, {method:'POST', headers:sbH(token), body: JSON.stringify({p_ids: senderIds})});
       if(pr.ok){ const pd = await pr.json(); pd.forEach(p=>senderNames[p.id]=p.username||p.id); }
     }
 

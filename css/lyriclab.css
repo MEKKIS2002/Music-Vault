@@ -1,4 +1,4 @@
-/* v=202605159999 */
+/* v=202606170003 */
 /* ═══════════════════════════════════════════════════════
    lyriclab.css — Lyric Lab page styles
    ═══════════════════════════════════════════════════════ */
@@ -40,15 +40,15 @@
 
 .ll-layout {
   display: grid;
-  grid-template-columns: 220px 1fr 240px;
-  gap: 12px;
+  grid-template-columns: 248px 1fr 268px;
+  gap: 14px;
   align-items: start;
 }
-@media (max-width: 1100px) {
-  .ll-layout { grid-template-columns: 200px 1fr; }
+@media (max-width: 1200px) {
+  .ll-layout { grid-template-columns: 232px 1fr; }
   .ll-right   { display: none; }
 }
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .ll-layout  { grid-template-columns: 1fr; }
   .ll-left    { display: none; }
 }
@@ -589,3 +589,278 @@ audio::-webkit-media-controls-panel { background: rgba(255,255,255,.08); }
   color: #000;
   font-weight: 600;
 }
+
+/* ═══════════════════════════════════════════════════════
+   LYRIC LAB v2 — professional, compact creative tool
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Header ──────────────────────────────────────────── */
+.ll-header-title {
+  font-size: 16px; font-weight: 900; letter-spacing: -.03em;
+  white-space: nowrap;
+}
+.ll-header-beat-name {
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px;
+}
+.ll-change-beat-btn {
+  margin-left: auto;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text); border-radius: 9px; padding: 7px 13px;
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: background .15s, border-color .15s; white-space: nowrap;
+}
+.ll-change-beat-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); }
+
+/* status pill */
+.ll-status-pill {
+  font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px; border: 1px solid transparent; white-space: nowrap;
+}
+.ll-status-utkast   { background: rgba(148,163,184,.16); color: #cbd5e1; border-color: rgba(148,163,184,.3); }
+.ll-status-skriver  { background: rgba(244,164,67,.16);  color: #f4a443; border-color: rgba(244,164,67,.34); }
+.ll-status-demo     { background: rgba(96,165,250,.16);  color: #60a5fa; border-color: rgba(96,165,250,.34); }
+.ll-status-revisjon { background: rgba(192,132,252,.16); color: #c084fc; border-color: rgba(192,132,252,.34); }
+.ll-status-ferdig   { background: rgba(52,211,153,.16);  color: #34d399; border-color: rgba(52,211,153,.34); }
+
+/* ── Left: beat card ─────────────────────────────────── */
+.ll-beat-card {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 12px;
+}
+.ll-beat-head { display: flex; gap: 11px; align-items: flex-start; }
+.ll-cover-wrap {
+  position: relative; width: 72px; height: 72px; flex-shrink: 0;
+  border-radius: 11px; overflow: hidden; background: rgba(255,255,255,.06);
+}
+.ll-cover-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ll-cover-ph { display: flex; align-items: center; justify-content: center; height: 100%; font-size: 26px; opacity: .5; }
+.ll-play-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.35); opacity: 0; transition: opacity .15s; cursor: pointer;
+}
+.ll-cover-wrap:hover .ll-play-overlay { opacity: 1; }
+.ll-play-overlay-btn {
+  background: rgba(244,164,67,.95); border: none; color: #1a1208;
+  width: 32px; height: 32px; border-radius: 50%; font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ll-beat-head-info { min-width: 0; flex: 1; }
+.ll-beat-title { font-size: 14px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+.ll-beat-source { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.ll-chip-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.ll-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 7px; padding: 3px 7px;
+}
+.ll-chip-k { font-size: 9px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+.ll-chip-v { font-size: 11px; font-weight: 800; color: var(--text); }
+
+/* ── Player + waveform ───────────────────────────────── */
+.ll-player { display: flex; flex-direction: column; gap: 8px; }
+.ll-wave {
+  width: 100%; min-height: 72px; border-radius: 10px;
+  background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,.06);
+  cursor: crosshair; overflow: hidden;
+}
+.ll-player-row { display: flex; align-items: center; gap: 9px; }
+.ll-play-main {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: #f4a443; border: none; color: #1a1208; font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: transform .1s;
+}
+.ll-play-main:hover { transform: scale(1.06); }
+.ll-time { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+.ll-time-sep { color: rgba(255,255,255,.3); margin: 0 3px; }
+.ll-player-spacer { flex: 1; }
+.ll-icon-btn {
+  width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text); font-size: 15px; cursor: pointer; transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.ll-icon-btn:hover { background: rgba(255,255,255,.12); }
+.ll-icon-btn.active {
+  background: rgba(244,164,67,.2); border-color: rgba(244,164,67,.5); color: #f4a443;
+}
+.ll-zoom-row { display: flex; align-items: center; gap: 8px; }
+.ll-zoom-ico { font-size: 12px; opacity: .5; }
+.ll-zoom-slider {
+  flex: 1; height: 4px; -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,.12); border-radius: 999px; outline: none; cursor: pointer;
+}
+.ll-zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 13px; height: 13px;
+  border-radius: 50%; background: #f4a443; cursor: pointer; border: 2px solid #1a1208;
+}
+.ll-zoom-slider::-moz-range-thumb {
+  width: 13px; height: 13px; border-radius: 50%; background: #f4a443; cursor: pointer; border: 2px solid #1a1208;
+}
+.ll-zoom-val { font-size: 11px; font-weight: 700; color: var(--muted); min-width: 30px; text-align: right; font-variant-numeric: tabular-nums; }
+.ll-loop-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(244,164,67,.1); border: 1px solid rgba(244,164,67,.3);
+  border-radius: 9px; padding: 6px 9px;
+}
+.ll-loop-tag { font-size: 9px; font-weight: 900; letter-spacing: .08em; color: #f4a443; }
+.ll-loop-times { font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); display: flex; align-items: center; gap: 5px; }
+.ll-loop-arrow { color: rgba(244,164,67,.7); }
+.ll-loop-dur { font-size: 11px; font-weight: 700; color: var(--muted); margin-left: auto; }
+.ll-loop-clear {
+  background: none; border: none; color: rgba(255,255,255,.5); cursor: pointer;
+  font-size: 12px; padding: 2px 4px; border-radius: 5px;
+}
+.ll-loop-clear:hover { color: #fb7185; background: rgba(251,113,133,.12); }
+.ll-player-hint { font-size: 10px; color: rgba(255,255,255,.3); text-align: center; line-height: 1.4; }
+
+/* WaveSurfer region handles (best-effort) */
+:host .wavesurfer-region, .ll-wave ::part(region) { background: rgba(244,164,67,.18) !important; }
+.ll-wave ::part(region-handle) { background: #f4a443 !important; width: 3px !important; }
+
+/* ── Status block ────────────────────────────────────── */
+.ll-status-block { display: flex; flex-direction: column; gap: 5px; }
+.ll-mini-label { font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.4); }
+.ll-status-select {
+  width: 100%; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 9px; padding: 8px 10px; color: var(--text); font-family: inherit;
+  font-size: 12px; font-weight: 700; cursor: pointer; outline: none;
+}
+
+/* ── Recording card ──────────────────────────────────── */
+.ll-rec-card {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 10px;
+}
+.ll-rec-btns { display: flex; gap: 8px; }
+.ll-rec-btns button {
+  flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text); border-radius: 10px; padding: 9px 8px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.ll-rec-btns button:hover { background: rgba(244,164,67,.14); border-color: rgba(244,164,67,.4); }
+.ll-rec-details { border-top: 1px solid rgba(255,255,255,.07); padding-top: 8px; }
+.ll-rec-details summary {
+  cursor: pointer; font-size: 12px; font-weight: 700; color: var(--text);
+  list-style: none; display: flex; align-items: center; gap: 6px;
+}
+.ll-rec-details summary::-webkit-details-marker { display: none; }
+.ll-rec-details summary::before { content: '▸'; font-size: 9px; color: var(--muted); transition: transform .15s; }
+.ll-rec-details[open] summary::before { transform: rotate(90deg); }
+.ll-count-badge {
+  font-size: 10px; font-weight: 800; background: rgba(244,164,67,.2); color: #f4a443;
+  border-radius: 999px; padding: 1px 7px; min-width: 16px; text-align: center;
+}
+.ll-count-badge:empty { display: none; }
+.ll-rec-details > div { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ── Center: editor header ───────────────────────────── */
+.ll-editor-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 6px;
+}
+.ll-editor-progress { display: flex; align-items: center; gap: 9px; flex: 1; min-width: 0; }
+.ll-progbar { flex: 1; height: 7px; background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden; }
+.ll-progbar-fill {
+  height: 100%; background: linear-gradient(90deg, #f4a443, #fbbf24);
+  border-radius: 999px; transition: width .35s ease;
+}
+.ll-prog-pct { font-size: 12px; font-weight: 800; color: #f4a443; font-variant-numeric: tabular-nums; min-width: 36px; text-align: right; }
+.ll-editor-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.ll-tool-btn {
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text); border-radius: 9px; padding: 7px 11px; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap;
+}
+.ll-tool-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); }
+.ll-tool-btn.primary { background: rgba(244,164,67,.16); border-color: rgba(244,164,67,.36); color: #f4a443; }
+.ll-tool-btn.primary:hover { background: rgba(244,164,67,.26); }
+
+/* compact section headers + roomier editors */
+.ll-section-header { padding: 8px 12px !important; }
+.ll-textarea[contenteditable] { min-height: 92px !important; }
+
+/* ── Right: progress ring card ───────────────────────── */
+.ll-progress-card {
+  display: flex; align-items: center; gap: 14px; padding: 14px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+}
+.ll-ring-wrap { position: relative; width: 74px; height: 74px; flex-shrink: 0; }
+.ll-ring {
+  width: 74px; height: 74px; border-radius: 50%;
+  background:
+    radial-gradient(closest-side, #15151b calc(100% - 9px), transparent calc(100% - 8px) 100%),
+    conic-gradient(#f4a443 calc(var(--pct) * 1%), rgba(255,255,255,.1) 0);
+}
+.ll-ring-val {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; letter-spacing: -.03em; color: #f4a443; font-variant-numeric: tabular-nums;
+}
+.ll-progress-meta { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.ll-pm-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.ll-pm-row span { color: var(--muted); }
+.ll-pm-row b { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+/* ── Smart "Mangler" ─────────────────────────────────── */
+.ll-struct-ok { font-size: 12px; font-weight: 800; color: #34d399; }
+.ll-missing-list { display: flex; flex-direction: column; gap: 6px; }
+.ll-missing-item {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 9px; padding: 7px 10px; cursor: pointer; font-family: inherit;
+  color: var(--text); transition: all .15s; text-align: left;
+}
+.ll-missing-item:hover { background: rgba(244,164,67,.1); border-color: rgba(244,164,67,.34); }
+.ll-missing-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ll-missing-dot.ll-type-hook   { background: #f4a443; }
+.ll-missing-dot.ll-type-verse  { background: #c084fc; }
+.ll-missing-dot.ll-type-bridge { background: #34d399; }
+.ll-missing-dot.ll-type-outro  { background: #60a5fa; }
+.ll-missing-name { font-size: 12px; font-weight: 700; flex: 1; }
+.ll-missing-add { font-size: 10px; font-weight: 700; color: var(--muted); }
+.ll-missing-item:hover .ll-missing-add { color: #f4a443; }
+
+/* ── Rimbank ─────────────────────────────────────────── */
+.ll-rhyme-search { display: flex; gap: 6px; margin-bottom: 10px; }
+.ll-rhyme-search input {
+  flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px; padding: 7px 10px; color: var(--text); font-family: inherit; font-size: 12px; outline: none;
+}
+.ll-rhyme-search input:focus { border-color: rgba(244,164,67,.4); }
+.ll-rhyme-search button {
+  background: rgba(244,164,67,.16); border: 1px solid rgba(244,164,67,.34); border-radius: 8px;
+  padding: 7px 12px; color: #f4a443; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit;
+}
+.ll-rhyme-results { min-height: 36px; }
+.ll-muted-hint { font-size: 11px; color: rgba(255,255,255,.28); margin: 0; }
+
+/* ── Notater ─────────────────────────────────────────── */
+.ll-notes {
+  width: 100%; min-height: 80px; resize: vertical;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 9px; padding: 9px 11px; color: var(--text); font-family: inherit;
+  font-size: 12px; line-height: 1.5; outline: none;
+}
+.ll-notes:focus { border-color: rgba(244,164,67,.4); }
+
+/* ── Tags ────────────────────────────────────────────── */
+.ll-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.ll-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(244,164,67,.12); border: 1px solid rgba(244,164,67,.3);
+  color: #f4a443; border-radius: 999px; padding: 3px 5px 3px 10px; font-size: 11px; font-weight: 700;
+}
+.ll-tag-x {
+  background: none; border: none; color: rgba(244,164,67,.7); cursor: pointer;
+  font-size: 10px; padding: 0 2px; line-height: 1;
+}
+.ll-tag-x:hover { color: #fb7185; }
+.ll-tag-input {
+  width: 100%; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 8px; padding: 7px 10px; color: var(--text); font-family: inherit; font-size: 12px; outline: none;
+}
+.ll-tag-input:focus { border-color: rgba(244,164,67,.4); }
+
+/* ── Fargemark ───────────────────────────────────────── */
+.ll-color-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ll-color-hint { font-size: 10px; color: rgba(255,255,255,.25); margin-top: 8px; }
