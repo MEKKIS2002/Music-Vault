@@ -117,6 +117,15 @@
           <div id="adminCodeList" class="adm-list"></div>
         </div>
       </div>
+
+      <!-- Offentlige delingslenker (én sang/beat) -->
+      <div class="adm-share-wrap">
+        <div class="adm-section-hd">
+          Offentlige delingslenker
+          <button class="adm-mini-btn" onclick="window.renderAdminShareLinks()">↻ Oppdater</button>
+        </div>
+        <div id="adminShareList" class="adm-list"></div>
+      </div>
     </div></div>`;
   }
 
@@ -518,6 +527,49 @@
     renderUsers((val||'').toLowerCase());
   };
 
+  // ── Offentlige delingslenker (song_shares) ───────────────────────────────
+  window.renderAdminShareLinks = async function(){
+    const list = document.getElementById('adminShareList');
+    if(!list) return;
+    if(typeof window.listSongShares !== 'function'){ list.innerHTML = '<div class="adm-loading">Delingsmodul ikke lastet</div>'; return; }
+    list.innerHTML = '<div class="adm-loading">Laster…</div>';
+    let rows = [];
+    try{ rows = await window.listSongShares(); }catch(e){}
+    if(!rows.length){ list.innerHTML = '<div class="adm-loading">Ingen delingslenker laget ennå.</div>'; return; }
+    list.innerHTML = rows.map(r=>{
+      const d = r.data || {};
+      const url = (typeof window.songShareUrl==='function') ? window.songShareUrl(r.id) : '';
+      const kind = (r.kind||d.kind)==='beat' ? 'Beat' : 'Sang';
+      const on = !!r.enabled;
+      const cover = d.cover
+        ? `<img src="${esc(d.cover)}" alt="" style="width:38px;height:38px;border-radius:7px;object-fit:cover;flex-shrink:0">`
+        : `<div style="width:38px;height:38px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎵</div>`;
+      return `<div class="adm-share-row" style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.06)">
+        ${cover}
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:800;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(d.title||'Uten tittel')}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.4)">${kind}${d.artist?` · ${esc(d.artist)}`:''} · ${on?'<span style="color:#34d399">Aktiv</span>':'<span style="color:#fb7185">Deaktivert</span>'}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="adm-mini-btn" title="Åpne" onclick="window.open('${esc(url)}','_blank')">↗</button>
+          <button class="adm-mini-btn" title="Kopier lenke" onclick="navigator.clipboard.writeText('${esc(url)}').then(()=>window.showToast&&window.showToast('✓ Lenke kopiert'))">⧉</button>
+          <button class="adm-mini-btn" title="${on?'Deaktiver':'Aktiver'}" onclick="window.adminToggleShare('${esc(r.id)}',${on?'false':'true'})">${on?'⏸':'▶'}</button>
+          <button class="adm-mini-btn" title="Slett" style="color:#fb7185" onclick="window.adminDeleteShare('${esc(r.id)}')">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  };
+  window.adminToggleShare = async function(token, enable){
+    const ok = await window.setSongShareEnabled(token, enable);
+    if(ok && typeof window.showToast==='function') window.showToast(enable?'✓ Lenke aktivert':'✓ Lenke deaktivert');
+    window.renderAdminShareLinks();
+  };
+  window.adminDeleteShare = async function(token){
+    const ok = await window.deleteSongShare(token);
+    if(ok && typeof window.showToast==='function') window.showToast('🗑 Delingslenke slettet');
+    window.renderAdminShareLinks();
+  };
+
   // ── Oppdater alt ────────────────────────────────────────────────────────
   window.adminRefresh = async function(){
     const list = document.getElementById('adminUserList');
@@ -528,6 +580,7 @@
     renderUsers();
     renderCodes(codes);
     renderStats(users, codes);
+    window.renderAdminShareLinks();
   };
 
   // ── Installer og kjør ved tab-klikk ────────────────────────────────────

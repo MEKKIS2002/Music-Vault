@@ -122,6 +122,10 @@ function updateBottomUI(){
     cover.style.background="";
   }
   updateOpenCollectionControls();
+  // Live play-state hooks defined in app.js / track-cards.js (those files load BEFORE this one,
+  // so they can't wrap updateBottomUI themselves — we call them here instead).
+  if(typeof window.updatePlayingAnimations==='function')window.updatePlayingAnimations();
+  if(typeof window.markPlayingCard==='function')window.markPlayingCard();
 }
 function updateOpenCollectionControls(){
   const beat=bottomPlayer.queue[bottomPlayer.index];
@@ -175,6 +179,20 @@ async function playQueue(queue,context){
   await playBottomIndex(0);
 }
 async function playSingleBeat(beatId){const beat=state.beats.find(b=>b.id===beatId);if(!beat)return;await playQueue([beat],{type:"beat",id:beatId,label:"Beat"});}
+// Play a song inside an album/mixtape and keep playing the rest of that collection after it
+// (in the order shown on screen). Falls back to single-beat playback if no collection is open.
+async function playCollectionFromBeat(beatId,mode){
+  const listMode=mode==="mixtape"?"mixtape":"album";
+  const col=activeCollectionForMode(listMode);
+  if(!col||!Array.isArray(col.beatIds))return playSingleBeat(beatId);
+  const queue=listMode==="mixtape"?getSortedMixtapeBeats(col):beatsFromIds(col.beatIds);
+  const startIdx=queue.findIndex(b=>b.id===beatId);
+  if(startIdx<0)return playSingleBeat(beatId);
+  bottomPlayer.queue=queue;
+  bottomPlayer.index=startIdx;
+  bottomPlayer.context={type:listMode,id:col.id,label:col.name};
+  await playBottomIndex(startIdx);
+}
 function bottomTogglePlay(){if(!bottomPlayer.audio.src&&bottomPlayer.queue.length){playBottomIndex(bottomPlayer.index);return;}if(bottomPlayer.audio.paused){bottomPlayer.audio.play().catch(()=>showToast("Trykk Play igjen hvis nettleseren blokkerte avspilling"));}else bottomPlayer.audio.pause();updateBottomUI();}
 function bottomNext(auto=false){if(bottomPlayer.index+1<bottomPlayer.queue.length)playBottomIndex(bottomPlayer.index+1);else if(auto)bottomStop(true);}
 function bottomPrev(){if(bottomPlayer.audio.currentTime>3){bottomPlayer.audio.currentTime=0;return;}playBottomIndex(Math.max(0,bottomPlayer.index-1));}
@@ -661,7 +679,9 @@ function activeCollectionForMode(mode){
   return state.albums.find(a=>a.id===currentAlbumId)||null;
 }
 function startCollectionDrag(event,beatId,mode){
-  if(!event.target.closest(".ab-cover-wrap")){event.preventDefault();return;}
+  // Allow dragging from anywhere on the song row, but not when grabbing an
+  // interactive control (buttons, rating stars, sliders, inputs, links).
+  if(event.target.closest("button,a,input,textarea,select,.progress-wrap,.ab-stars,.star-btn,.ab-remove-btn,.ab-rename-btn")){event.preventDefault();return;}
   collectionDrag={beatId,mode:mode||"album"};
   event.stopPropagation();
   event.dataTransfer.effectAllowed="move";
@@ -756,7 +776,7 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-expand">
           <div class="ab-expand-left">
             <div id="au-wrap-${b.id}" style="margin-bottom:12px">
-              <button class="primary-btn" onclick="playSingleBeat('${b.id}')">▶ Spill denne</button>
+              <button class="primary-btn" onclick="playCollectionFromBeat('${b.id}','${listMode}')">▶ Spill denne</button>
             </div>
           </div>
         </div>
@@ -778,7 +798,8 @@ function renderAlbumBeats(beats,mode,customEl){
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#fb7185;display:block;margin-right:2px"></span>'; return ''; })()}
-              <button onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
+              <button onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
+              <button class="ab-share-btn" onclick="event.stopPropagation();shareSong('${b.id}')" title="Del offentlig lenke" style="width:24px;height:24px;background:none;border:none;color:rgba(244,164,67,.55);font-size:13px;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#128279;</button>
               <button class="ab-rename-btn" onclick="event.stopPropagation();renameBeatInline('${b.id}')" title="Gi nytt navn" style="width:24px;height:24px;background:none;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#9998;</button>
               <button class="ab-remove-btn" onclick="event.stopPropagation();removeFromCollection('${b.id}','${listMode}')" title="Fjern" style="width:24px;height:24px;background:none;border:none;color:rgba(251,113,133,.4);font-size:13px;font-weight:900;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#215;</button>
               <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" style="width:24px;height:24px;font-size:18px;padding:0;flex-shrink:0;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9733;</button>
@@ -795,7 +816,7 @@ function renderAlbumBeats(beats,mode,customEl){
       <div class="ab-expand">
         <div class="ab-expand-top-bar">
           <div id="au-wrap-${b.id}" style="display:flex;align-items:center;gap:8px;width:100%">
-            <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playSingleBeat('${b.id}')">▶ Spill</button>
+            <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')">▶ Spill</button>
             <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#f4a443':'rgba(255,255,255,.25)'}">★</button>
             <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(251,113,133,.15);color:#fb7185;border:1px solid rgba(251,113,133,.3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>

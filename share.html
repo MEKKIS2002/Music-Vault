@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Music Vault — delt spor</title>
+  <!--
+    Public, login-free share page for a SINGLE song/beat.
+    Self-contained on purpose (separate from index.html): no app scripts, no auth.
+    It only calls the token-gated RPC get_song_share — it can never reach other tracks,
+    albums, mixtapes or admin data. Audio streams from the public R2 /file endpoint.
+  -->
+  <style>
+    :root{ --bg:#14120f; --card:#1c1a17; --line:rgba(255,255,255,.12); --txt:#f4ede4; --muted:rgba(255,255,255,.45); --amber:#f4a443; --amber2:#cb6e1a; }
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; height:100%; }
+    body{
+      background:radial-gradient(1200px 600px at 50% -10%, #221d16 0%, var(--bg) 60%);
+      color:var(--txt); font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      display:flex; align-items:center; justify-content:center; padding:24px;
+      min-height:100%;
+    }
+    .card{
+      background:var(--card); border:1px solid var(--line); border-radius:18px;
+      width:100%; max-width:440px; padding:28px; box-shadow:0 30px 80px rgba(0,0,0,.5);
+    }
+    .brand{ display:flex; align-items:center; gap:8px; font-size:11px; font-weight:900;
+      letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
+    .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 10px var(--amber); }
+    .cover-img{ width:100%; aspect-ratio:1/1; border-radius:14px; object-fit:cover; display:block;
+      background:rgba(255,255,255,.05); box-shadow:0 16px 40px rgba(0,0,0,.4); }
+    .cover-ph{ width:100%; aspect-ratio:1/1; border-radius:14px; background:rgba(255,255,255,.05);
+      display:flex; align-items:center; justify-content:center; font-size:64px; }
+    .kind{ margin:18px 0 4px; font-size:11px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; color:var(--amber); }
+    h1{ margin:0; font-size:22px; font-weight:900; line-height:1.2; }
+    .artist{ margin:6px 0 2px; font-size:14px; color:var(--muted); }
+    .meta{ margin-top:4px; font-size:12px; color:rgba(255,255,255,.3); }
+
+    /* ── Custom player ──────────────────────────────────────────────── */
+    .player{ margin-top:24px; }
+    .seek-row{ display:flex; align-items:center; gap:14px; }
+    .play-btn{
+      width:54px; height:54px; flex-shrink:0; border-radius:50%; border:none; cursor:pointer;
+      background:linear-gradient(135deg, var(--amber), var(--amber2)); color:#1a1206;
+      font-size:20px; display:flex; align-items:center; justify-content:center;
+      box-shadow:0 8px 22px rgba(244,164,67,.35); transition:transform .12s, box-shadow .12s;
+    }
+    .play-btn:hover{ transform:scale(1.05); box-shadow:0 10px 28px rgba(244,164,67,.45); }
+    .play-btn:active{ transform:scale(.97); }
+    .seek-wrap{ flex:1; min-width:0; }
+    .times{ display:flex; justify-content:space-between; font-size:11px; color:var(--muted);
+      font-variant-numeric:tabular-nums; margin-top:7px; }
+
+    /* Range inputs (seek + volume) styled to match the theme */
+    input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:99px;
+      background:linear-gradient(to right, var(--amber) 0%, var(--amber) var(--pct,0%), rgba(255,255,255,.12) var(--pct,0%), rgba(255,255,255,.12) 100%);
+      outline:none; cursor:pointer; }
+    input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; appearance:none; width:15px; height:15px;
+      border-radius:50%; background:#fff; border:2px solid var(--amber); box-shadow:0 2px 6px rgba(0,0,0,.4); cursor:pointer; }
+    input[type=range]::-moz-range-thumb{ width:14px; height:14px; border-radius:50%; background:#fff;
+      border:2px solid var(--amber); cursor:pointer; }
+    input[type=range]::-moz-range-track{ height:6px; border-radius:99px; background:transparent; }
+
+    .controls-row{ display:flex; align-items:center; gap:12px; margin-top:18px; }
+    .vol-group{ display:flex; align-items:center; gap:8px; flex:1; min-width:0; }
+    .icon-btn{ background:none; border:none; color:var(--muted); font-size:17px; cursor:pointer; padding:2px;
+      line-height:1; transition:color .12s; }
+    .icon-btn:hover{ color:var(--txt); }
+    .vol{ width:96px; max-width:40%; }
+    .dl-btn{
+      display:inline-flex; align-items:center; gap:7px; margin-left:auto;
+      background:rgba(255,255,255,.06); border:1px solid var(--line); color:var(--txt);
+      font-size:13px; font-weight:700; padding:9px 16px; border-radius:10px; cursor:pointer;
+      font-family:inherit; transition:background .12s, border-color .12s; white-space:nowrap;
+    }
+    .dl-btn:hover{ background:rgba(244,164,67,.14); border-color:rgba(244,164,67,.4); color:var(--amber); }
+    .dl-btn:disabled{ opacity:.6; cursor:default; }
+
+    .foot{ margin-top:24px; font-size:11px; color:rgba(255,255,255,.28); text-align:center; }
+    .state{ text-align:center; padding:36px 8px; color:var(--muted); }
+    .state .ico{ font-size:42px; margin-bottom:12px; }
+    .state h2{ margin:0 0 6px; font-size:18px; color:var(--txt); }
+    .state p{ margin:0; font-size:13px; }
+    .hidden{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand"><span class="dot"></span> Music Vault</div>
+
+    <div id="loading" class="state"><div class="ico">⏳</div><p>Laster…</p></div>
+
+    <div id="error" class="state hidden">
+      <div class="ico">🔒</div>
+      <h2>Lenken er ikke tilgjengelig</h2>
+      <p>Denne delingslenken finnes ikke, eller den er deaktivert av eieren.</p>
+    </div>
+
+    <div id="content" class="hidden">
+      <div id="coverWrap"></div>
+      <div class="kind" id="kind">Sang</div>
+      <h1 id="title">—</h1>
+      <div class="artist" id="artist"></div>
+      <div class="meta" id="meta"></div>
+
+      <div class="player">
+        <div class="seek-row">
+          <button id="playBtn" class="play-btn" aria-label="Spill av">▶</button>
+          <div class="seek-wrap">
+            <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Søk i sporet">
+            <div class="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+          </div>
+        </div>
+        <div class="controls-row">
+          <div class="vol-group">
+            <button id="muteBtn" class="icon-btn" aria-label="Demp">🔊</button>
+            <input id="vol" type="range" min="0" max="1" step="0.01" value="1" class="vol" aria-label="Volum">
+          </div>
+          <button id="dlBtn" class="dl-btn">⬇ Last ned</button>
+        </div>
+      </div>
+
+      <audio id="audio" preload="metadata"></audio>
+      <div class="foot">Delt via Music Vault · kun dette ene sporet</div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      'use strict';
+      var SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
+      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+
+      function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
+      function $(id){ return document.getElementById(id); }
+      function show(id){ $(id).classList.remove('hidden'); }
+      function hide(id){ $(id).classList.add('hidden'); }
+      function fail(){ hide('loading'); hide('content'); show('error'); }
+      function fmt(s){ if(!isFinite(s)||s<0) s=0; var m=Math.floor(s/60), x=Math.floor(s%60); return m+':'+(x<10?'0':'')+x; }
+      function setFill(el, pct){ el.style.setProperty('--pct', Math.max(0,Math.min(100,pct))+'%'); }
+
+      var params = new URLSearchParams(location.search);
+      var token = params.get('s') || params.get('t') || (location.hash||'').replace(/^#/,'');
+      if(!token){ fail(); return; }
+
+      fetch(SB_URL + '/rest/v1/rpc/get_song_share', {
+        method:'POST',
+        headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+        body: JSON.stringify({ p_token: token })
+      })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){
+        if(!data || !data.audio_url){ fail(); return; }
+        renderTrack(data);
+      })
+      .catch(fail);
+
+      function renderTrack(data){
+        var isSong = (data.kind||'song') === 'song';
+        document.title = (data.title||'Delt spor') + ' — Music Vault';
+        $('kind').textContent = isSong ? 'Sang' : 'Beat';
+        $('title').textContent = data.title || 'Uten tittel';
+        var artist = data.artist || '';
+        $('artist').textContent = artist;
+        if(!artist) hide('artist');
+        var bits = [];
+        if(data.producer) bits.push(esc(data.producer));
+        if(data.bpm) bits.push(data.bpm + ' BPM');
+        if(data.key) bits.push(esc(data.key));
+        $('meta').innerHTML = bits.join(' · ');
+
+        $('coverWrap').innerHTML = data.cover
+          ? '<img class="cover-img" src="'+esc(data.cover)+'" alt="">'
+          : '<div class="cover-ph">🎵</div>';
+
+        setupPlayer(data);
+        hide('loading'); show('content');
+      }
+
+      function setupPlayer(data){
+        var audio = $('audio'), playBtn = $('playBtn'), seek = $('seek'),
+            cur = $('cur'), dur = $('dur'), vol = $('vol'), muteBtn = $('muteBtn'),
+            dlBtn = $('dlBtn');
+        audio.src = data.audio_url;
+        setFill(vol, 100);
+
+        // Play / pause
+        playBtn.addEventListener('click', function(){
+          if(audio.paused) audio.play(); else audio.pause();
+        });
+        audio.addEventListener('play',  function(){ playBtn.textContent='⏸'; playBtn.setAttribute('aria-label','Pause'); });
+        audio.addEventListener('pause', function(){ playBtn.textContent='▶'; playBtn.setAttribute('aria-label','Spill av'); });
+        audio.addEventListener('ended', function(){ playBtn.textContent='▶'; });
+
+        // Time / seek
+        audio.addEventListener('loadedmetadata', function(){ dur.textContent = fmt(audio.duration); });
+        audio.addEventListener('timeupdate', function(){
+          if(seeking) return;
+          var d = audio.duration||0;
+          cur.textContent = fmt(audio.currentTime);
+          var pct = d ? (audio.currentTime/d)*100 : 0;
+          seek.value = Math.round(pct*10);
+          setFill(seek, pct);
+        });
+        var seeking = false;
+        seek.addEventListener('input', function(){
+          seeking = true;
+          var pct = seek.value/10;
+          setFill(seek, pct);
+          if(audio.duration) cur.textContent = fmt((pct/100)*audio.duration);
+        });
+        seek.addEventListener('change', function(){
+          if(audio.duration) audio.currentTime = (seek.value/1000)*audio.duration;
+          seeking = false;
+        });
+
+        // Volume / mute
+        vol.addEventListener('input', function(){
+          audio.volume = parseFloat(vol.value);
+          audio.muted = audio.volume === 0;
+          setFill(vol, audio.volume*100);
+          muteBtn.textContent = audio.muted || audio.volume===0 ? '🔇' : (audio.volume<0.5 ? '🔉' : '🔊');
+        });
+        var lastVol = 1;
+        muteBtn.addEventListener('click', function(){
+          if(audio.muted || audio.volume===0){
+            audio.muted=false; audio.volume=lastVol||1; vol.value=audio.volume;
+          } else {
+            lastVol=audio.volume; audio.muted=true; audio.volume=0; vol.value=0;
+          }
+          setFill(vol, audio.volume*100);
+          muteBtn.textContent = audio.volume===0 ? '🔇' : (audio.volume<0.5 ? '🔉' : '🔊');
+        });
+
+        // Download — fetch the audio as a blob and save it with a filename.
+        // (A plain `download` attribute is ignored by browsers for cross-origin URLs,
+        // so a blob is the only way to force a real download client-side.)
+        // The R2 Worker sends CORS headers for the live github.io origin, so this works
+        // on the deployed site. We never open a new window: if the fetch is blocked
+        // (e.g. running on a different/local origin) we just surface a short message.
+        dlBtn.addEventListener('click', function(){
+          var url = data.audio_url;
+          var extMatch = /\.([a-z0-9]{2,5})(?:\?|#|$)/i.exec(url);
+          var ext = extMatch ? extMatch[1] : 'mp3';
+          var name = (data.title||'spor').replace(/[^\w\d \-_.]+/g,'').trim().replace(/\s+/g,'_') + '.' + ext;
+          var orig = dlBtn.textContent;
+          dlBtn.disabled = true; dlBtn.textContent = '⬇ Laster…';
+          fetch(url).then(function(r){
+            if(!r.ok) throw new Error('fetch failed');
+            return r.blob();
+          }).then(function(blob){
+            var objUrl = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = objUrl; a.download = name;
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 4000);
+            dlBtn.disabled = false; dlBtn.textContent = orig;
+          }).catch(function(){
+            // No new window. Briefly tell the user it couldn't download here.
+            dlBtn.disabled = false; dlBtn.textContent = '⚠ Kunne ikke laste ned';
+            setTimeout(function(){ dlBtn.textContent = orig; }, 2600);
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

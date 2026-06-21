@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-06-17_
+> _Last updated: 2026-06-21_
 
 ---
 
@@ -49,6 +49,11 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **Save → sync pipeline:** `saveState()` → `markDirty()` → `schedulePush()` → Supabase
   (debounced ~900ms). Lyric Lab autosaves 600ms after a keystroke.
 - **`beatsFromIds()` always filters out archived beats** — don't bypass it.
+- **Public share links** (`song_shares`): public read is ONLY via the SECURITY DEFINER RPC
+  `get_song_share(p_token)`. Never add a broad anon SELECT policy to `song_shares` — that would let
+  anyone enumerate every link. Public sharing requires a **public http(s) `audio_url`** (R2);
+  `share-song.js` refuses to share beats whose audio is still a local/data URL. `share.html` is the
+  one place inline CSS/JS is allowed (it's a standalone public page, NOT index.html).
 - **Tab visibility needs BOTH** `.hidden` (display) removed **and** `.tab-visible`
   (opacity:1) added. Missing one = invisible or ghost tab.
 
@@ -65,6 +70,17 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **Recording over a beat:** beat is fetched as a blob via `fetch()` to dodge a CORS issue
   with `captureStream`, then mixed with mic via Web Audio API → `MediaRecorder`. Web Audio
   requires HTTP — `file://` won't work.
+- **Now-playing glow is JS-applied, not in markup.** The `.now-playing-glow` class (`css/ui.css`)
+  is added/removed at runtime by `updatePlayingAnimations()` in `js/app.js` (matches the playing
+  beat by `data-beat-id`). Don't assume it's dead CSS just because `renderAlbumBeats` never emits it.
+- **Load order gotcha — `db.js` loads LAST.** `app.js` + `track-cards.js` load before it, so they
+  can't wrap `updateBottomUI` (it doesn't exist yet — their `if(old){...}` guards silently skip).
+  Live play/pause hooks must be exposed on `window` and called from inside `db.js`'s `updateBottomUI`.
+- **`bottomPlayer` is a `const`, not on `window`.** It's a global *lexical* binding: reference it by
+  bare name from any script (works), NOT via `window.bottomPlayer` (undefined).
+- **Collection song-reorder drag handle:** drag starts from the whole `.album-beat-card` row;
+  `startCollectionDrag` (`js/db.js`) only blocks it over interactive controls. Don't re-narrow it
+  back to `.ab-cover-wrap` (that thumbnail also click-toggles expand → felt broken).
 - **Windows line endings:** git warns LF→CRLF on these files; harmless, expected.
 - **Secrets:** `js/db.js` / `js/supabase.js` contain the Supabase **anon** key (public by
   design, RLS-protected). `.local.json` and `.env*` are gitignored — never commit
@@ -79,7 +95,9 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   Sonnet 4.6 `claude-sonnet-4-6`, Haiku 4.5 `claude-haiku-4-5-20251001`, Fable 5 `claude-fable-5`.
   Rhyme bank currently uses a Haiku-class model via the Worker.
 - **Edge functions seen:** `admin-update-user` (plus RPCs `lookup_login_email`,
-  `get_usernames`).
+  `get_usernames`, `get_user_id_by_username`, `get_song_share`).
+- **Share tables:** `mixtape_shares` (pitch, via deployed Worker) and `song_shares`
+  (single song/beat public links, this repo — see `sql/song_shares.sql` + §4 gotcha).
 - **Users:** `marcus` (admin), `erik` (admin). Viewer mode shows only Mixtapes + Beats.
 
 ## 6. Data model
@@ -184,6 +202,57 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-21** — Redesigned the `share.html` player to match the app theme (custom play/pause,
+  styled seek bar with fill, current/total time, volume slider + mute toggle) and added a
+  **download** button. Download fetches the audio as a blob and saves it with a filename — a plain
+  cross-origin `download` attr is ignored, so the blob is the only client-side way to force a real
+  download. The deployed R2 Worker `/file` sends `Access-Control-Allow-Origin: https://mekkis2002.github.io`
+  (verified) and `Content-Disposition: inline` (and ignores `?download`/`?dl` params), so the blob
+  download works **only from the live github.io origin**; from any other origin (local dev) the
+  fetch is CORS-blocked. We deliberately do **not** open a new window on failure (user request) —
+  the button just shows "⚠ Kunne ikke laste ned" briefly. The native `<audio controls>` was replaced
+  by a hidden `<audio id="audio">` driven by the custom UI. To make download work off-origin you'd
+  have to add the origin to the Worker's `ALLOWED_ORIGIN` (deployed Worker, not in repo).
+- **2026-06-21** — Added **public single-song/beat share links** (login-free). New Supabase table
+  `public.song_shares` (`id`=unguessable token, `owner_id`, `beat_id`, `kind`, `data` jsonb snapshot,
+  `enabled`, `created_at`) + RLS (owner-only manage) + SECURITY DEFINER RPC
+  `get_song_share(p_token)` granted to `anon` (token-gated public read; no table enumeration —
+  verified anon sees 0 rows directly). SQL kept in `sql/song_shares.sql`. New `js/share-song.js`
+  exposes `window.shareSong(beatId, kind)` (create/refresh link + copy/disable modal) and helpers
+  `listSongShares` / `setSongShareEnabled` / `deleteSongShare` / `songShareUrl`. "Del"-knapper added
+  to album/mixtape beat cards (`db.js`, `.ab-share-btn`), the beats-tab ⋯ menu (`beatsTab.shareLink`),
+  and Lyric Lab rec-row (`lyriclab.js`). New self-contained public page **`share.html`** (no app JS,
+  no auth) reads `?s=<token>`, calls the RPC with the anon key, renders title/cover/artist/audio for
+  that one track only (audio streams from the public R2 `/file` endpoint, same origin). Admin panel
+  (`admin-panel.js`) gained an "Offentlige delingslenker" section (`renderAdminShareLinks`) to
+  open/copy/disable/delete links. Link token is stored on the beat (`b.shareToken`/`b.shareEnabled`)
+  for reuse. Bumped `db.js`/`track-cards.js`/`lyriclab.js`/`beats-tab.js`/`admin-panel.js` `?v=` and
+  added `share-song.js` to `index.html`.
+- **2026-06-21** — Album/mixtape per-song play now continues the collection. Previously every
+  per-song play button called `playSingleBeat` (a one-item queue → stopped after that song). Added
+  `playCollectionFromBeat(beatId,mode)` in `js/db.js`: builds the queue from the whole open
+  collection **in displayed order** (`beatsFromIds` for albums, `getSortedMixtapeBeats` for
+  mixtapes), starts at the chosen song, and the existing `ended`→`bottomNext(true)` chain plays the
+  rest. Rewired all 5 per-song play buttons (3 in `renderAlbumBeats`, plus the injected
+  `.quick-play-btn` and the studio-board ▶ in `js/track-cards.js`); both track-cards call sites fall
+  back to `playSingleBeat` if the fn is missing. `playSingleBeat` is unchanged (still used by the
+  beats tab / standalone beats). Note: the "▶ Spill fra start" header buttons use
+  `playAlbumFromStart`/`playMixtapeFromStart` (the latter ignores sort mode — pre-existing).
+- **2026-06-21** — Fixed two album/mixtape regressions. (1) **Song reorder drag**:
+  `startCollectionDrag` (`js/db.js`) only let a drag start when grabbing the small
+  `.ab-cover-wrap` thumbnail (which also click-toggles expand), so dragging the row anywhere
+  else aborted. Now drags from the whole row, excluding interactive controls
+  (`button,a,input,textarea,select,.progress-wrap,.ab-stars,.star-btn,.ab-remove-btn,.ab-rename-btn`).
+  (2) **Now-playing glow**: the `.now-playing-glow` CSS (`css/ui.css`) was defined but never
+  applied at runtime. Root cause = **script load order**: `app.js` + `track-cards.js` load
+  *before* `db.js`, yet both tried to wrap `db.js`'s `updateBottomUI` (`const old=window.updateBottomUI;
+  if(old){...}`). At their load time `updateBottomUI` is `undefined`, so the wrappers never
+  installed and the live play/pause hooks (`updatePlayingAnimations`, `markPlayingCard`) never
+  fired. Fix: those two functions are now exposed on `window`, and `db.js`'s `updateBottomUI`
+  (loaded last, the real source) calls them at the end. `updatePlayingAnimations` toggles
+  `.now-playing-glow` on the playing `.album-beat-card`/`.bl-row` (matched by `data-beat-id`).
+  Also fixed `markPlayingCard` reading `window.bottomPlayer` (undefined — `bottomPlayer` is a
+  `const`, a global *lexical* binding, not a `window` property). Bumped `app.js`+`db.js`+`track-cards.js` `?v=`.
 - **2026-06-17** — Mobile footer: dropped Hjem, leaving the four tabs (Beats, Mixtapes,
   Albumer, Lab) + "Mer". Moved Hjem into the "Mer" sheet; phones now auto-land on Beats.
 - **2026-06-17** — Rebuilt mobile/phone view from scratch (see §11). Added missing

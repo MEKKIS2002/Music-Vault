@@ -127,7 +127,7 @@ document.documentElement.classList.add('mv-mixed-ui');
         const btn = document.createElement('button');
         btn.type='button'; btn.className='quick-play-btn'; btn.title='Spill sang';
         btn.textContent = '▶';
-        btn.onclick = e => { e.stopPropagation(); if(typeof playSingleBeat==='function') playSingleBeat(b.id); };
+        btn.onclick = e => { e.stopPropagation(); if(typeof playCollectionFromBeat==='function') playCollectionFromBeat(b.id, mode); else if(typeof playSingleBeat==='function') playSingleBeat(b.id); };
         let actions = titleRow.querySelector('.track-card-actions');
         if(!actions){ actions=document.createElement('div'); actions.className='track-card-actions'; titleRow.appendChild(actions); }
         actions.prepend(btn);
@@ -188,7 +188,7 @@ document.documentElement.classList.add('mv-mixed-ui');
               <div class="studio-sub">${b.favorite?'★ ':''}${b.done||0}% · ${hasAudio(b)?'Lyd ✓':'Mangler lyd'}</div>
             </div>
             <div class="studio-actions">
-              <button onclick="event.stopPropagation();if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')">▶</button>
+              <button onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')">▶</button>
             </div>
           </div>`;
         }).join('')||'<div class="studio-empty">Tom</div>'}
@@ -196,12 +196,14 @@ document.documentElement.classList.add('mv-mixed-ui');
   }
 
   function markPlayingCard(){
-    const bp = window.bottomPlayer;
+    const bp = (typeof bottomPlayer!=='undefined')?bottomPlayer:window.bottomPlayer;
     const id = bp?.queue?.[bp.index]?.id;
     const playing = id && bp.audio && !bp.audio.paused;
     document.querySelectorAll('.quick-play-btn.playing').forEach(b=>{b.classList.remove('playing');b.textContent='▶';});
     if(playing) document.querySelectorAll(`[data-beat-id="${CSS.escape(id)}"] .quick-play-btn`).forEach(b=>{b.classList.add('playing');b.textContent='⏸';});
   }
+  // Expose so db.js's updateBottomUI (loaded AFTER this file) can call it live on play/pause.
+  window.markPlayingCard = markPlayingCard;
 
   // Hook into renderAlbumBeats
   const origRender = window.renderAlbumBeats;

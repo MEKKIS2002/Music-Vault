@@ -543,7 +543,14 @@ loadComments();
   window.producerQuickUpload=async function(files){let mt=state.mixtapes[0];if(!mt){mt={id:uid(),name:'Producer Uploads',beatIds:[],color:CASS_COLORS[0],status:'Åpen for uploads',createdAt:Date.now()};state.mixtapes.unshift(mt);}currentMixtapeId=mt.id;for(const f of [...files])addBeatToMixtape(await createBeatFromFile(f));saveState();renderMixtapes();showToast(`✓ ${files.length} beat${files.length===1?'':'s'} lastet opp`);};
 
   function hydrateCards(){document.querySelectorAll('.cassette-card,.album-card,.album-beat-card').forEach(el=>{el.addEventListener('dragstart',()=>document.body.classList.add('is-dragging'),{once:true});el.addEventListener('dragend',()=>document.body.classList.remove('is-dragging'),{once:true});});updatePlayingAnimations();}
-  function updatePlayingAnimations(){document.body.classList.toggle('is-playing-mixtape',bottomPlayer.context?.type==='mixtape'&&!bottomPlayer.audio.paused);document.body.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused);document.querySelectorAll('.album-detail-hd').forEach(h=>h.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused));document.querySelectorAll(`#abi-${bottomPlayer.queue?.[bottomPlayer.index]?.id}`).forEach(el=>el.classList.add('flash'));}
+  function updatePlayingAnimations(){document.body.classList.toggle('is-playing-mixtape',bottomPlayer.context?.type==='mixtape'&&!bottomPlayer.audio.paused);document.body.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused);document.querySelectorAll('.album-detail-hd').forEach(h=>h.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused));
+    // Persistent glow on the song currently playing (album/mixtape rows + beats-tab rows)
+    const playingId=(!bottomPlayer.audio.paused)?bottomPlayer.queue?.[bottomPlayer.index]?.id:null;
+    document.querySelectorAll('.now-playing-glow').forEach(el=>{if(!playingId||el.dataset.beatId!==String(playingId))el.classList.remove('now-playing-glow');});
+    if(playingId)document.querySelectorAll(`[data-beat-id="${(window.CSS&&CSS.escape)?CSS.escape(String(playingId)):playingId}"]`).forEach(el=>{if(el.classList.contains('album-beat-card')||el.classList.contains('bl-row'))el.classList.add('now-playing-glow');});
+    document.querySelectorAll(`#abi-${bottomPlayer.queue?.[bottomPlayer.index]?.id}`).forEach(el=>el.classList.add('flash'));}
+  // Expose so db.js's updateBottomUI (loaded AFTER this file) can call it live on play/pause.
+  window.updatePlayingAnimations=updatePlayingAnimations;
   const _oldUpdateBottomUI=window.updateBottomUI; if(_oldUpdateBottomUI){window.updateBottomUI=function(){_oldUpdateBottomUI();updatePlayingAnimations();};}
 
   window.renderAll=function(){ensureUxData();installRoleBadge();if(typeof _oldRenderAll==='function')_oldRenderAll();installRoleBadge();};

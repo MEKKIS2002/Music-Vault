@@ -300,6 +300,7 @@
       <div class="ll-rec-btns">
         <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten">🎙️ Take</button>
         <button class="ll-rec-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo">⬤ Memo</button>
+        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke">🌐 Del</button>
       </div>
       <details class="ll-rec-details">
         <summary>Takes <span class="ll-count-badge" id="llTakeCount"></span></summary>

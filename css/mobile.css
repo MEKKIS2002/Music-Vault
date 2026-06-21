@@ -261,6 +261,7 @@
 
   /* Beat rows inside album/mixtape: always show action buttons (no hover) */
   .album-beat-card .ab-rename-btn,
+  .album-beat-card .ab-share-btn,
   .album-beat-card .ab-remove-btn { opacity: 1 !important; }
 
   /* PIPELINE — keep kanban columns swipeable */

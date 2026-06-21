@@ -103,6 +103,7 @@
       ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
       ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
       ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')">🔗 Del med bruker</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')">🌐 Del offentlig lenke</button>` : ''}
       ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '↩ Gjenopprett' : '📦 Arkiver sang'}</button>` : ''}
       ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')">🗑 Slett permanent</button>` : ''}
     `;
@@ -477,6 +478,7 @@
   // ── Public API ────────────────────────────────────────────────────────────
   window.beatsTab = { renderBeatsTab, onSearch, onSort, openDropdown, playBeat, toggleFav, archiveBeat, deleteBeat,
     renameBeat: (id) => window.renameBeat?.(id),
+    shareLink(id){ closeDropdown(); if(typeof window.shareSong==='function') window.shareSong(id); },
     addToCollection(beatId, type, colId){
       const st = typeof state !== 'undefined' ? state : window.state;
       if(!st) return;
