@@ -6,6 +6,28 @@
 
   const VERSIONS = [
     {
+      version: 'v3.1',
+      date: '21. juni 2026',
+      label: 'Docs, offentlig deling og avspillingsfikser',
+      color: '#34d399',
+      changes: [
+        'Ny Docs-fane: frittstående skrive-/notatfunksjon (Apple Notes-stil) uavhengig av beats',
+        'Docs: sidebar med alle notater sortert etter sist endret + editor til høyre',
+        'Docs: opprett, gi nytt navn, slett og rik-tekst (fet, kursiv, overskrifter, punkt- og nummerliste)',
+        'Docs: autolagring mens du skriver, med «Lagrer…/Lagret»-status',
+        'Docs er privat per bruker og tilgjengelig for alle pakker',
+        'Offentlig deling av enkeltsang/beat: «Del»-knapp lager en ekstern lenke alle kan åpne uten innlogging',
+        'Delt side viser kun det ene sporet — ingen tilgang til resten av albumet, mixtapen eller admin',
+        'Delt side har egen temasatt spiller (play, søk, volum) + nedlastingsknapp',
+        'Delingslenker kan deaktiveres/slettes, og admin kan se og styre alle aktive lenker',
+        'Avspilling: sangen som spilles nå får en tydelig glød i album/mixtape og beats-listen',
+        'Avspilling: dra hele sangraden for å endre rekkefølge (ikke bare coveret)',
+        'Avspilling: trykk play på en sang → resten av albumet/mixtapen spilles automatisk videre',
+        'Ryddigere fanerad: Arkivert, Label, Admin og Integrasjoner samlet i en «Mer»-meny',
+        'Docs flyttet frem mellom Beats og Mixtapes',
+      ],
+    },
+    {
       version: 'v3.0',
       date: '14. juni 2026',
       label: 'Hjem-dashboard og topbar-redesign',

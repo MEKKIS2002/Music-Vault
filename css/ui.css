@@ -1740,6 +1740,32 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
 }
 .mv-header .tab-btn::after { display: none !important; }
 
+/* ── "Mer" dropdown in the desktop tab bar ── */
+.mv-more-wrap { position: relative; display: inline-flex; align-items: center; height: 100%; flex-shrink: 0; }
+.mv-more-btn {
+  height: 58px; padding: 0 14px; border: none; border-bottom: 2px solid transparent;
+  background: none; color: rgba(255,255,255,.4); font-size: 12px; font-weight: 700;
+  letter-spacing: .02em; cursor: pointer; white-space: nowrap; font-family: inherit;
+  display: inline-flex; align-items: center; gap: 5px; transition: color .15s, border-color .15s;
+}
+.mv-more-btn:hover { color: rgba(255,255,255,.78); }
+.mv-more-btn.active { color: #f4a443; border-bottom-color: #f4a443; }
+.mv-more-menu {
+  position: fixed; display: none; flex-direction: column; gap: 3px; min-width: 210px;
+  background: #1c1a17; border: 1px solid rgba(255,255,255,.14); border-radius: 12px;
+  padding: 6px; z-index: 9000; box-shadow: 0 20px 50px rgba(0,0,0,.55);
+}
+.mv-more-menu.open { display: flex; }
+/* Menu items are .tab-btn — restyle as vertical rows. No display override, so the inline
+   display:none gating on Label/Admin (toggled by JS for admins) still works. */
+.mv-tabs .mv-more-menu .tab-btn {
+  height: auto !important; min-height: 0 !important; padding: 10px 12px !important;
+  border: 1px solid transparent !important; border-radius: 8px !important; background: none !important;
+  color: rgba(255,255,255,.72) !important; text-align: left !important; justify-content: flex-start !important;
+}
+.mv-tabs .mv-more-menu .tab-btn:hover { background: rgba(255,255,255,.07) !important; color: #fff !important; }
+.mv-tabs .mv-more-menu .tab-btn.active { color: #f4a443 !important; background: rgba(244,164,67,.12) !important; border-color: rgba(244,164,67,.3) !important; }
+
 /* ── Right controls ── */
 .mv-header-right {
   display: flex;

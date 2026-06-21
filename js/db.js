@@ -1516,7 +1516,7 @@ document.getElementById("importInput").addEventListener("change",e=>{const f=e.t
 // ── TABS ──
 // Tab switching: preserve scroll position (double-rAF wins over any render() scroll)
 document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{
-  if(isProducerUser()&&!["mixtapes","pipeline"].includes(btn.dataset.tab)){showToast("Produsentmodus har tilgang til mixtapes og pipeline");return;}
+  if(isProducerUser()&&!["mixtapes","pipeline","docs"].includes(btn.dataset.tab)){showToast("Produsentmodus har tilgang til mixtapes og pipeline");return;}
   const y=window.scrollY||document.documentElement.scrollTop||0;
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
@@ -1571,6 +1571,24 @@ document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",
   applyRoleMode();
   requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo(0,y)));
 }));
+
+// ── "Mer" dropdown in the desktop tab bar (collapses Arkivert/Label/Admin/Integrasjoner) ──
+(function(){
+  const btn=document.getElementById("mvMoreBtn"), menu=document.getElementById("mvMoreMenu");
+  if(!btn||!menu) return;
+  function place(){ const r=btn.getBoundingClientRect(); menu.style.top=(r.bottom+6)+"px"; menu.style.left="auto"; menu.style.right=Math.max(8,window.innerWidth-r.right)+"px"; }
+  function close(){ menu.classList.remove("open"); btn.setAttribute("aria-expanded","false"); }
+  function open(){ place(); menu.classList.add("open"); btn.setAttribute("aria-expanded","true"); }
+  btn.addEventListener("click",e=>{ e.stopPropagation(); menu.classList.contains("open")?close():open(); });
+  document.addEventListener("click",e=>{ if(!menu.contains(e.target)&&e.target!==btn) close(); });
+  window.addEventListener("resize",()=>{ if(menu.classList.contains("open")) place(); });
+  menu.querySelectorAll(".tab-btn[data-tab]").forEach(b=>b.addEventListener("click",close));
+  // Highlight the "Mer" trigger when one of its tabs is active.
+  const group=["archive","label","adminpanel","integrations"];
+  const sync=()=>{ const a=document.querySelector(".mv-tabs .tab-btn.active")?.dataset?.tab; btn.classList.toggle("active",group.includes(a)); };
+  document.querySelectorAll(".mv-tabs .tab-btn, .mv-more-menu .tab-btn").forEach(b=>b.addEventListener("click",()=>setTimeout(sync,0)));
+  sync();
+})();
 
 // ── CLOSE MODALS ON BACKDROP ──
 ["newAlbumModal","addBeatsModal","newMixtapeModal","addBeatsToMixtapeModal","deleteConfirmModal"].forEach(id=>{

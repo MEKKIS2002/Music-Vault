@@ -17,7 +17,7 @@ lyrics, recordings and project flow on one screen. Runs entirely in the browser,
 server, no install. UI language is **Norwegian** — match it in any user-facing strings.
 
 - **Live:** https://mekkis2002.github.io/Music-Vault/
-- **Repo version label:** v2.2 (May 2026).
+- **Repo version label:** v3.1 (June 2026) — see `js/changelog.js` (authoritative).
 
 ## 2. Tech stack (no build step!)
 
@@ -161,10 +161,11 @@ Three-column studio screen (`js/lyriclab.js`, `css/lyriclab.css`):
 `beats-tab.js` beats overview • `lyriclab.js` Lyric Lab editor/rhyme/recording •
 `r2-storage.js` R2 upload/delete/move • `supabase.js` admin login + push/pull sync •
 `changelog.js` changelog • `pipeline.js` kanban • `packages.js` • `label.js` • `mobile.js` •
-`admin-panel.js` admin UI.
+`admin-panel.js` admin UI • `share-song.js` public single-song share links •
+`docs.js` standalone Docs/notes tab.
 
 CSS: `main.css` base/vars/layout • `ui.css` hero/stats/buttons/vinyl • `track-cards.css` •
-`archive.css` • `mixtape.css` • `lyriclab.css` • `pipeline.css` • `mobile.css`.
+`archive.css` • `mixtape.css` • `lyriclab.css` • `pipeline.css` • `docs.css` • `mobile.css`.
 
 ## 10. Run locally
 
@@ -202,6 +203,27 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-21** — Tidied the desktop tab bar. Collapsed **Arkivert, Label, Admin, Integrasjoner**
+  into a "⋯ Mer ▾" dropdown (`#mvMoreBtn`/`#mvMoreMenu` in `index.html`; styles in `css/ui.css`;
+  toggle logic appended to `js/db.js` after the tab-click handler). The dropdown menu uses
+  `position:fixed` (JS-positioned under the trigger) because `.mv-tabs` has `overflow-x:auto` which
+  would clip a normal absolute menu. Menu items are still real `.tab-btn[data-tab]` (so the existing
+  handler drives them); CSS deliberately does NOT override their `display` so the inline
+  `display:none` admin-gating on Label/Admin still works. Moved **Docs** to sit between Beats and
+  Mixtapes. Made Docs available to **all** packages incl. producer mode (added `docs` to
+  `PRODUCER_TABS` in `js/app.js` + the producer guard in `js/db.js`, and render it in
+  `showProducerAllowedTab`). Bumped `ui.css`/`app.js`/`db.js` `?v=`.
+- **2026-06-21** — Added a standalone **Docs** tab (Apple Notes-style notes, independent of
+  beats/albums/mixtapes). New Supabase table `public.docs` (`id`, `owner_id`, `title`, `content`,
+  `format`, `created_at`, `updated_at`) + owner-only RLS + `updated_at` trigger (`tg_docs_updated_at`);
+  SQL in `sql/docs.sql`. New `js/docs.js` (`window.renderDocs`): sidebar list sorted by `updated_at`
+  desc, rich-text editor (contenteditable + `execCommand` toolbar: bold/italic/H1/H2/¶/bullet/
+  numbered), debounced autosave (~800ms, "Lagrer…/Lagret" status, flush on blur + on doc switch),
+  create/rename(inline title)/delete, empty + loading + error states. Per-user via REST + JWT
+  (RLS). New `css/docs.css` (warm dark + amber, sidebar+editor, mobile stacks). Wired into
+  `index.html`: desktop nav button (`data-tab="docs"`), mobile "Mer" sheet button, `#docsTab`
+  section, css/js links. Tab activation uses the same self-hook pattern as `admin-panel.js`; `#docs`
+  hash deep-links to the tab. (No real `/docs` path route — the app is tab/hash based, not a router.)
 - **2026-06-21** — Redesigned the `share.html` player to match the app theme (custom play/pause,
   styled seek bar with fill, current/total time, volume slider + mute toggle) and added a
   **download** button. Download fetches the audio as a blob and saves it with a filename — a plain

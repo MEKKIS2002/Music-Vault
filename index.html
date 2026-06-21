@@ -52,10 +52,11 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/lyriclab.css?v=202606170003">
   <link rel="stylesheet" href="css/pipeline.css?v=202606160001">
   <link rel="stylesheet" href="css/main.css?v=202605161400">
-  <link rel="stylesheet" href="css/ui.css?v=202606170010">
+  <link rel="stylesheet" href="css/ui.css?v=202606210001">
   <link rel="stylesheet" href="css/track-cards.css?v=202605161400">
   <link rel="stylesheet" href="css/archive.css?v=202605161400">
   <link rel="stylesheet" href="css/mixtape.css?v=202606160003">
+  <link rel="stylesheet" href="css/docs.css?v=202606210001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <link rel="stylesheet" href="css/mobile.css?v=202606170010">
   <style>html,body{background:#090705 !important}
@@ -252,14 +253,20 @@ AKTIVE BRUKERE:
   <nav class="mv-tabs" role="navigation" aria-label="Hovednavigasjon">
     <button class="tab-btn active" data-tab="hjem">🏠 Hjem</button>
     <button class="tab-btn" data-tab="beats">🎵 Beats</button>
+    <button class="tab-btn" data-tab="docs">📝 Docs</button>
     <button class="tab-btn" data-tab="mixtapes">📼 Mixtapes</button>
     <button class="tab-btn" data-tab="albums">📁 Albumer</button>
     <button class="tab-btn" data-tab="pipeline">📊 Pipeline</button>
-    <button class="tab-btn" data-tab="archive">🗄️ Arkivert</button>
     <button class="tab-btn" data-tab="lyriclab">✍️ Lyric Lab</button>
-    <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none">🏷 Label</button>
-    <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none">🛠 Admin</button>
-    <button class="tab-btn" data-tab="integrations">🔌 Integrasjoner</button>
+    <div class="mv-more-wrap">
+      <button type="button" class="mv-more-btn" id="mvMoreBtn" aria-haspopup="true" aria-expanded="false">⋯ Mer ▾</button>
+      <div class="mv-more-menu" id="mvMoreMenu" role="menu">
+        <button class="tab-btn" data-tab="archive">🗄️ Arkivert</button>
+        <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none">🏷 Label</button>
+        <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none">🛠 Admin</button>
+        <button class="tab-btn" data-tab="integrations">🔌 Integrasjoner</button>
+      </div>
+    </div>
   </nav>
 
   <!-- User controls (filled by lock.js) -->
@@ -529,6 +536,9 @@ AKTIVE BRUKERE:
     </button>
     <button class="mv-mob-sheet-btn admin-tab-hidden" onclick="mvMobileTab('adminpanel');mvMobileMoreClose()">
       <span>🛠</span><span>Admin</span>
+    </button>
+    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('docs');mvMobileMoreClose()">
+      <span>📝</span><span>Docs</span>
     </button>
     <button class="mv-mob-sheet-btn" onclick="mvMobileTab('integrations');mvMobileMoreClose()">
       <span>🔌</span><span>Integrasjoner</span>
@@ -877,21 +887,22 @@ window.addEventListener('load', () => {
   <script src="js/lyriclab.js?v=202606210001"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
-  <script src="js/app.js?v=202606210001"></script>
+  <script src="js/app.js?v=202606210002"></script>
   <script src="js/track-cards.js?v=202606210001"></script>
   <script src="js/r2-storage.js?v=202605161400"></script>
   <script src="js/archive.js?v=202605262300"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202606150400"></script>
+  <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202606210001"></script>
   <script src="js/supabase.js?v=202605251400"></script>
-  <script src="js/db.js?v=202606210002"></script>
+  <script src="js/db.js?v=202606210003"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
       <div id="lyricLabContent"></div>
     </section>
 
+  <section id="docsTab" class="tab-view hidden"><div id="docsContent"></div></section>
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
@@ -899,6 +910,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202606210001"></script>
   <script src="js/share-song.js?v=202606210001"></script>
+  <script src="js/docs.js?v=202606210001"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

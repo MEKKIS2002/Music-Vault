@@ -1,6 +1,6 @@
 // === main-script-2 ===
 (function(){
-  const PRODUCER_TABS=["mixtapes","pipeline"];
+  const PRODUCER_TABS=["mixtapes","pipeline","docs"];
   function safeTab(tab){return PRODUCER_TABS.includes(tab)?tab:"mixtapes";}
   window.showProducerAllowedTab=function(tab){
     const target=safeTab(tab);
@@ -19,6 +19,7 @@
     if(view)view.classList.remove('hidden');
     if(target==='pipeline'&&typeof renderPipeline==='function')renderPipeline();
     if(target==='mixtapes'&&typeof renderMixtapes==='function')renderMixtapes();
+    if(target==='docs'&&typeof window.renderDocs==='function')window.renderDocs();
   };
   const previousApply=window.applyRoleMode;
   window.applyRoleMode=function(){
