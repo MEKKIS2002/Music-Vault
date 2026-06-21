@@ -10,6 +10,42 @@
 
 ---
 
+## 0. ⚠️ MOST COMMON BUG — script load-order clobbering (READ THIS)
+
+This has caused the **same regression at least 3 times** (now-playing glow, `markPlayingCard`,
+the album/mixtape detail header losing Del/Pitch + breaking layout). Check it FIRST whenever a
+feature "just stops rendering" or an enhancement silently doesn't apply.
+
+**The trap:** `js/db.js` loads **LAST** of the core scripts (after `app.js`, `track-cards.js`,
+`archive.js` — see `<script>` order in `index.html`). Several other files try to *wrap* or *enhance*
+functions that `db.js` defines (`renderAlbumDetail`, `renderMixtapeDetail`, `updateBottomUI`, …):
+
+```js
+// app.js (runs BEFORE db.js):
+const _old = window.renderAlbumDetail;          // ← undefined right now!
+window.renderAlbumDetail = function(){ _old&&_old(); redesign(); };
+// …then db.js runs: `function renderAlbumDetail(){…}`  ← clobbers the wrapper. Wrapper lost.
+```
+
+Result: the wrapper/enhancement never runs; only the base `db.js` version renders. It often goes
+unnoticed because the *body* (e.g. the song list) still renders — only the header/overlay/animation
+is missing.
+
+**The fix (always the same):** expose the enhancement on `window` and have **`db.js` call it at the
+end of its own function**:
+```js
+// app.js:  window.redesignAlbumDetail = redesignAlbumDetail;
+// db.js (end of renderAlbumDetail):  if(typeof window.redesignAlbumDetail==='function') window.redesignAlbumDetail();
+```
+Do NOT rely on `const _old = window.fn; if(_old){…}` wrappers in app.js/track-cards.js for anything
+db.js owns — they silently no-op. Currently wired this way: `redesignAlbumDetail`,
+`updatePlayingAnimations`, `markPlayingCard` (all called from `db.js`). Keep those calls.
+
+Related sub-gotcha: `bottomPlayer` is a `const` (global *lexical* binding) — reference it by bare
+name, never `window.bottomPlayer` (undefined).
+
+---
+
 ## 1. What this project is
 
 **Music Vault** — a personal hiphop studio web app for a single artist. Collects beats,
@@ -76,6 +112,9 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **Load order gotcha — `db.js` loads LAST.** `app.js` + `track-cards.js` load before it, so they
   can't wrap `updateBottomUI` (it doesn't exist yet — their `if(old){...}` guards silently skip).
   Live play/pause hooks must be exposed on `window` and called from inside `db.js`'s `updateBottomUI`.
+  Same trap bites `renderAlbumDetail`: app.js's `redesignAlbumDetail` wrapper is clobbered by db.js's
+  later `function renderAlbumDetail` declaration. The premium album header only renders because
+  db.js's `renderAlbumDetail` calls `window.redesignAlbumDetail()` at the end — keep that call.
 - **`bottomPlayer` is a `const`, not on `window`.** It's a global *lexical* binding: reference it by
   bare name from any script (works), NOT via `window.bottomPlayer` (undefined).
 - **Collection song-reorder drag handle:** drag starts from the whole `.album-beat-card` row;
@@ -203,6 +242,17 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-21** — Fixed the album/mixtape detail header (lost "Del med bruker" + "Pitch", and album
+  text stacked under the cover instead of right). Root cause: the premium album header lives in
+  `js/app.js` (`redesignAlbumDetail`) which wraps `renderAlbumDetail`, but app.js loads BEFORE db.js,
+  so db.js's `function renderAlbumDetail` declaration clobbers the wrapper → only the basic db.js
+  header rendered (no Del/Pitch, wrong layout). The song list still worked, so it went unnoticed
+  during the earlier drag/glow/play work. Fix: exposed `window.redesignAlbumDetail` and call it at
+  the end of db.js `renderAlbumDetail` (same load-order hook pattern as the now-playing glow).
+  Also defined `window.isOwnerOrEditor` (was referenced but never defined → Pitch/Bytt bilde always
+  hidden; now true for admins). Added "Del med bruker" + "Pitch" buttons to the mixtape header
+  (`renderMixtapeDetail`) via the safe `data-share`/`data-pitch` + `mvShare`/`mvPitch` pattern.
+  Bumped `app.js`/`db.js` `?v=`.
 - **2026-06-21** — Tidied the desktop tab bar. Collapsed **Arkivert, Label, Admin, Integrasjoner**
   into a "⋯ Mer ▾" dropdown (`#mvMoreBtn`/`#mvMoreMenu` in `index.html`; styles in `css/ui.css`;
   toggle logic appended to `js/db.js` after the tab-click handler). The dropdown menu uses

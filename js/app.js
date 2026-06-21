@@ -202,7 +202,7 @@
             ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer">🖼️ Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
             <button class="ghost-btn" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning">💿 A/B-side</button>
             ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager">📄 Pitch</button>` : ''}
-            ${!album._shared ? `<button class="ghost-btn" onclick="window.openShareModal('album','${album.id}','${album.name.replace(/'/g,"\\'")}')">👤 Del med bruker</button>` : ''}
+            ${!album._shared ? `<button class="ghost-btn" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)">👤 Del med bruker</button>` : ''}
             <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
           </div>
         </div>
@@ -253,6 +253,18 @@
       if (beats.length) loadMissingDurations(beats);
     }
   };
+
+  // Expose the premium header renderer so db.js (loaded after this file) can invoke it —
+  // its renderAlbumDetail function declaration otherwise clobbers our wrapper at line ~161.
+  window.redesignAlbumDetail = redesignAlbumDetail;
+  // Owner/editor check for Pitch + "Bytt albumbilde" (admin-only actions). Was referenced but
+  // never defined → buttons stayed hidden. Treat admins as owner/editor.
+  if(!window.isOwnerOrEditor){
+    window.isOwnerOrEditor = function(){
+      return (typeof isAdmin==='function' ? isAdmin()
+        : (sessionStorage.getItem('mv_role')==='admin' || sessionStorage.getItem('mv_package')==='admin'));
+    };
+  }
 
   window.albumStatusChange=function(id,val){const a=state.albums.find(x=>x.id===id);if(a){a.status=val;saveState();showToast('✓ Albumstatus oppdatert');renderAlbumDetail();}};
 

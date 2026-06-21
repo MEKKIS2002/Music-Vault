@@ -671,6 +671,10 @@ function renderAlbumDetail(){
   updateCollectionPlayerUI();
   updateArchiveToolbarButtons?.();
   if(typeof renderCollectionComments==='function')renderCollectionComments('album',currentAlbumId);
+  // Apply the premium album header (Del/Pitch/Bytt bilde + proper layout). Defined in app.js,
+  // which loads BEFORE this file — so its renderAlbumDetail wrapper is clobbered by this
+  // function declaration. Calling the exposed hook here guarantees the redesign runs.
+  if(typeof window.redesignAlbumDetail==='function')window.redesignAlbumDetail();
 }
 
 let collectionDrag={beatId:null,mode:null};
@@ -1364,6 +1368,8 @@ function renderMixtapeDetail(){
       </div>
       <div class="mixtape-detail-actions">
         <button class="primary-btn" id="playMixtapeBtn" onclick="playMixtapeFromStart('${mt.id}')">▶ Spill fra start</button>
+        ${(typeof window.isOwnerOrEditor==='function'&&window.isOwnerOrEditor())?`<button class="ghost-btn" data-pitch="mixtape|${mt.id}|" onclick="mvPitch(this)" title="Artist one-pager">📄 Pitch</button>`:''}
+        ${!mt._shared?`<button class="ghost-btn" data-share="mixtape|${mt.id}|${esc(mt.name)}" onclick="mvShare(this)">👤 Del med bruker</button>`:''}
         <button class="small-btn danger hidden" id="stopMixtapeBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
       </div>
     </div>
