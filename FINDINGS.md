@@ -244,6 +244,17 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-23** — **Drag-and-drop drop indicators** + **studio column DnD**. (1) Studio board: tracks
+  are now draggable between the 4 stage columns (`js/track-cards.js`: `wireStudioDnD`/`handleStudioDrop`).
+  Dropping into a different column snaps the song's `done%` into that stage (Idé=10/Spilt inn=40/
+  Miks=80/Ferdig=100); dropping within the same column just reorders (preserves %). A stage-coloured
+  drop-line (`.studio-drop-line`, uses the column's `--s`) + a column glow (`.studio-col-over`) show
+  where it lands; the dragged track fades. After drop it `saveState()`s and re-renders. (2) List & card
+  song reorder now show a **gold insertion line** instead of the old loud cyan/gold box — pure CSS via
+  `.album-beat-card.drag-over[data-drop-after]::after` (list = horizontal top/bottom, grid = vertical
+  left/right). Made `dragBeatOver` (`js/db.js`) mode-aware (list → Y, grid → X) so the line is accurate;
+  left `isDropAfter` untouched (still used by album/mixtape card reorder). Bumped `db.js`/`track-cards.js`/
+  `track-cards.css` `?v=`→`202606230001`.
 - **2026-06-23** — Redesigned the **Studio view** (album/mixtape) into a real **production-pipeline
   kanban** + fixed why it looked identical to the cards view. Root cause was the classic §0 trap:
   track-cards.js tried to wrap `window.renderAlbumBeats` (`const origRender=window.renderAlbumBeats; …`)

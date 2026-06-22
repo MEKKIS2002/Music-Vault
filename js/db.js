@@ -768,7 +768,15 @@ function dragBeatOver(event,targetId){
   if(!collectionDrag.beatId||collectionDrag.beatId===targetId)return;
   event.preventDefault();
   const card=document.getElementById(`abi-${targetId}`);
-  if(card){card.dataset.dropAfter=isDropAfter(event,card)?"1":"0";card.classList.add("drag-over");}
+  if(card){
+    // Mode-aware: list view inserts above/below (Y), card grid inserts left/right (X).
+    const r=card.getBoundingClientRect();
+    const after=card.closest(".album-beat-listmode")
+      ? event.clientY>(r.top+r.height/2)
+      : event.clientX>(r.left+r.width*.45);
+    card.dataset.dropAfter=after?"1":"0";
+    card.classList.add("drag-over");
+  }
 }
 function dragBeatLeave(event,targetId){
   const card=document.getElementById(`abi-${targetId}`);

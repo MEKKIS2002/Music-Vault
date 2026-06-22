@@ -1399,3 +1399,31 @@
 .studio-empty{ color:rgba(255,255,255,.3); font-size:12px; padding:16px 8px; text-align:center; }
 @media(max-width:900px){ .studio-board{ grid-template-columns:1fr 1fr; } }
 @media(max-width:560px){ .studio-board{ grid-template-columns:1fr; } }
+
+/* ════════════════════════════════════════════════════════════════
+   Drag-and-drop drop indicators (consistent gold line across views).
+   ════════════════════════════════════════════════════════════════ */
+/* List + card song reorder: a gold insertion line instead of a loud box. */
+.album-beat-card.drag-over{ position:relative; box-shadow:none !important; border-color:rgba(244,164,67,.4) !important; }
+.album-beat-card.drag-over[data-drop-after]::after{
+  content:""; position:absolute; z-index:6; background:#f4a443; border-radius:3px;
+  box-shadow:0 0 10px rgba(244,164,67,.85); pointer-events:none;
+}
+.album-beat-listmode .album-beat-card.drag-over[data-drop-after]::after{ left:6px; right:6px; height:3px; }
+.album-beat-listmode .album-beat-card.drag-over[data-drop-after="0"]::after{ top:-3px; }
+.album-beat-listmode .album-beat-card.drag-over[data-drop-after="1"]::after{ bottom:-3px; }
+.album-beat-grid .album-beat-card.drag-over[data-drop-after]::after{ top:8px; bottom:8px; width:3px; }
+.album-beat-grid .album-beat-card.drag-over[data-drop-after="0"]::after{ left:-3px; }
+.album-beat-grid .album-beat-card.drag-over[data-drop-after="1"]::after{ right:-3px; }
+
+/* Studio board: drag a track between stage columns. */
+.studio-track{ cursor:grab; }
+.studio-track.dragging{ opacity:.4; }
+.studio-col.studio-col-over{
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--s) 50%, transparent),
+             0 0 24px color-mix(in srgb, var(--s) 20%, transparent);
+}
+.studio-drop-line{
+  height:3px; border-radius:2px; margin:1px 2px;
+  background:var(--s,#f4a443); box-shadow:0 0 9px var(--s,#f4a443);
+}

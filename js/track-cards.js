@@ -198,6 +198,84 @@ document.documentElement.classList.add('mv-mixed-ui');
           </div>`;
         }).join('')||'<div class="studio-empty">Ingen sanger her</div>'}</div>
       </div>`).join('')}</div>`;
+    wireStudioDnD(el, mode);
+  }
+
+  // ── Studio drag-and-drop: move a song between stage columns ──────────────────
+  // Dropping into another column snaps the song's `done%` into that stage's range;
+  // dropping within the same column just reorders. A gold drop-line shows the target.
+  let studioDrag = null;
+  const STAGE_VAL = { 's-idea':10, 's-rec':40, 's-mix':80, 's-done':100 };
+  const STAGE_KEY = { 's-idea':'Idé/Skriver', 's-rec':'Spilt inn', 's-mix':'Miks/Master', 's-done':'Ferdig' };
+  const STAGE_LBL = { 's-idea':'Idé / Skriver', 's-rec':'Spilt inn', 's-mix':'Miks / Master', 's-done':'Ferdig' };
+  function colClass(col){ return ['s-idea','s-rec','s-mix','s-done'].find(c=>col.classList.contains(c)); }
+  function clearStudioDnD(board){
+    if(!board) return;
+    board.querySelectorAll('.studio-col-over').forEach(c=>c.classList.remove('studio-col-over'));
+    board.querySelectorAll('.studio-drop-line').forEach(l=>l.remove());
+    board.querySelectorAll('.studio-track.dragging').forEach(t=>t.classList.remove('dragging'));
+  }
+  function showStudioDropLine(col, clientY){
+    const board = col.closest('.studio-board'); if(!board) return;
+    board.querySelectorAll('.studio-col-over').forEach(c=>{ if(c!==col) c.classList.remove('studio-col-over'); });
+    board.querySelectorAll('.studio-drop-line').forEach(l=>l.remove());
+    col.classList.add('studio-col-over');
+    const body = col.querySelector('.studio-col-body'); if(!body) return;
+    const empty = body.querySelector('.studio-empty'); if(empty) empty.remove();
+    const line = document.createElement('div'); line.className='studio-drop-line';
+    const tracks = Array.from(body.querySelectorAll('.studio-track:not(.dragging)'));
+    const ref = tracks.find(t=>{ const r=t.getBoundingClientRect(); return clientY < r.top + r.height/2; });
+    if(ref) body.insertBefore(line, ref); else body.appendChild(line);
+  }
+  function wireStudioDnD(el, mode){
+    const board = el.querySelector('.studio-board'); if(!board) return;
+    board.querySelectorAll('.studio-track').forEach(t=>{
+      t.setAttribute('draggable','true');
+      t.addEventListener('dragstart', e=>{
+        studioDrag = { beatId:t.dataset.beatId, mode };
+        e.dataTransfer.effectAllowed='move';
+        try{ e.dataTransfer.setData('text/plain', t.dataset.beatId); }catch(_){}
+        setTimeout(()=>t.classList.add('dragging'),0);
+      });
+      t.addEventListener('dragend', ()=>{ clearStudioDnD(board); studioDrag=null; });
+    });
+    board.querySelectorAll('.studio-col').forEach(col=>{
+      col.addEventListener('dragover', e=>{ if(!studioDrag) return; e.preventDefault(); e.dataTransfer.dropEffect='move'; showStudioDropLine(col, e.clientY); });
+      col.addEventListener('dragleave', e=>{ if(!col.contains(e.relatedTarget)){ col.classList.remove('studio-col-over'); board.querySelectorAll('.studio-drop-line').forEach(l=>l.remove()); } });
+      col.addEventListener('drop', e=>{ e.preventDefault(); handleStudioDrop(col, e.clientY, mode); });
+    });
+  }
+  function handleStudioDrop(col, clientY, mode){
+    const board = col.closest('.studio-board');
+    const drag = studioDrag;
+    // figure out where it lands BEFORE we wipe the indicators
+    const body = col.querySelector('.studio-col-body');
+    const others = body ? Array.from(body.querySelectorAll('.studio-track')).filter(t=>!drag||t.dataset.beatId!==drag.beatId) : [];
+    const refTrack = others.find(t=>{ const r=t.getBoundingClientRect(); return clientY < r.top + r.height/2; });
+    const insertBeforeId = refTrack ? refTrack.dataset.beatId : null;
+    clearStudioDnD(board); studioDrag = null;
+    if(!drag) return;
+    const beat = getBeat(drag.beatId); if(!beat) return;
+    const cls = colClass(col); if(!cls) return;
+
+    // 1) Change stage only when crossing into a different column (preserve % on reorder).
+    if(studioCol(beat) !== STAGE_KEY[cls]) beat.done = STAGE_VAL[cls];
+
+    // 2) Reorder within the collection so it lands where the drop-line showed.
+    const col2 = (typeof activeCollectionForMode==='function') ? activeCollectionForMode(mode) : null;
+    if(col2 && Array.isArray(col2.beatIds)){
+      const ids = col2.beatIds.slice();
+      const from = ids.indexOf(drag.beatId);
+      if(from>=0) ids.splice(from,1);
+      let at = insertBeforeId ? ids.indexOf(insertBeforeId) : -1;
+      if(at<0) at = ids.length;
+      ids.splice(at,0,drag.beatId);
+      col2.beatIds = ids;
+    }
+    if(typeof saveState==='function') saveState();
+    if(mode==='mixtape' && typeof renderMixtapeDetail==='function') renderMixtapeDetail();
+    else if(typeof renderAlbumDetail==='function') renderAlbumDetail();
+    if(typeof showToast==='function') showToast(`✓ «${beat.name}» → ${STAGE_LBL[cls]}`);
   }
 
   function markPlayingCard(){
