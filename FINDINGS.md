@@ -242,6 +242,15 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-22** — Docs editor: **paste no longer turns text black** + added **highlight (uthev)** like
+  Lyric Lab. Paste: pasted HTML carried inline `color`/`bgcolor` (usually black) which was unreadable on
+  the dark editor — added an `onDocsPaste` handler that sanitises pasted HTML (`sanitizePastedHtml`:
+  strips every attribute except `href` on links, and keeps only a `background` on `<mark>`), falling back
+  to plain text. Highlight: 6 colour swatches (gul/grønn/blå/rosa/rød/lilla) + clear (✕) added to the
+  `#docsToolbar`; `docsHighlight(color)` wraps the selection in `<mark>` (black text on colour, styled in
+  `docs.css`), recolours when the selection is already inside a mark, and clears via `unwrapDocsMarks`.
+  Same mark-wrapping pattern as Lyric Lab's `llApplyColorActive`. Selection survives the toolbar click via
+  the existing `mousedown`→`preventDefault`. Bumped `docs.css`/`docs.js` `?v=` to `202606220003`.
 - **2026-06-22** — Fixed the **Docs page being full-width / not centered** like the other pages. Root
   cause was **structural, not CSS**: `<main class="app">` (the `width:min(1440px,calc(100% - 32px));
   margin:0 auto` container) opens at `index.html` line 240 and **closes at line ~585**, but

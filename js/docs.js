@@ -185,6 +185,14 @@
         <span class="docs-tb-sep"></span>
         <button data-cmd="insertUnorderedList" title="Punktliste">•</button>
         <button data-cmd="insertOrderedList" title="Nummerert liste">1.</button>
+        <span class="docs-tb-sep"></span>
+        <button class="docs-hl-btn" data-hl="#f59e0b" style="background:#f59e0b" title="Uthev gul"></button>
+        <button class="docs-hl-btn" data-hl="#10b981" style="background:#10b981" title="Uthev grønn"></button>
+        <button class="docs-hl-btn" data-hl="#3b82f6" style="background:#3b82f6" title="Uthev blå"></button>
+        <button class="docs-hl-btn" data-hl="#ec4899" style="background:#ec4899" title="Uthev rosa"></button>
+        <button class="docs-hl-btn" data-hl="#ef4444" style="background:#ef4444" title="Uthev rød"></button>
+        <button class="docs-hl-btn" data-hl="#a855f7" style="background:#a855f7" title="Uthev lilla"></button>
+        <button class="docs-hl-btn docs-hl-clear" data-hl="" title="Fjern uthevning">✕</button>
       </div>
       <div id="docsBody" class="docs-ed-body" contenteditable="true" spellcheck="true" data-placeholder="Skriv her…">${doc.content||''}</div>`;
 
@@ -194,15 +202,98 @@
     titleEl.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); bodyEl.focus(); } });
     bodyEl.addEventListener('input', ()=>scheduleSave());
     bodyEl.addEventListener('blur', ()=>flushSave());
+    // Paste: strip inherited colors (they made pasted text turn black on the dark editor).
+    bodyEl.addEventListener('paste', onDocsPaste);
 
     // Toolbar: keep selection in the editor (mousedown preventDefault), then run command.
     tb.addEventListener('mousedown', e=>{ if(e.target.closest('button')) e.preventDefault(); });
     tb.addEventListener('click', e=>{
       const b=e.target.closest('button'); if(!b) return;
       bodyEl.focus();
+      if(b.classList.contains('docs-hl-btn')){ docsHighlight(b.dataset.hl||''); return; }
       if(b.dataset.cmd){ document.execCommand(b.dataset.cmd, false, null); }
       else if(b.dataset.block){ document.execCommand('formatBlock', false, b.dataset.block); }
       scheduleSave();
+    });
+  }
+
+  // ── Paste sanitising ─────────────────────────────────────────────────────────
+  // Pasted HTML (Word/Google Docs/web) carries inline `color`/`bgcolor` — usually black —
+  // which is unreadable on the dark editor. Strip those while keeping basic structure and
+  // our own highlight marks. Falls back to plain text when no HTML is on the clipboard.
+  function onDocsPaste(e){
+    const cd = e.clipboardData || window.clipboardData;
+    if(!cd) return;
+    e.preventDefault();
+    const html = cd.getData('text/html');
+    if(html){
+      document.execCommand('insertHTML', false, sanitizePastedHtml(html));
+    } else {
+      document.execCommand('insertText', false, cd.getData('text/plain') || '');
+    }
+    scheduleSave();
+  }
+  function sanitizePastedHtml(html){
+    const root = document.createElement('div');
+    root.innerHTML = html;
+    root.querySelectorAll('script,style,meta,link,title,head,o\\:p').forEach(n=>n.remove());
+    root.querySelectorAll('*').forEach(node=>{
+      const tag = node.tagName;
+      Array.from(node.attributes).forEach(attr=>{
+        const name = attr.name.toLowerCase();
+        if(tag==='A' && name==='href') return;            // keep links
+        if(name==='style'){
+          // Keep ONLY a background colour on <mark> (our highlight); drop every text colour.
+          const bg = node.style.backgroundColor || '';
+          node.removeAttribute('style');
+          if(tag==='MARK' && bg) node.style.background = bg;
+          return;
+        }
+        node.removeAttribute(attr.name);                  // color, bgcolor, class, id, face…
+      });
+    });
+    return root.innerHTML;
+  }
+
+  // ── Highlight (uthev), mirrors Lyric Lab: wrap selection in <mark> (black text on colour) ──
+  function docsHighlight(color){
+    const bodyEl = el('docsBody'); if(!bodyEl) return;
+    const sel = window.getSelection();
+    if(!sel || sel.rangeCount===0 || sel.isCollapsed){ toast('Marker tekst først'); return; }
+    let range = sel.getRangeAt(0);
+    if(!bodyEl.contains(range.commonAncestorContainer)){ toast('Marker tekst i dokumentet'); return; }
+
+    if(!color){ unwrapDocsMarks(bodyEl, range); bodyEl.normalize(); scheduleSave(); return; }
+
+    // Selection sits fully inside one existing highlight → just recolour it.
+    const host = range.commonAncestorContainer;
+    const inMark = (host.nodeType===3 ? host.parentElement : host)?.closest?.('mark');
+    if(inMark && bodyEl.contains(inMark)){ inMark.style.background = color; scheduleSave(); return; }
+
+    // Otherwise drop any overlapping marks, then wrap a fresh one.
+    unwrapDocsMarks(bodyEl, range);
+    if(sel.rangeCount) range = sel.getRangeAt(0);
+    if(range.collapsed){ scheduleSave(); return; }
+    const mark = document.createElement('mark');
+    mark.className = 'docs-hl';
+    mark.style.background = color;
+    try { range.surroundContents(mark); }
+    catch(_){ const frag = range.extractContents(); mark.appendChild(frag); range.insertNode(mark); }
+    const r = document.createRange(); r.selectNodeContents(mark);
+    sel.removeAllRanges(); sel.addRange(r);
+    bodyEl.normalize();
+    scheduleSave();
+  }
+  function unwrapDocsMarks(editor, range){
+    Array.from(editor.querySelectorAll('mark')).forEach(mark=>{
+      const mRange = document.createRange(); mRange.selectNode(mark);
+      const overlaps = range.compareBoundaryPoints(Range.END_TO_START, mRange) < 0 &&
+                       range.compareBoundaryPoints(Range.START_TO_END, mRange) > 0;
+      if(overlaps){
+        const parent = mark.parentNode;
+        while(mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+        parent.removeChild(mark);
+      }
     });
   }
 
