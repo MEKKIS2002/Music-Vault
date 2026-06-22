@@ -1,0 +1,88 @@
+/* ════════════════════════════════════════════════════════════════
+   player.css — bottom player redesigned to look ~identical to Spotify's.
+   Two-colour scheme: black + white. The ONE accent is the play button,
+   which uses our gold (#f4a443, same as the app's primary buttons).
+
+   Loaded AFTER ui.css (so it beats the old amber/vinyl-reel overrides on
+   desktop) and BEFORE mobile.css (phones keep their floating mini-player).
+   Heavy use of !important is deliberate — ui.css styles the player with
+   !important, so we must too to win the cascade.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── The bar: flat, full-width, pure black (Spotify "Now Playing" bar) ── */
+.bottom-player{
+  background:#000 !important;
+  border:0 !important;
+  border-top:1px solid rgba(255,255,255,.10) !important;
+  border-radius:0 !important;
+  box-shadow:0 -8px 30px rgba(0,0,0,.6) !important;
+  backdrop-filter:none !important;
+  padding:12px 16px !important;
+  gap:16px !important;
+  color:#fff !important;
+}
+
+/* ── Left: cover + title / artist ── */
+.bp-track{ min-width:180px !important; max-width:30% !important; }
+.bp-cover{
+  width:56px !important; height:56px !important; border-radius:4px !important;
+  background:#181818 !important; border:0 !important;
+  box-shadow:0 4px 14px rgba(0,0,0,.5) !important; color:#666 !important;
+}
+.bp-cover::before,.bp-cover::after{ display:none !important; }   /* remove old vinyl reels */
+.bp-title{ color:#fff !important; font-size:14px !important; font-weight:600 !important; letter-spacing:0 !important; }
+.bp-sub{ color:rgba(255,255,255,.6) !important; font-size:12px !important; }
+
+/* ── Center: transport controls + progress ── */
+.bp-controls{ background:transparent !important; border:0 !important; padding:0 !important; gap:20px !important; }
+
+/* prev / next — plain white-ish glyphs, no chrome */
+.bp-btn{
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  color:rgba(255,255,255,.72) !important; font-size:18px !important;
+  width:32px !important; height:32px !important; border-radius:50% !important;
+  transition:color .12s ease, transform .12s ease !important;
+}
+.bp-btn:hover{ color:#fff !important; background:transparent !important; transform:scale(1.08) !important; }
+.bp-btn:active{ transform:scale(.94) !important; box-shadow:none !important; }
+
+/* play / pause — the single gold accent, black glyph (like Spotify's white button) */
+.bp-play,.bp-btn.bp-play{
+  background:#f4a443 !important; color:#000 !important;
+  width:40px !important; height:40px !important; font-size:16px !important;
+  box-shadow:0 2px 10px rgba(0,0,0,.45) !important;
+}
+.bp-play:hover,.bp-btn.bp-play:hover{
+  background:#ffba5e !important; color:#000 !important; transform:scale(1.07) !important;
+}
+
+/* progress row */
+.bp-progress{ gap:10px !important; }
+.bp-time{ color:rgba(255,255,255,.6) !important; font-size:11px !important; }
+
+/* ── Range inputs (seek + volume): thin bar, white fill, hover-only thumb ── */
+.bp-seek,.bp-vol{
+  -webkit-appearance:none !important; appearance:none !important;
+  height:4px !important; border-radius:2px !important; cursor:pointer; padding:0 !important; border:0 !important;
+  background:linear-gradient(to right,
+    #fff 0, #fff var(--pct,0%),
+    rgba(255,255,255,.28) var(--pct,0%), rgba(255,255,255,.28) 100%) !important;
+}
+.bp-seek::-webkit-slider-thumb,.bp-vol::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none;
+  width:12px; height:12px; border-radius:50%; background:#fff; border:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.5); opacity:0; transition:opacity .12s ease;
+}
+.bp-seek:hover::-webkit-slider-thumb,.bp-vol:hover::-webkit-slider-thumb,
+.bp-seek:active::-webkit-slider-thumb,.bp-vol:active::-webkit-slider-thumb{ opacity:1; }
+.bp-seek::-moz-range-thumb,.bp-vol::-moz-range-thumb{
+  width:12px; height:12px; border-radius:50%; background:#fff; border:0; opacity:0;
+}
+.bp-seek:hover::-moz-range-thumb,.bp-vol:hover::-moz-range-thumb{ opacity:1; }
+
+/* ── Right: volume + close ── */
+.bp-actions{ gap:10px !important; }
+.bp-actions > span{ color:rgba(255,255,255,.7) !important; }
+.bp-vol{ width:96px !important; }
+.bp-close{ color:rgba(255,255,255,.5) !important; font-size:15px !important; }
+.bp-close:hover{ color:#fff !important; background:transparent !important; }

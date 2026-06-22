@@ -191,16 +191,36 @@ function updateOpenCollectionControls(){
   update("album",currentAlbumId,"playAlbumBtn","stopAlbumBtn","albumNowPlaying");
   update("mixtape",currentMixtapeId,"playMixtapeBtn","stopMixtapeBtn","mixtapeNowPlaying");
 }
+// Paint the "played" portion of a range input (Spotify-style white fill) via a CSS var.
+function bpSetRangeFill(el){
+  if(!el)return;
+  const min=Number(el.min)||0,max=Number(el.max)||100,v=Number(el.value);
+  const pct=max>min?((v-min)/(max-min))*100:0;
+  el.style.setProperty('--pct',pct+'%');
+}
 function updateBottomProgress(){
   const a=bottomPlayer.audio;
   const dur=isFinite(a.duration)?a.duration:0;
   document.getElementById("bpCurrent").textContent=fmtTime(a.currentTime);
   document.getElementById("bpDuration").textContent=fmtTime(dur);
   const seek=document.getElementById("bpSeek");
-  if(seek&&!seek.matches(":active"))seek.value=dur?Math.round((a.currentTime/dur)*1000):0;
+  if(seek){
+    if(!seek.matches(":active"))seek.value=dur?Math.round((a.currentTime/dur)*1000):0;
+    bpSetRangeFill(seek);
+  }
 }
-function bottomSeek(v){const a=bottomPlayer.audio;if(isFinite(a.duration)&&a.duration>0)a.currentTime=(Number(v)/1000)*a.duration;}
-function bottomSetVolume(v){bottomPlayer.audio.volume=Number(v);}
+function bottomSeek(v){const a=bottomPlayer.audio;if(isFinite(a.duration)&&a.duration>0)a.currentTime=(Number(v)/1000)*a.duration;bpSetRangeFill(document.getElementById("bpSeek"));}
+function bottomSetVolume(v){bottomPlayer.audio.volume=Number(v);bpSetRangeFill(document.getElementById("bpVolume"));}
+// Keep the range fills painted while dragging + on first load.
+(function initBpRangeFills(){
+  const wire=()=>{
+    const seek=document.getElementById("bpSeek"),vol=document.getElementById("bpVolume");
+    if(seek){seek.addEventListener("input",()=>bpSetRangeFill(seek));bpSetRangeFill(seek);}
+    if(vol){vol.addEventListener("input",()=>bpSetRangeFill(vol));bpSetRangeFill(vol);}
+  };
+  if(document.readyState!=="loading")wire();
+  else document.addEventListener("DOMContentLoaded",wire);
+})();
 async function playBottomIndex(i){
   if(i<0)i=0;
   if(i>=bottomPlayer.queue.length){bottomStop(true);showToast("✓ Ferdigspilt");return;}

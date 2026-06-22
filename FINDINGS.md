@@ -204,7 +204,8 @@ Three-column studio screen (`js/lyriclab.js`, `css/lyriclab.css`):
 `docs.js` standalone Docs/notes tab.
 
 CSS: `main.css` base/vars/layout • `ui.css` hero/stats/buttons/vinyl • `track-cards.css` •
-`archive.css` • `mixtape.css` • `lyriclab.css` • `pipeline.css` • `docs.css` • `mobile.css`.
+`archive.css` • `mixtape.css` • `lyriclab.css` • `pipeline.css` • `docs.css` •
+`player.css` (Spotify-style bottom player; after ui.css, before mobile.css) • `mobile.css`.
 
 ## 10. Run locally
 
@@ -242,6 +243,19 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-22** — Redesigned the **bottom player to a Spotify-style bar**. Two-colour scheme
+  (black + white); the only accent is the **gold play/pause button** (`#f4a443`, same as primary
+  buttons), black glyph. The player's styling was scattered across `main.css` + many `ui.css`
+  `!important` blocks (amber rounded frame, spinning vinyl-reel cover `::before/::after`, 3D button
+  shadows, amber seek). Rather than untangle those, added a **dedicated `css/player.css`** loaded
+  **after `ui.css`** (beats the desktop overrides) and **before `mobile.css`** (phones keep their
+  floating mini-player). It makes the bar flat/full-width/pure-black, hides the vinyl reels, makes
+  prev/next plain white glyphs, and restyles the seek+volume `<input type=range>` to a thin bar with a
+  white "played" fill + hover-only round thumb. The fill is driven by a `--pct` CSS var set in
+  `js/db.js` (`bpSetRangeFill`, called from `updateBottomProgress`/`bottomSeek`/`bottomSetVolume` +
+  an `input` listener on `#bpSeek`/`#bpVolume`). New convention: **player visuals live in
+  `css/player.css`** (must stay after ui.css, before mobile.css). Bumped `db.js` `?v=`→`202606220004`,
+  linked `player.css?v=202606220001`. Markup in `index.html` (`#bottomPlayer`/`.bp-*`) unchanged.
 - **2026-06-22** — Docs editor: **paste no longer turns text black** + added **highlight (uthev)** like
   Lyric Lab. Paste: pasted HTML carried inline `color`/`bgcolor` (usually black) which was unreadable on
   the dark editor — added an `onDocsPaste` handler that sanitises pasted HTML (`sanitizePastedHtml`:
