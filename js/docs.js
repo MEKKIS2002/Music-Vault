@@ -84,7 +84,13 @@
   // ── Render ──────────────────────────────────────────────────────────────────
   function shell(inner){
     const c = el('docsContent'); if(!c) return;
-    c.innerHTML = `<div class="docs-wrap">${inner}</div>`;
+    c.innerHTML = `<section class="content-panel glass docs-panel">
+      <div class="section-title">
+        <h2>Docs</h2>
+        <span class="hint">Idéer, lyrics, notater og planer — fritt fra beats, album og mixtaper.</span>
+      </div>
+      <div class="docs-wrap">${inner}</div>
+    </section>`;
   }
   function stateView(ico, title, sub, btn){
     return `<div class="docs-state">
@@ -120,7 +126,7 @@
   function renderLayout(){
     if(!_docs.length){
       shell(`<aside class="docs-sidebar">
-          <div class="docs-side-hd"><span>Docs</span>
+          <div class="docs-side-hd"><span>Dokumenter</span>
             <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument">＋</button></div>
           <div id="docsList" class="docs-list"></div>
         </aside>
@@ -132,7 +138,7 @@
     }
     shell(`
       <aside class="docs-sidebar">
-        <div class="docs-side-hd"><span>Docs</span>
+        <div class="docs-side-hd"><span>Dokumenter</span>
           <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument">＋</button></div>
         <div class="docs-search-wrap">
           <input id="docsSearch" class="docs-search" placeholder="Søk i dokumenter…" oninput="window.docsFilter(this.value)">

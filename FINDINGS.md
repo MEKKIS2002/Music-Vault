@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-06-21_
+> _Last updated: 2026-06-22_
 
 ---
 
@@ -242,6 +242,55 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-22** — Fixed the **Docs page being full-width / not centered** like the other pages. Root
+  cause was **structural, not CSS**: `<main class="app">` (the `width:min(1440px,calc(100% - 32px));
+  margin:0 auto` container) opens at `index.html` line 240 and **closes at line ~585**, but
+  `#docsTab` — along with `#lyriclabTab`, `#labelTab`, `#adminPanelTab` — was placed **after**
+  `</main>`, so Docs spanned the full viewport and no amount of inner padding (the earlier
+  `.docs-item`/panel tweaks) could center it. Fix: **moved `#docsTab` inside `<main class="app">`**
+  (right after `#integrationsTab`) so it inherits the exact same centered max-width + L/R padding as
+  Hjem/Beats/Mixtapes/Album. Verified with a 3-way headless-Chrome render (Hjem centered / Docs-before
+  full-bleed / Docs-after centered & matching Hjem). NB: `#lyriclabTab`, `#labelTab`, `#adminPanelTab`
+  are still outside `<main>` — left as-is (out of scope; don't assume they're centered). **Gotcha for
+  future tabs: every page tab-view MUST live inside `<main class="app">` or it renders full-width.**
+- **2026-06-22** — Redesigned the **Docs** page to match the rest of the app. It was a visual
+  bolt-on: its own greyer palette (`--d-bg:#1c1a17`, custom `--d-*` vars) and rounded 14px corners,
+  while the app uses the warm dark tokens (`--bg:#090705`, `--accent:#df7f22`, amber) with **sharp
+  panels** (`--radius:0`) and pill buttons. Now `js/docs.js` `shell()` wraps the page in the standard
+  `<section class="content-panel glass">` + `.section-title` header ("Docs" + hint) like Pipeline /
+  Integrasjoner, and `css/docs.css` was rewritten to consume the app's own CSS vars (no more `--d-*`):
+  sharp container/sidebar (`border-radius:var(--radius)`), pill search/buttons/toolbar, amber accent
+  for active doc + `--accent2` links, app primary-btn gradient. Sidebar label renamed "Docs"→
+  "Dokumenter" to avoid duplicating the new page title. Bumped `docs.css`/`docs.js` `?v=` to
+  `202606220002`. Verified the panel left/right padding now equals the other content pages
+  (`.content-panel` 18px — confirmed against a Mixtapes-style reference in a throwaway headless-Chrome
+  render). Also bumped the doc-list item left padding (`.docs-item` left 12px→18px, list 8px→10px) so
+  the document titles align with the search field instead of hugging the sidebar edge.
+- **2026-06-22** — Fixed the "**falsk FERDIGSPILT**" playback bug (worked for admin, failed for the
+  producer/shared users — e.g. `erik`, editor on 37 shared beats; `Bounceprovida Records`, viewer).
+  Two code paths in `js/db.js` masked broken audio as a finished song:
+  (1) `playBottomIndex` did `if(!url){…return playBottomIndex(i+1);}` — a beat with no playable URL
+  silently **recursed to the next track**, so one bad beat early in an album skipped through the WHOLE
+  album to `i>=queue.length` → `showToast("✓ Ferdigspilt")`. That's why "many" songs looked finished
+  from just a few broken beats. (2) The `<audio>` `error` handler called `bottomNext(true)` — the
+  exact same advance as `ended` — so 404/403/decode errors were treated as track completion. The admin
+  never hit either path because his audio plays from a **local IndexedDB blob** (`getPlayableAudioUrl`
+  returns the blob first); shared users have no blob and rely solely on `audio_url`.
+  **Fix:** `ended` now owns the only path to "Ferdigspilt" (last track genuinely ending). The `error`
+  handler is now `onBottomAudioError` — surfaces a REAL Norwegian error (decoded `MediaError.code` via
+  `describeMediaError`) and **HEAD-probes** http(s) sources to report the actual HTTP status, then stops
+  (never advances). The no-URL branch now calls `reportUnplayableBeat` (distinguishes `:idb` local-only
+  vs missing `audio_url`) and stops instead of skipping. `showToast(msg,ms)` gained an optional duration
+  (default 2500ms; errors use 6000–7000ms) + `max-width`. Bumped `db.js` `?v=` to `202606220001`.
+  **Data diagnosis (Supabase `beats`, all 45 owned by `marcus`):** R2 storage is **healthy** — all 40
+  `/file/active%2F…` URLs HEAD-returned **200** (public, no auth → no RLS/signed-URL/permissions issue
+  for audio playback at all). The only unplayable beats are **5** with no usable audio: empty `audio_url`
+  → `BANKROLL_BABY_ft_pistolstarr`, `cold nights` (×2: `2c8377a7…`, `79dd9568…`), `nothing more 150bpm`;
+  and a non-audio **SoundCloud page link** (`on.soundcloud.com/…`, will never play in `<audio>`) →
+  `La meg gå nå`. These need their real audio re-uploaded to R2 (likely only ever existed in marcus's
+  local IndexedDB) or the dead rows removed. R2 key note: audio_url encodes the slash as `active%2F<id>`
+  (not `active/`); 2 archived beats still point at `active%2F` but those files are physically present, so
+  they 200 — harmless. NOT modified any DB data (left to the user).
 - **2026-06-21** — Fixed the album/mixtape detail header (lost "Del med bruker" + "Pitch", and album
   text stacked under the cover instead of right). Root cause: the premium album header lives in
   `js/app.js` (`redesignAlbumDetail`) which wraps `renderAlbumDetail`, but app.js loads BEFORE db.js,

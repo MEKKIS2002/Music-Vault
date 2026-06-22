@@ -77,7 +77,12 @@ async function loadAudioForBeat(beatId){
 // ── Bottom player: one persistent Spotify-style player ──
 const bottomPlayer={audio:new Audio(),queue:[],index:0,context:null,objectUrl:null,started:false};
 bottomPlayer.audio.preload="auto";
-bottomPlayer.audio.addEventListener("ended",()=>bottomNext(true));
+// A track that genuinely played to the END advances the queue; the LAST track ending is the
+// ONLY thing allowed to report "Ferdigspilt". Load/access failures must never reach this path.
+bottomPlayer.audio.addEventListener("ended",()=>{
+  if(bottomPlayer.index+1<bottomPlayer.queue.length)playBottomIndex(bottomPlayer.index+1);
+  else{bottomStop(true);showToast("✓ Ferdigspilt");}
+});
 bottomPlayer.audio.addEventListener("timeupdate",updateBottomProgress);
 bottomPlayer.audio.addEventListener("loadedmetadata",function(){
   updateBottomProgress();
@@ -92,7 +97,50 @@ bottomPlayer.audio.addEventListener("loadedmetadata",function(){
 });
 bottomPlayer.audio.addEventListener("play",updateBottomUI);
 bottomPlayer.audio.addEventListener("pause",updateBottomUI);
-bottomPlayer.audio.addEventListener("error",()=>{const b=bottomPlayer.queue[bottomPlayer.index];if(b)showToast(`Kunne ikke spille "${b.name}"`);bottomNext(true);});
+bottomPlayer.audio.addEventListener("error",onBottomAudioError);
+// Human-readable reason for an <audio> MediaError. This is a FAILURE, not "ferdigspilt".
+function describeMediaError(err){
+  switch(err&&err.code){
+    case 1: return 'avspilling ble avbrutt';
+    case 2: return 'nettverksfeil – fikk ikke lastet ned lydfilen';
+    case 3: return 'kunne ikke dekode lydfilen (skadet eller ugyldig format)';
+    case 4: return 'lydkilden mangler eller er utilgjengelig (404/403 eller feil URL)';
+    default: return 'ukjent lydfeil';
+  }
+}
+// A load/playback failure must surface a REAL error and stop — never be mistaken for the song
+// finishing. We additionally probe http(s) sources to report the actual HTTP status so the
+// underlying access/URL problem (e.g. the producer can't reach the file) can be fixed.
+async function onBottomAudioError(){
+  const a=bottomPlayer.audio;
+  // Ignore spurious errors fired while stopping / clearing the source (no real src).
+  if(!a.src||a.src===location.href)return;
+  const beat=bottomPlayer.queue[bottomPlayer.index];
+  const name=beat?beat.name:'sangen';
+  const src=a.currentSrc||a.src||'';
+  const reason=describeMediaError(a.error);
+  console.error('[player] Audio error',{beat:name,beatId:beat&&beat.id,src,code:a.error&&a.error.code,reason});
+  a.pause();
+  updateBottomUI();
+  showToast(`⚠ Kunne ikke spille «${name}» – ${reason}`,6000);
+  if(/^https?:/i.test(src)){
+    try{
+      const res=await fetch(src,{method:'HEAD'});
+      if(!res.ok)showToast(`⚠ «${name}»: lydfil utilgjengelig (HTTP ${res.status}). Sjekk audio_url / tilgang i R2.`,7000);
+    }catch(e){
+      showToast(`⚠ «${name}»: får ikke kontakt med lydfilen (nettverk/CORS). Sjekk audio_url.`,7000);
+    }
+  }
+}
+// No playable audio for THIS user/browser. Explain WHY instead of silently skipping ahead
+// (which previously walked off the end of the queue and falsely reported "Ferdigspilt").
+function reportUnplayableBeat(beat){
+  const name=beat?beat.name:'sangen';
+  const localOnly=beat&&/:idb$/.test(String(beat.url||beat.audio_url||''));
+  console.warn('[player] Unplayable beat',{name,id:beat&&beat.id,url:beat&&beat.url,audio_url:beat&&beat.audio_url});
+  if(localOnly)showToast(`⚠ «${name}» finnes bare lokalt hos opplasteren – aldri lastet opp til skylagring (R2), så den kan ikke spilles her. Last den opp på nytt for å dele.`,7000);
+  else showToast(`⚠ Ingen lydfil koblet til «${name}» (mangler audio_url / tilgang).`,6000);
+}
 function beatsFromIds(ids){return (ids||[]).map(id=>state.beats.find(b=>b.id===id)).filter(b=>b&&!b.archived);}
 function fmtTime(sec){sec=Number(sec||0);if(!isFinite(sec))return "0:00";const m=Math.floor(sec/60);const s=Math.floor(sec%60);return `${m}:${String(s).padStart(2,"0")}`;}
 async function getPlayableAudioUrl(beat){
@@ -159,7 +207,7 @@ async function playBottomIndex(i){
   bottomPlayer.index=i;bottomPlayer.started=true;
   const beat=bottomPlayer.queue[i];
   const url=await getPlayableAudioUrl(beat);
-  if(!url){showToast(`Hopper over "${beat.name}" – mangler lydfil`);return playBottomIndex(i+1);}
+  if(!url){reportUnplayableBeat(beat);bottomStop(true);return;}
   if(bottomPlayer.objectUrl)URL.revokeObjectURL(bottomPlayer.objectUrl);
   bottomPlayer.objectUrl=url.startsWith("blob:")?url:null;
   bottomPlayer.audio.pause();
@@ -1649,11 +1697,11 @@ function applyHighlight(beatId,color){
 
 // ── TOAST ──
 let _tt;
-function showToast(msg){
+function showToast(msg,ms){
   let t=document.getElementById("_toast");
-  if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgba(18,18,27,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none";document.body.appendChild(t);}
+  if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgba(18,18,27,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
   t.textContent=String(msg||'');t.style.transform="translateY(0)";t.style.opacity="1";
-  clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},2500);
+  clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
 }
 
 function makeMixtapeCover(file,cb){

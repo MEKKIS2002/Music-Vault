@@ -56,7 +56,7 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/track-cards.css?v=202605161400">
   <link rel="stylesheet" href="css/archive.css?v=202605161400">
   <link rel="stylesheet" href="css/mixtape.css?v=202606160003">
-  <link rel="stylesheet" href="css/docs.css?v=202606210001">
+  <link rel="stylesheet" href="css/docs.css?v=202606220002">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <link rel="stylesheet" href="css/mobile.css?v=202606170010">
   <style>html,body{background:#090705 !important}
@@ -492,6 +492,11 @@ AKTIVE BRUKERE:
   </div>
 </section>
 
+<!-- DOCS — must live INSIDE <main class="app"> so it gets the same centered max-width
+     container + left/right padding as Hjem/Beats/Mixtapes/Album (was previously placed
+     after </main>, which made it full-width). -->
+<section id="docsTab" class="tab-view hidden"><div id="docsContent"></div></section>
+
 
 <!-- ── Mobile bottom navigation ─────────────────────────────────────── -->
 <nav class="mv-mobile-nav" id="mvMobileNav" aria-label="Mobilnavigasjon">
@@ -895,14 +900,13 @@ window.addEventListener('load', () => {
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202606210001"></script>
   <script src="js/supabase.js?v=202605251400"></script>
-  <script src="js/db.js?v=202606210004"></script>
+  <script src="js/db.js?v=202606220001"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
       <div id="lyricLabContent"></div>
     </section>
 
-  <section id="docsTab" class="tab-view hidden"><div id="docsContent"></div></section>
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
@@ -910,7 +914,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202606210001"></script>
   <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202606210001"></script>
+  <script src="js/docs.js?v=202606220002"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>
