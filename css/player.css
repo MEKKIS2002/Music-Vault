@@ -68,6 +68,12 @@
     #fff 0, #fff var(--pct,0%),
     rgba(255,255,255,.28) var(--pct,0%), rgba(255,255,255,.28) 100%) !important;
 }
+/* Spotify turns the progress bar green on hover — we use our gold instead. */
+.bp-seek:hover{
+  background:linear-gradient(to right,
+    #f4a443 0, #f4a443 var(--pct,0%),
+    rgba(255,255,255,.28) var(--pct,0%), rgba(255,255,255,.28) 100%) !important;
+}
 .bp-seek::-webkit-slider-thumb,.bp-vol::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
   width:12px; height:12px; border-radius:50%; background:#fff; border:0;

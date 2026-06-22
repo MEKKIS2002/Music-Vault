@@ -173,25 +173,30 @@ document.documentElement.classList.add('mv-mixed-ui');
   function renderStudioBoard(el, mode){
     if(!el) return;
     const beats = Array.from(el.querySelectorAll('.album-beat-card')).map(c=>getBeat(c.dataset.beatId)).filter(Boolean);
-    const cols = ['Idé/Skriver','Spilt inn','Miks/Master','Ferdig'];
-    const by = Object.fromEntries(cols.map(c=>[c,[]]));
+    const cols = [
+      {key:'Idé/Skriver', label:'Idé / Skriver', cls:'s-idea'},
+      {key:'Spilt inn',   label:'Spilt inn',     cls:'s-rec'},
+      {key:'Miks/Master', label:'Miks / Master', cls:'s-mix'},
+      {key:'Ferdig',      label:'Ferdig',        cls:'s-done'}
+    ];
+    const by = Object.fromEntries(cols.map(c=>[c.key,[]]));
     beats.forEach(b=>by[studioCol(b)].push(b));
     el.innerHTML = `<div class="studio-board">${cols.map(c=>`
-      <div class="studio-col">
-        <div class="studio-col-head"><span>${c}</span><span class="studio-col-count">${by[c].length}</span></div>
-        ${by[c].map(b=>{
+      <div class="studio-col ${c.cls}">
+        <div class="studio-col-head"><span class="studio-col-name">${c.label}</span><span class="studio-col-count">${by[c.key].length}</span></div>
+        <div class="studio-col-body">${by[c.key].map(b=>{
           const cov=coverForBeat(b,mode);
-          return `<div class="studio-track" data-beat-id="${safe(b.id)}" onclick="if(typeof toggleAlbumBeat==='function')toggleAlbumBeat('${safe(b.id)}')">
-            ${cov?`<img class="studio-thumb" src="${safe(cov)}" alt="">`:'<div class="studio-thumb"></div>'}
-            <div style="min-width:0">
+          const pct=Math.max(0,Math.min(100,Number(b.done||0)));
+          return `<div class="studio-track" data-beat-id="${safe(b.id)}" title="Åpne i Lyric Lab" onclick="if(typeof openInLyricLab==='function')openInLyricLab('${safe(b.id)}')">
+            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'🎵'}</div>
+            <div class="studio-main">
               <div class="studio-title">${safe(b.name)}</div>
-              <div class="studio-sub">${b.favorite?'★ ':''}${b.done||0}% · ${hasAudio(b)?'Lyd ✓':'Mangler lyd'}</div>
+              <div class="studio-prog"><span style="width:${pct}%"></span></div>
+              <div class="studio-sub">${b.favorite?'★ ':''}${pct}% · ${hasAudio(b)?'Lyd':'<em>Mangler lyd</em>'}</div>
             </div>
-            <div class="studio-actions">
-              <button onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')">▶</button>
-            </div>
+            <button class="studio-play" title="Spill" onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')">▶</button>
           </div>`;
-        }).join('')||'<div class="studio-empty">Tom</div>'}
+        }).join('')||'<div class="studio-empty">Ingen sanger her</div>'}</div>
       </div>`).join('')}</div>`;
   }
 
@@ -205,33 +210,21 @@ document.documentElement.classList.add('mv-mixed-ui');
   // Expose so db.js's updateBottomUI (loaded AFTER this file) can call it live on play/pause.
   window.markPlayingCard = markPlayingCard;
 
-  // Hook into renderAlbumBeats
-  const origRender = window.renderAlbumBeats;
-  if(typeof origRender === 'function'){
-    window.renderAlbumBeats = function(beats, mode, customEl){
-      origRender(beats, mode, customEl);
-      const el = customEl || document.getElementById(mode==='mixtape'?'mixtapeBeatList':'albumBeatList');
-      if(!el) return;
-      // Apply view class first
-      el.classList.remove('album-beat-grid','album-beat-listmode','album-beat-studio');
-      const v = getView();
-      if(v==='list')        el.classList.add('album-beat-listmode');
-      else if(v==='studio') el.classList.add('album-beat-studio');
-      else                  el.classList.add('album-beat-grid');
-      // Then enhance or render studio
-      requestAnimationFrame(() => {
-        if(getView()==='studio'){
-          renderStudioBoard(el, mode);
-        } else {
-          enhanceCards(el, mode);
-        }
-        // Sync toggle buttons
-        document.querySelectorAll('[data-track-view]').forEach(b =>
-          b.classList.toggle('active', b.dataset.trackView === getView())
-        );
-      });
-    };
+  // db.js OWNS renderAlbumBeats and loads AFTER this file, so wrapping window.renderAlbumBeats
+  // here fails: origRender is undefined at load (guard skips), and db.js's function declaration
+  // clobbers any wrapper anyway (FINDINGS §0). Instead we expose a hook that db.js calls at the
+  // END of renderAlbumBeats — that's what actually makes the studio board render.
+  function afterRenderAlbumBeats(el, mode){
+    if(!el) return;
+    const v = getView();
+    el.classList.remove('album-beat-grid','album-beat-listmode','album-beat-studio');
+    el.classList.add(v==='list' ? 'album-beat-listmode' : v==='studio' ? 'album-beat-studio' : 'album-beat-grid');
+    if(v==='studio') renderStudioBoard(el, mode);   // cards/list left as db.js rendered them
+    document.querySelectorAll('[data-track-view]').forEach(b =>
+      b.classList.toggle('active', b.dataset.trackView === v)
+    );
   }
+  window.afterRenderAlbumBeats = afterRenderAlbumBeats;
 
   // Hook into updateBottomUI to mark playing card
   const origUpdateBottomUI = window.updateBottomUI;

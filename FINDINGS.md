@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-06-22_
+> _Last updated: 2026-06-23_
 
 ---
 
@@ -205,7 +205,8 @@ Three-column studio screen (`js/lyriclab.js`, `css/lyriclab.css`):
 
 CSS: `main.css` base/vars/layout • `ui.css` hero/stats/buttons/vinyl • `track-cards.css` •
 `archive.css` • `mixtape.css` • `lyriclab.css` • `pipeline.css` • `docs.css` •
-`player.css` (Spotify-style bottom player; after ui.css, before mobile.css) • `mobile.css`.
+`player.css` (Spotify-style bottom player) • `home.css` (Hjem/dashboard redesign) •
+`mobile.css` (both player.css & home.css load after ui.css, before mobile.css).
 
 ## 10. Run locally
 
@@ -243,6 +244,34 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-23** — Redesigned the **Studio view** (album/mixtape) into a real **production-pipeline
+  kanban** + fixed why it looked identical to the cards view. Root cause was the classic §0 trap:
+  track-cards.js tried to wrap `window.renderAlbumBeats` (`const origRender=window.renderAlbumBeats; …`)
+  but db.js loads LAST and `origRender` is undefined at wrap time, so the wrapper never installed and
+  `renderStudioBoard` **never ran** — "studio" was just the card grid + an `.album-beat-studio` class
+  (hence "identical to cards, smaller, harder to read"). Fix (FINDINGS §0 pattern): exposed
+  `window.afterRenderAlbumBeats(el,mode)` in `track-cards.js` and call it at the END of db.js's
+  `renderAlbumBeats`; it applies the view class and, for studio, calls `renderStudioBoard`. Redesigned
+  the board: 4 stage columns (Idé/Skriver=blue, Spilt inn=amber, Miks/Master=purple, Ferdig=green) each
+  with a glowing dot + count pill, and track rows with a tinted thumb, bold title, stage-coloured
+  progress bar, ★/audio status, and a coloured play button. Track click → `openInLyricLab`; ▶ →
+  `playCollectionFromBeat`. New CSS appended to `css/track-cards.css` (uses `color-mix` for the per-stage
+  tints — needs an evergreen browser). Cards/list views are intentionally left exactly as db.js renders
+  them (didn't wire `enhanceCards`). Bumped `db.js`/`track-cards.js`→`202606220005`, `track-cards.css`→
+  `202606220005`. NB: studio board play buttons use `.studio-play` (not `.quick-play-btn`) so they don't
+  get the live ⏸ playing-state toggle — minor, acceptable.
+- **2026-06-22** — Progress bar **turns gold on hover** (Spotify uses green; we use `#f4a443`) — added
+  `.bp-seek:hover` gradient override in `css/player.css` (bumped `?v=`→`202606220002`). Plus a
+  **Hjem (dashboard) redesign** — CSS-only, keeps all markup + `renderDashboard()` in `js/db.js`
+  untouched (every `.dash-*/.hjem-*` class preserved). New dedicated `css/home.css` (loaded after
+  `ui.css`, before `mobile.css`): hero greeting band with amber glow + bigger greeting; gold gradient
+  "Ny sang" quick-action; legible section labels with a gold tick; elevated project/beat cards (gradient
+  + shadow + hover lift); a premium amber "Fortsett der du slapp" continue-strip with pill buttons;
+  taller gradient activity bars; capped `.dash-inner` to 1200px centred; 2-col grids on mobile.
+  Follow-up tweak (per feedback): **tightened the corner radii** (cards ~9–12px instead of 14–20px,
+  buttons 7–8px instead of pills) to match the app's more squared panels, and **removed the gold tick
+  (`.dash-section-label::before`)** that preceded each section title. `home.css?v=202606220002`. **Convention: page-specific visual polish goes in its own `css/<page>.css`
+  loaded after ui.css and before mobile.css (see also `player.css`).**
 - **2026-06-22** — Redesigned the **bottom player to a Spotify-style bar**. Two-colour scheme
   (black + white); the only accent is the **gold play/pause button** (`#f4a443`, same as primary
   buttons), black glyph. The player's styling was scattered across `main.css` + many `ui.css`

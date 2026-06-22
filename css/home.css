@@ -1,0 +1,124 @@
+/* ════════════════════════════════════════════════════════════════
+   home.css — redesigned Hjem (dashboard).
+   CSS-ONLY: keeps all markup + the render JS in js/db.js (renderDashboard)
+   intact — every .dash-*/.hjem-* class the JS emits is preserved, just
+   restyled. Loaded AFTER ui.css (so it wins the older dashboard styles)
+   and BEFORE mobile.css. Warm dark + a single gold accent.
+   Corners kept fairly tight to match the app's more squared panels.
+   ════════════════════════════════════════════════════════════════ */
+
+/* Centre + cap the content for a calmer rhythm on wide screens */
+.dash-inner{ max-width:1200px !important; margin:0 auto !important; padding:24px 28px 44px !important; }
+
+/* ── Hero greeting band ─────────────────────────────────────────── */
+.dash-greeting-row{
+  position:relative; overflow:hidden;
+  align-items:center !important;
+  padding:26px 28px; margin-bottom:28px;
+  border:1px solid rgba(255,212,160,.16); border-radius:12px;
+  background:
+    radial-gradient(130% 150% at 0% 0%, rgba(244,164,67,.18), transparent 55%),
+    linear-gradient(135deg, rgba(28,21,15,.92), rgba(12,10,8,.94));
+  box-shadow:0 22px 60px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.dash-greeting-row::after{
+  content:""; position:absolute; right:-80px; top:-100px; width:300px; height:300px; pointer-events:none;
+  background:radial-gradient(circle, rgba(255,183,87,.16), transparent 65%); filter:blur(10px);
+}
+.dash-greeting{ font-size:clamp(24px,3.2vw,34px) !important; line-height:1.04; }
+#dashSub{ margin-top:11px !important; margin-bottom:0 !important; }
+.ds-pill{ font-size:11px; padding:5px 11px; border-radius:6px !important; }
+
+/* Quick actions */
+.dash-quick{ gap:8px !important; }
+.dq-btn{
+  height:38px !important; padding:0 16px !important; border-radius:7px !important; font-size:12.5px !important;
+  background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.12) !important; color:rgba(255,255,255,.8) !important;
+  transition:transform .12s ease, background .14s ease, border-color .14s ease !important;
+}
+.dq-btn:hover{ background:rgba(255,255,255,.12) !important; transform:translateY(-1px); }
+.dq-btn.accent{
+  background:linear-gradient(135deg,#f4a443,#cb6e1a) !important; border:1px solid rgba(255,212,160,.32) !important;
+  color:#1a1206 !important; font-weight:800 !important; box-shadow:0 10px 24px rgba(203,110,26,.3) !important;
+}
+.dq-btn.accent:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+
+/* ── Section labels: legible (no leading tick) ──────────────────── */
+.dash-sec-hd{ margin-bottom:13px !important; }
+.dash-section-label{
+  font-size:11px !important; color:rgba(255,233,202,.6) !important; letter-spacing:.16em !important;
+}
+
+/* ── Recent projects ────────────────────────────────────────────── */
+.dash-projects-grid{ gap:14px !important; }
+.dash-proj-card{
+  border-radius:9px !important; border:1px solid rgba(255,255,255,.09) !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.28) !important;
+  transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease !important;
+}
+.dash-proj-card:hover{
+  transform:translateY(-3px) !important; border-color:rgba(244,164,67,.45) !important;
+  box-shadow:0 18px 40px rgba(0,0,0,.42), 0 0 0 1px rgba(244,164,67,.12) !important;
+}
+.dash-proj-footer{ padding:11px 13px 13px !important; }
+.dash-proj-name{ font-size:13px !important; }
+.dash-proj-meta{ font-size:11px !important; color:rgba(255,255,255,.4) !important; }
+
+/* ── "Fortsett der du slapp": premium continue strip ────────────── */
+.last-beat-card{
+  gap:18px !important; padding:18px 22px !important; border-radius:11px !important;
+  border:1px solid rgba(255,212,160,.22) !important;
+  background:
+    radial-gradient(120% 190% at 0% 0%, rgba(244,164,67,.17), transparent 58%),
+    linear-gradient(135deg, rgba(30,22,15,.9), rgba(14,11,9,.92)) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+.last-beat-card:hover{ border-color:rgba(244,164,67,.42) !important; }
+.last-beat-cover{ width:66px !important; height:66px !important; border-radius:9px !important; box-shadow:0 8px 20px rgba(0,0,0,.45); }
+.last-beat-label{ color:rgba(244,164,67,.85) !important; }
+.last-beat-name{ font-size:17px !important; }
+.last-beat-play{ height:42px !important; padding:0 22px !important; border-radius:8px !important; box-shadow:0 8px 20px rgba(203,110,26,.32) !important; }
+.last-beat-lab{ height:42px !important; border-radius:8px !important; }
+
+/* ── Recently uploaded beats ────────────────────────────────────── */
+#dashBeats{ gap:14px !important; }
+.dash-beat-card{
+  border-radius:9px !important; border:1px solid rgba(255,255,255,.09) !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
+  box-shadow:0 8px 22px rgba(0,0,0,.24) !important;
+  transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease !important;
+}
+.dash-beat-card:hover{ transform:translateY(-2px) !important; border-color:rgba(255,255,255,.18) !important; box-shadow:0 14px 32px rgba(0,0,0,.36) !important; }
+.dash-beat-thumb{ width:46px !important; height:46px !important; border-radius:8px !important; }
+.dash-btn-play,.dash-btn-lab{ height:30px !important; border-radius:6px !important; }
+.dash-btn-play{ background:rgba(244,164,67,.2) !important; }
+.dash-btn-play:hover{ background:rgba(244,164,67,.34) !important; }
+
+/* ── Bottom row cards ───────────────────────────────────────────── */
+.hjem-bottom-row{ gap:14px !important; }
+.hjem-bot-card{
+  border-radius:10px !important; padding:18px 20px !important;
+  border:1px solid rgba(255,255,255,.09) !important;
+  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)) !important;
+  box-shadow:0 10px 26px rgba(0,0,0,.26) !important;
+}
+.hjem-bot-card .dash-section-label{ margin-bottom:15px !important; }
+
+/* Activity bars: taller with a gradient fill */
+.act-bars{ gap:9px !important; }
+.act-bar{ height:44px !important; border-radius:6px !important; }
+.act-bar.on{ background:linear-gradient(180deg, rgba(244,164,67,.5), rgba(244,164,67,.2)) !important; border-color:rgba(244,164,67,.5) !important; }
+.act-bar.on.today{ background:linear-gradient(180deg,#f4a443, rgba(244,164,67,.38)) !important; }
+.streak-num{ color:#f4a443 !important; font-weight:900 !important; font-size:20px !important; }
+
+/* Smart alerts */
+.smart-alert{ border-radius:8px !important; padding:11px 13px !important; }
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+@media (max-width:768px){
+  .dash-inner{ padding:16px 14px 36px !important; }
+  .dash-greeting-row{ padding:18px 18px; border-radius:11px; margin-bottom:20px; }
+  .dash-projects-grid, #dashBeats{ grid-template-columns:repeat(2,1fr) !important; }
+  .hjem-bottom-row{ grid-template-columns:1fr !important; }
+}

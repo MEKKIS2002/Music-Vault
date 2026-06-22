@@ -1327,3 +1327,75 @@
 .ab-remove-btn:hover { background: rgba(251,113,133,.12) !important; color: #fb7185 !important; }
 /* Album header actions */
 .album-hd-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+
+/* ════════════════════════════════════════════════════════════════
+   Studio view — REDESIGN (production-pipeline kanban).
+   Replaces the old card-like studio look with 4 stage columns that
+   each have their own accent colour + readable track rows with a
+   progress bar. These rules sit after the earlier .studio-* block
+   (same selectors, later in source) so they win the cascade.
+   ════════════════════════════════════════════════════════════════ */
+.album-beat-studio{ display:block !important; }
+.studio-board{
+  grid-column:1/-1; display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px; width:100%; align-items:start;
+}
+.studio-col{
+  --s:#7f9cc9;
+  border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:0; min-height:120px; overflow:hidden;
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.012));
+}
+.studio-col.s-idea{ --s:#7f9cc9; }
+.studio-col.s-rec { --s:#f4a443; }
+.studio-col.s-mix { --s:#b98bff; }
+.studio-col.s-done{ --s:#34d399; }
+.studio-col-head{
+  display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0;
+  padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--s) 15%, transparent), transparent);
+}
+.studio-col-name{
+  display:flex; align-items:center; gap:9px; font-weight:800; color:#f4ede4;
+  font-size:12px; letter-spacing:.05em; text-transform:uppercase;
+}
+.studio-col-name::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--s); box-shadow:0 0 10px var(--s); flex-shrink:0; }
+.studio-col-count{
+  min-width:24px; height:22px; padding:0 8px; border-radius:999px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800; color:var(--s);
+  background:color-mix(in srgb, var(--s) 16%, transparent);
+  border:1px solid color-mix(in srgb, var(--s) 38%, transparent);
+}
+.studio-col-body{ padding:10px; display:flex; flex-direction:column; gap:8px; }
+.studio-track{
+  display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:11px; align-items:center;
+  margin:0; padding:9px; border-radius:11px; cursor:pointer;
+  border:1px solid rgba(255,255,255,.07); background:rgba(0,0,0,.22);
+  transition:transform .12s ease, border-color .12s ease, background .12s ease;
+}
+.studio-track:hover{
+  transform:translateY(-2px); background:rgba(255,255,255,.05);
+  border-color:color-mix(in srgb, var(--s) 50%, transparent);
+}
+.studio-thumb{
+  width:44px; height:44px; border-radius:9px; flex-shrink:0; overflow:hidden;
+  display:flex; align-items:center; justify-content:center; font-size:18px; color:#fff;
+  background:linear-gradient(135deg, color-mix(in srgb, var(--s) 32%, transparent), rgba(255,255,255,.04));
+}
+.studio-thumb img{ width:100%; height:100%; object-fit:cover; }
+.studio-main{ min-width:0; }
+.studio-title{ font-size:13.5px; font-weight:800; color:#f4ede4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.studio-prog{ height:4px; border-radius:2px; background:rgba(255,255,255,.1); margin:6px 0 5px; overflow:hidden; }
+.studio-prog>span{ display:block; height:100%; border-radius:2px; background:var(--s); transition:width .3s ease; }
+.studio-sub{ font-size:11px; color:rgba(255,255,255,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.studio-sub em{ font-style:normal; color:#fb7185; }
+.studio-play{
+  width:32px; height:32px; flex-shrink:0; border:0; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:11px;
+  background:color-mix(in srgb, var(--s) 20%, transparent); color:var(--s);
+  transition:background .12s ease, transform .12s ease;
+}
+.studio-play:hover{ background:var(--s); color:#0c0a08; transform:scale(1.08); }
+.studio-empty{ color:rgba(255,255,255,.3); font-size:12px; padding:16px 8px; text-align:center; }
+@media(max-width:900px){ .studio-board{ grid-template-columns:1fr 1fr; } }
+@media(max-width:560px){ .studio-board{ grid-template-columns:1fr; } }

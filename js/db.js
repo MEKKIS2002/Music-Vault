@@ -902,6 +902,9 @@ function renderAlbumBeats(beats,mode,customEl){
       </div>
     </div>`;
   }).join("");
+  // The studio kanban + view-class logic live in track-cards.js, but db.js OWNS renderAlbumBeats
+  // and loads LAST (its declaration clobbers any wrapper), so we invoke the hook here. (FINDINGS §0)
+  if(typeof window.afterRenderAlbumBeats==='function') window.afterRenderAlbumBeats(el, listMode);
 }
 // ══════════════════════════════════════════════════════════════════════════════
 // mvShare — standalone share modal (reads data-share="type|id|name")
