@@ -150,10 +150,12 @@ State lives in `localStorage` under key `musicVault.v4` (per-user mirror
     id, name, cover, audio_url, lyrics,
     lyricSections: [{ id, type, title, text, collapsed, order }],
     lyricLabStatus, takes, memos,
+    rawVocals: [{ id, name, size, type, key, idbKey, url, uploadedAt }],
+    playCount, lastPlayedAt,
     bpm, key, mood, tags, done, favorite, rating, archived
   }],
-  albums:   [{ id, name, cover, beatIds, status, done, archived }],
-  mixtapes: [{ id, name, cover, beatIds, archived }],
+  albums:   [{ id, name, cover, beatIds, studioOrder, status, done, archived }],
+  mixtapes: [{ id, name, cover, beatIds, studioOrder, archived }],
   settings: {}
 }
 ```
@@ -162,11 +164,20 @@ Notes:
 - Legacy `beat.lyrics` is migrated into `beat.lyricSections[0]` (original kept).
 - Recording takes are stored on `beat.takes[]`.
 - Mixtape cassette variant is chosen **deterministically per mixtape id**.
+- `album/mixtape.studioOrder` (optional `[beatId]`) is the **studio-view-only** ordering, kept
+  separate from `beatIds` so reordering in the studio kanban does NOT change the album/mixtape
+  track order. Seeded from `beatIds` on first studio drop; `renderStudioBoard` falls back to
+  `beatIds` order when it's absent. Only `js/track-cards.js` reads/writes it. (FINDINGS §12 2026-06-23 F2)
 
 ## 7. Cloudflare Worker API
 
 Source in repo: `worker/r2-worker.js` (R2 endpoints). The `/rhyme` proxy lives in the
 deployed Worker. See `worker/SETUP.md`.
+
+**R2 key namespaces:** `active/{beatId}` (live audio), `archived/{beatId}` (archived audio),
+`raw/{beatId}/{fileId}` (F5 RAW vocal stems — uncompressed, one per uploaded file). `r2-storage.js`
+exposes `upload(beatId,file,archived)`/`remove(beatId,archived)`/`move` for the beat audio, plus
+generic `uploadKey(key,file)`/`removeKey(key)`/`fileUrl(key)` for arbitrary keys (used by RAW vocals).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -244,6 +255,139 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-06-23** — **Forbedringsliste Pulje 4 del 2** (F7 — FULLFØRT PULJE 4). Bumpet `db.js`/
+  `beats-tab.js`/`track-cards.css` `?v=`→`202606230012`. **Avspillingshistorikk/spilleteller.** La til
+  `recordBeatPlay(beatId)` kalt fra `playBottomIndex` rett etter at `audio.play()` lykkes — det er det
+  ENESTE knutepunktet for all avspilling (album, mixtape, enkeltbeat, samling går alle via
+  `playQueue`→`playBottomIndex`), så én opptelling dekker alt. Øker `beat.playCount` +
+  setter `beat.lastPlayedAt`, `saveState()` (synker til Supabase). **Terskel (per brukerønske, `?v=…0013`):
+  teller KUN når ≥20% av sangen er spilt av** (ikke ved start). `playBottomIndex` nuller
+  `bottomPlayer.playCounted=false` per ny sang; `updateBottomProgress` (timeupdate) kaller `recordBeatPlay`
+  når `currentTime/dur>=0.2 && !paused && !playCounted`, og setter flagget så det teller maks én gang per
+  avspilling. (NB: å scrolle forbi 20% teller også — akseptabelt; matcher «20% spilt av».) Vises som en liten gull-chip
+  `.ab-playcount` (`data-pc-id=<beatId>`, skjult når 0 via `.empty`) i tittel-raden på album/mixtape-kort
+  (`db.js`) OG i beats-fanens `.bl-row` (`beats-tab.js`). `updatePlayCountBadges(beatId)` oppdaterer alle
+  chips live via `[data-pc-id]` uten full re-render. Hjelpere i `db.js`: `recordBeatPlay`, `playCountTitle`
+  (tooltip «Spilt N ganger · sist …»), `updatePlayCountBadges`. Se §6 datamodell (`playCount`,
+  `lastPlayedAt`). **Pulje 4 KOMPLETT (F6 bytt lydfil, F5 RAW-vokaler, F7 spilleteller).**
+- **2026-06-23** — **Forbedringsliste Pulje 4 del 1** (F6 + F5). Bumpet `db.js`/`track-cards.css`/
+  `r2-storage.js` `?v=`→`202606230010`. (F6) **Bytt ut lydfil på en sang.** «🎵 Bytt lydfil»-knappen
+  (`uploadBeatAudio`) lagret før KUN lokalt (IDB), uten advarsel og uten R2. Nå: `confirm()`-advarsel
+  («overskriver den gamle PERMANENT»), lagrer ny lokal blob (umiddelbar avspilling), OG laster opp til R2.
+  Siden R2-nøkkelen er `active/{beat.id}` (stabil) **overskriver** PUT-en den gamle filen → gammel fil
+  slettet/​lagring frigjort automatisk. URL-en er identisk etter overskriving, så `audio_url` får en
+  cache-bust (`?v=Date.now()`) for å unngå at gammel lyd serveres. Pusher til Supabase. (F5) **RAW-vokaler.**
+  Ny seksjon i det utvidede album/mixtape-beat-kortet (`.ab-raw`, `id=abraw-<beatId>`): last opp FLERE
+  høykvalitets vokalfiler (NB: hopper bevisst over `audioCompress` — full kvalitet), hver får offentlig
+  R2-URL. Lagres i `beat.rawVocals[]` (synkes til Supabase). Per fil: ⬇ last ned/åpne, 🔗 kopier
+  delingslenke (for produsenter), 🗑 slett (confirm → R2 `removeKey` + fjern metadata). R2-nøkkel:
+  `raw/{beatId}/{fileId}` — krevde nye generiske `uploadKey/removeKey/fileUrl` i `r2-storage.js` (de gamle
+  `upload/remove` bygger bare `active|archived/{beatId}`). Funksjoner i `db.js`: `uploadRawVocals`,
+  `deleteRawVocal`, `copyRawVocalLink`, `rawVocalsMarkup`, `renderRawList`. Se §6 (datamodell) + §7
+  (R2-namespaces). NB: nedlasting via `download`-attr ignoreres cross-origin (FINDINGS share-notat) — derfor
+  er 🔗 kopier-lenke hovedmåten å dele med produsenter. **Follow-up (`?v=…0011`) — LOKAL-FØRST:** første
+  versjon krevde R2 og gjorde «ingenting» lokalt (R2-CORS tillater kun github.io-origin → opplasting feiler
+  stille). Nå lagres hver fil i IndexedDB FØRST (`audioDB.save('raw:{beatId}:{rawId}', file)`) og vises
+  umiddelbart med ⬇ lokal nedlasting (`downloadLocalRaw` → objekt-URL fra IDB); R2-opplasting skjer i
+  bakgrunnen for delbar lenke. Uten R2-url vises «lokal»-badge og 🔗 sier at lenke lages på live-siden.
+  `rawVocals`-entry har nå også `idbKey`. `accept` utvidet med eksplisitte endelser (`.wav,.aif,.aiff,
+  .flac,.m4a`) siden `.wav` ikke alltid matcher `audio/*` i fil-velgeren. **Regel: R2-funksjoner kan ikke
+  testes lokalt (CORS = kun github.io) — bygg lokal-først (IDB) så de er testbare + degraderer pent.**
+  **GJENSTÅR i Pulje 4: F7 avspillingshistorikk/spilleteller** (ikke startet).
+- **2026-06-23** — **Forbedringsliste Pulje 3** (visuell polish). Bumpet `db.js`/`track-cards.js`/
+  `track-cards.css`/`app.js`/`main.css` `?v=`→`202606230008`. (V11) **Én kombinert progresjonsbar.**
+  Album-beat-kortet hadde TO barer: en visuell `.progress-bar` + en `<input type=range>` under. Erstattet
+  begge med ÉN stylet range (`<input class="ab-progress-range" id="abirange-<id>" style="--pct:..%">`):
+  gull gradient-fyll opp til `--pct`, grå spor etter, hvit thumb. Fyllet males via `--pct` (samme mønster
+  som player-seekbaren, `bpSetRangeFill`). CSS i `track-cards.css` bruker `::-webkit-slider-runnable-track`
+  + `::-moz-range-track` (gradient) og sentrert thumb (`margin-top:-3px`). `setAlbumBeatDone` oppdaterer nå
+  `--pct` på range i stedet for `.progress-bar` width. NB: det finnes TO `setAlbumBeatDone` (db.js + en
+  `window.`-versjon i track-cards.js) — db.js vinner (laster sist), men begge ble oppdatert. (V12) **Album-
+  vinylen roterer ved avspilling.** Den roterte ALDRI: `#albumDetailHd .album-detail-vinyl` har
+  `transform:translateY(-50%)!important` (ui.css) for sentrering, og `!important` statisk transform slår
+  CSS-animasjoner → `vinylSpin` ble blokkert. Fiks: la disk-VISUALET (bakgrunn/spor/skygge) + spinnet på et
+  NYTT indre element `.album-detail-vinyl-disc` (uten posisjonerings-transform, så rotasjon er fri).
+  `.album-detail-vinyl` (ytre) beholder posisjonering. Roterer KUN under avspilling via `body.is-playing-album`
+  (allerede live-togglet av `updatePlayingAnimations`, app.js:559 — gjelder både album-spill OG per-sang siden
+  `playCollectionFromBeat` setter `context.type='album'`). Idle = statisk. Markup endret i `app.js`
+  (wrapper-div). Fjernet den døde `vinyl-spinning`-toggle på «Spill fra start». **Regel: en CSS-rotasjon
+  blokkeres av en `!important` statisk `transform` på samme element — roter et indre element uten
+  posisjonerings-transform.** **Follow-up (per brukerønske, `?v=…0009`):** byttet CSS-spinnet ut med en
+  **rAF-drevet spinn-motor** i `app.js` (`mvVinylSetPlaying`, kalt fra `updatePlayingAnimations`) slik at
+  vinylen **gradvis spinner OPP fra null** når avspilling starter og **gradvis ned til stopp** når den
+  stopper — en CSS `animation:…infinite` kan ikke ease seg inn/ut av full fart. Vinkelhastigheten ease-er
+  mot et mål (full fart ved spilling, 0 ved stopp) via `vel+=(target-vel)*(1-e^(-dt/TAU))`; setter
+  `transform:rotate()` på `.album-detail-vinyl-disc` hver frame; stopper rAF-loopen når den er helt stille.
+  Topphastighet senket til 6s/omdreining (`VINYL_MAX_DPS=360/6`), ramp `VINYL_RAMP_TAU=1.5s` (juster disse
+  to konstantene for fart/mykhet). Fjernet `animation:vinylSpin`-regelen i `main.css` (ikke re-add den). (V13) **Nytt beat arver cover umiddelbart.** `archive.js` har allerede
+  arve-maskineri (`syncCollectionCover`, hekta på `renderAlbumDetail`), men nye beats (cover:"") fikk
+  placeholder til neste detail-render. La til `inheritCollectionCover(beat,col,type)` kalt direkte i
+  `addBeatToAlbum`/`addBeatToMixtape`: setter `beat.cover=col.cover` + `coverInherited`-flagg med en gang
+  (kun hvis beatet mangler cover). (V14) **Cover-crop: største sentrerte kvadrat.** `setAlbumBeatCover`
+  STREKTE bildet inn i 600x338 (`drawImage(img,0,0,600,338)`), og `newAlbumCoverInput` letterboxet
+  (`Math.min`). Ny delt helper `mvSquareCoverDataURL(img,size,quality)` (sentrert største-kvadrat-crop via
+  `drawImage(img,sx,sy,s,s,0,0,size,size)`) brukt i `setAlbumBeatCover`, `newAlbumCoverInput` og
+  `makeAlbumCover`. Mixtape/kassett-cover har egen interaktiv crop (`cassetteCropUpload`) — IKKE rørt.
+- **2026-06-23** — **Forbedringsliste Pulje 2** (drag-and-drop-opprydding). (F3) **Reorder-drag starter
+  nå BARE fra coveret, etter press-and-hold.** Tok `draggable`/`ondragstart` av hele `.album-beat-card`
+  og la det på `.ab-cover-wrap` i `js/db.js` (`renderAlbumBeats`); drop-handlerne (`dragBeatOver`/
+  `dragBeatLeave`/`dropCollectionBeat`) ble igjen på kortet (drop-target). La til en arm-gate:
+  `startCollectionDrag` (på coveret) flytter sangen. **ENDELIG design (etter 2 mislykkede forsøk samme
+  dag — `?v=…0005`):** drag fra coveret er nå UMIDDELBAR (ingen press-and-hold), helt lik studio-boardet
+  som brukeren bekreftet «funker perfekt». Historikk for å unngå å gjeninnføre fellene: forsøk 1 hadde en
+  «arm»-gate (onpointerdown→200/280ms-timer→`_coverDragArmed`-flagg som `startCollectionDrag`
+  sjekket). To problemer drepte den: (a) `onpointerleave` nullet armingen — coveret er 42px i radvisning,
+  så pekeren forlater det i det du begynner å dra, FØR `dragstart`; (b) selv uten det krevde gaten at man
+  holdt STILLE i 200ms før man dro — en naturlig «ta-tak-og-dra» (<200ms) ble alltid blokkert → «kan ikke
+  dra kortene i det hele tatt». Konklusjon: **ikke prøv press-and-hold-gating oppå native HTML5-DnD** —
+  pointer-events (leave/cancel/up) fyrer rundt `dragstart` på uforutsigbar måte og native drag trenger
+  bevegelse umiddelbart. Fjernet hele arm-mekanikken (`coverHoldStart`/`coverHoldCancel`/`_coverDragArmed`
+  og pointer-attrs). Slider-bugen («drag aktiveres når jeg justerer progresjonen») er løst alene av at
+  drag-kilden nå KUN er `.ab-cover-wrap` (slideren ligger ikke lenger i et `draggable` element). Klikk på
+  cover = utvid (native dragstart fyrer bare på faktisk drag-bevegelse, ikke klikk). `.drag-armed`-CSS i
+  track-cards.css er nå ubrukt (ufarlig). Erstattet den gamle `closest("button,a,input,…")`-guarden (unødig
+  — kilden er kun coveret). NB: native HTML5-DnD virker ikke på touch (desktop-interaksjon, uendret). (F2)
+  **Studio-rekkefølge er nå uavhengig av album/mixtape.** `handleStudioDrop` (`js/track-cards.js`)
+  skrev tidligere `col.beatIds` → endret faktisk album-rekkefølgen. Nå skriver den en egen
+  `col.studioOrder` (seedes fra `beatIds` første gang, holdes i sync på medlemskap), og `beatIds` røres
+  ikke. `renderStudioBoard` sorterer beats etter `studioOrder` når den finnes (ellers `beatIds`).
+  Stage-bytte (`beat.done = STAGE_VAL`) beholdt — det er studioens hensikt. Se §6 datamodell. (V8)
+  **Gull drop-linje i rad/kort — FIKSET (var aldri synlig).** CSS-en fantes (`track-cards.css:~1407`)
+  men `::after`-linjen lå UTENFOR kortet (`top/bottom/left/right:-3px`) og `.album-beat-card` har
+  `overflow:hidden` (main.css:161/584 + track-cards.css:8) → linjen ble alltid klippet bort. Min første
+  «verifisering» var feil (jeg leste bare CSS-en, testet den ikke). **To bom-fikser før det funket:**
+  (a) flyttet `::after` fra utenfor (`-3px`) til innenfor (`0`) kanten — fortsatt usynlig fordi en
+  `::after` er et BARN av kortet: utenfor klippes den av `overflow:hidden`, og innenfor males den UNDER
+  radinnholdet (cover/tittel). (b) **Endelig løsning:** dropp `::after` helt — bruk en YTRE `box-shadow`
+  på selve kortet (`box-shadow: 0 -3px 0 0 #f4a443, 0 -3px 13px glow` for «slipp før», `0 3px …` for
+  «etter»; venstre/høyre for grid). Et elements egen `overflow:hidden` klipper IKKE elementets egen
+  outset-skygge, og den males i mellomrommet ved siden av kortet (over innholdet). La til `z-index:3` på
+  `.drag-over` så skyggen ligger over nabokortet. **Regel: drop-indikatorer på et `overflow:hidden`-kort
+  må tegnes som kortets egen outset `box-shadow`, ALDRI som et `::after`-barn (klippes/males under
+  innhold).** `track-cards.css?v=`→`202606230007`. (Pulje 2 versjoner: `db.js`→`…0005`,
+  `track-cards.js`→`…0003`, `track-cards.css`→`…0007`.)
+- **2026-06-23** — **Forbedringsliste Pulje 1** (3 raske gevinster). (F4) **Logo → Hjem**: la til en
+  click-listener på `.mv-logo` i `js/db.js` (rett før `.tab-btn`-wiringen) som `.click()`er
+  `[data-tab="hjem"]`; gjorde logoen klikkbar i `css/ui.css` (`cursor:pointer` + gull hover/glow). Holdt
+  den ut av inline-JS (konvensjon). For produsentbrukere blokkeres hjem av den eksisterende tab-guarden
+  (viser bare en toast) — akseptabelt. (V9) **Rad-handlinger alltid synlige**: `.ab-share-btn`/
+  `.ab-rename-btn`/`.ab-remove-btn` hadde inline `opacity:0` + ble bare avslørt av
+  `.album-beat-card:hover` (i `track-cards.css`/`ui.css`). Endret hover-regelen i `css/track-cards.css`
+  (~L1322) til `.album-beat-card .ab-*-btn{opacity:1!important}` (stylesheet-`!important` slår den
+  *normale* inline `opacity:0`). De gamle `:hover`-reglene i ui.css setter samme verdi → harmløse.
+  (V10) **Tom del-knapp**: radkortets «Del offentlig lenke»-knapp (`db.js:882`) brukte et inline-SVG
+  lenkeikon som rendret tomt hos brukeren; byttet til `🔗`-emoji (matcher del-modalens `🔗 Del sang`)
+  + la til `font-size:13px;line-height:1`. NB: del-knappen finnes IKKE i den *utvidede* `ab-expand`-raden
+  (Spill/Bytt lydfil/Coverbilde) — den ligger på selve sangraden som vises over det åpne kortet. Bumpet
+  `db.js`/`ui.css`/`track-cards.css` `?v=`→`202606230002`. **Resterende forbedringsliste (prioritert):**
+  Pulje 2 (DnD-opprydding) F3 hold-på-cover for å starte drag (long-press, skille fra klikk-utvid),
+  F2 uavhengig studio-rekkefølge (egen `studioOrder`, ikke del `beatIds`), V8 verifiser drop-linje i
+  rad/kort. Pulje 3 (visuell): V11 kombiner de to progresjonsbarene til én, V12 vinyl roterer ved
+  avspilling (merk: `app.js:201` legger allerede `vinyl-spinning` på `#albumDetailHd` ved «Spill fra
+  start» — bygg på den), V13 nytt beat arver album/mixtape-cover umiddelbart, V14 bedre cover-crop
+  (største kvadratiske utsnitt). Pulje 4 (R2/datamodell): F6 bytt ut lydfil (slett gammel + advarsel),
+  F5 last opp RAW-vokaler (flere filer, deling/sletting), F7 avspillingshistorikk/spilleteller.
+  Egen sak: F1 «fiks telefonvisning» — venter på konkret beskrivelse fra bruker (hvilken side/bredde).
 - **2026-06-23** — **Drag-and-drop drop indicators** + **studio column DnD**. (1) Studio board: tracks
   are now draggable between the 4 stage columns (`js/track-cards.js`: `wireStudioDnD`/`handleStudioDrop`).
   Dropping into a different column snaps the song's `done%` into that stage (Idé=10/Spilt inn=40/

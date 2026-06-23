@@ -217,6 +217,7 @@
                 <span class="bl-cover">${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>
+                  <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}">▶ ${Number(b.playCount)||0}</span>
                   ${b.rating ? `<span class="bl-rating">${'★'.repeat(Math.round(b.rating/2))}</span>` : ''}
                 </span>
                 <span class="bl-collections">${colChips}</span>

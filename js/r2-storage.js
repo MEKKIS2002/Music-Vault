@@ -71,6 +71,33 @@
     if (!res.ok) console.warn('R2 sletting feilet:', res.status);
   }
 
+  // ── GENERIC KEY OPS (arbitrary key, e.g. "raw/{beatId}/{fileId}" for RAW vocals) ──────
+  // Like upload()/remove() but take a full R2 key directly instead of building active/archived.
+  async function uploadKey(key, file, onProgress = null) {
+    if (!ready()) throw new Error('R2 Worker URL ikke konfigurert');
+    const url = `${R2_WORKER_URL}/upload/${encodeURIComponent(key)}`;
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url);
+      xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+      if (onProgress) xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); });
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try { const res = JSON.parse(xhr.responseText); resolve(res.url || `${R2_WORKER_URL}/file/${encodeURIComponent(key)}`); }
+          catch { resolve(`${R2_WORKER_URL}/file/${encodeURIComponent(key)}`); }
+        } else reject(new Error(`R2 opplasting feilet: HTTP ${xhr.status}`));
+      };
+      xhr.onerror = () => reject(new Error('R2 opplasting: nettverksfeil'));
+      xhr.send(file);
+    });
+  }
+  async function removeKey(key) {
+    if (!ready()) return;
+    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+    if (!res.ok) console.warn('R2 sletting feilet:', res.status);
+  }
+  function fileUrl(key) { return ready() ? `${R2_WORKER_URL}/file/${encodeURIComponent(key)}` : null; }
+
   // ── MOVE (archive / restore) ─────────────────────────────────────────
   // Copies from src key to dst key via Worker, then deletes src.
   async function move(beatId, toArchived) {
@@ -94,7 +121,7 @@
   }
 
   // ── EXPOSE ───────────────────────────────────────────────────────────
-  window.r2Storage = { upload, remove, move, getUrl, ready };
+  window.r2Storage = { upload, remove, move, getUrl, ready, uploadKey, removeKey, fileUrl };
 
   // ── HOOK INTO ARCHIVE/RESTORE ─────────────────────────────────────────
   // Moves file in R2 when a beat is archived or restored

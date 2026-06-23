@@ -181,8 +181,10 @@
       <div class="album-detail-premium">
         <div class="album-detail-art" aria-hidden="true">
           <div class="album-detail-vinyl">
-            <div class="album-detail-vinyl-label">${label}</div>
-            <div class="album-detail-vinyl-hole"></div>
+            <div class="album-detail-vinyl-disc">
+              <div class="album-detail-vinyl-label">${label}</div>
+              <div class="album-detail-vinyl-hole"></div>
+            </div>
           </div>
           <div class="album-detail-cover-card">${cover}</div>
         </div>
@@ -198,7 +200,7 @@
             <span>${avg}% ferdig</span>
           </p>
           <div class="album-detail-actions">
-            <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}');document.getElementById('albumDetailHd')?.classList.add('vinyl-spinning')">▶ Spill fra start</button>
+            <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')">▶ Spill fra start</button>
             ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer">🖼️ Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
             <button class="ghost-btn" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning">💿 A/B-side</button>
             ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager">📄 Pitch</button>` : ''}
@@ -556,7 +558,31 @@ loadComments();
   window.producerQuickUpload=async function(files){let mt=state.mixtapes[0];if(!mt){mt={id:uid(),name:'Producer Uploads',beatIds:[],color:CASS_COLORS[0],status:'Åpen for uploads',createdAt:Date.now()};state.mixtapes.unshift(mt);}currentMixtapeId=mt.id;for(const f of [...files])addBeatToMixtape(await createBeatFromFile(f));saveState();renderMixtapes();showToast(`✓ ${files.length} beat${files.length===1?'':'s'} lastet opp`);};
 
   function hydrateCards(){document.querySelectorAll('.cassette-card,.album-card,.album-beat-card').forEach(el=>{el.addEventListener('dragstart',()=>document.body.classList.add('is-dragging'),{once:true});el.addEventListener('dragend',()=>document.body.classList.remove('is-dragging'),{once:true});});updatePlayingAnimations();}
-  function updatePlayingAnimations(){document.body.classList.toggle('is-playing-mixtape',bottomPlayer.context?.type==='mixtape'&&!bottomPlayer.audio.paused);document.body.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused);document.querySelectorAll('.album-detail-hd').forEach(h=>h.classList.toggle('is-playing-album',bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused));
+
+  // ── Vinyl spin engine (V12 follow-up) ──────────────────────────────────────────────
+  // rAF-driven instead of a CSS animation so the disc can gradually SPIN UP from a dead stop
+  // and SPIN DOWN to a stop (a CSS `animation:spin infinite` can't ease in/out of full speed).
+  // The angular velocity eases toward a target: full speed while the album plays, 0 when it stops.
+  const VINYL_MAX_DPS = 360/6;     // top speed = 6s per revolution (slow, calm record spin)
+  const VINYL_RAMP_TAU = 1.5;      // seconds — larger = more gradual spin-up / spin-down
+  let _vinAngle=0,_vinVel=0,_vinTarget=0,_vinRaf=null,_vinLast=0;
+  function _vinFrame(t){
+    if(!_vinLast)_vinLast=t;
+    const dt=Math.min(0.05,(t-_vinLast)/1000);_vinLast=t;
+    const k=1-Math.exp(-dt/VINYL_RAMP_TAU);          // smooth approach toward target velocity
+    _vinVel+=(_vinTarget-_vinVel)*k;
+    _vinAngle=(_vinAngle+_vinVel*dt)%360;
+    const disc=document.querySelector('#albumDetailHd .album-detail-vinyl-disc');
+    if(disc)disc.style.transform='rotate('+_vinAngle.toFixed(2)+'deg)';
+    if(_vinTarget===0&&Math.abs(_vinVel)<0.4){_vinVel=0;_vinLast=0;_vinRaf=null;return;}  // stopped → halt loop
+    _vinRaf=requestAnimationFrame(_vinFrame);
+  }
+  function mvVinylSetPlaying(playing){
+    _vinTarget=playing?VINYL_MAX_DPS:0;
+    if(_vinRaf===null){_vinLast=0;_vinRaf=requestAnimationFrame(_vinFrame);}
+  }
+  window.mvVinylSetPlaying=mvVinylSetPlaying;
+  function updatePlayingAnimations(){const _albumPlaying=bottomPlayer.context?.type==='album'&&!bottomPlayer.audio.paused;mvVinylSetPlaying(_albumPlaying);document.body.classList.toggle('is-playing-mixtape',bottomPlayer.context?.type==='mixtape'&&!bottomPlayer.audio.paused);document.body.classList.toggle('is-playing-album',_albumPlaying);document.querySelectorAll('.album-detail-hd').forEach(h=>h.classList.toggle('is-playing-album',_albumPlaying));
     // Persistent glow on the song currently playing (album/mixtape rows + beats-tab rows)
     const playingId=(!bottomPlayer.audio.paused)?bottomPlayer.queue?.[bottomPlayer.index]?.id:null;
     document.querySelectorAll('.now-playing-glow').forEach(el=>{if(!playingId||el.dataset.beatId!==String(playingId))el.classList.remove('now-playing-glow');});

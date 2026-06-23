@@ -735,17 +735,25 @@ button.primary-btn,.primary-btn{background:linear-gradient(135deg,var(--accent),
   top:50%;
   transform:translate(-20%,-50%);
   border-radius:50%;
+  z-index:1;
+}
+/* V12: the disc VISUAL + the spin live on an inner element. The outer .album-detail-vinyl keeps
+   the positioning transform (which is `!important` in ui.css and would otherwise block any spin
+   animation — !important static transforms beat CSS animations). The inner disc has no positioning
+   transform, so it rotates freely. It spins ONLY while the album is playing (is-playing-album,
+   toggled live on play/pause by updatePlayingAnimations) — idle = static. */
+.album-detail-vinyl-disc{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
   background:
     radial-gradient(circle at center,#050505 0 7%,#151515 7.5% 13%,#080808 13.5% 100%),
     repeating-radial-gradient(circle at center,#141414 0 2px,#050505 2px 4px);
-  box-shadow:0 28px 60px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.05),inset 0 0 34px rgba(0,0,0,.9);
-  z-index:1;
-  animation:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 0 34px rgba(0,0,0,.9);
 }
-.album-detail-vinyl{animation:vinylSpin 8s linear infinite}
-#albumDetailHd.is-playing-album .album-detail-vinyl,
-body.is-playing-album #albumDetailHd .album-detail-vinyl{animation:vinylSpin 1.5s linear infinite}
-.album-detail-vinyl::before{
+/* V12 follow-up: rotation is driven by the JS spin engine (mvVinylSetPlaying in app.js) so it can
+   gradually spin up/down — NOT a CSS animation. Do not re-add `animation:vinylSpin` here. */
+.album-detail-vinyl-disc::before{
   content:"";
   position:absolute;
   inset:0;

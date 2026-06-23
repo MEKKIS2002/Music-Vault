@@ -207,6 +207,32 @@
 .album-beat-card.expanded .progress-wrap input[type="range"]{
   max-width:300px!important;
 }
+/* V11: ONE combined progress bar. The range input IS the bar — gold gradient fill up to --pct,
+   grey track after — replacing the old separate .progress-bar + a slider stacked under it.
+   --pct is set inline at render and updated by setAlbumBeatDone. */
+.ab-progress-range{
+  -webkit-appearance:none; appearance:none;
+  width:100%; max-width:300px; height:15px; margin-top:5px; padding:0; border:none;
+  background:transparent; cursor:pointer; outline:none;
+}
+.ab-progress-range::-webkit-slider-runnable-track{
+  height:9px; border-radius:999px;
+  background:linear-gradient(90deg, var(--accent) 0%, var(--accent2) var(--pct,0%), rgba(255,255,255,.12) var(--pct,0%), rgba(255,255,255,.12) 100%);
+}
+.ab-progress-range::-moz-range-track{
+  height:9px; border-radius:999px;
+  background:linear-gradient(90deg, var(--accent) 0%, var(--accent2) var(--pct,0%), rgba(255,255,255,.12) var(--pct,0%), rgba(255,255,255,.12) 100%);
+}
+.ab-progress-range::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:15px; height:15px; margin-top:-3px;
+  border-radius:50%; background:#fff; border:2px solid var(--accent);
+  box-shadow:0 1px 5px rgba(0,0,0,.45); cursor:grab;
+}
+.ab-progress-range:active::-webkit-slider-thumb{ cursor:grabbing; }
+.ab-progress-range::-moz-range-thumb{
+  width:15px; height:15px; border-radius:50%; background:#fff; border:2px solid var(--accent);
+  box-shadow:0 1px 5px rgba(0,0,0,.45); cursor:grab;
+}
 @media(max-width:720px){
   .album-beat-card:not(.expanded) .ab-top,
   .album-beat-card.expanded .ab-top{column-gap:0!important;}
@@ -1318,10 +1344,10 @@
 .abi-row-fav {
   align-self: center !important;
 }
-/* ── Row action buttons ── */
-.album-beat-card:hover .ab-rename-btn,
-.album-beat-card:hover .ab-share-btn,
-.album-beat-card:hover .ab-remove-btn { opacity: 1 !important; }
+/* ── Row action buttons ── (V9: alltid synlige, ikke bare på hover) */
+.album-beat-card .ab-rename-btn,
+.album-beat-card .ab-share-btn,
+.album-beat-card .ab-remove-btn { opacity: 1 !important; }
 .ab-rename-btn:hover { background: rgba(255,255,255,.09) !important; }
 .ab-share-btn:hover { background: rgba(244,164,67,.14) !important; color: #f4a443 !important; }
 .ab-remove-btn:hover { background: rgba(251,113,133,.12) !important; color: #fb7185 !important; }
@@ -1403,18 +1429,35 @@
 /* ════════════════════════════════════════════════════════════════
    Drag-and-drop drop indicators (consistent gold line across views).
    ════════════════════════════════════════════════════════════════ */
-/* List + card song reorder: a gold insertion line instead of a loud box. */
-.album-beat-card.drag-over{ position:relative; box-shadow:none !important; border-color:rgba(244,164,67,.4) !important; }
-.album-beat-card.drag-over[data-drop-after]::after{
-  content:""; position:absolute; z-index:6; background:#f4a443; border-radius:3px;
-  box-shadow:0 0 10px rgba(244,164,67,.85); pointer-events:none;
-}
-.album-beat-listmode .album-beat-card.drag-over[data-drop-after]::after{ left:6px; right:6px; height:3px; }
-.album-beat-listmode .album-beat-card.drag-over[data-drop-after="0"]::after{ top:-3px; }
-.album-beat-listmode .album-beat-card.drag-over[data-drop-after="1"]::after{ bottom:-3px; }
-.album-beat-grid .album-beat-card.drag-over[data-drop-after]::after{ top:8px; bottom:8px; width:3px; }
-.album-beat-grid .album-beat-card.drag-over[data-drop-after="0"]::after{ left:-3px; }
-.album-beat-grid .album-beat-card.drag-over[data-drop-after="1"]::after{ right:-3px; }
+/* List + card song reorder drop line. Drawn as an OUTER box-shadow on the card itself (offset,
+   no blur for the solid line + a soft glow). Why not an ::after pseudo: it's a CHILD of the card,
+   so outside the edge it gets clipped by the card's overflow:hidden, and at the edge it paints
+   UNDER the row content (cover/title) — either way invisible. The card's own overflow does NOT
+   clip the card's own outset box-shadow, and it sits in the gap next to the card, above content. */
+.album-beat-card.drag-over{ position:relative; z-index:3; border-color:rgba(244,164,67,.5) !important; }
+.album-beat-listmode .album-beat-card.drag-over[data-drop-after="0"]{ box-shadow: 0 -3px 0 0 #f4a443, 0 -3px 13px rgba(244,164,67,.8) !important; }
+.album-beat-listmode .album-beat-card.drag-over[data-drop-after="1"]{ box-shadow: 0 3px 0 0 #f4a443, 0 3px 13px rgba(244,164,67,.8) !important; }
+.album-beat-grid .album-beat-card.drag-over[data-drop-after="0"]{ box-shadow: -3px 0 0 0 #f4a443, -3px 0 13px rgba(244,164,67,.8) !important; }
+.album-beat-grid .album-beat-card.drag-over[data-drop-after="1"]{ box-shadow: 3px 0 0 0 #f4a443, 3px 0 13px rgba(244,164,67,.8) !important; }
+
+/* F5: RAW vocals section inside the expanded album/mixtape beat card. */
+.ab-raw{ margin:10px 14px 4px; padding:12px 14px; border:1px solid rgba(255,255,255,.08); border-radius:10px; background:rgba(255,255,255,.025); }
+.ab-raw-head{ display:flex; align-items:center; gap:10px; }
+.ab-raw-title{ font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.7); flex:1; display:flex; align-items:center; gap:7px; }
+.ab-raw-count{ font-size:11px; font-weight:900; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:rgba(244,164,67,.18); color:#f4a443; display:inline-flex; align-items:center; justify-content:center; }
+.ab-raw-hint{ font-size:11px; color:rgba(255,255,255,.4); margin:6px 0 10px; }
+.ab-raw-list{ display:flex; flex-direction:column; gap:6px; }
+.ab-raw-item{ display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:8px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06); }
+.ab-raw-name{ flex:1; min-width:0; font-size:12.5px; font-weight:600; color:#f4ede4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ab-raw-size{ font-size:11px; color:rgba(255,255,255,.4); font-variant-numeric:tabular-nums; flex-shrink:0; }
+.ab-raw-btn{ width:28px; height:28px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:6px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:rgba(255,255,255,.75); font-size:13px; cursor:pointer; text-decoration:none; transition:background .15s,color .15s; }
+.ab-raw-btn:hover{ background:rgba(244,164,67,.15); color:#f4a443; }
+.ab-raw-btn.danger:hover{ background:rgba(251,113,133,.15); color:#fb7185; border-color:rgba(251,113,133,.3); }
+.ab-raw-empty{ font-size:12px; color:rgba(255,255,255,.35); font-style:italic; }
+.ab-raw-local{ font-size:9px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; padding:1px 5px; border-radius:999px; background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); vertical-align:middle; }
+/* F7: play-count chip (album/mixtape song rows). Hidden until a song has been played. */
+.ab-playcount{ font-size:10px; font-weight:800; letter-spacing:.02em; color:rgba(244,164,67,.85); background:rgba(244,164,67,.1); border:1px solid rgba(244,164,67,.22); padding:1px 7px; border-radius:999px; white-space:nowrap; flex-shrink:0; font-variant-numeric:tabular-nums; }
+.ab-playcount.empty{ display:none; }
 
 /* Studio board: drag a track between stage columns. */
 .studio-track{ cursor:grab; }

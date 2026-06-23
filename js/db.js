@@ -208,6 +208,12 @@ function updateBottomProgress(){
     if(!seek.matches(":active"))seek.value=dur?Math.round((a.currentTime/dur)*1000):0;
     bpSetRangeFill(seek);
   }
+  // F7: only count a play once ≥20% of the track has actually been played (and only once per track).
+  if(!bottomPlayer.playCounted&&dur>0&&!a.paused&&(a.currentTime/dur)>=0.2){
+    bottomPlayer.playCounted=true;
+    const b=bottomPlayer.queue[bottomPlayer.index];
+    recordBeatPlay(b&&b.id);
+  }
 }
 function bottomSeek(v){const a=bottomPlayer.audio;if(isFinite(a.duration)&&a.duration>0)a.currentTime=(Number(v)/1000)*a.duration;bpSetRangeFill(document.getElementById("bpSeek"));}
 function bottomSetVolume(v){bottomPlayer.audio.volume=Number(v);bpSetRangeFill(document.getElementById("bpVolume"));}
@@ -225,6 +231,7 @@ async function playBottomIndex(i){
   if(i<0)i=0;
   if(i>=bottomPlayer.queue.length){bottomStop(true);showToast("✓ Ferdigspilt");return;}
   bottomPlayer.index=i;bottomPlayer.started=true;
+  bottomPlayer.playCounted=false;   // F7: reset — this track hasn't passed the 20% count threshold yet
   const beat=bottomPlayer.queue[i];
   const url=await getPlayableAudioUrl(beat);
   if(!url){reportUnplayableBeat(beat);bottomStop(true);return;}
@@ -234,12 +241,38 @@ async function playBottomIndex(i){
   bottomPlayer.audio.src=url;
   bottomPlayer.audio.load();
   updateBottomUI();
-  try{await bottomPlayer.audio.play();}
+  try{await bottomPlayer.audio.play();}   // F7: the play count is recorded later, once ≥20% has played
   catch(e){
     console.error('Audio play failed:',e,url,beat);
     showToast('Kunne ikke spille av. Prøv «Åpne lydfil» eller sjekk audio_url.');
   }
   updateBottomUI();
+}
+// F7: play history / counter. Counts once per track-start (this is the single choke-point for
+// all playback — album, mixtape, single beat, collection). Stored on the beat + synced to Supabase.
+function recordBeatPlay(beatId){
+  if(!beatId)return;
+  const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  b.playCount=(Number(b.playCount)||0)+1;
+  b.lastPlayedAt=Date.now();
+  saveState();                       // persists locally + debounced Supabase push
+  updatePlayCountBadges(beatId);     // live-update any visible chips without a full re-render
+}
+function playCountTitle(b){
+  const n=Number(b&&b.playCount)||0;
+  if(!n)return 'Ikke spilt enda';
+  const when=b.lastPlayedAt?` · sist ${new Date(b.lastPlayedAt).toLocaleString('nb-NO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}`:'';
+  return `Spilt ${n} gang${n===1?'':'er'}${when}`;
+}
+function updatePlayCountBadges(beatId){
+  const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  const n=Number(b.playCount)||0;
+  const sel=(window.CSS&&CSS.escape)?CSS.escape(String(beatId)):String(beatId);
+  document.querySelectorAll(`[data-pc-id="${sel}"]`).forEach(el=>{
+    el.textContent=`▶ ${n}`;
+    el.classList.toggle('empty',!n);
+    el.title=playCountTitle(b);
+  });
 }
 async function playQueue(queue,context){
   if(!queue.length){showToast("Ingen sanger å spille");return;}
@@ -277,9 +310,14 @@ document.addEventListener("play",e=>{
   }
 },true);
 
+// F6: replace a song's audio file. The old file is overwritten PERMANENTLY in R2 (same key =
+// beat.id, so the PUT replaces it and frees the storage). Warns first. Cache-busts the reused URL.
 async function uploadBeatAudio(beatId,file){
-  if(!file||!file.type.startsWith("audio"))return;
+  if(!file||!file.type.startsWith("audio")){showToast("⚠ Velg en gyldig lydfil");return;}
   const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  const hadAudio=!!(b.audio_url||b.url);
+  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nDen nye filen overskriver den gamle PERMANENT for å spare lagringsplass — den gamle kan ikke gjenopprettes.`))return;
+  // Lokal kopi for umiddelbar avspilling (getPlayableAudioUrl foretrekker IDB-bloben)
   await audioDB.save(beatId,file);
   b.url=beatId+":idb"; // sentinel so we know audio exists
   b.source="local";
@@ -293,7 +331,127 @@ async function uploadBeatAudio(beatId,file){
     const wrap=document.getElementById("au-wrap-"+beatId)||el.parentElement;
     if(wrap)wrap.style.display="block";
   }
-  showToast("✓ Lydfil lastet opp");
+  // Erstatt i R2: samme nøkkel (beat.id) → PUT overskriver/​frigjør den gamle filen permanent.
+  if(window.r2Storage&&window.r2Storage.ready()){
+    try{
+      let up=file;
+      if(window.audioCompress?.shouldCompress(up))up=await window.audioCompress.compress(up);
+      showToast(`⬆ Erstatter lydfil (${(up.size/(1024*1024)).toFixed(1)}MB) i R2...`);
+      const url=await window.r2Storage.upload(beatId,up,!!b.archived);
+      // Same key → same URL; bust caches/CDN so the new audio is served, not the old.
+      b.audio_url=url+(url.includes("?")?"&":"?")+"v="+Date.now();
+      b.r2_key=beatId;
+      saveState();
+      if(typeof window.pushToSupabase==="function")window.pushToSupabase();
+      showToast("✓ Lydfil erstattet — gammel fil slettet");
+    }catch(e){
+      console.error("[R2] Bytt lydfil feilet:",e);
+      showToast("⚠ R2 feilet — ny lydfil lagret lokalt");
+    }
+  }else{
+    showToast("✓ Lydfil lastet opp (lokalt)");
+  }
+}
+
+// ── F5: RAW vocals ───────────────────────────────────────────────────────────
+// High-quality vocal stems attached to a song so the artist can share them with producers.
+// Stored in R2 under a per-song namespace `raw/{beatId}/{fileId}` (NOT compressed — full quality),
+// with metadata in `beat.rawVocals[]` (synced to Supabase like the rest of state). Each file gets
+// a public URL the artist can copy/send; files are individually deletable (R2 + metadata).
+function rawVocalsMarkup(b){
+  const list=Array.isArray(b.rawVocals)?b.rawVocals:[];
+  const items=list.map(r=>{
+    const dl = r.url
+      ? `<a class="ab-raw-btn" href="${esc(r.url)}" target="_blank" rel="noopener" download="${esc(r.name)}" title="Last ned / åpne">⬇</a>`
+      : `<button class="ab-raw-btn" onclick="event.stopPropagation();downloadLocalRaw('${b.id}','${r.id}')" title="Last ned (lokal kopi)">⬇</button>`;
+    return `
+    <div class="ab-raw-item">
+      <span class="ab-raw-name" title="${esc(r.name)}">🎤 ${esc(r.name)}${r.url?"":` <span class="ab-raw-local" title="Kun lagret lokalt — del-lenke lages ved opplasting til R2 (live-siden)">lokal</span>`}</span>
+      <span class="ab-raw-size">${(Number(r.size||0)/(1024*1024)).toFixed(1)}MB</span>
+      ${dl}
+      <button class="ab-raw-btn" onclick="event.stopPropagation();copyRawVocalLink('${b.id}','${r.id}')" title="Kopier delingslenke">🔗</button>
+      <button class="ab-raw-btn danger" onclick="event.stopPropagation();deleteRawVocal('${b.id}','${r.id}')" title="Slett permanent">🗑</button>
+    </div>`;
+  }).join("");
+  return `
+    <div class="ab-raw-head">
+      <span class="ab-raw-title">RAW-vokaler${list.length?` <span class="ab-raw-count">${list.length}</span>`:""}</span>
+      <label class="ghost-btn ab-raw-upload" style="cursor:pointer;font-size:12px;padding:6px 12px">+ Last opp RAW<input type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.m4a" multiple hidden onchange="uploadRawVocals('${b.id}',this.files);this.value=''"></label>
+    </div>
+    <div class="ab-raw-hint">Høykvalitets vokalfiler for produsenter — del lenken så de kan laste ned og mikse.</div>
+    ${list.length?`<div class="ab-raw-list">${items}</div>`:`<div class="ab-raw-empty">Ingen RAW-vokaler lastet opp enda.</div>`}`;
+}
+function renderRawList(beatId){
+  const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  document.querySelectorAll(`#abraw-${beatId}`).forEach(el=>{el.innerHTML=rawVocalsMarkup(b);});
+}
+// Local-first: every file is saved to IndexedDB immediately (so it shows up + is downloadable/
+// playable even with no R2), THEN uploaded to R2 in the background for a shareable public link.
+// R2's CORS only allows the github.io origin, so locally the R2 step fails (kept as "lokal").
+async function uploadRawVocals(beatId,files){
+  const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  if(!Array.isArray(b.rawVocals))b.rawVocals=[];
+  const picked=[...(files||[])].filter(f=>f);
+  if(!picked.length)return;
+  for(const file of picked){
+    const rawId=uid();
+    const idbKey=`raw:${beatId}:${rawId}`;
+    const r2key=`raw/${beatId}/${rawId}`;
+    // 1) Lagre lokalt FØRST → vises umiddelbart, kan spilles/lastes ned uansett R2.
+    try{ await audioDB.save(idbKey,file); }catch(e){ console.warn("[RAW] IDB-lagring feilet:",e); }
+    const entry={id:rawId,name:file.name,size:file.size,type:file.type||"",key:r2key,idbKey,url:"",uploadedAt:Date.now()};
+    b.rawVocals.push(entry);
+    saveState();
+    renderRawList(beatId);
+    showToast(`✓ «${file.name}» lagt til`);
+    // 2) Last opp til R2 i bakgrunnen for en delbar offentlig lenke (krever live-origin pga CORS).
+    if(window.r2Storage&&window.r2Storage.ready()){
+      try{
+        showToast(`⬆ Deler «${file.name}» (${(file.size/(1024*1024)).toFixed(1)}MB) til R2…`);
+        const url=await window.r2Storage.uploadKey(r2key,file);   // NB: ingen komprimering — full kvalitet
+        entry.url=url;
+        saveState();
+        if(typeof window.pushToSupabase==="function")window.pushToSupabase();
+        renderRawList(beatId);
+        showToast(`✓ «${file.name}» klar til deling`);
+      }catch(e){
+        console.error("[RAW] R2-opplasting feilet:",e);
+        showToast("⚠ Lagret lokalt — deling til R2 virker bare på live-siden");
+      }
+    }
+  }
+}
+async function downloadLocalRaw(beatId,rawId){
+  const b=state.beats.find(x=>x.id===beatId);
+  const raw=b&&Array.isArray(b.rawVocals)&&b.rawVocals.find(r=>r.id===rawId);
+  if(!raw)return;
+  try{
+    const blob=await audioDB.load(raw.idbKey);
+    if(!blob){showToast("⚠ Fant ikke den lokale filen");return;}
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=raw.name||"raw-vokal";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+  }catch(e){console.warn("[RAW] lokal nedlasting feilet:",e);showToast("⚠ Kunne ikke laste ned");}
+}
+async function deleteRawVocal(beatId,rawId){
+  const b=state.beats.find(x=>x.id===beatId);if(!b||!Array.isArray(b.rawVocals))return;
+  const raw=b.rawVocals.find(r=>r.id===rawId);if(!raw)return;
+  if(!confirm(`Slette RAW-vokalen «${raw.name}» permanent?`))return;
+  try{ if(raw.idbKey) await audioDB.del(raw.idbKey); }catch(e){}
+  try{ if(raw.url&&window.r2Storage?.removeKey) await window.r2Storage.removeKey(raw.key); }catch(e){console.warn("[RAW] R2-sletting feilet:",e);}
+  b.rawVocals=b.rawVocals.filter(r=>r.id!==rawId);
+  saveState();
+  if(typeof window.pushToSupabase==="function")window.pushToSupabase();
+  renderRawList(beatId);
+  showToast("✓ RAW-vokal slettet");
+}
+function copyRawVocalLink(beatId,rawId){
+  const b=state.beats.find(x=>x.id===beatId);
+  const raw=b&&Array.isArray(b.rawVocals)&&b.rawVocals.find(r=>r.id===rawId);
+  if(!raw)return;
+  if(!raw.url){showToast("Kun lagret lokalt — del-lenke lages når filen lastes opp til R2 (på live-siden)");return;}
+  navigator.clipboard.writeText(raw.url).then(()=>showToast("✓ Delingslenke kopiert"),()=>showToast("⚠ Kunne ikke kopiere"));
 }
 
 // When creating beats from file upload, also store in IDB
@@ -750,10 +908,13 @@ function activeCollectionForMode(mode){
   if(mode==="mixtape")return state.mixtapes.find(m=>m.id===currentMixtapeId)||null;
   return state.albums.find(a=>a.id===currentAlbumId)||null;
 }
+// F3: a song reorder drag begins ONLY from the cover thumbnail (the drag source is the
+// `.ab-cover-wrap`, not the whole row). This keeps the %-slider and the rest of the row free
+// — touching them never starts a reorder — while a click on the cover still expands the song
+// (native dragstart fires on a real drag move, not on a click). Same immediate-drag model as
+// the studio board. NB earlier attempt used a press-and-hold "arm" timer; it blocked natural
+// drags (you had to hold still 200ms first) so it was removed.
 function startCollectionDrag(event,beatId,mode){
-  // Allow dragging from anywhere on the song row, but not when grabbing an
-  // interactive control (buttons, rating stars, sliders, inputs, links).
-  if(event.target.closest("button,a,input,textarea,select,.progress-wrap,.ab-stars,.star-btn,.ab-remove-btn,.ab-rename-btn")){event.preventDefault();return;}
   collectionDrag={beatId,mode:mode||"album"};
   event.stopPropagation();
   event.dataTransfer.effectAllowed="move";
@@ -863,10 +1024,12 @@ function renderAlbumBeats(beats,mode,customEl){
       </div>`;
     }
     const stars=Array.from({length:10},(_,i)=>`<button class="${i<(b.rating||0)?"on":""}" onclick="setAlbumBeatRating('${b.id}',${i+1})">★</button>`).join("");
-    const dragAttrs=canDrag?`draggable="true" ondragstart="startCollectionDrag(event,'${b.id}','${listMode}')" ondragend="endCollectionDrag()" ondragover="dragBeatOver(event,'${b.id}')" ondragleave="dragBeatLeave(event,'${b.id}')" ondrop="dropCollectionBeat(event,'${b.id}','${listMode}')"`:"";
-    return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}" ${dragAttrs} style="user-select:none;-webkit-user-select:none">
+    // Drop target lives on the whole card; the drag SOURCE is only the cover (F3 press-and-hold).
+    const dropAttrs=canDrag?`ondragover="dragBeatOver(event,'${b.id}')" ondragleave="dragBeatLeave(event,'${b.id}')" ondrop="dropCollectionBeat(event,'${b.id}','${listMode}')"`:"";
+    const coverDragAttrs=canDrag?`draggable="true" ondragstart="startCollectionDrag(event,'${b.id}','${listMode}')" ondragend="endCollectionDrag()"`:"";
+    return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}" ${dropAttrs} style="user-select:none;-webkit-user-select:none">
       <div class="ab-top">
-        <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')">
+        <div class="ab-cover-wrap" ${coverDragAttrs} onclick="toggleAlbumBeat('${b.id}')">
           ${coverHtml}
         </div>
         <div class="ab-body">
@@ -874,12 +1037,13 @@ function renderAlbumBeats(beats,mode,customEl){
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
+              <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}">▶ ${Number(b.playCount)||0}</span>
               ${b.uploadedBy?`<span style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#ff8a1f);opacity:.8;white-space:nowrap">👤 ${esc(b.uploadedBy)}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#fb7185;display:block;margin-right:2px"></span>'; return ''; })()}
               <button onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
-              <button class="ab-share-btn" onclick="event.stopPropagation();shareSong('${b.id}')" title="Del offentlig lenke" style="width:24px;height:24px;background:none;border:none;color:rgba(244,164,67,.7);cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+              <button class="ab-share-btn" onclick="event.stopPropagation();shareSong('${b.id}')" title="Del offentlig lenke" style="width:24px;height:24px;background:none;border:none;color:rgba(244,164,67,.7);font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">🔗</button>
               <button class="ab-rename-btn" onclick="event.stopPropagation();renameBeatInline('${b.id}')" title="Gi nytt navn" style="width:24px;height:24px;background:none;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#9998;</button>
               <button class="ab-remove-btn" onclick="event.stopPropagation();removeFromCollection('${b.id}','${listMode}')" title="Fjern" style="width:24px;height:24px;background:none;border:none;color:rgba(251,113,133,.4);font-size:13px;font-weight:900;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#215;</button>
               <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" style="width:24px;height:24px;font-size:18px;padding:0;flex-shrink:0;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9733;</button>
@@ -888,8 +1052,7 @@ function renderAlbumBeats(beats,mode,customEl){
           <div class="ab-stars" onclick="event.stopPropagation()">${stars}</div>
           ${listMode==="album"?`<div class="progress-wrap" onclick="event.stopPropagation()">
             <div class="progress-label"><span>Ferdig</span><strong id="abidone-${b.id}">${b.done||0}%</strong></div>
-            <div class="progress-bar"><div id="abibar-${b.id}" style="width:${b.done||0}%"></div></div>
-            <input type="range" min="0" max="100" value="${b.done||0}" style="padding:0;border:none;background:transparent;accent-color:var(--accent);cursor:pointer;width:100%;margin-top:4px" oninput="setAlbumBeatDone('${b.id}',this.value)">
+            <input type="range" class="ab-progress-range" id="abirange-${b.id}" min="0" max="100" value="${b.done||0}" style="--pct:${b.done||0}%" oninput="setAlbumBeatDone('${b.id}',this.value)">
           </div>`:""}
         </div>
       </div>
@@ -904,6 +1067,7 @@ function renderAlbumBeats(beats,mode,customEl){
           <label class="ghost-btn" style="cursor:pointer;font-size:12px;padding:6px 12px">🖼️ Coverbilde<input type="file" accept="image/*" hidden onchange="setAlbumBeatCover('${b.id}',this)"></label>
           <button class="small-btn danger" onclick="removeFromCollection('${b.id}','${listMode}')">Fjern fra ${listMode==="mixtape"?"mixtape":"album"}</button>
         </div>
+        <div class="ab-raw" id="abraw-${b.id}">${rawVocalsMarkup(b)}</div>
         <div class="ab-lyric-editor">
           ${lyricsEditorMarkup(b.id,"Skriv tekst, hooks, vers, ideer...")}
         </div>
@@ -1163,8 +1327,20 @@ function setAlbumBeatRating(id,r){
 function setAlbumBeatDone(id,val){
   const b=state.beats.find(x=>x.id===id);if(!b)return;
   b.done=clamp(val);saveState();
-  const bar=document.getElementById(`abibar-${id}`);if(bar)bar.style.width=b.done+"%";
   const lbl=document.getElementById(`abidone-${id}`);if(lbl)lbl.textContent=b.done+"%";
+  // V11: one combined bar — the range input itself shows the fill via --pct.
+  const rng=document.getElementById(`abirange-${id}`);if(rng){rng.value=b.done;rng.style.setProperty('--pct',b.done+'%');}
+}
+// V14: crop the largest CENTERED square of the source and scale it into a square canvas —
+// no stretch, no over-zoom, no letterbox bars. Shared by every cover upload so they're consistent.
+function mvSquareCoverDataURL(img,size,quality){
+  size=size||600;
+  const iw=img.naturalWidth||img.width, ih=img.naturalHeight||img.height;
+  const s=Math.min(iw,ih);                 // largest square that fits inside the source
+  const sx=(iw-s)/2, sy=(ih-s)/2;          // centered
+  const canvas=document.createElement("canvas");canvas.width=canvas.height=size;
+  canvas.getContext("2d").drawImage(img,sx,sy,s,s,0,0,size,size);
+  return canvas.toDataURL("image/jpeg",quality||.85);
 }
 function setAlbumBeatCover(id,input){
   const f=input.files[0];if(!f)return;
@@ -1172,10 +1348,9 @@ function setAlbumBeatCover(id,input){
   reader.onload=e=>{
     const img=new Image();
     img.onload=()=>{
-      const canvas=document.createElement("canvas");canvas.width=600;canvas.height=338;
-      canvas.getContext("2d").drawImage(img,0,0,600,338);
       const b=state.beats.find(x=>x.id===id);if(!b)return;
-      b.cover=canvas.toDataURL("image/jpeg",.85);saveState();
+      b.cover=mvSquareCoverDataURL(img,600,.85);   // V14: square crop (was stretched into 600x338)
+      saveState();
       renderAlbumDetail();
     };img.src=e.target.result;
   };reader.readAsDataURL(f);
@@ -1188,12 +1363,7 @@ document.getElementById("newAlbumCoverInput").addEventListener("change",e=>{
   reader.onload=ev=>{
     const img=new Image();
     img.onload=()=>{
-      const sz=400;const canvas=document.createElement("canvas");canvas.width=sz;canvas.height=sz;
-      const ctx=canvas.getContext("2d");
-      const ratio=Math.min(sz/img.width,sz/img.height);
-      const w=img.width*ratio,h=img.height*ratio;
-      ctx.drawImage(img,(sz-w)/2,(sz-h)/2,w,h);
-      newAlbumCoverBase64=canvas.toDataURL("image/jpeg",.85);
+      newAlbumCoverBase64=mvSquareCoverDataURL(img,400,.85);   // V14: square crop (was Math.min letterbox)
       const prev=document.getElementById("albumCoverPreview");
       prev.src=newAlbumCoverBase64;
       document.getElementById("albumCoverPreviewWrap").style.display="flex";
@@ -1208,15 +1378,7 @@ function makeAlbumCover(file,cb){
   const reader=new FileReader();
   reader.onload=ev=>{
     const img=new Image();
-    img.onload=()=>{
-      const sz=600;
-      const canvas=document.createElement("canvas");canvas.width=sz;canvas.height=sz;
-      const ctx=canvas.getContext("2d");
-      const ratio=Math.max(sz/img.width,sz/img.height);
-      const w=img.width*ratio,h=img.height*ratio;
-      ctx.drawImage(img,(sz-w)/2,(sz-h)/2,w,h);
-      cb(canvas.toDataURL("image/jpeg",.86));
-    };
+    img.onload=()=>cb(mvSquareCoverDataURL(img,600,.86));   // V14: shared square crop
     img.src=ev.target.result;
   };
   reader.readAsDataURL(file);
@@ -1600,6 +1762,9 @@ document.getElementById("importInput").addEventListener("change",e=>{const f=e.t
 
 // ── TABS ──
 // Tab switching: preserve scroll position (double-rAF wins over any render() scroll)
+// Logo → Hjem (klikk på "Music Vault"-merket i headeren går til Hjem-fanen)
+document.querySelector(".mv-logo")?.addEventListener("click",()=>document.querySelector('.tab-btn[data-tab="hjem"]')?.click());
+
 document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{
   if(isProducerUser()&&!["mixtapes","pipeline","docs"].includes(btn.dataset.tab)){showToast("Produsentmodus har tilgang til mixtapes og pipeline");return;}
   const y=window.scrollY||document.documentElement.scrollTop||0;
@@ -1798,6 +1963,14 @@ async function createBeatFromFile(file){
   }
   return beat;
 }
+// V13: a freshly added beat inherits the collection's cover IMMEDIATELY (no placeholder),
+// and is marked as inherited so it keeps following the album/mixtape cover (archive.js sync).
+function inheritCollectionCover(beat,col,type){
+  if(!beat||!col||!col.cover)return;
+  if(beat.cover&&String(beat.cover).trim())return;   // don't overwrite a real cover
+  beat.cover=col.cover;
+  beat.coverInherited=true;beat.coverInheritedFromType=type;beat.coverInheritedFromId=col.id;beat.coverInheritedFrom=type;
+}
 function addBeatToMixtape(beat){
   console.log('[MIX] addBeatToMixtape kalt. beat.id:', beat?.id, '| currentMixtapeId:', currentMixtapeId);
   if(!beat){console.error('[MIX] FEIL: beat er undefined!');return;}
@@ -1805,12 +1978,14 @@ function addBeatToMixtape(beat){
   const mt=state.mixtapes.find(x=>x.id===currentMixtapeId);
   if(mt&&!mt.beatIds.includes(beat.id)){mt.beatIds.push(beat.id);console.log('[MIX] Beat lagt til mixtape:', mt.name);}
   else if(!mt){console.error('[MIX] FEIL: Ingen mixtape funnet for ID:', currentMixtapeId);}
+  inheritCollectionCover(beat,mt,'mixtape');
   saveState();
 }
 function addBeatToAlbum(beat){
   if(!state.beats.find(b=>b.id===beat.id))state.beats.push(beat);
   const album=state.albums.find(x=>x.id===currentAlbumId);
   if(album&&!album.beatIds.includes(beat.id))album.beatIds.push(beat.id);
+  inheritCollectionCover(beat,album,'album');
   saveState();
 }
 

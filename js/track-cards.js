@@ -172,7 +172,17 @@ document.documentElement.classList.add('mv-mixed-ui');
   function studioCol(b){ const d=Number(b.done||0); if(d>=100)return 'Ferdig'; if(d>=70)return 'Miks/Master'; if(d>=30)return 'Spilt inn'; return 'Idé/Skriver'; }
   function renderStudioBoard(el, mode){
     if(!el) return;
-    const beats = Array.from(el.querySelectorAll('.album-beat-card')).map(c=>getBeat(c.dataset.beatId)).filter(Boolean);
+    let beats = Array.from(el.querySelectorAll('.album-beat-card')).map(c=>getBeat(c.dataset.beatId)).filter(Boolean);
+    // F2: studio has its OWN order (col.studioOrder), independent of album/mixtape beatIds.
+    // Order by studioOrder when present; any beat not yet in it falls back to album order.
+    const _scol = (typeof activeCollectionForMode==='function') ? activeCollectionForMode(mode) : null;
+    if(_scol && Array.isArray(_scol.studioOrder) && _scol.studioOrder.length){
+      const byId = Object.fromEntries(beats.map(b=>[b.id,b]));
+      const seen = new Set(); const ordered = [];
+      _scol.studioOrder.forEach(id=>{ if(byId[id]&&!seen.has(id)){ ordered.push(byId[id]); seen.add(id); } });
+      beats.forEach(b=>{ if(!seen.has(b.id)){ ordered.push(b); seen.add(b.id); } });
+      beats = ordered;
+    }
     const cols = [
       {key:'Idé/Skriver', label:'Idé / Skriver', cls:'s-idea'},
       {key:'Spilt inn',   label:'Spilt inn',     cls:'s-rec'},
@@ -261,16 +271,20 @@ document.documentElement.classList.add('mv-mixed-ui');
     // 1) Change stage only when crossing into a different column (preserve % on reorder).
     if(studioCol(beat) !== STAGE_KEY[cls]) beat.done = STAGE_VAL[cls];
 
-    // 2) Reorder within the collection so it lands where the drop-line showed.
+    // 2) Reorder ONLY the studio-specific order (col.studioOrder). The album/mixtape
+    //    beatIds is left untouched so studio order is independent of the track order (F2).
     const col2 = (typeof activeCollectionForMode==='function') ? activeCollectionForMode(mode) : null;
     if(col2 && Array.isArray(col2.beatIds)){
-      const ids = col2.beatIds.slice();
-      const from = ids.indexOf(drag.beatId);
-      if(from>=0) ids.splice(from,1);
-      let at = insertBeforeId ? ids.indexOf(insertBeforeId) : -1;
-      if(at<0) at = ids.length;
-      ids.splice(at,0,drag.beatId);
-      col2.beatIds = ids;
+      // Seed from the album order the first time, then keep membership in sync.
+      let order = (Array.isArray(col2.studioOrder) && col2.studioOrder.length) ? col2.studioOrder.slice() : col2.beatIds.slice();
+      col2.beatIds.forEach(id=>{ if(!order.includes(id)) order.push(id); });
+      order = order.filter(id=>col2.beatIds.includes(id));
+      const from = order.indexOf(drag.beatId);
+      if(from>=0) order.splice(from,1);
+      let at = insertBeforeId ? order.indexOf(insertBeforeId) : -1;
+      if(at<0) at = order.length;
+      order.splice(at,0,drag.beatId);
+      col2.studioOrder = order;
     }
     if(typeof saveState==='function') saveState();
     if(mode==='mixtape' && typeof renderMixtapeDetail==='function') renderMixtapeDetail();
@@ -367,7 +381,7 @@ document.documentElement.classList.add('mv-mixed-ui');
     const done = Math.max(0, Math.min(100, Number(val)||0));
     const b = getState()?.beats?.find(x=>x.id===id);
     if(b){ b.done=done; if(typeof saveState==='function') saveState(); }
-    document.querySelectorAll(`#abibar-${cssId(id)}`).forEach(bar => bar.style.width = done+'%');
+    document.querySelectorAll(`#abirange-${cssId(id)}`).forEach(rng => { rng.value = done; rng.style.setProperty('--pct', done+'%'); });
     document.querySelectorAll(`#abidone-${cssId(id)}`).forEach(lbl => lbl.textContent = done+'%');
   };
 

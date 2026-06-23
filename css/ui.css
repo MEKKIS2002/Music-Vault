@@ -1694,6 +1694,12 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
   text-transform: uppercase;
   color: #f4a443;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color .15s, text-shadow .15s;
+}
+.mv-logo:hover {
+  color: #ffc070;
+  text-shadow: 0 0 14px rgba(244,164,67,.5);
 }
 .mv-sync-dot {
   width: 7px; height: 7px;
