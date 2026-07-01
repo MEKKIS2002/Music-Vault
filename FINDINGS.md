@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-06-23_
+> _Last updated: 2026-07-02_
 
 ---
 
@@ -229,23 +229,37 @@ Web Audio API requires HTTP, not `file://`. Deploy = push to `main` (GitHub Page
 ## 11. Mobile / phone layout (rebuilt juni 2026)
 
 The mobile view **reuses desktop tab content** — it does NOT re-render screens. How it works:
-- A fixed bottom **footer nav** (`#mvMobileNav` in `index.html`) with buttons Beats,
-  Mixtapes, Albumer, Lab, and "Mer". Each button calls `mvMobileTab('<tab>')` (inline script
-  in `index.html`), which just `.click()`s the matching desktop `.tab-btn[data-tab=...]`.
-  The "Mer" button opens a bottom sheet with the remaining tabs (Hjem, Pipeline, Arkivert,
-  Label, Admin, Integrasjoner).
-- **Hjem is not in the footer** (dropped on purpose). On phones (`innerWidth <= 768`) the app
-  auto-lands on **Beats** instead of the Hjem dashboard (see the `load` handler in the inline
-  mobile script); Hjem stays reachable via the "Mer" sheet.
+- A fixed bottom **footer nav** (`#mvMobileNav` in `index.html`) with 4 buttons **Hjem,
+  Mixtapes, Album, Docs** (redesign 2026-07-02 — was Beats/Mixtapes/Albumer/Lab/Mer). Each
+  button calls `mvMobileTab('<tab>')` (inline script in `index.html`), which just `.click()`s
+  the matching desktop `.tab-btn[data-tab=...]`.
+- **The old "Mer" bottom sheet was removed** (markup + `mvMobileMore`/`mvMobileMoreClose` JS +
+  the `.mv-mob-sheet*` CSS). All other tabs are now reached from the **Hjem dashboard hub**
+  instead (see below), so nothing is stranded.
+- **Hjem IS now the mobile landing + footer home.** On phones (`innerWidth <= 768`) the app
+  auto-lands on **Hjem** (see the `load` handler in the inline mobile script; previously Beats).
+- **Hjem is a mobile hub.** The dashboard has two mobile-only nav blocks (in `#hjemTab`,
+  hidden on desktop via `home.css` `.hjem-mobile-shortcuts,.hjem-mobile-more{display:none}`,
+  revealed in `mobile.css`): a 4-up **shortcut grid** (`.hjem-mobile-shortcuts` → Beats, Lyric
+  Lab, Pipeline, Docs) and a **"Flere sider"** row (`.hjem-mobile-more` → Arkivert,
+  Integrasjoner, Label, Admin). Label/Admin are admin-gated by `mvSyncHomeMoreLinks()` (inline
+  script), which mirrors the authoritative desktop `.tab-btn` display onto each
+  `.hjem-more-link[data-req-tab]`; it's called at the end of `renderDashboard()` (runs after
+  login + every Hjem render). The mobile home is **reflowed via flex `order`** on `.dash-inner`
+  (mobile.css only, desktop DOM untouched): greeting → shortcuts → Flere sider → status cluster
+  (`.hjem-bottom-row` Aktivitet/Varsler/Fremdrift = "hva bør du jobbe med", lifted up) → the
+  rest (projects, last-beat, recent, comments).
 - All phone styling lives in **`css/mobile.css`** (single source of truth, loaded last,
   one breakpoint `@media (max-width: 768px)`). It hides the desktop `.mv-tabs` row, shows the
   footer/sheet/FAB, reflows grids to 1–2 columns, stacks toolbars, sizes touch targets ≥44px,
   forces inputs to 16px (avoids iOS zoom), and repositions the bottom player above the footer.
   Tunable constants are CSS vars at the top (`--mv-footer-h`, `--mv-mini-player-h`, etc.).
 
-**To add a tab to mobile:** add one `<button class="mv-mob-btn" data-mob-tab="X"
-onclick="mvMobileTab('X')">` to the footer (or a `.mv-mob-sheet-btn` to the "Mer" sheet)
-pointing at an existing `data-tab`. No new render code needed.
+**To add a tab to mobile:** either add one `<button class="mv-mob-btn" data-mob-tab="X"
+onclick="mvMobileTab('X')">` to the footer (keep it to ~4), OR add a `.hjem-shortcut`
+(onclick `mvMobileTab('X')`) to `.hjem-mobile-shortcuts` / a `.hjem-more-link data-req-tab="X"`
+to `.hjem-mobile-more` on the Hjem hub, pointing at an existing `data-tab`. No new render code
+needed. (The old "Mer" bottom sheet no longer exists — see the redesign note above.)
 
 Notes / gotchas:
 - `beats-tab.js` injects its OWN mobile grid rules at `@768`; `lyriclab.css` self-collapses at
@@ -255,6 +269,24 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **F1 «fiks telefonvisning» — mobil Hjem-redesign + ny footer.** Bumpet
+  `home.css`/`mobile.css`/`db.js` `?v=`→`202607010001`. **KUN telefon** (desktop-hjem er 100 %
+  uendret — verifisert med headless-Chrome-render på begge bredder). (1) **Footer** (`#mvMobileNav`
+  i `index.html`) ble til 4 knapper: **Hjem, Mixtapes, Album, Docs** (var Beats/Mixtapes/Albumer/
+  Lab/Mer). (2) **«Mer»-arket fjernet helt** — markup, `mvMobileMore`/`mvMobileMoreClose`-JS, og
+  `.mv-mob-sheet*`-CSS. (3) **Hjem er nå mobil-landing** (`load`-handler: `mvMobileTab('hjem')`, var
+  `'beats'`). (4) **Hjem er en mobil-hub:** to nye mobil-only nav-blokker i `#hjemTab` (skjult på
+  desktop via `home.css`, vist i `mobile.css`): snarveis-grid `.hjem-mobile-shortcuts` (Beats/Lyric
+  Lab/Pipeline/Docs) + `.hjem-mobile-more` «Flere sider» (Arkivert/Integrasjoner/Label/Admin).
+  Label/Admin gates av ny `mvSyncHomeMoreLinks()` (inline script) som speiler desktop-`.tab-btn`-
+  synlighet onto `.hjem-more-link[data-req-tab]`; kalles på slutten av `renderDashboard()`. (5) **Mobil
+  reflow via flex `order`** på `.dash-inner` (kun mobile.css, desktop-DOM urørt): greeting → snarveier
+  → Flere sider → status-klynge (`.hjem-bottom-row` Aktivitet/Varsler/Fremdrift løftet opp = «hva bør
+  du jobbe med») → resten. Se §11. **Testnotat/gotcha:** headless Chrome på denne maskinen rendrer
+  viewporten ~1.25× bredere enn `--window-size` (OS-skalering 125 % → 390 blir 485 CSS-px);
+  `--force-device-scale-factor=1` hjelper ikke. `scrollWidth==clientWidth` (pga `overflow-x:hidden`)
+  skjuler ekte overflow — mål `getBoundingClientRect().right` mot faktisk `clientWidth` i stedet, og
+  sett `--window-size`-bredde til ~1.25× ønsket telefonbredde for et ukuttet skjermbilde.
 - **2026-06-23** — **Forbedringsliste Pulje 4 del 2** (F7 — FULLFØRT PULJE 4). Bumpet `db.js`/
   `beats-tab.js`/`track-cards.css` `?v=`→`202606230012`. **Avspillingshistorikk/spilleteller.** La til
   `recordBeatPlay(beatId)` kalt fra `playBottomIndex` rett etter at `audio.play()` lykkes — det er det

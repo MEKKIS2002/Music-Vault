@@ -640,6 +640,8 @@ function renderDashboard(){
       return `<div class="prog-row"><div class="prog-top"><div class="prog-name">${esc(a.name)}</div><div class="prog-pct" style="color:${col}">${pct}%</div></div><div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div></div>`;
     }).join('');}
   }
+  // Gate the mobile "Flere sider" links (Label/Admin) to match desktop tab visibility.
+  if(typeof window.mvSyncHomeMoreLinks==='function') window.mvSyncHomeMoreLinks();
 }
 window.dashOpenProject=function(id,type){if(type==='album'){document.querySelector('.tab-btn[data-tab="albums"]')?.click();setTimeout(()=>{if(typeof openAlbum==='function')openAlbum(id);setTimeout(()=>document.getElementById('albumDetailView')?.scrollIntoView({behavior:'smooth',block:'start'}),120);},80);}else{document.querySelector('.tab-btn[data-tab="mixtapes"]')?.click();setTimeout(()=>{if(typeof openMixtape==='function')openMixtape(id);setTimeout(()=>document.getElementById('mixtapeDetailView')?.scrollIntoView({behavior:'smooth',block:'start'}),120);},80);}};
 window.dashNewAlbum=function(){document.querySelector('.tab-btn[data-tab="albums"]')?.click();setTimeout(()=>document.getElementById('newAlbumBtn')?.click(),80);};

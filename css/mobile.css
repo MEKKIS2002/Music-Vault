@@ -23,10 +23,8 @@
   --mv-mini-player-h: 60px;     /* approx height of the mini bottom player     */
 }
 
-/* Footer + sheet + FAB are hidden on desktop; only shown inside the query. */
+/* Footer + FAB are hidden on desktop; only shown inside the query. */
 .mv-mobile-nav,
-.mv-mob-sheet,
-.mv-mob-sheet-bg,
 #mvMobFab { display: none; }
 
 /* ==========================================================================
@@ -149,56 +147,6 @@
   .mv-mob-btn.active { color: var(--mv-accent) !important; }
   .mv-mob-btn.active .mv-mob-icon { filter: drop-shadow(0 0 6px rgba(244,164,67,.5)) !important; }
 
-  /* ── "Mer" bottom sheet ───────────────────────────────────────────────── */
-  .mv-mob-sheet-bg {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(0,0,0,.55) !important;
-    backdrop-filter: blur(3px) !important;
-    z-index: 9000 !important;
-  }
-  .mv-mob-sheet {
-    position: fixed !important;
-    left: 0 !important; right: 0 !important; bottom: 0 !important;
-    background: #141210 !important;
-    border-top: 1px solid rgba(255,255,255,.12) !important;
-    border-radius: 20px 20px 0 0 !important;
-    z-index: 9100 !important;
-    padding: 12px 18px calc(24px + var(--mv-safe-bottom)) !important;
-    transform: translateY(100%);
-    transition: transform .28s cubic-bezier(.32,.72,0,1) !important;
-  }
-  .mv-mob-sheet.open { transform: translateY(0); }
-  .mv-mob-sheet-handle {
-    width: 38px; height: 4px;
-    background: rgba(255,255,255,.22);
-    border-radius: 999px;
-    margin: 0 auto 16px;
-  }
-  .mv-mob-sheet-grid {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 10px !important;
-  }
-  .mv-mob-sheet-btn {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 16px 8px !important;
-    min-height: 76px !important;
-    background: rgba(255,255,255,.05) !important;
-    border: 1px solid rgba(255,255,255,.08) !important;
-    border-radius: 14px !important;
-    color: rgba(255,255,255,.75) !important;
-    font-size: 11px !important;
-    font-weight: 700 !important;
-    font-family: inherit !important;
-    cursor: pointer !important;
-  }
-  .mv-mob-sheet-btn span:first-child { font-size: 23px !important; }
-  .mv-mob-sheet-btn:active { background: rgba(255,255,255,.10) !important; }
-
   /* ── Floating "+ Ny sang" action button ───────────────────────────────── */
   #mvMobFab {
     display: flex !important;
@@ -237,6 +185,62 @@
   /* ======================================================================
      TAB CONTENT
      ====================================================================== */
+
+  /* HJEM (dashboard) — phone redesign ------------------------------------
+     Reflow with flex `order` so the desktop DOM/markup stays untouched:
+       1 greeting  2 shortcuts  3 flere sider  4 status cluster  5 rest.
+     The status cluster (Aktivitet/Varsler/Fremdrift = "hva bør du jobbe med")
+     is lifted near the top; projects/last-beat/recent/comments follow. */
+  .dash-inner { display: flex !important; flex-direction: column !important; }
+  .dash-inner > * { order: 5; }
+  .dash-greeting-row { order: 1 !important; display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 14px !important; }
+  .hjem-mobile-shortcuts { order: 2 !important; }
+  .hjem-mobile-more { order: 3 !important; }
+  .hjem-bottom-row { order: 4 !important; }
+
+  /* Greeting quick-actions: full-width tap targets in a 2-up grid;
+     "Ny sang" (accent) spans the full width on its own row. */
+  .dash-quick { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .dq-btn { width: 100% !important; height: 44px !important; }
+  .dq-btn.accent { grid-column: 1 / -1 !important; }
+
+  /* Primary shortcuts: Beats / Lyric Lab / Pipeline / Docs */
+  .hjem-mobile-shortcuts {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 18px !important;
+  }
+  .hjem-shortcut {
+    display: flex !important; flex-direction: column !important;
+    align-items: center !important; justify-content: center !important;
+    gap: 6px !important; padding: 12px 4px !important; min-height: 70px !important;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+    border: 1px solid rgba(255,212,160,.16) !important;
+    border-radius: 12px !important;
+    color: rgba(255,255,255,.82) !important;
+    font-family: inherit !important; cursor: pointer !important;
+  }
+  .hjem-shortcut:active { background: rgba(244,164,67,.14) !important; transform: scale(.97); }
+  .hjem-shortcut .hs-ico { font-size: 22px !important; line-height: 1 !important; }
+  .hjem-shortcut .hs-lbl { font-size: 10.5px !important; font-weight: 700 !important; text-align: center; }
+
+  /* Secondary "Flere sider": Arkivert / Integrasjoner / Label / Admin */
+  .hjem-mobile-more {
+    display: flex !important; flex-wrap: wrap !important;
+    gap: 8px !important; margin-bottom: 6px !important;
+  }
+  .hjem-more-link {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-height: 40px !important; padding: 8px 10px !important;
+    background: rgba(255,255,255,.04) !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
+    border-radius: 9px !important;
+    color: rgba(255,255,255,.62) !important;
+    font-family: inherit !important; font-size: 12px !important; font-weight: 600 !important;
+    cursor: pointer !important; text-align: center !important;
+  }
+  .hjem-more-link:active { background: rgba(255,255,255,.08) !important; }
 
   /* BEATS — list grid is handled inside beats-tab.js (@768). Here we only
      make the header controls stack and the search go full width. */

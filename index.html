@@ -58,9 +58,9 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/mixtape.css?v=202606160003">
   <link rel="stylesheet" href="css/docs.css?v=202606220003">
   <link rel="stylesheet" href="css/player.css?v=202606220002">
-  <link rel="stylesheet" href="css/home.css?v=202606220002">
+  <link rel="stylesheet" href="css/home.css?v=202607010001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
-  <link rel="stylesheet" href="css/mobile.css?v=202606170010">
+  <link rel="stylesheet" href="css/mobile.css?v=202607010001">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -296,6 +296,20 @@ AKTIVE BRUKERE:
         </div>
       </div>
 
+      <!-- Mobil: snarveier til de andre fanene (skjult på desktop via home.css) -->
+      <nav class="hjem-mobile-shortcuts" aria-label="Snarveier">
+        <button class="hjem-shortcut" onclick="mvMobileTab('beats')"><span class="hs-ico">🎵</span><span class="hs-lbl">Beats</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico">✍️</span><span class="hs-lbl">Lyric Lab</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico">📊</span><span class="hs-lbl">Pipeline</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico">📝</span><span class="hs-lbl">Docs</span></button>
+      </nav>
+      <div class="hjem-mobile-more" aria-label="Flere sider">
+        <button class="hjem-more-link" data-req-tab="archive" onclick="mvMobileTab('archive')">🗄️ Arkivert</button>
+        <button class="hjem-more-link" data-req-tab="integrations" onclick="mvMobileTab('integrations')">🔌 Integrasjoner</button>
+        <button class="hjem-more-link" data-req-tab="label" onclick="mvMobileTab('label')">🏷 Label</button>
+        <button class="hjem-more-link" data-req-tab="adminpanel" onclick="mvMobileTab('adminpanel')">🛠 Admin</button>
+      </div>
+
       <!-- Siste prosjekter -->
       <div class="dash-sec-hd"><div class="dash-section-label">Siste prosjekter</div></div>
       <div class="dash-projects-grid" id="dashProjects"></div>
@@ -502,9 +516,9 @@ AKTIVE BRUKERE:
 
 <!-- ── Mobile bottom navigation ─────────────────────────────────────── -->
 <nav class="mv-mobile-nav" id="mvMobileNav" aria-label="Mobilnavigasjon">
-  <button class="mv-mob-btn active" data-mob-tab="beats" onclick="mvMobileTab('beats')">
-    <span class="mv-mob-icon">🎵</span>
-    <span class="mv-mob-lbl">Beats</span>
+  <button class="mv-mob-btn active" data-mob-tab="hjem" onclick="mvMobileTab('hjem')">
+    <span class="mv-mob-icon">🏠</span>
+    <span class="mv-mob-lbl">Hjem</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="mixtapes" onclick="mvMobileTab('mixtapes')">
     <span class="mv-mob-icon">📼</span>
@@ -512,46 +526,13 @@ AKTIVE BRUKERE:
   </button>
   <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
     <span class="mv-mob-icon">📁</span>
-    <span class="mv-mob-lbl">Albumer</span>
+    <span class="mv-mob-lbl">Album</span>
   </button>
-  <button class="mv-mob-btn" data-mob-tab="lyriclab" onclick="mvMobileTab('lyriclab')">
-    <span class="mv-mob-icon">✍️</span>
-    <span class="mv-mob-lbl">Lab</span>
-  </button>
-  <button class="mv-mob-btn" onclick="mvMobileMore()">
-    <span class="mv-mob-icon">⋯</span>
-    <span class="mv-mob-lbl">Mer</span>
+  <button class="mv-mob-btn" data-mob-tab="docs" onclick="mvMobileTab('docs')">
+    <span class="mv-mob-icon">📝</span>
+    <span class="mv-mob-lbl">Docs</span>
   </button>
 </nav>
-
-<!-- ── Mobile "Mer" bottom sheet ────────────────────────────────────── -->
-<div class="mv-mob-sheet-bg" id="mvMobSheetBg" onclick="mvMobileMoreClose()" style="display:none"></div>
-<div class="mv-mob-sheet" id="mvMobSheet" style="display:none">
-  <div class="mv-mob-sheet-handle"></div>
-  <div class="mv-mob-sheet-grid">
-    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('hjem');mvMobileMoreClose()">
-      <span>🏠</span><span>Hjem</span>
-    </button>
-    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('pipeline');mvMobileMoreClose()">
-      <span>📊</span><span>Pipeline</span>
-    </button>
-    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('archive');mvMobileMoreClose()">
-      <span>🗄️</span><span>Arkivert</span>
-    </button>
-    <button class="mv-mob-sheet-btn admin-tab-hidden" onclick="mvMobileTab('label');mvMobileMoreClose()">
-      <span>🏷</span><span>Label</span>
-    </button>
-    <button class="mv-mob-sheet-btn admin-tab-hidden" onclick="mvMobileTab('adminpanel');mvMobileMoreClose()">
-      <span>🛠</span><span>Admin</span>
-    </button>
-    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('docs');mvMobileMoreClose()">
-      <span>📝</span><span>Docs</span>
-    </button>
-    <button class="mv-mob-sheet-btn" onclick="mvMobileTab('integrations');mvMobileMoreClose()">
-      <span>🔌</span><span>Integrasjoner</span>
-    </button>
-  </div>
-</div>
 
 <script>
 window.mvMobileTab = function(tab) {
@@ -560,20 +541,15 @@ window.mvMobileTab = function(tab) {
   document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.mobTab === tab));
 };
-window.mvMobileMore = function() {
-  document.getElementById('mvMobSheet').style.display = 'block';
-  document.getElementById('mvMobSheetBg').style.display = 'block';
-  requestAnimationFrame(() => {
-    document.getElementById('mvMobSheet').classList.add('open');
+// Mirror the authoritative desktop tab visibility onto the home "Flere sider"
+// links so admin-only pages (Label/Admin) stay hidden for non-admins. Called
+// from renderDashboard() (runs after login + whenever Hjem re-renders).
+window.mvSyncHomeMoreLinks = function() {
+  document.querySelectorAll('.hjem-more-link[data-req-tab]').forEach(link => {
+    const src = document.querySelector('.tab-btn[data-tab="' + link.dataset.reqTab + '"]');
+    const hidden = !src || getComputedStyle(src).display === 'none';
+    link.style.display = hidden ? 'none' : '';
   });
-};
-window.mvMobileMoreClose = function() {
-  const s = document.getElementById('mvMobSheet');
-  s.classList.remove('open');
-  setTimeout(() => {
-    s.style.display = 'none';
-    document.getElementById('mvMobSheetBg').style.display = 'none';
-  }, 280);
 };
 // Keep mobile nav in sync with desktop tab clicks
 document.addEventListener('click', e => {
@@ -583,9 +559,9 @@ document.addEventListener('click', e => {
   document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.mobTab === t));
 });
-// On phones Hjem is not in the footer, so land on Beats instead of the dashboard.
+// On phones, land on the Hjem dashboard (it is now in the footer).
 window.addEventListener('load', () => {
-  if (window.innerWidth <= 768) setTimeout(() => window.mvMobileTab('beats'), 0);
+  if (window.innerWidth <= 768) setTimeout(() => window.mvMobileTab('hjem'), 0);
 });
 </script>
 
@@ -902,7 +878,7 @@ window.addEventListener('load', () => {
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202606230012"></script>
   <script src="js/supabase.js?v=202605251400"></script>
-  <script src="js/db.js?v=202606230013"></script>
+  <script src="js/db.js?v=202607010001"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">

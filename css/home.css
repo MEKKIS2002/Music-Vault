@@ -10,6 +10,9 @@
 /* Centre + cap the content for a calmer rhythm on wide screens */
 .dash-inner{ max-width:1200px !important; margin:0 auto !important; padding:24px 28px 44px !important; }
 
+/* Mobile-only navigation blocks — hidden on desktop, revealed in mobile.css */
+.hjem-mobile-shortcuts, .hjem-mobile-more{ display:none; }
+
 /* ── Hero greeting band ─────────────────────────────────────────── */
 .dash-greeting-row{
   position:relative; overflow:hidden;
