@@ -288,6 +288,14 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil rad: KUN coveret utvider (navne-trykk spiller nå av).** Bumpet
+  `track-cards.js`→`202607020002`. Oppfølging til tap-to-play: `track-cards.js:360` hadde en
+  **capture-fase** delegert klikk-lytter på `.album-beat-card .ab-title` som utvidet raden
+  (`toggleAlbumBeat`) + `stopPropagation` — så på mobil «vant» den over `mvTapPlay` (navne-trykk
+  utvidet i stedet for å spille). Fiks: `if(window.innerWidth<=768) return;` øverst i den lytteren, så
+  navne-trykk på mobil faller gjennom til `.ab-body`s `mvTapPlay` (avspilling), mens desktop fortsatt
+  utvider ved navne-trykk. Nå på mobil: **kun coveret utvider** (skrivefunksjonen), alt annet spiller av.
+  Verifisert med headless klikk-sim på 500px (cover→utvid, navn→spill) og 1200px (begge→utvid).
 - **2026-07-02** — **Mobil rad: tap-to-play + fjernet play-knapper og uploader.** Bumpet
   `db.js`→`202607020003`, `beats-tab.js`→`202607020002`, `mobile.css`→`202607020004`. **KUN telefon.**
   (1) **Fjernet play-knappene** i radene på mobil (`.ab-quick-play` album/mixtape via `display:none` i

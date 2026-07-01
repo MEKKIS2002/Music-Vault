@@ -356,8 +356,11 @@ document.documentElement.classList.add('mv-mixed-ui');
     else if(typeof renderAlbumDetail==='function') renderAlbumDetail();
   }
 
-  // Title click toggles card (cover click uses onclick in HTML)
+  // Title click toggles card (cover click uses onclick in HTML).
+  // On phones the row is Spotify-style: ONLY the cover expands; tapping the
+  // title (or anywhere else) plays via mvTapPlay — so skip this on mobile.
   document.addEventListener('click', function(e){
+    if(window.innerWidth<=768) return;
     const title = e.target.closest('.album-beat-card .ab-title');
     if(!title) return;
     if(e.target.closest('button,input,textarea,label,select,a')) return;
