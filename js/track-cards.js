@@ -28,6 +28,7 @@ document.documentElement.classList.add('mv-mixed-ui');
   const KEY = 'musicVaultTrackViewMode';
 
   function getView(){
+    if(window.innerWidth<=768) return 'list';   // phones: rows only (toggle hidden — mobile redesign)
     const v = localStorage.getItem(KEY);
     return ['list','cards','studio'].includes(v) ? v : 'list';
   }
@@ -92,7 +93,7 @@ document.documentElement.classList.add('mv-mixed-ui');
 // ── 3. renderAlbumBeats HOOK — apply view class + enhance cards ───────────────
 (function(){
   const KEY = 'musicVaultTrackViewMode';
-  function getView(){ const v=localStorage.getItem(KEY); return ['list','cards','studio'].includes(v)?v:'list'; }
+  function getView(){ if(window.innerWidth<=768) return 'list'; const v=localStorage.getItem(KEY); return ['list','cards','studio'].includes(v)?v:'list'; }
 
   function safe(s){ return (window.esc ? esc : String)(s || ''); }
   function getBeat(id){ return ((typeof state!=='undefined'?state:window.state)?.beats||[]).find(b=>b.id===id); }

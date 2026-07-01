@@ -60,7 +60,7 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/player.css?v=202606220002">
   <link rel="stylesheet" href="css/home.css?v=202607010001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
-  <link rel="stylesheet" href="css/mobile.css?v=202607010001">
+  <link rel="stylesheet" href="css/mobile.css?v=202607020001">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -377,7 +377,7 @@ AKTIVE BRUKERE:
           <option value="newest">Nyest først</option>
           <option value="name">Navn A–Å</option>
         </select>
-        <label class="ghost-btn" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
+        <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
         <button class="ghost-btn" id="archiveMixtapeBtn" onclick="archiveCurrentCollection('mixtape')">Arkiver mixtape</button>
         <button class="small-btn danger" id="deleteMixtapeBtn">Slett mixtape</button>
         <div class="track-view-toggle" id="mixtapeViewToggle" style="margin-left:auto">
@@ -412,7 +412,7 @@ AKTIVE BRUKERE:
       <div class="toolbar" style="margin-bottom:18px">
         <button class="primary-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
         <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
-        <label class="ghost-btn" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
+        <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
         <button class="ghost-btn" id="archiveAlbumBtn" onclick="archiveCurrentCollection('album')">Arkiver album</button>
         <button class="small-btn danger" id="deleteAlbumBtn">Slett album</button>
         <div class="track-view-toggle" id="albumViewToggle" style="margin-left:auto">
@@ -870,15 +870,15 @@ window.addEventListener('load', () => {
   <script src="js/lyriclab.js?v=202606210001"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
-  <script src="js/app.js?v=202606230009"></script>
-  <script src="js/track-cards.js?v=202606230008"></script>
+  <script src="js/app.js?v=202607020001"></script>
+  <script src="js/track-cards.js?v=202607020001"></script>
   <script src="js/r2-storage.js?v=202606230010"></script>
   <script src="js/archive.js?v=202605262300"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202606230012"></script>
   <script src="js/supabase.js?v=202605251400"></script>
-  <script src="js/db.js?v=202607010001"></script>
+  <script src="js/db.js?v=202607020001"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">

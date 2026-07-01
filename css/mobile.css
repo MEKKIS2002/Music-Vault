@@ -249,6 +249,15 @@
   .beats-search-wrap { width: 100% !important; }
   .beats-sort { width: 100% !important; }
 
+  /* ALBUM/MIXTAPE DETAIL — strip the noise on phones -----------------------
+     Hide secondary header/toolbar actions (Bytt bilde, A/B-side, Pitch, Del
+     med bruker — all tagged .mv-mob-hide in the render source), the view-mode
+     toggle (rader/kort/studio — phones are locked to rows in track-cards.js),
+     and the drag-drop zone (native DnD doesn't work on touch anyway). */
+  .mv-mob-hide { display: none !important; }
+  .track-view-toggle { display: none !important; }
+  .drop-zone { display: none !important; }
+
   /* MIXTAPES & ALBUMS — two-column grids, generous tap area */
   .mixtape-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
   .album-grid   { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }

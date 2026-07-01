@@ -262,6 +262,12 @@ to `.hjem-mobile-more` on the Hjem hub, pointing at an existing `data-tab`. No n
 needed. (The old "Mer" bottom sheet no longer exists — see the redesign note above.)
 
 Notes / gotchas:
+- **Album/mixtape detail is simplified on phones** (2026-07-02): secondary header/toolbar actions
+  (Bytt bilde, A/B-side, Pitch, Del med bruker) carry the marker class **`.mv-mob-hide`**
+  (`display:none` in mobile.css `@768`); the view toggle (`.track-view-toggle`) + dropzone
+  (`.drop-zone`) are hidden; and `track-cards.js` `getView()` is **locked to `'list'` when
+  `innerWidth<=768`** (both getView copies). To expose a new action on the mobile detail view,
+  do NOT add `.mv-mob-hide` to it. See §12 2026-07-02.
 - `beats-tab.js` injects its OWN mobile grid rules at `@768`; `lyriclab.css` self-collapses at
   760/1200px. `mobile.css` complements these, doesn't duplicate the beats grid.
 - The old broken approach (`js/mobile.js` + `#mvMobileApp` full-screen overlay) was **deleted** —
@@ -269,6 +275,22 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil album/mixtape-detalj — forenklet (fjernet støy).** Bumpet
+  `app.js`/`db.js`/`track-cards.js`→`202607020001`, `mobile.css`→`202607020001`. **KUN telefon**
+  (desktop 100 % uendret — verifisert med headless-render begge bredder). (1) **Skjulte sekundære
+  knapper** på album/mixtape-detalj-headeren + toolbaren: 🖼️ Bytt albumbilde / Kassettbilde,
+  💿 A/B-side, 📄 Pitch, 👤 Del med bruker. Metode: la til markørklassen **`.mv-mob-hide`** på hvert
+  element i render-kilden (`app.js` album-header `redesignAlbumDetail`, `db.js` mixtape-header
+  `renderMixtapeDetail`, `index.html` de to cover-bytte-labelene i toolbarene), og
+  `mobile.css` har `.mv-mob-hide{display:none!important}` inne i `@768`. **Beholdt: ▶ Spill fra
+  start, ⏹ Stopp, + Legg til eksisterende, 📂 Last opp filer, Arkiver, Slett, (mixtape) sortering.**
+  (2) **Visningsveksler (Rader/Kort/Studio) skjult** på telefon (`.track-view-toggle{display:none}`),
+  og **rad-visning tvunget** som eneste modus: `track-cards.js` `getView()` (BEGGE forekomstene —
+  IIFE §2 + render-hook §3) returnerer `'list'` når `innerWidth<=768`, uansett lagret
+  `musicVaultTrackViewMode`. (3) **Dropzonen «Slipp lydfiler her» skjult** (`.drop-zone{display:none}`)
+  — native HTML5-DnD virker uansett ikke på touch. **Ny konvensjon: mobil-only skjuling gjøres med
+  markørklassen `.mv-mob-hide` (skjult i mobile.css `@768`), lagt på elementet i render-kilden når
+  en ren CSS-selektor er skjør.** Se §11.
 - **2026-07-02** — **F1 «fiks telefonvisning» — mobil Hjem-redesign + ny footer.** Bumpet
   `home.css`/`mobile.css`/`db.js` `?v=`→`202607010001`. **KUN telefon** (desktop-hjem er 100 %
   uendret — verifisert med headless-Chrome-render på begge bredder). (1) **Footer** (`#mvMobileNav`

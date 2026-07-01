@@ -201,10 +201,10 @@
           </p>
           <div class="album-detail-actions">
             <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')">▶ Spill fra start</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer">🖼️ Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
-            <button class="ghost-btn" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning">💿 A/B-side</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager">📄 Pitch</button>` : ''}
-            ${!album._shared ? `<button class="ghost-btn" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)">👤 Del med bruker</button>` : ''}
+            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
+            <button class="ghost-btn mv-mob-hide" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning">💿 A/B-side</button>
+            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn mv-mob-hide" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager">📄 Pitch</button>` : ''}
+            ${!album._shared ? `<button class="ghost-btn mv-mob-hide" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)">👤 Del med bruker</button>` : ''}
             <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
           </div>
         </div>
