@@ -262,6 +262,10 @@ to `.hjem-mobile-more` on the Hjem hub, pointing at an existing `data-tab`. No n
 needed. (The old "Mer" bottom sheet no longer exists — see the redesign note above.)
 
 Notes / gotchas:
+- **The bottom player is a simplified mini-player on phones** (2026-07-02): only cover+title,
+  prev/play/next and a thin full-width seek bar. `.bp-actions` (volume + ✕ close) and `.bp-time`
+  labels are `display:none` in `mobile.css`; `.bp-center` is `display:contents` so controls +
+  progress wrap as direct flex items. Don't re-add volume/close to the phone player. See §12.
 - **Album/mixtape detail is simplified on phones** (2026-07-02): secondary header/toolbar actions
   (Bytt bilde, A/B-side, Pitch, Del med bruker) carry the marker class **`.mv-mob-hide`**
   (`display:none` in mobile.css `@768`); the view toggle (`.track-view-toggle`) + dropzone
@@ -275,6 +279,19 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil bunnavspiller — forenklet til Spotify-stil mini-spiller.** Bumpet
+  `mobile.css`→`202607020002` (KUN telefon; desktop-spilleren i `player.css` er urørt — verifisert).
+  Ny mobil-layout: `.bottom-player.show` blir `display:flex;flex-wrap:wrap`, og `.bp-center` settes
+  til **`display:contents`** så dens barn (`.bp-controls` + `.bp-progress`) blir direkte flex-items av
+  spilleren og kan brytes uavhengig. Rad 1: cover+tittel (`.bp-track` `flex:1`, `max-width:none` for å
+  overstyre `player.css:26` sin `max-width:30%`) til venstre + prev/play/next (`.bp-controls` order 2)
+  høyrejustert. Rad 2: tynn full-bredde seek-bar (`.bp-progress` `flex:1 1 100%`, order 4). **Droppet
+  på mobil:** hele høyre-klyngen `.bp-actions` (🔊-ikon + volum-slider + ✕-lukk) via `display:none`, og
+  tid-etikettene `.bp-time` (0:00/0:00). Begrunnelse: volum styres av telefonens maskinvareknapper, og
+  ✕ er unødvendig (Spotify/Apple Music mini-spillere har ingen lukk — pause stopper lyden, baren er
+  vedvarende). `--mv-mini-player-h` 60→78px (to rader) så innholdets bunnmarg stemmer. **Gotcha:**
+  første forsøk beholdt ✕ men den kollapset til `width:0` (kjempet mot `.bp-btn`/`player.css`-regler i
+  en `display:grid`-knapp) — å skjule hele `.bp-actions` var både enklere og renere. Se §11.
 - **2026-07-02** — **Mobil album/mixtape-detalj — forenklet (fjernet støy).** Bumpet
   `app.js`/`db.js`/`track-cards.js`→`202607020001`, `mobile.css`→`202607020001`. **KUN telefon**
   (desktop 100 % uendret — verifisert med headless-render begge bredder). (1) **Skjulte sekundære

@@ -20,7 +20,7 @@
   --mv-footer-h: 58px;          /* height of the bottom tab footer            */
   --mv-safe-bottom: env(safe-area-inset-bottom, 0px);
   --mv-accent: #f4a443;
-  --mv-mini-player-h: 60px;     /* approx height of the mini bottom player     */
+  --mv-mini-player-h: 78px;     /* approx height of the mini bottom player (2 rows) */
 }
 
 /* Footer + FAB are hidden on desktop; only shown inside the query. */
@@ -169,18 +169,38 @@
   }
   #mvMobFab:active { transform: scale(.92) !important; }
 
-  /* ── Mini bottom player: sits directly above the footer ───────────────── */
+  /* ── Mini bottom player: simplified Spotify-style bar ─────────────────────
+     Two rows on phones: [cover + title] ....... [prev · play · next] on row 1,
+     a thin full-width seek bar on row 2. Dropped as pure phone noise: the
+     whole right cluster (🔊 volume icon + slider AND the ✕ close — like
+     Spotify/Apple Music mini-players, pause stops playback) and the
+     0:00/0:00 time labels. `.bp-center` is display:contents so its controls +
+     progress become direct flex items of the player and wrap independently. */
   .bottom-player.show {
     left: 8px !important; right: 8px !important;
     bottom: calc(var(--mv-footer-h) + var(--mv-safe-bottom) + 8px) !important;
-    padding: 10px 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 6px 8px !important;
+    padding: 9px 12px !important;
     border-radius: 14px !important;
   }
+  .bp-center { display: contents !important; }
+  .bp-track { flex: 1 1 auto !important; min-width: 0 !important; max-width: none !important; order: 1 !important; }
+  .bp-controls { order: 2 !important; flex: 0 0 auto !important; gap: 8px !important; margin: 0 !important; }
+  .bp-progress { order: 4 !important; flex: 1 1 100% !important; margin: 0 !important; }
+
   .bp-cover { width: 40px !important; height: 40px !important; border-radius: 8px !important; }
   .bp-title { font-size: 13px !important; }
   .bp-sub { font-size: 11px !important; }
-  .bp-vol { display: none !important; }      /* no volume slider on phone */
-  .bp-controls { gap: 10px !important; }
+
+  /* Drop the noise: entire right cluster (volume + close) and the time labels */
+  .bp-actions { display: none !important; }
+  .bp-time { display: none !important; }
+
+  /* Compact controls; keep the gold play button as the clear primary */
+  .bp-btn { width: 36px !important; height: 36px !important; }
 
   /* ======================================================================
      TAB CONTENT
