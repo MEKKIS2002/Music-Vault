@@ -314,8 +314,13 @@
   .album-beat-card .ab-rename-btn,
   .album-beat-card .ab-remove-btn,
   .album-beat-card .ab-playcount,
+  .album-beat-card .ab-uploader,
+  .album-beat-card .ab-quick-play,
   .album-beat-card .ab-stars,
   .album-beat-card .progress-wrap { display: none !important; }
+
+  /* Tap the row body (not the cover) to play — cover still expands. */
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-body { cursor: pointer !important; }
 
   .album-beat-card { padding: 4px 6px !important; border-radius: 10px !important; }
   .album-beat-card .ab-title { font-size: 15px !important; font-weight: 700 !important; }
@@ -339,11 +344,7 @@
     flex: 1 1 auto !important; min-width: 0 !important;
   }
 
-  /* Always-visible round play button + favourite star */
-  .ab-quick-play {
-    width: 40px !important; height: 40px !important; font-size: 13px !important;
-    background: rgba(244,164,67,.16) !important; border: 1px solid rgba(244,164,67,.45) !important;
-  }
+  /* Favourite star stays visible (play button is removed — tap row to play) */
   .album-beat-card .star-btn { opacity: 1 !important; }
 
   /* ── NOW-PLAYING indicator: animated gold equalizer over the cover + gold

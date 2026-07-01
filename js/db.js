@@ -1008,12 +1008,12 @@ function renderAlbumBeats(beats,mode,customEl){
       return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}">
         <div class="ab-top">
           <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')">${coverHtml}</div>
-          <div class="ab-body">
+          <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" style="min-width:0">${esc(b.name)}</div>
             </div>
-            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?` · <span style="color:var(--mv-amber,#ff8a1f);font-size:11px">👤 ${esc(b.uploadedBy)}</span>`:''}</div>
+            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,#ff8a1f);font-size:11px">👤 ${esc(b.uploadedBy)}</span></span>`:''}</div>
           </div>
         </div>
         <div class="ab-expand">
@@ -1034,13 +1034,13 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-cover-wrap" ${coverDragAttrs} onclick="toggleAlbumBeat('${b.id}')">
           ${coverHtml}
         </div>
-        <div class="ab-body">
+        <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
               <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}">▶ ${Number(b.playCount)||0}</span>
-              ${b.uploadedBy?`<span style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#ff8a1f);opacity:.8;white-space:nowrap">👤 ${esc(b.uploadedBy)}</span>`:''}
+              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#ff8a1f);opacity:.8;white-space:nowrap">👤 ${esc(b.uploadedBy)}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#fb7185;display:block;margin-right:2px"></span>'; return ''; })()}
@@ -1080,6 +1080,15 @@ function renderAlbumBeats(beats,mode,customEl){
   // and loads LAST (its declaration clobbers any wrapper), so we invoke the hook here. (FINDINGS §0)
   if(typeof window.afterRenderAlbumBeats==='function') window.afterRenderAlbumBeats(el, listMode);
 }
+// Mobile-only tap-to-play: tapping a song row (but NOT the cover image or an
+// interactive control) plays it. Play buttons are hidden on phones (mobile.css).
+window.mvTapPlay=function(e,id,kind){
+  if(window.innerWidth>768) return;                 // desktop unchanged
+  if(e.target.closest('button,a,input,select,textarea,label,.ab-cover-wrap,.bl-cover,.ab-stars,.progress-wrap,.star-btn')) return;
+  try{ sessionStorage.setItem('mv_last_beat',id); }catch(_){}
+  if(kind==='beat'){ if(window.beatsTab&&beatsTab.playBeat) beatsTab.playBeat(id); }
+  else if(typeof playCollectionFromBeat==='function'){ playCollectionFromBeat(id,kind); }
+};
 // ══════════════════════════════════════════════════════════════════════════════
 // mvShare — standalone share modal (reads data-share="type|id|name")
 // ══════════════════════════════════════════════════════════════════════════════

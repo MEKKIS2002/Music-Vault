@@ -263,11 +263,14 @@ needed. (The old "Mer" bottom sheet no longer exists — see the redesign note a
 
 Notes / gotchas:
 - **Album/mixtape + beats rows are redesigned Spotify-style on phones** (2026-07-02): cover +
-  title + play + favourite star, always visible; a now-playing row shows an animated gold
-  equalizer over the cover + gold title (`.now-playing-glow`, keyframes `mvEq`/`mvEqBl`). To
-  show the cover you MUST out-specify `track-cards.css` @700 (`.ab-cover-wrap{display:none}`) and
-  `archive.css` (cover `::after` reset) — use the full `.album-beat-listmode .album-beat-card:not(.expanded)`
-  selector. See §12 2026-07-02.
+  title + favourite star; **no play button** — tapping the row plays it (via `window.mvTapPlay`),
+  except tapping the **cover** (which still expands album/mixtape rows). A now-playing row shows an
+  animated gold equalizer over the cover + gold title (`.now-playing-glow`, keyframes `mvEq`/`mvEqBl`).
+  `mvTapPlay` is mobile-only (`innerWidth>768`→no-op) and is wired on `.ab-body` (cover is a sibling,
+  so cover taps don't reach it) and on `.bl-row` (cover excluded in the guard). The "uploaded-by" 👤
+  tag (`.ab-uploader` / `.bl-uploader`) is hidden on phones. To show the cover you MUST out-specify
+  `track-cards.css` @700 (`.ab-cover-wrap{display:none}`) and `archive.css` (cover `::after` reset) —
+  use the full `.album-beat-listmode .album-beat-card:not(.expanded)` selector. See §12 2026-07-02.
 - **The bottom player is a simplified mini-player on phones** (2026-07-02): only cover+title,
   prev/play/next and a thin full-width seek bar. `.bp-actions` (volume + ✕ close) and `.bp-time`
   labels are `display:none` in `mobile.css`; `.bp-center` is `display:contents` so controls +
@@ -285,6 +288,20 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil rad: tap-to-play + fjernet play-knapper og uploader.** Bumpet
+  `db.js`→`202607020003`, `beats-tab.js`→`202607020002`, `mobile.css`→`202607020004`. **KUN telefon.**
+  (1) **Fjernet play-knappene** i radene på mobil (`.ab-quick-play` album/mixtape via `display:none` i
+  mobile.css; `.bl-play` beats via `display:none` i beats-tab.js `@768`). (2) **Tap-to-play:** ny global
+  `window.mvTapPlay(e,id,kind)` i `db.js` — gjør INGENTING på desktop (`innerWidth>768` → return), og på
+  mobil spiller den sangen med mindre klikket traff coveret eller en kontroll (guard:
+  `closest('button,a,input,select,textarea,label,.ab-cover-wrap,.bl-cover,.ab-stars,.progress-wrap,.star-btn')`).
+  `kind==='beat'`→`beatsTab.playBeat`, ellers `playCollectionFromBeat(id,kind)`. Koblet på **`.ab-body`**
+  (album/mixtape — coveret er et SØSKEN av ab-body, så cover-tap bobler ikke dit → coveret utvider fortsatt
+  via sin egen `toggleAlbumBeat`) og på **`.bl-row`** (beats — coveret `.bl-cover` er ekskludert i guarden).
+  Verifisert med headless klikk-simulering: cover→ingen avspilling, tittel→spiller, stjerne/meny→ingen
+  avspilling. (3) **Fjernet «lastet opp av»-info** på mobil: la til klasse `.ab-uploader` på 👤-taggen i
+  `renderAlbumBeats` (begge rad-variantene, `db.js`) og skjuler den i mobile.css (beats-fanens
+  `.bl-uploader` var allerede skjult på mobil). Se §11.
 - **2026-07-02** — **Mobil rad-redesign: album/mixtape + beats i Spotify-stil, med «spilles nå»-
   equalizer.** Bumpet `db.js`→`202607020002`, `beats-tab.js`→`202607020001`, `mobile.css`→
   `202607020003`. **KUN telefon** (desktop urørt — alt i `@768`/injisert `@768`; verifisert med

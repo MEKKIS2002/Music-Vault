@@ -212,7 +212,7 @@
               : `<span style="color:var(--muted);font-size:11px">—</span>`;
 
             return `
-              <div class="bl-row" data-beat-id="${b.id}">
+              <div class="bl-row" data-beat-id="${b.id}" onclick="mvTapPlay(event,'${b.id}','beat')">
                 <span class="bl-num">${i + 1}</span>
                 <span class="bl-cover">${coverHtml}</span>
                 <span class="bl-name">
@@ -412,8 +412,9 @@
         .bl-row .bl-cover { display: block; width: 46px; position: relative; }
         .bl-cover-img, .bl-cover-ph { width: 46px; height: 46px; border-radius: 6px; }
         .bl-title { font-size: 15px; }
+        .bl-row { cursor: pointer; }          /* tap the row to play */
         .bl-actions { gap: 6px; }
-        .bl-play { opacity: 1; width: 34px; height: 34px; font-size: 12px; }
+        .bl-play { display: none; }           /* no play button — tap row instead */
         .bl-menu { width: 34px; height: 34px; }
         .bl-star { font-size: 18px; }
 
