@@ -262,6 +262,12 @@ to `.hjem-mobile-more` on the Hjem hub, pointing at an existing `data-tab`. No n
 needed. (The old "Mer" bottom sheet no longer exists — see the redesign note above.)
 
 Notes / gotchas:
+- **Album/mixtape + beats rows are redesigned Spotify-style on phones** (2026-07-02): cover +
+  title + play + favourite star, always visible; a now-playing row shows an animated gold
+  equalizer over the cover + gold title (`.now-playing-glow`, keyframes `mvEq`/`mvEqBl`). To
+  show the cover you MUST out-specify `track-cards.css` @700 (`.ab-cover-wrap{display:none}`) and
+  `archive.css` (cover `::after` reset) — use the full `.album-beat-listmode .album-beat-card:not(.expanded)`
+  selector. See §12 2026-07-02.
 - **The bottom player is a simplified mini-player on phones** (2026-07-02): only cover+title,
   prev/play/next and a thin full-width seek bar. `.bp-actions` (volume + ✕ close) and `.bp-time`
   labels are `display:none` in `mobile.css`; `.bp-center` is `display:contents` so controls +
@@ -279,6 +285,31 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil rad-redesign: album/mixtape + beats i Spotify-stil, med «spilles nå»-
+  equalizer.** Bumpet `db.js`→`202607020002`, `beats-tab.js`→`202607020001`, `mobile.css`→
+  `202607020003`. **KUN telefon** (desktop urørt — alt i `@768`/injisert `@768`; verifisert med
+  headless-render av begge rad-systemer). Hver rad = **cover + tittel + play + favoritt-stjerne**,
+  alltid synlig; resten (del/gi nytt navn/fjern, spilleteller-chip, 10-stjerners rating, %-bar) skjult
+  på mobil (fortsatt tilgjengelig ved å utvide raden). **(A) Album/mixtape-rader** (`.album-beat-card`
+  i `.album-beat-listmode`, `mobile.css`): la til `class="ab-quick-play"` på den runde play-knappen i
+  `renderAlbumBeats` (`db.js`) så den kan styles rent; skjuler klutter; tvinger en ren flex-rad med
+  **synlig 52px cover**. **VIKTIG gotcha:** `track-cards.css:396` har `@media(max-width:700px)` som
+  SKJULER coveret i listmode (`.ab-cover-wrap{display:none}`), og `archive.css:816` skjuler
+  `.ab-cover-wrap::after`. Begge har høy spesifisitet + `!important`, så cover-vis- og equalizer-reglene
+  MÅ bruke den fulle `.album-beat-listmode .album-beat-card:not(.expanded) …`-selektoren for å vinne
+  (mobile.css laster òg sist). Equalizer-selektoren legger til `.now-playing-glow` for å nå (0,5,1) >
+  archive sin (0,4,1), og setter eksplisitt `display:block` (archive tvinger `display:none`). **(B) Beats-
+  fanen** (`.bl-row`, injisert CSS i `beats-tab.js`): forrige mobil-CSS SKJULTE coveret og play var
+  hover-avslørt (`opacity:0`, ingen hover på touch) — nå vises cover (46px) + alltid-synlig play; grid
+  `46px 1fr auto`; skjuler num/samlinger/opplaster/dato/lengde + kolonne-headeren. **(C) «Spilles nå»-
+  effekt:** animert gull-equalizer (3 bars) tegnet som cover-`::after` via 3 `linear-gradient`-lag hvis
+  `background-size`-høyder animeres i `@keyframes mvEq` (album, i mobile.css) / `mvEqBl` (beats,
+  selvstendig i beats-tab.js) + gull tittel, på `.now-playing-glow`-raden (settes av
+  `updatePlayingAnimations` i app.js via `data-beat-id`; fjernes ved pause). `::after` har
+  `pointer-events:none` så tapp-for-å-utvide på coveret fortsatt virker. **Merk:** `track-cards.css`
+  ~L342-352 har en pre-eksisterende ØDELAGT CSS-blokk (foreldreløse deklarasjoner etter `}`) som gjør at
+  `.album-beat-listmode …ab-top{display:grid}` (L354) forkastes → ab-top er `flex` i listmode. Ikke stol
+  på grid-regelen der. Se §11.
 - **2026-07-02** — **Mobil bunnavspiller — forenklet til Spotify-stil mini-spiller.** Bumpet
   `mobile.css`→`202607020002` (KUN telefon; desktop-spilleren i `player.css` er urørt — verifisert).
   Ny mobil-layout: `.bottom-player.show` blir `display:flex;flex-wrap:wrap`, og `.bp-center` settes

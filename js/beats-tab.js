@@ -386,20 +386,49 @@
       .bt-dropdown button.danger { color: #fb7185; }
       .bt-dropdown button.danger:hover { background: rgba(251,113,133,.12); }
 
-      /* Mobile responsiveness */
+      /* Now-playing equalizer keyframes (self-contained for the injected sheet) */
+      @keyframes mvEqBl {
+        0%,100% { background-size: 3px 35%, 3px 70%, 3px 45%, cover; }
+        20%     { background-size: 3px 70%, 3px 35%, 3px 80%, cover; }
+        40%     { background-size: 3px 45%, 3px 85%, 3px 30%, cover; }
+        60%     { background-size: 3px 80%, 3px 45%, 3px 65%, cover; }
+        80%     { background-size: 3px 30%, 3px 75%, 3px 50%, cover; }
+      }
+
+      /* Mobile — Spotify-style rows: cover · title · play · star always visible.
+         Cover is shown (was hidden), the play button is always visible (no hover
+         on touch), and secondary columns are dropped. */
       @media (max-width: 768px) {
-        .beats-list-header,
+        .beats-list-header { display: none; }
         .bl-row {
-          grid-template-columns: 30px minmax(0,1fr) 60px 56px;
+          grid-template-columns: 46px minmax(0,1fr) auto;
+          gap: 0 12px; padding: 7px 10px; align-items: center;
         }
-        .beats-list-header .bl-cover,
-        .beats-list-header .bl-collections,
-        .beats-list-header .bl-uploader,
-        .beats-list-header .bl-date,
-        .bl-row .bl-cover,
+        .bl-row .bl-num,
         .bl-row .bl-collections,
         .bl-row .bl-uploader,
-        .bl-row .bl-date { display: none; }
+        .bl-row .bl-date,
+        .bl-row .bl-dur { display: none; }
+        .bl-row .bl-cover { display: block; width: 46px; position: relative; }
+        .bl-cover-img, .bl-cover-ph { width: 46px; height: 46px; border-radius: 6px; }
+        .bl-title { font-size: 15px; }
+        .bl-actions { gap: 6px; }
+        .bl-play { opacity: 1; width: 34px; height: 34px; font-size: 12px; }
+        .bl-menu { width: 34px; height: 34px; }
+        .bl-star { font-size: 18px; }
+
+        /* Now-playing: animated gold equalizer over the cover + gold title */
+        .bl-row.now-playing-glow .bl-cover::after {
+          content: ""; position: absolute; inset: 0;
+          border-radius: 6px; pointer-events: none;
+          background:
+            linear-gradient(#f4a443,#f4a443) 25% 100% / 3px 40% no-repeat,
+            linear-gradient(#f4a443,#f4a443) 50% 100% / 3px 65% no-repeat,
+            linear-gradient(#f4a443,#f4a443) 75% 100% / 3px 50% no-repeat,
+            rgba(0,0,0,.5);
+          animation: mvEqBl .9s ease-in-out infinite;
+        }
+        .bl-row.now-playing-glow .bl-title { color: #f4a443; }
       }
     `;
     document.head.appendChild(style);

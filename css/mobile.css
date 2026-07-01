@@ -27,6 +27,17 @@
 .mv-mobile-nav,
 #mvMobFab { display: none; }
 
+/* Now-playing equalizer bars (used by the mobile album/mixtape + beats rows).
+   Each keyframe sets three comma-separated background-size heights so the bars
+   appear to bounce independently. Global so both stylesheets can reference it. */
+@keyframes mvEq {
+  0%, 100% { background-size: 3px 35%, 3px 70%, 3px 45%, cover; }
+  20%      { background-size: 3px 70%, 3px 35%, 3px 80%, cover; }
+  40%      { background-size: 3px 45%, 3px 85%, 3px 30%, cover; }
+  60%      { background-size: 3px 80%, 3px 45%, 3px 65%, cover; }
+  80%      { background-size: 3px 30%, 3px 75%, 3px 50%, cover; }
+}
+
 /* ==========================================================================
    PHONE  (≤ 768px)
    ========================================================================== */
@@ -292,10 +303,63 @@
   }
   .album-detail-hd > div:last-child { margin-left: 0 !important; }
 
-  /* Beat rows inside album/mixtape: always show action buttons (no hover) */
-  .album-beat-card .ab-rename-btn,
+  /* ── ALBUM/MIXTAPE ROWS — Spotify-style mobile list ──────────────────────
+     Each row is stripped to the essentials: cover · title · play · favourite.
+     GOTCHA: track-cards.css @700px HIDES the cover in list mode, and archive.css
+     hides the cover's ::after. So the cover-show + equalizer rules below use the
+     full `.album-beat-listmode .album-beat-card:not(.expanded) …` selector to
+     out-specify them (mobile.css also loads last). Extra actions / 10-star rating
+     / %-progress stay reachable by tapping the row to expand. */
   .album-beat-card .ab-share-btn,
-  .album-beat-card .ab-remove-btn { opacity: 1 !important; }
+  .album-beat-card .ab-rename-btn,
+  .album-beat-card .ab-remove-btn,
+  .album-beat-card .ab-playcount,
+  .album-beat-card .ab-stars,
+  .album-beat-card .progress-wrap { display: none !important; }
+
+  .album-beat-card { padding: 4px 6px !important; border-radius: 10px !important; }
+  .album-beat-card .ab-title { font-size: 15px !important; font-weight: 700 !important; }
+
+  /* Clean row with a visible cover (overrides track-cards.css @700 hide) */
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-top {
+    display: flex !important; flex-direction: row !important; align-items: center !important;
+    height: auto !important; gap: 12px !important; padding: 6px 8px !important;
+  }
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-wrap {
+    display: block !important; position: relative !important; overflow: hidden !important;
+    width: 52px !important; height: 52px !important;
+    min-width: 52px !important; min-height: 52px !important;
+    margin: 0 !important; border-radius: 6px !important; flex-shrink: 0 !important;
+  }
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover,
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-cover-ph {
+    width: 52px !important; height: 52px !important; border-radius: 6px !important;
+  }
+  .album-beat-listmode .album-beat-card:not(.expanded) .ab-body {
+    flex: 1 1 auto !important; min-width: 0 !important;
+  }
+
+  /* Always-visible round play button + favourite star */
+  .ab-quick-play {
+    width: 40px !important; height: 40px !important; font-size: 13px !important;
+    background: rgba(244,164,67,.16) !important; border: 1px solid rgba(244,164,67,.45) !important;
+  }
+  .album-beat-card .star-btn { opacity: 1 !important; }
+
+  /* ── NOW-PLAYING indicator: animated gold equalizer over the cover + gold
+     title. Full-specificity selector to beat archive.css's cover ::after reset. */
+  .album-beat-listmode .album-beat-card.now-playing-glow:not(.expanded) .ab-cover-wrap::after {
+    content: "" !important; display: block !important;
+    position: absolute !important; inset: 0 !important;
+    border-radius: 6px !important; pointer-events: none !important;
+    background:
+      linear-gradient(#f4a443,#f4a443) 25% 100% / 3px 40% no-repeat,
+      linear-gradient(#f4a443,#f4a443) 50% 100% / 3px 65% no-repeat,
+      linear-gradient(#f4a443,#f4a443) 75% 100% / 3px 50% no-repeat,
+      rgba(0,0,0,.5) !important;
+    animation: mvEq .9s ease-in-out infinite !important;
+  }
+  .now-playing-glow .ab-title { color: #f4a443 !important; }
 
   /* PIPELINE — keep kanban columns swipeable */
   .kanban-board, #pipelineBoard { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
