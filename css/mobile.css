@@ -317,6 +317,7 @@
   .album-beat-card .ab-uploader,
   .album-beat-card .ab-quick-play,
   .album-beat-card .ab-stars,
+  .album-beat-card .ab-raw,
   .album-beat-card .progress-wrap { display: none !important; }
 
   /* Tap the row body (not the cover) to play — cover still expands. */

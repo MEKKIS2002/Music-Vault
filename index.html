@@ -60,7 +60,7 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/player.css?v=202606220002">
   <link rel="stylesheet" href="css/home.css?v=202607010001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
-  <link rel="stylesheet" href="css/mobile.css?v=202607020004">
+  <link rel="stylesheet" href="css/mobile.css?v=202607020005">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -379,7 +379,7 @@ AKTIVE BRUKERE:
         </select>
         <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
         <button class="ghost-btn" id="archiveMixtapeBtn" onclick="archiveCurrentCollection('mixtape')">Arkiver mixtape</button>
-        <button class="small-btn danger" id="deleteMixtapeBtn">Slett mixtape</button>
+        <button class="small-btn danger mv-mob-hide" id="deleteMixtapeBtn">Slett mixtape</button>
         <div class="track-view-toggle" id="mixtapeViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
@@ -414,7 +414,7 @@ AKTIVE BRUKERE:
         <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
         <button class="ghost-btn" id="archiveAlbumBtn" onclick="archiveCurrentCollection('album')">Arkiver album</button>
-        <button class="small-btn danger" id="deleteAlbumBtn">Slett album</button>
+        <button class="small-btn danger mv-mob-hide" id="deleteAlbumBtn">Slett album</button>
         <div class="track-view-toggle" id="albumViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
@@ -878,7 +878,7 @@ window.addEventListener('load', () => {
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202607020002"></script>
   <script src="js/supabase.js?v=202605251400"></script>
-  <script src="js/db.js?v=202607020003"></script>
+  <script src="js/db.js?v=202607020004"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">

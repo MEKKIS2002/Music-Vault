@@ -288,6 +288,13 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-07-02** — **Mobil: skjulte flere støy-elementer.** Bumpet `db.js`→`202607020004`,
+  `mobile.css`→`202607020005`. KUN telefon. Skjulte via markørklassen `.mv-mob-hide`
+  (`display:none` i mobile.css `@768`): **«🎵 Bytt lydfil»**-knappen i den utvidede raden
+  (`renderAlbumBeats`, `db.js`) og **«Slett album»/«Slett mixtape»**-knappene (`#deleteAlbumBtn`/
+  `#deleteMixtapeBtn`, `index.html`). La også til `.album-beat-card .ab-raw` i mobil-skjul-listen så
+  **RAW-vokaler-seksjonen** (`.ab-raw`) er borte på mobil. (Coverbilde-knappen i utvidet visning er
+  BEHOLDT — bare Bytt lydfil ble bedt fjernet.)
 - **2026-07-02** — **Mobil rad: KUN coveret utvider (navne-trykk spiller nå av).** Bumpet
   `track-cards.js`→`202607020002`. Oppfølging til tap-to-play: `track-cards.js:360` hadde en
   **capture-fase** delegert klikk-lytter på `.album-beat-card .ab-title` som utvidet raden
