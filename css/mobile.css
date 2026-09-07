@@ -320,6 +320,28 @@
   .album-beat-card .ab-raw,
   .album-beat-card .progress-wrap { display: none !important; }
 
+  /* ── EXPANDED ROW ACTIONS — clean full-width stack -----------------------
+     The expanded song row keeps its real actions on phones (Spill, Bytt lydfil,
+     Coverbilde, Fjern). Inline they wrapped into a cramped mess, so stack them
+     as full-width 44px tap targets instead. «🎵 Bytt lydfil» (.ab-swap-audio)
+     gets a gold tint so the destructive-ish action reads as deliberate — the
+     confirm() in uploadBeatAudio() warns that the old file is deleted for good. */
+  .ab-expand-top-bar {
+    display: flex !important; flex-direction: column !important;
+    align-items: stretch !important; gap: 8px !important;
+  }
+  .ab-expand-top-bar > label.ghost-btn,
+  .ab-expand-top-bar > .small-btn {
+    width: 100% !important; min-height: 44px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    font-size: 13px !important; padding: 10px 12px !important; border-radius: 10px !important;
+  }
+  .ab-expand-top-bar > label.ab-swap-audio {
+    background: rgba(244,164,67,.12) !important;
+    border: 1px solid rgba(244,164,67,.35) !important;
+    color: #ffd89d !important; font-weight: 800 !important;
+  }
+
   /* Tap the row body (not the cover) to play — cover still expands. */
   .album-beat-listmode .album-beat-card:not(.expanded) .ab-body { cursor: pointer !important; }
 

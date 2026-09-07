@@ -310,13 +310,23 @@ document.addEventListener("play",e=>{
   }
 },true);
 
+// Accepted audio extensions for "bytt lydfil" — mobile pickers give `type:""` for several of
+// these, so the extension is the reliable check. Keep in sync with the `accept` attributes.
+const AUDIO_EXT_RE=/\.(mp3|wav|m4a|aac|flac|ogg|oga|opus|aif|aiff|wma|mp4)$/i;
+function isAudioFile(file){
+  if(!file)return false;
+  return (file.type||"").startsWith("audio")||AUDIO_EXT_RE.test(file.name||"");
+}
+window.isAudioFile=isAudioFile;
 // F6: replace a song's audio file. The old file is overwritten PERMANENTLY in R2 (same key =
 // beat.id, so the PUT replaces it and frees the storage). Warns first. Cache-busts the reused URL.
 async function uploadBeatAudio(beatId,file){
-  if(!file||!file.type.startsWith("audio")){showToast("⚠ Velg en gyldig lydfil");return;}
+  // NB: mobile file pickers often give an empty `type` for .wav/.m4a/.aiff, so fall back
+  // to the file extension instead of rejecting a perfectly good demo.
+  if(!file||!isAudioFile(file)){showToast("⚠ Velg en gyldig lydfil");return;}
   const b=state.beats.find(x=>x.id===beatId);if(!b)return;
   const hadAudio=!!(b.audio_url||b.url);
-  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nDen nye filen overskriver den gamle PERMANENT for å spare lagringsplass — den gamle kan ikke gjenopprettes.`))return;
+  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nNy fil: ${file.name}\n\n⚠ ADVARSEL: den gamle lydfilen slettes PERMANENT for å spare lagringsplass. Den kan ikke gjenopprettes — last den ned først hvis du vil beholde den.`))return;
   // Lokal kopi for umiddelbar avspilling (getPlayableAudioUrl foretrekker IDB-bloben)
   await audioDB.save(beatId,file);
   b.url=beatId+":idb"; // sentinel so we know audio exists
@@ -331,8 +341,11 @@ async function uploadBeatAudio(beatId,file){
     const wrap=document.getElementById("au-wrap-"+beatId)||el.parentElement;
     if(wrap)wrap.style.display="block";
   }
-  // Erstatt i R2: samme nøkkel (beat.id) → PUT overskriver/​frigjør den gamle filen permanent.
+  // Erstatt i R2: samme nøkkel (active|archived/{beat.id}) → PUT overskriver/​frigjør den
+  // gamle filen permanent. Lå den gamle filen på en ANNEN nøkkel, slettes den eksplisitt.
   if(window.r2Storage&&window.r2Storage.ready()){
+    const oldKey=b.r2_key||"";
+    const newKey=(b.archived?"archived/":"active/")+beatId;
     try{
       let up=file;
       if(window.audioCompress?.shouldCompress(up))up=await window.audioCompress.compress(up);
@@ -340,7 +353,12 @@ async function uploadBeatAudio(beatId,file){
       const url=await window.r2Storage.upload(beatId,up,!!b.archived);
       // Same key → same URL; bust caches/CDN so the new audio is served, not the old.
       b.audio_url=url+(url.includes("?")?"&":"?")+"v="+Date.now();
-      b.r2_key=beatId;
+      b.r2_key=newKey;
+      // Legacy/stale key (f.eks. bare "{beatId}" fra en eldre versjon, eller archived/ vs
+      // active/): PUT-en overskrev den ikke, så den gamle filen ville blitt liggende å ta plass.
+      if(oldKey&&oldKey!==newKey&&oldKey!==beatId&&oldKey.includes("/")){
+        try{ await window.r2Storage.removeKey(oldKey); }catch(e){ console.warn("[R2] Kunne ikke slette gammel nøkkel:",oldKey,e); }
+      }
       saveState();
       if(typeof window.pushToSupabase==="function")window.pushToSupabase();
       showToast("✓ Lydfil erstattet — gammel fil slettet");
@@ -679,7 +697,7 @@ function renderBeats(container,beats,albumMode){
           <button class="primary-btn" onclick="playSingleBeat('${b.id}')">▶ Spill denne</button>
         </div>
         <div style="margin-bottom:12px">
-          <label class="ghost-btn" style="cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px">🎵 Last opp / bytt lydfil<input type="file" accept="audio/*" hidden onchange="uploadBeatAudio('${b.id}',this.files[0])"></label>
+          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Last opp / bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
         </div>
         <div class="ab-lyric-editor">
           ${lyricsEditorMarkup(b.id,"Skriv hook, vers, tekst, ideer, flows...")}
@@ -1065,7 +1083,7 @@ function renderAlbumBeats(beats,mode,customEl){
             <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#f4a443':'rgba(255,255,255,.25)'}">★</button>
             <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(251,113,133,.15);color:#fb7185;border:1px solid rgba(251,113,133,.3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>
-          <label class="ghost-btn mv-mob-hide" style="cursor:pointer;font-size:12px;padding:6px 12px">🎵 Bytt lydfil<input type="file" accept="audio/*" hidden onchange="uploadBeatAudio('${b.id}',this.files[0])"></label>
+          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
           <label class="ghost-btn" style="cursor:pointer;font-size:12px;padding:6px 12px">🖼️ Coverbilde<input type="file" accept="image/*" hidden onchange="setAlbumBeatCover('${b.id}',this)"></label>
           <button class="small-btn danger" onclick="removeFromCollection('${b.id}','${listMode}')">Fjern fra ${listMode==="mixtape"?"mixtape":"album"}</button>
         </div>

@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-07-02_
+> _Last updated: 2026-09-07_
 
 ---
 
@@ -288,6 +288,31 @@ Notes / gotchas:
 
 ## 12. Work log (newest first)
 
+- **2026-09-07** — **Bytt lydfil (F6) tilgjengelig på MOBIL + robustere sletting av gammel fil.**
+  Bumpet `db.js`/`beats-tab.js`/`mobile.css` `?v=`→`202609070001`. Bakgrunn: F6 fantes allerede
+  (2026-06-23) men knappen ble skjult på telefon i commit `e8be860` (`.mv-mob-hide`) — brukeren
+  trenger funksjonen på mobil (ny demo → erstatt fila i albumet). Endringer:
+  (1) **Album/mixtape-raden:** `.mv-mob-hide` fjernet fra «🎵 Bytt lydfil»-labelen (`renderAlbumBeats`,
+  `db.js`) og erstattet med markørklassen **`.ab-swap-audio`**. `mobile.css` gjør nå hele
+  `.ab-expand-top-bar` til en **full-bredde vertikal stabel** med 44px tap-targets (den flyter
+  ellers til en trang rotete rad på telefon), og gir `.ab-swap-audio` en gull-tonet stil.
+  Raden utvides på mobil ved å trykke **coveret** (§11) — det er veien inn til knappen.
+  (2) **Beats-fanen:** nytt punkt «🎵 Bytt lydfil» i ⋯-menyen → `beatsTab.swapAudio(beatId)`.
+  Den bygger et **midlertidig `<input type=file>` på `<body>`** i stedet for en
+  `<label><input hidden>` inne i menyen: menyen lukkes først (`closeDropdown`), og et input som
+  rives ut av DOM-en før `change` rekker å fyre gir ingen fil. `cancel`-event + `change` rydder opp.
+  (3) **Mobil-filvelger-bug:** `uploadBeatAudio` avviste filer med `!file.type.startsWith("audio")`,
+  men mobile filvelgere gir ofte `type:""` for `.wav/.m4a/.aiff` → gyldige demoer ble avvist med
+  «Velg en gyldig lydfil». Ny delt helper **`isAudioFile(file)`** (`db.js`, på `window`) godtar
+  MIME `audio/*` **eller** endelse (`AUDIO_EXT_RE`). `accept`-attributtene lister nå endelsene
+  eksplisitt (samme grep som RAW-vokaler, §12 2026-06-23).
+  (4) **Gammel fil slettes faktisk permanent:** PUT til samme nøkkel overskriver, men lå den gamle
+  fila på en ANNEN nøkkel (legacy `b.r2_key=beatId` uten mappe, eller `archived/` vs `active/`)
+  ble den liggende og spise lagring. Nå settes `b.r2_key` til full nøkkel (`active|archived/{id}`,
+  som `r2-storage.js` selv gjør) og en avvikende gammel nøkkel slettes med `r2Storage.removeKey`.
+  (5) Advarselen (`confirm()`) er tydeligere: viser nytt filnavn + «slettes PERMANENT … last den ned
+  først hvis du vil beholde den». **Merk:** R2 kan ikke testes lokalt (CORS = kun github.io) —
+  lokalt lagres fila i IDB og spilles med én gang; R2-erstatningen skjer på live-siden.
 - **2026-07-02** — **Mobil: skjulte flere støy-elementer.** Bumpet `db.js`→`202607020004`,
   `mobile.css`→`202607020005`. KUN telefon. Skjulte via markørklassen `.mv-mob-hide`
   (`display:none` i mobile.css `@768`): **«🎵 Bytt lydfil»**-knappen i den utvidede raden

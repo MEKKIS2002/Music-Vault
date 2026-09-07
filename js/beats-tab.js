@@ -82,6 +82,7 @@
     menu.innerHTML = `
       <button onclick="beatsTab.playBeat('${beatId}')">▶ Spill</button>
       ${admin ? `<button onclick="downloadBeat('${beatId}')">⬇ Last ned</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil</button>` : ''}
       ${admin ? `<button onclick="renameBeat('${beatId}')">✏️ Gi nytt navn</button>` : ''}
       ${admin ? `<button onclick="beatsTab.toggleFav('${beatId}')">${beat.favorite ? '★ Fjern favoritt' : '☆ Legg til favoritt'}</button>` : ''}
       ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">
@@ -135,6 +136,26 @@
     const st = typeof state !== 'undefined' ? state : window.state;
     const beat = st?.beats?.find(b => b.id === beatId);
     if (beat) { beat.favorite = !beat.favorite; if(typeof saveState==='function') saveState(); renderBeatsTab(); }
+  }
+
+  // Replace the song's audio file (F6). The dropdown is closed first, so we can't rely on a
+  // <label><input type=file> inside it (it would be detached before `change` fires) — build a
+  // throwaway input on <body> instead. uploadBeatAudio() (db.js) owns the warning + R2 overwrite.
+  function swapAudio(beatId) {
+    closeDropdown();
+    const inp = document.createElement('input');
+    inp.type = 'file';
+    inp.accept = 'audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff';
+    inp.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    const cleanup = () => { setTimeout(() => inp.remove(), 0); };
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0];
+      if (f && typeof uploadBeatAudio === 'function') uploadBeatAudio(beatId, f);
+      cleanup();
+    });
+    inp.addEventListener('cancel', cleanup);
+    document.body.appendChild(inp);
+    inp.click();
   }
 
   function archiveBeat(beatId) {
@@ -507,7 +528,7 @@
   }
 
   // ── Public API ────────────────────────────────────────────────────────────
-  window.beatsTab = { renderBeatsTab, onSearch, onSort, openDropdown, playBeat, toggleFav, archiveBeat, deleteBeat,
+  window.beatsTab = { renderBeatsTab, onSearch, onSort, openDropdown, playBeat, toggleFav, swapAudio, archiveBeat, deleteBeat,
     renameBeat: (id) => window.renameBeat?.(id),
     shareLink(id){ closeDropdown(); if(typeof window.shareSong==='function') window.shareSong(id); },
     addToCollection(beatId, type, colId){
