@@ -16,6 +16,8 @@
   let _docs = [];           // [{id,title,content,format,created_at,updated_at}]
   let _currentId = null;
   let _saveTimer = null;
+  let _saveRetry = 0;        // antall mislykkede forsøk på rad (for backoff)
+  let _saveInFlight = false; // hindrer to samtidige lagringer av samme dokument
   let _loading = false;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -309,24 +311,51 @@
   }
   async function flushSave(){
     clearTimeout(_saveTimer);
+    if(_saveInFlight) return;
     const doc = _docs.find(d=>d.id===_currentId);
     if(!doc) return;
     const titleEl = el('docsTitle'), bodyEl = el('docsBody');
     if(!titleEl || !bodyEl) return;
     const title = (titleEl.value||'').trim() || 'Uten tittel';
     const content = bodyEl.innerHTML;
-    if(title===doc.title && content===doc.content){ setSaveState('Lagret','ok'); return; }
+    if(title===doc.title && content===doc.content){ _saveRetry = 0; setSaveState('Lagret','ok'); return; }
+    _saveInFlight = true;
     try{
       const updated = await apiUpdate(doc.id, {title, content});
       Object.assign(doc, {title:updated.title, content:updated.content, updated_at:updated.updated_at});
       // Re-sort newest-first and refresh sidebar (editor keeps focus — separate DOM).
       _docs.sort((a,b)=> new Date(b.updated_at) - new Date(a.updated_at));
       renderSidebar(el('docsSearch')?.value||'');
+      _saveRetry = 0;
       setSaveState('Lagret','ok');
     }catch(e){
-      setSaveState('Ikke lagret','err');
+      // Før ga denne opp for godt: teksten din ble stående ulagret med en liten
+      // "Ikke lagret" og ingen nye forsøk. Nå prøver den igjen med backoff, og
+      // sier tydelig hvilket forsøk den er på.
+      _saveRetry++;
+      const delay = Math.min(2000 * _saveRetry, 30000);
+      console.warn('[Docs] Lagring feilet (forsøk ' + _saveRetry + '), prøver igjen om ' + (delay/1000) + ' s:', e);
+      setSaveState('Ikke lagret — prøver igjen (' + _saveRetry + ')', 'err');
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(flushSave, delay);
+    }finally{
+      _saveInFlight = false;
     }
   }
+
+  // Lagre straks når fanen legges bort / appen byttes bort på mobil. Uten dette
+  // lå den siste setningen du skrev bare i den 800 ms-debouncen når iOS fryser
+  // fanen — og var borte når den ble drept.
+  function _flushNow(){
+    if(!_currentId) return;
+    clearTimeout(_saveTimer);
+    flushSave();
+  }
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) _flushNow(); });
+  window.addEventListener('pagehide', _flushNow);
+  window.addEventListener('blur', _flushNow);
+  // Kom nettet tilbake? Ta et nytt forsøk med én gang.
+  window.addEventListener('online', ()=>{ if(_saveRetry > 0) _flushNow(); });
 
   // ── Public actions ───────────────────────────────────────────────────────────
   window.docsOpen = async function(id){

@@ -538,7 +538,16 @@ function migrate(s){
 }
 function getUserSK(){ const uid=sessionStorage.getItem('mv_user_id'); return uid ? SK+'.'+uid : SK; }
 function loadState(){try{const uid=sessionStorage.getItem('mv_user_id');const key=uid?SK+'.'+uid:SK;const r=localStorage.getItem(key)||(uid?localStorage.getItem(SK):null);const s=r?JSON.parse(r):null;return s?migrate(s):defaultState();}catch{return defaultState();}}
-function saveState(){try{localStorage.setItem(getUserSK(),JSON.stringify(state));}catch(e){console.warn('saveState failed:',e);}markDirty();renderStats();if(typeof window.mvSupabaseSync?.schedulePush==='function')window.mvSupabaseSync.schedulePush();}
+function saveState(){
+  // Denne deklarasjonen klobber alle window.saveState-wrappere i app.js og
+  // supabase.js (FINDINGS §0) — derfor kalles de eksplisitt herfra.
+  if(typeof window.mvEnsureFullData==='function') window.mvEnsureFullData();
+  try{localStorage.setItem(getUserSK(),JSON.stringify(state));}catch(e){console.warn('saveState failed:',e);}
+  markDirty();
+  renderStats();
+  if(typeof window.mvSupabaseSync?.schedulePush==='function')window.mvSupabaseSync.schedulePush();
+  if(typeof window.mvShowSaved==='function') window.mvShowSaved();
+}
 function isAdmin(){return sessionStorage.getItem('mv_role')==='admin';}
 
 function setupSel(el,opts){el.innerHTML=opts;}

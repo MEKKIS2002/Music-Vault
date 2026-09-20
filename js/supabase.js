@@ -50,9 +50,16 @@ async function checkAdminRole(userId) {
   );
 
   if (error) {
+    // ⚠️ HOVEDÅRSAKEN til at endringer stille sluttet å lagre:
+    // "klarte ikke å sjekke rollen" er IKKE det samme som "ikke admin".
+    // Returnerte vi false her, ble skrivetilgangen slått av ved hver
+    // nettverksglipp — og updateAdminUi() kjøres fra onAuthStateChange,
+    // altså hver gang tokenet fornyes (~1 t) og når fanen får fokus igjen
+    // på mobil. Etter det returnerte pushToSupabase() stille false for
+    // alltid, mens synk-prikken fortsatt lyste grønt.
     console.error("Kunne ikke sjekke admin-rolle:", error);
     showAdminMessage(`Kunne ikke sjekke admin-rolle: ${error.message}`, "error");
-    return false;
+    return null;                      // ukjent — ikke "nei"
   }
 
   // Set package from profiles (falls back to 'admin' if not set)
@@ -90,7 +97,15 @@ async function updateAdminUi() {
 
     const user = data?.session?.user || null;
     window.currentAdminUser = user;
-    window.isAdminMode = user ? await checkAdminRole(user.id) : false;
+    // null = kunne ikke sjekke → behold forrige status i stedet for å
+    // degradere. Se kommentaren i checkAdminRole.
+    const verdict = user ? await checkAdminRole(user.id) : false;
+    if (verdict === null) {
+      window.isAdminMode = !!window.isAdminMode || sessionStorage.getItem('mv_role') === 'admin';
+      console.warn('[Sync] Rollesjekk feilet — beholder forrige skrivetilgang:', window.isAdminMode);
+    } else {
+      window.isAdminMode = verdict;
+    }
 
     if (window.isAdminMode) {
       if (statusEl) statusEl.textContent = "Admin-modus aktiv";
@@ -279,6 +294,21 @@ setTimeout(updateAdminUi, 50);
   let _pendingPush = false;  // dirty flag — set when changes exist but push hasn't run yet
   let _pushFailCount = 0;    // consecutive fail counter for backoff
   let _intervalId = null;
+  let _hasPulledOk = false;      // har vi sett skyens innhold denne økta?
+  let _pushingBeforePull = false;// vakt mot rekursjon push↔pull
+  let _pendingSince = 0;         // når noe først ble ulagret (for varsling)
+
+  // Dirty-flagget lagres i localStorage så en ulagret endring overlever at
+  // mobilnettleseren dreper fanen — da pushes den ved neste oppstart i
+  // stedet for å bli overskrevet av neste pull.
+  const PENDING_KEY = 'mv_sync_pending';
+  function _setPending(on){
+    _pendingPush = on;
+    if(on && !_pendingSince) _pendingSince = Date.now();
+    if(!on) _pendingSince = 0;
+    try{ on ? localStorage.setItem(PENDING_KEY,'1') : localStorage.removeItem(PENDING_KEY); }catch(e){}
+  }
+  function _hasPendingFlag(){ try{ return localStorage.getItem(PENDING_KEY)==='1'; }catch(e){ return false; } }
 
   function client(){ return window.supabaseClient || null; }
   function appState(){ try { return state; } catch { return null; } }
@@ -441,6 +471,29 @@ setTimeout(updateAdminUi, 50);
     if(!st || !client()) { say('Supabase er ikke konfigurert.', 'warning'); return false; }
     if(isPullingFromSupabase) return false;
 
+    // ⚠️ Pull er en HARD overskriving av lokal state (st.beats = ...). Har vi
+    // ulagrede endringer — også fra en tidligere økt der fanen ble drept —
+    // må de opp FØRST, ellers sletter skyens eldre versjon dem. Dette er den
+    // andre halvdelen av "endringene mine forsvant".
+    if((_pendingPush || _hasPendingFlag()) && !_pushingBeforePull){
+      _pendingPush = true;
+      if(canWrite()){
+        _pushingBeforePull = true;
+        console.warn('[Sync] Ulagrede endringer funnet — pusher før pull.');
+        try{ await pushToSupabase(); }
+        catch(e){ console.error('[Sync] Push før pull feilet:', e); }
+        finally{ _pushingBeforePull = false; }
+      }
+      // Kom de fortsatt ikke opp (offline/blokkert)? Da nekter vi å hente —
+      // bedre å stå på lokale data enn å få dem overskrevet.
+      if(_pendingPush){
+        console.warn('[Sync] Avbryter pull: ulagrede endringer ville blitt overskrevet.');
+        say('Ulagrede endringer — henter ikke fra skyen før de er lagret.', 'warning');
+        _updateSyncIndicator('error');
+        return false;
+      }
+    }
+
     if(!window._mvCurrentUserId) window._mvCurrentUserId = sessionStorage.getItem('mv_user_id') || null;
     const uid = window._mvCurrentUserId;
 
@@ -504,6 +557,17 @@ setTimeout(updateAdminUi, 50);
         return false;
       }
 
+      if(remoteIsEmpty && uid && localHasData){
+        // Skyen er tom mens vi HAR lokale data. Det er nesten alltid en
+        // mislykket første push — ikke en reelt tom profil. Slett aldri
+        // lokalt i det tilfellet; last opp i stedet.
+        console.warn('[Sync] Skyen er tom men lokalt har data — laster opp i stedet for å slette.');
+        say('Skyen er tom, men du har lokale data — laster opp i stedet.', 'warning');
+        isPullingFromSupabase = false;
+        if(canWrite()) await pushToSupabase();
+        return false;
+      }
+
       if(remoteIsEmpty && uid){
         st.beats = []; st.albums = []; st.mixtapes = [];
         st.settings = st.settings || {}; st.demos = []; st.versions = [];
@@ -531,6 +595,7 @@ setTimeout(updateAdminUi, 50);
 
       if(typeof renderAll === 'function') renderAll();
 
+      _hasPulledOk = true;   // nå vet vi hva skyen inneholder → sletting er trygt
       const sharedCount = sharedBeats.length + sharedAlbums.length + sharedMixtapes.length;
       say(`Synket: ${st.beats.length} beats, ${st.albums.length} albumer, ${st.mixtapes.length} mixtapes${sharedCount ? ` (${sharedCount} delt med deg)` : ''}.`, 'success');
       return true;
@@ -576,21 +641,38 @@ setTimeout(updateAdminUi, 50);
   async function pushToSupabase({manual=false}={}){
     const st = appState();
     if(!st || !client()) { say('Supabase er ikke konfigurert.', 'warning'); return false; }
-    if(!window.isAdminMode){
+    // Samme predikat som schedulePush()/heartbeat bruker. Før sjekket denne
+    // window.isAdminMode direkte mens de andre brukte canWrite() — de
+    // planla altså pusher som denne stille nektet å utføre.
+    if(!canWrite()){
+      _updateSyncIndicator('blocked');
+      console.warn('[Sync] Push blokkert — mangler skrivetilgang.');
       if(manual) say('Du må være innlogget som admin for å skrive til Supabase.', 'warning');
       return false;
     }
     if(isPullingFromSupabase) return false;
 
+    _updateSyncIndicator('saving');
     say('Lagrer til Supabase...', 'info');
     try{
       const beats = (st.beats || []).map(packBeat);
       const albums = (st.albums || []).map(packAlbum);
       const mixtapes = (st.mixtapes || []).map(packMixtape);
 
-      await deleteMissingRows('beats', beats.map(x=>x.id));
-      await deleteMissingRows('albums', albums.map(x=>x.id));
-      await deleteMissingRows('mixtapes', mixtapes.map(x=>x.id));
+      // ⚠️ deleteMissingRows sletter ALT i skyen som ikke finnes lokalt. Med
+      // tom eller halvlastet state ville den tømt hele biblioteket. Invariant:
+      // vi sletter bare hvis vi FAKTISK har sett skyens innhold denne økta
+      // (vellykket pull) OG har noe lokalt. Ellers kun upsert — da kan en
+      // sletting bli hengende igjen til neste økt, men ingenting går tapt.
+      const totalLocal = beats.length + albums.length + mixtapes.length;
+      if(_hasPulledOk && totalLocal > 0){
+        await deleteMissingRows('beats', beats.map(x=>x.id));
+        await deleteMissingRows('albums', albums.map(x=>x.id));
+        await deleteMissingRows('mixtapes', mixtapes.map(x=>x.id));
+      } else {
+        console.warn('[Sync] Hopper over sletting (ingen fullført pull / tom state) — kun upsert.',
+          { hasPulledOk: _hasPulledOk, totalLocal });
+      }
 
       if(beats.length){ const r = await client().from('beats').upsert(beats, { onConflict:'id' }); if(r.error) throw r.error; }
       if(albums.length){ const r = await client().from('albums').upsert(albums, { onConflict:'id' }); if(r.error) throw r.error; }
@@ -600,27 +682,28 @@ setTimeout(updateAdminUi, 50);
       await syncRelations('mixtape_beats', 'mixtape_id', st.mixtapes || []);
 
       lastPushAt = Date.now();
-      _pendingPush = false;
+      _setPending(false);
       _pushFailCount = 0;
       say(`Lagret ${new Date(lastPushAt).toLocaleTimeString()}.`, 'success');
-      _updateSyncIndicator(true);
+      _updateSyncIndicator('saved');
       if(manual) toast('\u2713 Lokale data migrert til Supabase');
       return true;
     }catch(err){
       console.error('Supabase push-feil:', err);
       _pushFailCount++;
-      _pendingPush = true; // still dirty — needs retry
+      _setPending(true); // still dirty — needs retry
       const hint = /metadata/i.test(err.message || '')
         ? ' Mangler metadata-kolonne.'
         : '';
       say(`Lagring feilet (fors\u00f8k ${_pushFailCount}): ${err.message || err}.${hint}`, 'error');
-      _updateSyncIndicator(false);
+      _updateSyncIndicator('error');
       return false;
     }
   }
 
   function schedulePush(){
-    _pendingPush = true;
+    _setPending(true);
+    _updateSyncIndicator('pending');
     if(isPullingFromSupabase || !canWrite()) return;
     clearTimeout(pushTimer);
     pushTimer = setTimeout(()=>pushToSupabase(), 900);
@@ -656,24 +739,52 @@ setTimeout(updateAdminUi, 50);
   }
 
   // ── Sync indicator ────────────────────────────────────────────────────────
-  function _updateSyncIndicator(ok) {
+  // Prikken skal fortelle SANNHETEN. Før lyste den grønt også når pushen
+  // stille ble nektet, fordi den bare ble oppdatert inne i push-funksjonen.
+  const SYNC_STATES = {
+    saved:   { color:'#34d399', text:()=>'Lagret i skyen ' + new Date(lastPushAt||Date.now()).toLocaleTimeString() },
+    saving:  { color:'#60a5fa', text:()=>'Lagrer…' },
+    pending: { color:'#fbbf24', text:()=>'Ulagrede endringer — lagrer straks' },
+    blocked: { color:'#fb7185', text:()=>'IKKE lagret i skyen — mangler skrivetilgang. Klikk for å prøve igjen.' },
+    error:   { color:'#fb7185', text:()=>'Lagring feilet — klikk for å prøve igjen' },
+  };
+  let _syncState = 'saved';
+  function _updateSyncIndicator(stateOrOk) {
+    // Bakoverkompatibelt: gamle kall sendte true/false.
+    const state = stateOrOk === true ? 'saved' : stateOrOk === false ? 'error' : stateOrOk;
+    _syncState = state;
     const el = document.getElementById('mvSyncDot');
     if (!el) return;
-    el.title = ok ? 'Synket ' + new Date().toLocaleTimeString() : 'Synkfeil — prøver igjen';
-    el.style.background = ok ? '#34d399' : '#fb7185';
+    const s = SYNC_STATES[state] || SYNC_STATES.saved;
+    el.style.background = s.color;
+    el.title = s.text();
+    el.style.cursor = (state === 'error' || state === 'blocked') ? 'pointer' : 'help';
   }
 
   // ── Periodic heartbeat: push every 20s if dirty ──────────────────────────
+  let _staleWarned = false;
   function _startHeartbeat() {
     if (_intervalId) return;
     _intervalId = setInterval(async () => {
-      if (!_pendingPush || isPullingFromSupabase || !canWrite()) return;
+      if (!_pendingPush) { if(_syncState === 'pending') _updateSyncIndicator('saved'); return; }
+
+      // Har noe stått ulagret i over ett minutt, skal brukeren FÅ VITE DET.
+      if (_pendingSince && Date.now() - _pendingSince > 60000) {
+        _updateSyncIndicator(canWrite() ? 'error' : 'blocked');
+        if (!_staleWarned) {
+          _staleWarned = true;
+          console.error('[Sync] Endringer har stått ulagret i over 60 s.');
+          toast('⚠ Endringer er ikke lagret i skyen — sjekk nett/innlogging');
+        }
+      }
+      if (isPullingFromSupabase || !canWrite()) return;
       // Exponential backoff on repeated failure (max 5 min)
       if (_pushFailCount > 0) {
         const backoffMs = Math.min(_pushFailCount * 30000, 300000);
         if (Date.now() - lastPushAt < backoffMs) return;
       }
-      await pushToSupabase();
+      const ok = await pushToSupabase();
+      if (ok) _staleWarned = false;
     }, 20000);
   }
 
@@ -685,12 +796,17 @@ setTimeout(updateAdminUi, 50);
     }
   });
 
-  // ── Push before page unload ───────────────────────────────────────────────
+  // ── Push når siden legges bort ────────────────────────────────────────────
+  // iOS Safari fyrer IKKE beforeunload pålitelig — 'pagehide' er det som
+  // faktisk kommer når du bytter app eller lukker fanen på telefon. Pushen er
+  // async og rekker ofte ikke å fullføre; derfor er det varige dirty-flagget
+  // (PENDING_KEY) den egentlige garantien — det overlever at fanen drepes og
+  // pushes ved neste oppstart, før pull får overskrive noe.
+  window.addEventListener('pagehide', () => {
+    if (_pendingPush && canWrite()) { clearTimeout(pushTimer); pushToSupabase(); }
+  });
   window.addEventListener('beforeunload', () => {
-    if (_pendingPush && canWrite()) {
-      // Synchronous-style fire (best effort)
-      pushToSupabase();
-    }
+    if (_pendingPush && canWrite()) pushToSupabase();
   });
 
   // ── Push when network comes back online ───────────────────────────────────
@@ -710,7 +826,11 @@ setTimeout(updateAdminUi, 50);
     dot.id = 'mvSyncDot';
     dot.title = 'Supabase sync';
     dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
+    dot.addEventListener('click', () => {
+      if (_syncState === 'error' || _syncState === 'blocked') { _staleWarned = false; pushToSupabase({manual:true}); }
+    });
     anchor.after(dot);
+    _updateSyncIndicator(_pendingPush ? 'pending' : 'saved');
   }
   setTimeout(_injectSyncDot, 1500);
   setTimeout(_startHeartbeat, 2000);
@@ -746,5 +866,13 @@ setTimeout(updateAdminUi, 50);
   window.pullFromSupabase = pullFromSupabase;
 
   installSyncPanel();
+  // Lå det ulagrede endringer igjen fra forrige økt (fanen ble drept før
+  // pushen rakk å kjøre)? pullFromSupabase() oppdager flagget selv og pusher
+  // dem opp før den henter — se vakten øverst i den funksjonen.
+  if(_hasPendingFlag()){
+    _pendingPush = true;
+    _pendingSince = Date.now();
+    console.warn('[Sync] Ulagrede endringer fra forrige økt funnet.');
+  }
   setTimeout(()=>pullFromSupabase(), 800);
 })();

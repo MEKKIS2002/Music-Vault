@@ -84,6 +84,11 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   per-user `musicVault.v4.<uid>`).
 - **Save → sync pipeline:** `saveState()` → `markDirty()` → `schedulePush()` → Supabase
   (debounced ~900ms). Lyric Lab autosaves 600ms after a keystroke.
+- **Synk: aldri overskriv ulagrede endringer, aldri slett blindt.** To invarianter i
+  `js/supabase.js` som IKKE må fjernes: (1) `pullFromSupabase()` pusher ulagrede endringer
+  først og **nekter å hente** hvis de ikke kom opp — pull er en hard overskriving av
+  `state`; (2) `deleteMissingRows` kjøres bare når en pull har fullført denne økta og
+  lokal state ikke er tom. Se §14.
 - **`beatsFromIds()` always filters out archived beats** — don't bypass it.
 - **Public share links** (`song_shares`): public read is ONLY via the SECURITY DEFINER RPC
   `get_song_share(p_token)`. Never add a broad anon SELECT policy to `song_shares` — that would let
@@ -292,6 +297,65 @@ Notes / gotchas:
 - The old broken approach (`js/mobile.js` + `#mvMobileApp` full-screen overlay) was **deleted** —
   it referenced undefined functions (`buildOverlay`, `showScreen`) and was never loaded.
 
+## 14. Synk-pipelinen — hvorfor endringer "forsvant" (fikset 2026-09-20)
+
+Symptom: endringer på beats/album/tekster ble av og til aldri lagret i skyen, uten noen
+feilmelding — synk-prikken lyste grønt hele tiden. Det var **fire feil som forsterket hverandre**:
+
+**1. Stille tap av skrivetilgang (hovedårsaken).** `checkAdminRole()` returnerte `false` ved
+*enhver* feil i `profiles`-oppslaget — også et nettverksglipp. `updateAdminUi()` satte da
+`window.isAdminMode = false`. Og `updateAdminUi` kalles fra `onAuthStateChange`, altså **hver
+gang tokenet fornyes (~1 t)** og når fanen får fokus igjen på mobil. Ett dårlig sekund på 4G
+slo derfor av skrivingen for resten av økta. Nå returnerer `checkAdminRole` **`null` = "vet
+ikke"**, og `updateAdminUi` beholder forrige kjente status i det tilfellet.
+
+**2. To ulike skrive-predikater.** `schedulePush()` og heartbeaten brukte `canWrite()` (som har
+en `sessionStorage.mv_role`-fallback), mens `pushToSupabase()` sjekket `window.isAdminMode`
+direkte. De planla altså pusher som push-funksjonen stille nektet å utføre — uten å nullstille
+`_pendingPush`, så heartbeaten prøvde forgjeves hvert 20. sekund i det uendelige. Begge bruker
+nå `canWrite()`.
+
+**3. Pull overskrev ulagrede endringer.** `pullFromSupabase()` gjør `st.beats = allBeats.map(...)`
+— en **hard overskriving**. Den kjører automatisk 800 ms etter hver sidelasting. Kombinert med
+(1) og (2): du skrev tekst → pushen ble stille nektet → du lastet siden på nytt → pull hentet den
+*eldre* skyversjonen og slettet arbeidet ditt. Nå pusher pull ulagrede endringer først, og
+**avbryter hentingen** hvis de ikke kom opp.
+
+**4. Sletting uten å ha sett skyen.** `deleteMissingRows()` sletter alt i skyen som ikke finnes
+lokalt. Med tom eller halvlastet `state` ville den tømt hele biblioteket. Kjøres nå bare når
+`_hasPulledOk` er sann OG lokal state ikke er tom. I tillegg: er skyen tom mens lokalt HAR data,
+lastes det opp i stedet for at lokalt slettes (var en garantert sletting før).
+
+**Robusthet lagt til:**
+- **Varig dirty-flagg** `localStorage['mv_sync_pending']` — settes ved `schedulePush`, ryddes
+  ved vellykket push. Overlever at mobilnettleseren dreper fanen; ved neste oppstart pushes det
+  før pull får overskrive noe. Dette, ikke unload-handleren, er den egentlige garantien.
+- **`pagehide`** i tillegg til `beforeunload` (iOS Safari fyrer ikke `beforeunload` pålitelig).
+- **Ærlig synk-prikk** (`#mvSyncDot`): `saved`/`saving`/`pending`/`blocked`/`error` med farge +
+  forklarende tooltip, klikkbar for nytt forsøk. Står noe ulagret i over 60 s, kommer det en
+  toast. Før ble prikken bare oppdatert *inne i* push-funksjonen — så når pushen ble nektet før
+  den kom dit, ble den stående grønn og løy.
+- **Docs** (`js/docs.js`) har sin egen pipeline (skriver direkte til `docs`-tabellen med
+  brukerens eget token, 800 ms debounce). Den ga før opp for godt ved feil. Nå: retry med
+  backoff (2s→30s), flush på `visibilitychange`/`pagehide`/`blur`, og nytt forsøk på `online`.
+
+**⚠️ Tre `window.saveState`-wrappere var døde** (FINDINGS §0 igjen): `app.js:69`, `app.js:622` og
+`supabase.js:720` ble alle klobbet av `db.js` sin `function saveState()`, siden db.js lastes sist.
+Konsekvens: **«✓ Lagret»-indikatoren hadde aldri virket**, og `ensureFullData()` kjørte ikke ved
+lagring. Fikset etter §0-mønsteret: `app.js` eksponerer `window.mvEnsureFullData` og
+`window.mvShowSaved`, og `db.js` sin `saveState()` kaller dem eksplisitt. Legger du en ny
+wrapper rundt `saveState`, vil den IKKE virke — bruk samme mønster.
+
+**Testing:** verifisert headless ved å kjøre `supabase.js` i en `vm`-sandkasse med stubbet DOM,
+storage og en kjedbar Supabase-klient (10 scenarier / 22 sjekker: rollesjekk-feil, ekte
+degradering, push uten pull, tom state, pull blokkert av ulagrede endringer, push-før-pull,
+tom sky med lokale data, varig flagg, blokkert push, `canWrite`-fallback). **Fallgruve i
+harnessen:** `supabase.js` setter selv `window.supabaseClient = window.supabase.createClient(...)`,
+så stubben må levere `window.supabase`, ikke bare klienten — ellers blir klienten `null` og alt
+feiler misvisende. `packBeat` trenger også `normalizeAudioUrl` (bor i `db.js`).
+
+---
+
 ## 13. Vedvarende innlogging (14 dager) — `js/lock.js`
 
 Supabase-klienten lages med standardinnstillinger (`js/supabase.js:18`), altså
@@ -394,6 +458,17 @@ Samme grep virker neste gang.
   `mvRestoreSession()` — hurtiglageret er bare fallback ved nettfeil. Se sikkerhetsavsnittet i §13.
   Verifisert headless: **30 sjekker over 9 scenarier**, alle passerte (inkl. degradert admin,
   manipulert `mv_role` i localStorage, og offline-fallback).
+- **2026-09-20** — **Synk-pipelinen: fire stille datatap-feil fikset + robust autolagring.**
+  Bumpet `supabase.js`/`app.js`/`db.js`/`docs.js` `?v=`→`202609200002`. Bakgrunn: endringer ble
+  av og til aldri lagret i skyen, uten feilmelding. Rotårsak var IKKE for sjelden lagring —
+  autolagringen var allerede debounce 900 ms + heartbeat 20 s + visibilitychange. Feilene:
+  (1) `checkAdminRole` returnerte `false` ved nettverksfeil → `isAdminMode` slo seg av ved hver
+  token-fornyelse; (2) `pushToSupabase` og `schedulePush` brukte ulike skrive-predikater;
+  (3) `pullFromSupabase` overskrev ulagrede endringer hardt; (4) `deleteMissingRows` kunne tømme
+  skyen fra tom state. Lagt til varig dirty-flagg i localStorage, `pagehide`-flush, ærlig
+  klikkbar synk-prikk med 60s-varsel, og retry med backoff i `docs.js`. Oppdaget underveis:
+  **tre døde `window.saveState`-wrappere** (§0-fella) — «✓ Lagret»-indikatoren hadde aldri virket.
+  Se §14 for hele analysen. Verifisert headless: 22 sjekker over 10 scenarier, alle passerte.
 - **2026-09-20** — **Hjem-skjerm-ikoner (iOS + Android).** Nye filer
   `assets/apple-touch-icon.png` (180), `assets/icon-192.png`, `assets/icon-512.png`;
   `index.html` peker `apple-touch-icon` dit (var `favicon.png`), `manifest.json` fikk

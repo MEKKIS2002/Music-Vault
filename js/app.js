@@ -620,6 +620,12 @@ loadComments();
     }catch(e){console.warn('full data repair failed',e)}
   }
   const oldSave=window.saveState; window.saveState=function(){ensureFullData(); if(oldSave)oldSave(); showSavedIndicator();};
+  // ⚠️ FINDINGS §0: db.js lastes SIST og dens `function saveState()`-deklarasjon
+  // klobber denne wrapperen — den har aldri kjørt. Derfor eksponeres delene på
+  // window, og db.js sin saveState kaller dem eksplisitt. Uten dette får du
+  // ingen "✓ Lagret"-tilbakemelding i det hele tatt.
+  window.mvEnsureFullData = ensureFullData;
+  window.mvShowSaved = showSavedIndicator;
   function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgba(18,18,27,.92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
 
   function installGlobalSearch(){
