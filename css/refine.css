@@ -1,0 +1,256 @@
+/* ============================================================================
+   refine.css — «flat og rolig». Lastes NEST SIST (rett før mobile.css).
+
+   Oppgaven: ta bort rammene og la LUFT + svake bakgrunnstoner skille innhold.
+   Alt her bruker tokens fra css/tokens.css.
+
+   Om !important: de gamle filene har ~2 500 av dem fra tidligere
+   spesifisitetskriger, så noen overstyringer her må matche for å nå fram.
+   Det er en overgang, ikke målet — etter hvert som reglene under beviser seg,
+   skal de tilsvarende reglene SLETTES i ui.css/track-cards.css, og
+   !important-ene her forsvinne med dem. Ikke legg til nye uten at en gammel
+   regel faktisk kjemper imot.
+   ========================================================================= */
+
+/* ── 1. Bunn og typografisk grunnlinje ─────────────────────────────────── */
+body{
+  font-family:var(--font-ui);
+  font-size:var(--fs-base);
+  line-height:var(--lh-base);
+  color:var(--text);
+  /* Roligere bunn: de to store fargeskyene var kraftige nok til å konkurrere
+     med innholdet. Beholdt, men dempet. */
+  background:
+    radial-gradient(circle at 18% 6%, rgba(223,127,34,.085), transparent 34%),
+    radial-gradient(circle at 86% 16%, rgba(104,70,255,.05), transparent 36%),
+    var(--bg);
+}
+
+/* ── 2. Paneler: ingen ramme, ingen skygge, bare en svak flate ─────────── */
+.glass,
+.content-panel,
+.stats-card,
+.settings-card,
+.meta-panel,
+.hero-main,
+.producer-dashboard{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:var(--surface-1) !important;
+  box-shadow:var(--shadow-none) !important;
+  backdrop-filter:none !important;
+}
+
+/* Paneler trenger pusterom, ikke kantlinjer. */
+.content-panel,
+.settings-card,
+.meta-panel{ padding:var(--sp-5) !important; }
+
+/* ── 3. Verktøylinjer: flyt med siden i stedet for å ligge i en boks ───── */
+.toolbar,
+.batch-bar,
+.pipeline-filterbar{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:transparent !important;
+  box-shadow:var(--shadow-none) !important;
+  backdrop-filter:blur(var(--panel-blur));
+  padding:var(--sp-3) 0 !important;
+}
+/* Når den klistrer seg fast ved scroll trenger den likevel en bunn å stå på. */
+.toolbar{ background:rgba(9,8,6,.82) !important; }
+
+/* ── 4. Listerader: skilles av én hårstrek, ikke av hver sin ramme ─────── */
+.album-beat-card,
+.beat-item,
+.bl-row,
+.pipeline-beat-row{
+  border:0 !important;
+  border-bottom:1px solid var(--line) !important;
+  border-radius:var(--r-flat) !important;
+  background:transparent !important;
+  box-shadow:var(--shadow-none) !important;
+  transition:background var(--dur-fast) var(--ease);
+}
+.album-beat-card:last-child,
+.beat-item:last-child,
+.bl-row:last-child{ border-bottom:0 !important; }
+
+/* Hover = en anelse lys, ikke en ramme som plutselig dukker opp. */
+.album-beat-card:hover,
+.beat-item:hover,
+.bl-row:hover{ background:var(--surface-1) !important; }
+
+/* Valgt/utvidet rad markeres med aksentstrek til venstre — rolig og tydelig. */
+.album-beat-card.expanded,
+.album-beat-card.is-batch-selected{
+  background:var(--surface-1) !important;
+  box-shadow:inset 3px 0 0 var(--accent) !important;
+  transform:none !important;
+}
+
+/* ── 5. Kort i rutenett (album, kassett): flate, uten kantlinje ────────── */
+.album-card,
+.cassette-card{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:transparent !important;
+  box-shadow:var(--shadow-none) !important;
+}
+.album-card:hover,
+.cassette-card:hover{ background:var(--surface-1) !important; }
+
+/* ── 6. Knapper: én form, tre vekter ───────────────────────────────────── */
+button.primary-btn,.primary-btn,
+button.ghost-btn,.ghost-btn,
+button.small-btn,.small-btn{
+  border-radius:var(--r-sm) !important;
+  font-family:var(--font-ui);
+  font-weight:var(--fw-bold);
+  font-size:var(--fs-base);
+  letter-spacing:.01em;
+  padding:10px var(--sp-4);
+  transition:background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+  box-shadow:var(--shadow-none) !important;
+}
+button.primary-btn,.primary-btn{
+  background:var(--accent) !important;   /* flat farge slår gradient her */
+  border:0 !important;
+  color:#17110a !important;
+}
+button.primary-btn:hover,.primary-btn:hover{ background:var(--accent2) !important; }
+
+button.ghost-btn,.ghost-btn,
+button.small-btn,.small-btn{
+  background:var(--surface-2) !important;
+  border:0 !important;
+  color:var(--text) !important;
+}
+button.ghost-btn:hover,.ghost-btn:hover,
+button.small-btn:hover,.small-btn:hover{ background:var(--surface-3) !important; }
+
+button.danger,.danger{
+  background:rgba(251,113,133,.12) !important;
+  border:0 !important;
+  color:var(--danger) !important;
+}
+
+/* ── 7. Skjemafelt ─────────────────────────────────────────────────────── */
+input[type="text"],input[type="search"],input[type="number"],
+input[type="password"],input[type="email"],select,textarea,
+.ux-input,.pipeline-filterbar input,.pipeline-filterbar select{
+  background:var(--surface-2) !important;
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  color:var(--text) !important;
+  font-family:var(--font-ui);
+  font-size:var(--fs-md);   /* 16px: hindrer at iOS zoomer ved fokus */
+  padding:10px var(--sp-3) !important;
+  outline:none;
+  transition:box-shadow var(--dur-fast) var(--ease);
+}
+input:focus,select:focus,textarea:focus,.ux-input:focus{
+  box-shadow:inset 0 0 0 1px var(--accent-line) !important;
+}
+
+/* ── 8. Faner: understrek i stedet for knapperamme ─────────────────────── */
+.tab-btn{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:transparent !important;
+  box-shadow:var(--shadow-none) !important;
+  color:var(--muted) !important;
+  font-weight:var(--fw-bold);
+  padding:var(--sp-3) var(--sp-3) !important;
+  position:relative;
+}
+.tab-btn:hover{ color:var(--text) !important; }
+.tab-btn.active{ color:var(--text) !important; }
+.tab-btn.active::after{
+  content:"";position:absolute;left:var(--sp-3);right:var(--sp-3);bottom:0;
+  height:2px;background:var(--accent);
+}
+.mv-tabs,.tabs{
+  border-bottom:1px solid var(--line) !important;
+  gap:var(--sp-1) !important;
+}
+
+/* ── 9. Chips og merkelapper ───────────────────────────────────────────── */
+.beat-chip{
+  border:0 !important;
+  background:var(--surface-2) !important;
+  border-radius:var(--r-pill) !important;
+  font-size:var(--fs-xs);
+  font-family:var(--font-mono);
+  color:var(--muted);
+  padding:3px var(--sp-2) !important;
+}
+
+/* ── 10. Tomme tilstander: ingen stiplet boks ──────────────────────────── */
+.empty-state{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:transparent !important;
+  color:var(--muted);
+  padding:var(--sp-7) var(--sp-4) !important;
+}
+.empty-state .empty-icon{ opacity:.4; }
+.empty-state h3{ font-size:var(--fs-lg); font-weight:var(--fw-bold); letter-spacing:-.02em; }
+
+/* Dropsone er en invitasjon, ikke en ramme rundt alt. */
+.drop-zone{
+  border:1px dashed var(--line) !important;
+  border-radius:var(--r-sm) !important;
+  background:transparent !important;
+}
+.drop-zone.drag-over,.drop-zone.active{
+  border-color:var(--accent-line) !important;
+  background:var(--accent-soft) !important;
+  box-shadow:var(--shadow-none) !important;
+}
+
+/* ── 11. Overskrifter: tydelig hierarki uten rammer ────────────────────── */
+.section-title,.dash-section-label,.dash-sec-hd{
+  font-size:var(--fs-xs) !important;
+  font-weight:var(--fw-bold) !important;
+  letter-spacing:.16em !important;
+  text-transform:uppercase;
+  color:var(--faint) !important;
+  border:0 !important;
+  background:transparent !important;
+  padding:0 0 var(--sp-3) !important;
+  margin:var(--sp-6) 0 var(--sp-3) !important;
+}
+.hint{ color:var(--muted); font-size:var(--fs-sm); }
+
+/* ── 12. Det som FAKTISK svever beholder skygge ────────────────────────── */
+.modal-card{
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:#141210 !important;
+  box-shadow:var(--shadow-modal) !important;
+}
+.modal-hd{ border-bottom:1px solid var(--line) !important; }
+
+.bottom-player{
+  border:0 !important;
+  border-top:1px solid var(--line) !important;
+  border-radius:var(--r-flat) !important;
+  box-shadow:var(--shadow-modal) !important;
+}
+
+.mv-gear-dropdown{
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  background:#17140f !important;
+  box-shadow:var(--shadow-float) !important;
+}
+
+/* ── 13. Ro i bevegelsen ───────────────────────────────────────────────── */
+/* Kortene hoppet og skalerte ved hover i flere faner samtidig. Behold
+   tilbakemeldingen, fjern spretten. */
+.album-card:hover,.cassette-card:hover,
+.album-beat-card:hover,.beat-item:hover,.bl-row:hover,
+.stats-card:hover{
+  transform:none !important;
+}

@@ -1,0 +1,103 @@
+/* ============================================================================
+   tokens.css — Music Vault designsystem. ENESTE sannhetskilde for verdier.
+   Lastes FØRST av alle stilark (før lyriclab.css) så alt annet kan bruke den.
+
+   Regel: nye stiler skal ALDRI skrive en rå farge, radius, skygge eller
+   font-størrelse. Bruk en token herfra. Mangler en verdi, legg den til her
+   i stedet for å finne på en ny lokal variant — det var nettopp det som ga
+   18 radius-verdier, 185 skygger og 52 font-størrelser.
+
+   Uttrykk: «flat og rolig». Flater skilles av LUFT og svake bakgrunnstoner,
+   ikke av rammer. Skygge kun på ting som faktisk svever.
+   ========================================================================= */
+
+:root{
+  /* ── Grunnflater ────────────────────────────────────────────────────── */
+  --bg:              #090806;   /* appens bunn */
+  --surface-1:       rgba(255,255,255,.028);  /* panel / kort */
+  --surface-2:       rgba(255,255,255,.055);  /* hevet: input, hover */
+  --surface-3:       rgba(255,255,255,.085);  /* aktiv / trykket */
+  --surface-sunken:  rgba(0,0,0,.22);         /* innfelt: kodefelt, spor */
+
+  /* ── Linjer ─────────────────────────────────────────────────────────── */
+  /* Én hårstrek til alt. --line-strong kun der noe MÅ avgrenses tydelig. */
+  --line:            rgba(255,255,255,.07);
+  --line-strong:     rgba(255,255,255,.13);
+  --border:          var(--line);   /* bakoverkompat. med eksisterende CSS */
+
+  /* ── Tekst ──────────────────────────────────────────────────────────── */
+  --text:            #f4ede4;
+  --muted:           #b9aa97;
+  --faint:           rgba(244,237,228,.42);
+
+  /* ── Aksent (vinyl/amber-temaet) ────────────────────────────────────── */
+  --accent:          #df7f22;
+  --accent2:         #ffba5e;
+  --accent-soft:     rgba(223,127,34,.14);
+  --accent-line:     rgba(255,186,94,.34);
+  --gold:            #f3c56a;
+
+  /* ── Status ─────────────────────────────────────────────────────────── */
+  --ok:              #34d399;
+  --warn:            #fbbf24;
+  --danger:          #fb7185;
+  --info:            #60a5fa;
+
+  /* ── Radius: tre trinn, ikke atten ──────────────────────────────────── */
+  --r-flat:          0;       /* store flater: paneler, kort, cover */
+  --r-sm:            8px;     /* kontroller: knapper, input, små felt */
+  --r-pill:          999px;   /* chips, merker, runde knapper */
+  --radius:          var(--r-flat);   /* bakoverkompat. */
+
+  /* ── Skygge: kun på det som svever ──────────────────────────────────── */
+  --shadow-none:     none;
+  --shadow-float:    0 18px 48px rgba(0,0,0,.42);   /* meny, popover */
+  --shadow-modal:    0 32px 90px rgba(0,0,0,.58);   /* modal, spiller */
+  --shadow:          var(--shadow-modal);           /* bakoverkompat. */
+
+  /* ── Luft: 4px-rytme ────────────────────────────────────────────────── */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+
+  /* ── Typografi: sju trinn ───────────────────────────────────────────── */
+  --fs-xs:   11px;   /* merkelapper, metadata */
+  --fs-sm:   12px;   /* hjelpetekst */
+  --fs-base: 14px;   /* brødtekst */
+  --fs-md:   16px;   /* framhevet rad, knapp */
+  --fs-lg:   20px;   /* korttittel */
+  --fs-xl:   28px;   /* seksjonstittel */
+  --fs-2xl:  40px;   /* sidetittel */
+
+  --fw-normal: 500;
+  --fw-medium: 600;
+  --fw-bold:   800;
+
+  --lh-tight: 1.15;
+  --lh-base:  1.55;
+
+  --font-ui:   system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono: ui-monospace,SFMono-Regular,Menlo,monospace;
+  --font-display: Georgia,"Times New Roman",serif;
+
+  /* ── Bevegelse ──────────────────────────────────────────────────────── */
+  --ease:      cubic-bezier(.22,.68,0,1);
+  --dur-fast:  .14s;
+  --dur-base:  .22s;
+
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+  --panel-blur:  18px;
+  --safe-bottom: 92px;
+  --r-xl:        var(--r-flat);      /* gammel --radius-xl pekte på 24px */
+  --radius-xl:   var(--r-flat);
+}
+
+/* Respekter systemets «reduser bevegelse». */
+@media (prefers-reduced-motion: reduce){
+  :root{ --dur-fast:.01ms; --dur-base:.01ms; }
+}

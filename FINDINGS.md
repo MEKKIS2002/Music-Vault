@@ -72,6 +72,13 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   carries `?v=YYYYMMDDNNNN`. **When you edit a JS/CSS file, you MUST bump its `?v=` in
   `index.html`** or the deployed change won't load for users (GitHub Pages + browser cache).
   Use the date + a counter, e.g. `?v=202606170004`.
+- **Designsystem: bruk tokens, aldri råe verdier.** `css/tokens.css` er eneste sannhetskilde
+  for farger, radius, skygger, luft og typografi, og **lastes først** av alle stilark. Skriver du
+  en ny `border-radius:14px` eller `font-size:13px` er det en feil — bruk en token, eller legg
+  til en ny i `tokens.css` hvis skalaen mangler noe. Det var mangelen på dette som ga 32 radius-
+  verdier, 186 skygger og 52 font-størrelser. Se §15.
+- **`css/refine.css` lastes NEST SIST** (rett før `mobile.css`, som fortsatt må være aller sist).
+  Det er der det flate uttrykket bor. Se §15.
 - **No inline CSS/JS in `index.html`.** Markup only. Styles go in `css/`, logic in `js/`.
 - **Never remove the viewport/charset meta tags** (`index.html` head). Without
   `<meta name="viewport" ...>` the whole mobile layout breaks (phone renders the
@@ -297,6 +304,61 @@ Notes / gotchas:
 - The old broken approach (`js/mobile.js` + `#mvMobileApp` full-screen overlay) was **deleted** —
   it referenced undefined functions (`buildOverlay`, `showScreen`) and was never loaded.
 
+## 15. Designsystemet (flat og rolig, 2026-09-20)
+
+Utgangspunktet var 11 stilark uten felles system: **32 radius-verdier, 186 skygger,
+52 font-størrelser, 80 rammefarger og 3 226 `!important`**. Hver fane hadde fått sine egne
+verdier, og `!important`-ene var sporene etter spesifisitetskriger mellom filene.
+`main.css` hadde i tillegg **tre `:root`-blokker`** som overskrev hverandre — den første var
+et helt dødt lilla tema (`--accent:#a855f7`) fra før appen ble oransje.
+
+**Valgt uttrykk: «flat og rolig».** Flater skilles av LUFT og svake bakgrunnstoner, ikke av
+rammer. Skygge kun på det som faktisk svever (modal, bunnspiller, nedtrekksmeny).
+
+### Arkitektur — to nye filer
+
+| Fil | Lastes | Rolle |
+|-----|--------|-------|
+| `css/tokens.css` | **først** (før `lyriclab.css`) | Kun variabler, ingen regler. Null risiko for kaskaden. |
+| `css/refine.css` | **nest sist** (rett før `mobile.css`) | Det flate uttrykket: fjerner rammer, gir listerader hårstrek-skiller, samler knapper/felt/faner. |
+
+`mobile.css` er fortsatt **aller sist** (§11) — ikke flytt `refine.css` forbi den.
+
+### Skalaene
+
+- **Radius:** `--r-flat` (0, store flater) · `--r-sm` (8px, kontroller) · `--r-pill` (999px) · 50 % for sirkler.
+- **Typografi:** sju trinn, `--fs-xs` (11) → `--fs-2xl` (40).
+- **Luft:** 4px-rytme, `--sp-1` … `--sp-8`.
+- **Linjer:** `--line` til alt, `--line-strong` kun der noe MÅ avgrenses.
+- **Skygge:** `--shadow-none` / `--shadow-float` / `--shadow-modal`.
+
+### Hva som faktisk ble gjort (og hva som gjenstår)
+
+Verdiene ble ryddet **i de eksisterende filene** med et engangsskript — ikke ved å legge på
+enda et lag: 276 `border-radius`, 206 rammefarger og 503 `font-size` skrevet om til tokens.
+Fem eldre `--mv-*-radius`-variabler peker nå på tokens. Det døde lilla temaet og den dupliserte
+`:root`-blokken er borte.
+
+**⚠️ Ærlig status:** skygger (186) og `!important` (3 210) er nesten urørt i de gamle filene.
+`refine.css` overstyrer dem der det er synlig, men deklarasjonene ligger fortsatt der.
+**Neste steg er å SLETTE de nå døde reglene** i `ui.css` og `track-cards.css` (til sammen
+1 502 `!important`) — etter hvert som `refine.css` beviser seg. Legg ikke til nye `!important`
+i `refine.css` uten at en gammel regel faktisk kjemper imot.
+
+### Fikset på veien: den ødelagte blokken i track-cards.css
+
+`css/track-cards.css` hadde en **pre-eksisterende parsefeil** (354 åpne vs 355 lukkede klammer,
+se §12 2026-07-02): foreldreløse deklarasjoner uten selektor, fulgt av en kopi av
+`.ab-top`-regelen over der eneste forskjell var `display:grid`. Parseren brukte de foreldreløse
+linjene som «selektor» og forkastet grid-regelen — den hadde aldri virket. Begge er nå fjernet.
+**Netto null visuell endring:** flex-varianten over er det som faktisk har rendret hele tiden, og
+som `mobile.css` er finjustert mot. Alle 13 stilark parser nå riktig.
+
+**Validering:** `node`-skript som sjekker klammebalanse + typiske sveipe-artefakter
+(`var(--r-sm)px`, tom radius, radius brukt som border). Kjør det etter enhver masseendring i CSS.
+
+---
+
 ## 14. Synk-pipelinen — hvorfor endringer "forsvant" (fikset 2026-09-20)
 
 Symptom: endringer på beats/album/tekster ble av og til aldri lagret i skyen, uten noen
@@ -458,6 +520,17 @@ Samme grep virker neste gang.
   `mvRestoreSession()` — hurtiglageret er bare fallback ved nettfeil. Se sikkerhetsavsnittet i §13.
   Verifisert headless: **30 sjekker over 9 scenarier**, alle passerte (inkl. degradert admin,
   manipulert `mv_role` i localStorage, og offline-fallback).
+- **2026-09-20** — **Designsystem: tokens + flat uttrykk på tvers av alle faner.** Nye filer
+  `css/tokens.css` (lastes først) og `css/refine.css` (nest sist, før `mobile.css`); alle 13
+  stilark bumpet `?v=`→`202609200003`. Bakgrunn: designet var rotete med ulike stiler per fane
+  og mange unødvendige rammer. Målt utgangspunkt: 32 radius-verdier, 186 skygger, 52
+  font-størrelser, 80 rammefarger, 3 226 `!important`, og tre konkurrerende `:root`-blokker
+  i `main.css` (den første et dødt lilla tema). Valgt retning: **flat og rolig** — luft og
+  svake bakgrunnstoner i stedet for rammer. Skriptet opprydding i de eksisterende filene:
+  276 radius, 206 rammefarger, 503 font-size → tokens (radius −66 %, font-størrelser −38 %).
+  Fikset også den pre-eksisterende parsefeilen i `track-cards.css` (§15) uten visuell endring.
+  **Gjenstår:** slette de nå døde reglene i `ui.css`/`track-cards.css` (1 502 `!important`) og
+  normalisere skygger. Se §15. **Ikke pushet — venter på visuell godkjenning.**
 - **2026-09-20** — **Synk-pipelinen: fire stille datatap-feil fikset + robust autolagring.**
   Bumpet `supabase.js`/`app.js`/`db.js`/`docs.js` `?v=`→`202609200002`. Bakgrunn: endringer ble
   av og til aldri lagret i skyen, uten feilmelding. Rotårsak var IKKE for sjelden lagring —
