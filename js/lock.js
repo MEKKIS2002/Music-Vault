@@ -60,11 +60,182 @@ function applyRoleMode(){
   }
 }
 
+// ── Vedvarende innlogging (14 dager, rullerende) ───────────────────────
+// Supabase-sesjonen ligger allerede i localStorage (persistSession er på som
+// standard, js/supabase.js). Det som slo deg ut var appens egen lås: den bodde
+// i sessionStorage, som tømmes når fanen lukkes — og mobilnettlesere dreper
+// bakgrunnsfaner hele tiden. Her speiler vi låsen til localStorage med en
+// utløpsdato, og gjenoppretter den ved oppstart hvis Supabase-sesjonen lever.
+// Ingen passord lagres noe sted.
+const MV_SESSION_DAYS = 14;
+const MV_SESSION_MS   = MV_SESSION_DAYS * 24 * 60 * 60 * 1000;
+const MV_PERSIST_KEYS = ['mv_role','mv_package','mv_username','mv_user_id'];
+
+// Rullerende: kalles ved innlogging OG ved hver gjenoppretting/oppstart, så
+// fristen skyves 14 dager fram hver gang appen brukes.
+function mvSavePersistentSession(){
+  try{
+    MV_PERSIST_KEYS.forEach(k=>{
+      const v = sessionStorage.getItem(k);
+      if(v) localStorage.setItem(k, v); else localStorage.removeItem(k);
+    });
+    localStorage.setItem('mv_session_expires', String(Date.now() + MV_SESSION_MS));
+  }catch(e){ console.warn('[Lock] Kunne ikke lagre vedvarende sesjon:', e); }
+}
+
+function mvClearPersistentSession(){
+  try{
+    MV_PERSIST_KEYS.forEach(k=>localStorage.removeItem(k));
+    localStorage.removeItem('mv_session_expires');
+  }catch(e){}
+}
+
+function mvPersistentSessionValid(){
+  try{
+    const exp = parseInt(localStorage.getItem('mv_session_expires')||'0',10);
+    return exp > Date.now() && !!localStorage.getItem('mv_role');
+  }catch(e){ return false; }
+}
+
+// lock.js lastes FØR supabase.js i index.html, så window.supabaseClient finnes
+// ikke når initLock() kjører. Vent på den i stedet for å anta at den er der.
+function mvWaitForSupabase(timeout = 6000){
+  return new Promise(resolve=>{
+    if(window.supabaseClient) return resolve(window.supabaseClient);
+    const t0 = Date.now();
+    const iv = setInterval(()=>{
+      if(window.supabaseClient){ clearInterval(iv); resolve(window.supabaseClient); }
+      else if(Date.now()-t0 > timeout){ clearInterval(iv); resolve(null); }
+    }, 50);
+  });
+}
+
+function mvOnReady(fn){
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+  else fn();
+}
+
+// Skjuler innloggingskortet mens vi gjenoppretter, så du ikke ser skjemaet
+// blinke (og tastaturet ikke spretter opp på mobil).
+function mvShowRestoring(on){
+  const card = document.getElementById('lockCard');
+  let el = document.getElementById('mvRestoreMsg');
+  if(on){
+    if(card) card.style.display = 'none';
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'mvRestoreMsg';
+      el.style.cssText = 'position:relative;z-index:2;color:rgba(244,164,67,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
+      el.textContent = 'Logger inn…';
+      document.getElementById('lockScreen')?.appendChild(el);
+    }
+    el.style.display = 'block';
+  } else {
+    if(el) el.remove();
+    if(card) card.style.display = 'grid';
+  }
+}
+
+// Bruker-spesifikk state fra localStorage (delt av innlogging + gjenoppretting)
+function mvLoadUserState(uid){
+  if(!uid || !window.state) return;
+  const userRaw = localStorage.getItem('musicVault.v4.' + uid);
+  if(!userRaw) return;
+  try{
+    const userData = JSON.parse(userRaw);
+    if((userData.beats||[]).length > 0){
+      if(typeof migrate === 'function') Object.assign(window.state, migrate(userData));
+      else Object.assign(window.state, userData);
+      if(typeof renderAll === 'function') renderAll();
+    }
+  } catch(e){ console.warn('[Lock] State load feilet:', e); }
+}
+
+// Label-fanen må tvinges synlig etter packages.js — samme grep som innlogging.
+function mvForceLabelTab(){
+  [0, 100, 500].forEach(delay => setTimeout(()=>{
+    const btn = document.querySelector('.tab-btn[data-tab="label"]');
+    if(btn) btn.style.display = 'inline-flex';
+  }, delay));
+}
+
+// Returnerer true hvis sesjonen ble gjenopprettet.
+async function mvRestoreSession(){
+  if(!mvPersistentSessionValid()){
+    if(localStorage.getItem('mv_session_expires')){
+      // Utløpt (eller halvveis ryddet) → logg ordentlig ut
+      mvClearPersistentSession();
+      const c = await mvWaitForSupabase(2000);
+      try{ await c?.auth.signOut(); }catch(e){}
+      console.log('[Lock] Vedvarende sesjon utløpt — logget ut.');
+    }
+    return false;
+  }
+
+  const client = await mvWaitForSupabase();
+  if(!client){ console.warn('[Lock] Supabase-klienten kom aldri — viser låseskjerm.'); return false; }
+
+  // getSession() fornyer access-tokenet selv hvis det er utløpt; returnerer
+  // null hvis refresh-tokenet er ugyldig/trukket tilbake.
+  let session = null;
+  try{ session = (await client.auth.getSession())?.data?.session || null; }
+  catch(e){ console.warn('[Lock] getSession feilet:', e); }
+  if(!session){ mvClearPersistentSession(); return false; }
+
+  const username = localStorage.getItem('mv_username') || '';
+  const uid      = session.user?.id || localStorage.getItem('mv_user_id') || '';
+
+  // Rolle/pakke hentes FERSKT fra profiles, akkurat som ved vanlig innlogging.
+  // Uten dette ville en bruker som ble degradert i admin-panelet beholdt
+  // admin-grensesnittet i opptil 14 dager. (Selve datatilgangen er uansett
+  // RLS-styrt i Supabase, men UI-et skal ikke lyve om hvem du er.)
+  // Faller tilbake på hurtiglageret hvis nettet er nede, så offline-bruk virker.
+  let role = localStorage.getItem('mv_role') || 'user';
+  let pkg  = localStorage.getItem('mv_package') || (role === 'admin' ? 'admin' : 'artist');
+  try{
+    const {data: profile} = await client
+      .from('profiles').select('role, package').eq('id', uid).maybeSingle();
+    if(profile){
+      role = profile.role === 'admin' ? 'admin' : 'user';
+      pkg  = profile.package || (role === 'admin' ? 'admin' : 'artist');
+    }
+  }catch(e){ console.warn('[Lock] Kunne ikke friske opp rolle — bruker hurtiglager:', e); }
+
+  // MÅ settes før pull så owner_id-filteret virker
+  window._mvCurrentUserId = uid;
+  window.currentAdminUser = session.user;
+  sessionStorage.setItem('mv_user_id', uid);
+  sessionStorage.setItem('mv_username', username);
+  sessionStorage.setItem('mv_package', pkg);
+
+  mvLoadUserState(uid);
+  unlockAs(role);                       // setter mv_unlocked + mv_role + isAdminMode
+
+  if(typeof window.setPackage === 'function') window.setPackage(pkg);
+  if(typeof window.installLabelDashboard === 'function') window.installLabelDashboard();
+  if(typeof window.installAdminPanel === 'function') window.installAdminPanel();
+  if(role === 'admin' && typeof window.updateAdminUi === 'function') window.updateAdminUi();
+  if(pkg === 'label') mvForceLabelTab();
+
+  setTimeout(()=>{
+    if(typeof window.mvSupabaseSync?.pull === 'function') window.mvSupabaseSync.pull();
+  }, 400);
+
+  mvSavePersistentSession();            // rullerende: 14 nye dager
+  console.log('[Lock] Sesjon gjenopprettet:', {username, role, pkg});
+  return true;
+}
+
 function returnToPasswordScreen(){
+  // Tilbake på låseskjermen = logget ut. Uten dette ville neste lasting
+  // gjenopprette sesjonen og kaste deg rett inn igjen.
+  mvClearPersistentSession();
   sessionStorage.removeItem('mv_unlocked');
   sessionStorage.removeItem('mv_role');
   sessionStorage.removeItem('mv_package');
   sessionStorage.removeItem('mv_username');
+  sessionStorage.removeItem('mv_user_id');
+  window._mvCurrentUserId = null;
   document.body.classList.remove('producer-mode','viewer-mode','admin-mode');
   Object.keys(window.MV_PACKAGES||{}).forEach(k=>document.body.classList.remove('pkg-'+k));
   document.querySelectorAll('.tab-btn').forEach(b=>b.style.display='');
@@ -294,18 +465,7 @@ async function loginWithUsername(){
     sessionStorage.setItem('mv_user_id', data.user.id);
 
     // Last bruker-spesifikk state fra localStorage
-    const userKey = 'musicVault.v4.' + data.user.id;
-    const userRaw = localStorage.getItem(userKey);
-    if(userRaw && window.state){
-      try{
-        const userData = JSON.parse(userRaw);
-        if((userData.beats||[]).length > 0){
-          if(typeof migrate === 'function') Object.assign(window.state, migrate(userData));
-          else Object.assign(window.state, userData);
-          if(typeof renderAll === 'function') renderAll();
-        }
-      } catch(e){ console.warn('[Lock] State load feilet:', e); }
-    }
+    mvLoadUserState(data.user.id);
 
     // Lagre i sessionStorage
     sessionStorage.setItem('mv_username', username);
@@ -328,6 +488,10 @@ async function loginWithUsername(){
         if(typeof window.mvSupabaseSync?.pull === 'function') window.mvSupabaseSync.pull();
       }, 400);
     }
+
+    // Husk innloggingen i 14 dager (rullerende) — må stå ETTER unlockAs(),
+    // som er det som setter mv_role i sessionStorage.
+    mvSavePersistentSession();
 
     // Anvend pakke-begrensninger
     if(typeof window.setPackage === 'function') window.setPackage(pkg);
@@ -357,6 +521,7 @@ function loginProducer(){unlockAs('producer');}
 async function checkPw(){}
 
 function initLock(){
+  // 1) Samme fane, vanlig reload — sessionStorage lever fortsatt.
   if(sessionStorage.getItem('mv_unlocked')==='1'){
     document.getElementById('lockScreen').style.display='none';
     const role = sessionStorage.getItem('mv_role') || '';
@@ -367,8 +532,27 @@ function initLock(){
     // Gjenopprett brukerknapp
     injectUserCorner(role);
     applyRoleMode();
+    if(mvPersistentSessionValid()) mvSavePersistentSession();   // rullerende
     return;
   }
+
+  // 2) Ny fane / lukket nettleser, men enheten er husket → gjenopprett.
+  //    Må vente på supabase.js (lastes etter lock.js), derfor mvOnReady.
+  if(mvPersistentSessionValid()){
+    mvShowRestoring(true);
+    mvOnReady(async ()=>{
+      let ok = false;
+      try{ ok = await mvRestoreSession(); }
+      catch(e){ console.warn('[Lock] Gjenoppretting feilet:', e); }
+      mvShowRestoring(false);
+      if(!ok) setTimeout(()=>document.getElementById('adminUsername')?.focus(), 60);
+    });
+    return;
+  }
+
+  // 3) Utløpt frist → logg ut av Supabase i bakgrunnen.
+  if(localStorage.getItem('mv_session_expires')) mvOnReady(()=>{ mvRestoreSession().catch(()=>{}); });
+
   setTimeout(()=>document.getElementById('adminUsername')?.focus(), 60);
 }
 initLock();
@@ -539,6 +723,12 @@ window.registerUser = async function() {
       document.body.classList.remove('admin-mode');
 
       if(typeof window.setPackage === 'function') window.setPackage(_selectedPkg);
+
+      // Marker som innlogget (uten unlockAs, så fade-animasjonen beholdes)
+      sessionStorage.setItem('mv_unlocked','1');
+      sessionStorage.setItem('mv_role','user');
+      injectUserCorner('user');
+      mvSavePersistentSession();
 
       // Skjul lock screen
       const lockScreen = document.getElementById('lockScreen');

@@ -6,7 +6,7 @@
 > a wrong note here misleads the next agent. This file holds the **technical/dev** detail;
 > `README.md` is the user-facing description only.
 >
-> _Last updated: 2026-09-07_
+> _Last updated: 2026-09-20_
 
 ---
 
@@ -90,6 +90,12 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   anyone enumerate every link. Public sharing requires a **public http(s) `audio_url`** (R2);
   `share-song.js` refuses to share beats whose audio is still a local/data URL. `share.html` is the
   one place inline CSS/JS is allowed (it's a standalone public page, NOT index.html).
+- **Innlogging varer 14 dager (rullerende).** Låsen speiles fra `sessionStorage` til
+  `localStorage` (`mv_session_expires`, `mv_role`, `mv_package`, `mv_username`, `mv_user_id`)
+  og gjenopprettes ved oppstart av `mvRestoreSession()` i `js/lock.js`. **Ingen passord lagres.**
+  Setter du nye `mv_*`-nøkler i sessionStorage som må overleve at fanen lukkes, legg dem i
+  `MV_PERSIST_KEYS`. Alt som fører brukeren tilbake til låseskjermen (`returnToPasswordScreen`)
+  tømmer den vedvarende sesjonen — det er definisjonen på "logget ut". Se §13.
 - **Tab visibility needs BOTH** `.hidden` (display) removed **and** `.tab-visible`
   (opacity:1) added. Missing one = invisible or ghost tab.
 
@@ -286,8 +292,115 @@ Notes / gotchas:
 - The old broken approach (`js/mobile.js` + `#mvMobileApp` full-screen overlay) was **deleted** —
   it referenced undefined functions (`buildOverlay`, `showScreen`) and was never loaded.
 
+## 13. Vedvarende innlogging (14 dager) — `js/lock.js`
+
+Supabase-klienten lages med standardinnstillinger (`js/supabase.js:18`), altså
+`persistSession: true` + `autoRefreshToken: true` → **JWT/refresh-token ligger allerede i
+`localStorage` og overlever at nettleseren lukkes.** Det som tidligere tvang ny innlogging var
+appens *egen* lås: `initLock()` gated på `sessionStorage.mv_unlocked`, og sessionStorage dør når
+fanen dør (mobilnettlesere dreper bakgrunnsfaner konstant).
+
+**Slik virker det nå** (`js/lock.js`):
+- `MV_SESSION_DAYS = 14`. `mvSavePersistentSession()` speiler `MV_PERSIST_KEYS` fra
+  sessionStorage til localStorage + setter `mv_session_expires`. Kalles ved innlogging
+  (etter `unlockAs()` — den setter `mv_role`), ved registrering, ved hver gjenoppretting og
+  ved vanlig reload i samme fane. **Rullerende:** fristen skyves 14 dager fram hver gang.
+- `initLock()` har tre veier: (1) `mv_unlocked` i sessionStorage → rett inn som før;
+  (2) gyldig frist → `mvRestoreSession()`; (3) utløpt frist → `auth.signOut()` + låseskjerm.
+- `mvRestoreSession()` krever **både** en ikke-utløpt frist **og** en levende Supabase-sesjon
+  (`getSession()` fornyer access-tokenet selv; returnerer `null` hvis refresh-tokenet er trukket
+  tilbake). Feiler én av dem → nøklene ryddes og låseskjermen vises.
+
+**Sikkerhet — hva som gjelder her:**
+- **Ingen passord lagres.** Kun Supabase sitt eget refresh-token (lå allerede i localStorage
+  som standard) + ikke-hemmelige UI-flagg (`mv_role`, `mv_package`, `mv_username`, `mv_user_id`).
+- **`mv_role` er IKKE en tillitsanker.** Den styrer bare UI. All faktisk datatilgang er
+  RLS-styrt i Supabase mot brukerens JWT. Å sette `mv_role=admin` i devtools gir admin-*knapper*,
+  ikke admin-*data* — og det var like sant før denne endringen (nøkkelen lå i sessionStorage).
+- **Rolle hentes likevel ferskt fra `profiles` ved hver gjenoppretting**, ikke fra hurtiglageret.
+  Uten det ville en bruker som ble degradert i admin-panelet beholdt admin-grensesnittet i opptil
+  14 dager. Feiler oppslaget (offline) brukes hurtiglageret, så appen fortsatt virker uten nett.
+- **Gjenoppretting krever en levende Supabase-sesjon.** Utløper eller trekkes refresh-tokenet
+  tilbake, nytter det ikke at fristen er gyldig. Den vedvarende veien er altså *strengere*
+  autentisert enn den gamle sessionStorage-veien, som ikke krevde noe som helst.
+- **Restrisiko, bevisst akseptert:** har noen fysisk tilgang til den ulåste telefonen din, er de
+  inne i vaulten i opptil 14 dager. Det er hele poenget med funksjonen. Telefonens egen
+  skjermlås er forsvaret der.
+- **Begrensning:** `auth.signOut()` i Supabase har scope `local` som standard — logger du ut på
+  PC-en, logges *ikke* telefonen ut. Det finnes ingen "logg ut overalt" i appen i dag. Trenger du
+  det (mistet telefon), bytt passord i Supabase-dashbordet.
+
+**⚠️ Load-order-fella (samme familie som §0):** `lock.js` lastes på linje 868 i `index.html`,
+`supabase.js` på 880 — `window.supabaseClient` finnes **ikke** når `initLock()` kjører ved parse.
+Derfor `mvWaitForSupabase()` (poller opptil 6 s) + `mvOnReady()`. Ikke flytt gjenopprettingen
+inline i `initLock()`, og ikke anta at klienten er der.
+
+**iOS-forbehold:** Safaris ITP sletter script-skrevet lagring (localStorage) hvis siden ikke er
+besøkt på **7 dager**. Ved normal ukentlig bruk merkes det aldri, men 14 dager er ikke garantert
+på iPhone i Safari-fanen. Vi kan ikke omgå det med server-satt cookie (GitHub Pages, ingen backend).
+Derfor `manifest.json` + `apple-touch-icon` — legges appen til på Hjem-skjermen er lagringen
+langt mer stabil. Android/Chrome har ingen slik grense.
+
+**Testing:** ingen testrunner i repoet. Logikken er verifisert headless ved å kjøre `lock.js` i en
+`vm`-sandkasse med stubbet DOM + storage + Supabase-stubb (9 scenarier: fersk enhet, husket enhet,
+utløpt frist, dødt refresh-token, utlogging, reload i samme fane, degradert admin, manipulert
+`mv_role`, offline). Gjenbruk det grepet ved endringer her — det fanger regresjoner `node --check`
+aldri ser.
+
+**PWA-manifest + hjem-skjerm-ikoner:** `manifest.json` i repo-rot (`display: standalone`).
+`apple-mobile-web-app-status-bar-style` er bevisst **`black`, ikke `black-translucent`** —
+ingen CSS i repoet bruker `env(safe-area-inset-top)`, så translucent ville lagt headeren under
+klokka/notchen.
+
+**⚠️ Ikoner må være UGJENNOMSIKTIGE.** `assets/favicon.png` (256×256) er 82 % transparent —
+en vinylplate uten bakgrunn. Den duger som favicon, men **ikke** som hjem-skjerm-ikon: iOS flater
+transparens til svart, og en mørk plate på svart forsvinner. Derfor genererte, ugjennomsiktige
+ikoner der samme vinyl er komposittet på appens bakgrunn (`#0d0c0b` + myk amber-glød, samme
+palett som låseskjermen):
+
+| Fil | Størrelse | Brukes av |
+|-----|-----------|-----------|
+| `assets/apple-touch-icon.png` | 180×180 | iOS hjem-skjerm (`<link rel="apple-touch-icon">`) |
+| `assets/icon-192.png` | 192×192 | Android/Chrome, manifest `purpose: any` |
+| `assets/icon-512.png` | 512×512 | Android splash + app-liste, `any` **og** `maskable` |
+
+Plata ligger inne i de innerste **78 %** av flata — innenfor både iOS' squircle-maske og Androids
+maskable-sikkersone (80 %), så ingenting beskjæres. **Ikke pre-avrund hjørnene** (iOS maskerer selv),
+og ikke pek `apple-touch-icon` tilbake på `favicon.png`. Skal ikonene lages på nytt: repoet har
+ingen bildeverktøy og ikke noe byggesteg — de ble generert med et engangsskript i ren node
+(`zlib` inflate/deflate + egen PNG-dekoder/enkoder, boks-nedskalering med premultiplisert alfa).
+Samme grep virker neste gang.
+
+---
+
 ## 12. Work log (newest first)
 
+- **2026-09-20** — **Vedvarende innlogging: 14 dager rullerende + PWA-manifest.** Bumpet
+  `lock.js` `?v=`→`202609200001`; nye filer `manifest.json`. Bakgrunn: måtte logge inn på nytt
+  hver gang på telefonen — irriterende når man bare skal notere en tekstidé. Årsak var IKKE
+  Supabase (sesjonen levde hele tiden i localStorage) men appens egen lås i `sessionStorage`,
+  som mobilnettlesere tømmer når de dreper bakgrunnsfanen. Endringer: (1) ny blokk i `lock.js`
+  med `mvSavePersistentSession/mvClearPersistentSession/mvPersistentSessionValid`,
+  `mvWaitForSupabase`, `mvOnReady`, `mvShowRestoring`, `mvLoadUserState`, `mvForceLabelTab`
+  og `mvRestoreSession` — se §13 for hele mekanikken og load-order-fella. (2) `initLock()`
+  omskrevet til tre veier (sessionStorage / gjenoppretting / utløpt). (3) `returnToPasswordScreen()`
+  tømmer nå den vedvarende sesjonen og `mv_user_id` (lekket tidligere) — ellers ville utlogging
+  bli angret ved neste lasting. (4) Innloggingens inline state-lasting erstattet av delt
+  `mvLoadUserState(uid)`; registrering setter nå `mv_unlocked`/`mv_role` + kaller
+  `injectUserCorner` (gjorde den ikke før → låseskjerm ved reload rett etter registrering).
+  (5) `manifest.json` + iOS-metatagger i `index.html` `<head>`. Ingen passord lagres noe sted —
+  kun Supabase sitt eget refresh-token, som allerede lå der. **Merk iOS/ITP-forbeholdet i §13.**
+  (6) **Sikkerhetsgjennomgang før push:** rolle/pakke hentes nå ferskt fra `profiles` i
+  `mvRestoreSession()` — hurtiglageret er bare fallback ved nettfeil. Se sikkerhetsavsnittet i §13.
+  Verifisert headless: **30 sjekker over 9 scenarier**, alle passerte (inkl. degradert admin,
+  manipulert `mv_role` i localStorage, og offline-fallback).
+- **2026-09-20** — **Hjem-skjerm-ikoner (iOS + Android).** Nye filer
+  `assets/apple-touch-icon.png` (180), `assets/icon-192.png`, `assets/icon-512.png`;
+  `index.html` peker `apple-touch-icon` dit (var `favicon.png`), `manifest.json` fikk
+  `icons`-lista. Bakgrunn: `favicon.png` er 82 % transparent, og iOS flater transparens til
+  svart → vinylplata ville nesten forsvunnet på hjem-skjermen. De nye ikonene er samme plate
+  komposittet ugjennomsiktig på `#0d0c0b` + amber-glød, inset til 78 % for iOS-squircle og
+  Android-maskable. Se §13 for detaljer og hvordan de regenereres.
 - **2026-09-07** — **Bytt lydfil (F6) tilgjengelig på MOBIL + robustere sletting av gammel fil.**
   Bumpet `db.js`/`beats-tab.js`/`mobile.css` `?v=`→`202609070001`. Bakgrunn: F6 fantes allerede
   (2026-06-23) men knappen ble skjult på telefon i commit `e8be860` (`.mv-mob-hide`) — brukeren

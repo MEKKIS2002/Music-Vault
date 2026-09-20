@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <link rel="icon" type="image/png" sizes="256x256" href="assets/favicon.png">
+  <!-- Hjem-skjerm / PWA. Gjør lagringen mye mer stabil på iOS (Safaris
+       7-dagers sletting av localStorage treffer ikke installerte web-apper
+       på samme måte) og gir appen eget ikon uten nettleser-chrome.
+       MERK: status-bar-style er 'black' og IKKE 'black-translucent' —
+       ingen CSS i repoet bruker env(safe-area-inset-top), så translucent
+       ville lagt headeren under klokka/notchen. -->
+  <link rel="manifest" href="manifest.json?v=202609200001">
+  <meta name="theme-color" content="#0d0c0b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Music Vault">
+  <!-- iOS bruker apple-touch-icon på hjem-skjermen. Den MÅ være ugjennomsiktig:
+       favicon.png er 82 % transparent, og iOS flater transparens til svart —
+       den mørke plata ville druknet. assets/apple-touch-icon.png er samme
+       vinyl komposittet på appens bakgrunn (#0d0c0b + amber-glød).
+       Ikke pre-avrund hjørnene; iOS legger på sin egen squircle-maske. -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=202609200001">
 <!--
 AI / MARCUS MAINTENANCE NOTES — oppdatert mai 2026
 Music Vault er nå en multi-fil app. Koden er fordelt slik:
@@ -865,7 +883,7 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202605161400"></script>
-  <script src="js/lock.js?v=202606170002"></script>
+  <script src="js/lock.js?v=202609200001"></script>
   <script src="js/pipeline.js?v=202606160002"></script>
   <script src="js/lyriclab.js?v=202606210001"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
