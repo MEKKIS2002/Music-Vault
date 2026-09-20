@@ -68,22 +68,24 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202609200003">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202609200003">
-  <link rel="stylesheet" href="css/pipeline.css?v=202609200003">
-  <link rel="stylesheet" href="css/main.css?v=202609200003">
-  <link rel="stylesheet" href="css/ui.css?v=202609200003">
-  <link rel="stylesheet" href="css/track-cards.css?v=202609200003">
-  <link rel="stylesheet" href="css/archive.css?v=202609200003">
-  <link rel="stylesheet" href="css/mixtape.css?v=202609200003">
-  <link rel="stylesheet" href="css/docs.css?v=202609200003">
-  <link rel="stylesheet" href="css/player.css?v=202609200003">
-  <link rel="stylesheet" href="css/home.css?v=202609200003">
+  <link rel="stylesheet" href="css/tokens.css?v=202609200004">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202609200004">
+  <link rel="stylesheet" href="css/pipeline.css?v=202609200004">
+  <link rel="stylesheet" href="css/main.css?v=202609200004">
+  <link rel="stylesheet" href="css/ui.css?v=202609200004">
+  <link rel="stylesheet" href="css/track-cards.css?v=202609200004">
+  <link rel="stylesheet" href="css/archive.css?v=202609200004">
+  <link rel="stylesheet" href="css/mixtape.css?v=202609200004">
+  <link rel="stylesheet" href="css/docs.css?v=202609200004">
+  <link rel="stylesheet" href="css/player.css?v=202609200004">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202609200003">
-  <link rel="stylesheet" href="css/mobile.css?v=202609200003">
+  <link rel="stylesheet" href="css/refine.css?v=202609200004">
+  <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
+       mobile.css er fortsatt aller sist (FINDINGS §11). -->
+  <link rel="stylesheet" href="css/home.css?v=202609200004">
+  <link rel="stylesheet" href="css/mobile.css?v=202609200004">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -303,72 +305,83 @@ AKTIVE BRUKERE:
 <!-- BEATS -->
 <section id="hjemTab" class="tab-view tab-visible">
   <div class="hjem-wrap">
+    <!-- Hjem er et todelt rutenett på desktop (innhold + statuskolonne) og en
+         enkel kolonne på mobil. Alle id-ene under fylles av renderDashboard()
+         i js/db.js — endrer du dem, må JS-en endres i samme slengen. -->
     <div class="dash-inner">
-      <!-- Greeting + quick actions -->
-      <div class="dash-greeting-row">
-        <div>
+
+      <!-- Topplinje: hilsen + nøkkeltall til venstre, handlinger til høyre -->
+      <header class="dash-greeting-row">
+        <div class="dash-head-left">
           <div class="dash-greeting" id="dashGreeting">Hei &#128075;</div>
           <div id="dashSub"></div>
         </div>
         <div class="dash-quick">
           <button class="dq-btn accent" onclick="dashUploadTrigger()">&#xFF0B; Ny sang</button>
-          <button class="dq-btn" onclick="dashNewAlbum()">&#xFF0B; Nytt album</button>
-          <button class="dq-btn" onclick="dashNewMixtape()">&#xFF0B; Ny mixtape</button>
-          <button class="dq-btn" onclick="dashOpenLyricLab()">&#9998; Lyric Lab</button>
+          <button class="dq-btn" onclick="dashNewAlbum()">Nytt album</button>
+          <button class="dq-btn" onclick="dashNewMixtape()">Ny mixtape</button>
+          <button class="dq-btn" onclick="dashOpenLyricLab()">Lyric Lab</button>
           <input type="file" accept="audio/*" multiple hidden id="dashUploadInput" onchange="dashUpload(this.files)">
         </div>
-      </div>
+      </header>
 
       <!-- Mobil: snarveier til de andre fanene (skjult på desktop via home.css) -->
       <nav class="hjem-mobile-shortcuts" aria-label="Snarveier">
-        <button class="hjem-shortcut" onclick="mvMobileTab('beats')"><span class="hs-ico">🎵</span><span class="hs-lbl">Beats</span></button>
-        <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico">✍️</span><span class="hs-lbl">Lyric Lab</span></button>
-        <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico">📊</span><span class="hs-lbl">Pipeline</span></button>
-        <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico">📝</span><span class="hs-lbl">Docs</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('beats')"><span class="hs-ico">&#127925;</span><span class="hs-lbl">Beats</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico">&#9997;&#65039;</span><span class="hs-lbl">Lyric Lab</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico">&#128202;</span><span class="hs-lbl">Pipeline</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico">&#128221;</span><span class="hs-lbl">Docs</span></button>
       </nav>
       <div class="hjem-mobile-more" aria-label="Flere sider">
-        <button class="hjem-more-link" data-req-tab="archive" onclick="mvMobileTab('archive')">🗄️ Arkivert</button>
-        <button class="hjem-more-link" data-req-tab="integrations" onclick="mvMobileTab('integrations')">🔌 Integrasjoner</button>
-        <button class="hjem-more-link" data-req-tab="label" onclick="mvMobileTab('label')">🏷 Label</button>
-        <button class="hjem-more-link" data-req-tab="adminpanel" onclick="mvMobileTab('adminpanel')">🛠 Admin</button>
+        <button class="hjem-more-link" data-req-tab="archive" onclick="mvMobileTab('archive')">&#128452;&#65039; Arkivert</button>
+        <button class="hjem-more-link" data-req-tab="integrations" onclick="mvMobileTab('integrations')">&#128268; Integrasjoner</button>
+        <button class="hjem-more-link" data-req-tab="label" onclick="mvMobileTab('label')">&#127991; Label</button>
+        <button class="hjem-more-link" data-req-tab="adminpanel" onclick="mvMobileTab('adminpanel')">&#128736; Admin</button>
       </div>
 
-      <!-- Siste prosjekter -->
-      <div class="dash-sec-hd"><div class="dash-section-label">Siste prosjekter</div></div>
-      <div class="dash-projects-grid" id="dashProjects"></div>
+      <!-- Fortsett der du slapp — den viktigste veien tilbake i arbeid -->
+      <section class="dash-continue">
+        <div class="dash-sec-hd"><div class="dash-section-label">Fortsett der du slapp</div></div>
+        <div id="dashLastBeat" class="last-beat-card"></div>
+      </section>
 
-      <!-- Fortsett der du slapp -->
-      <div class="dash-sec-hd" style="margin-top:16px"><div class="dash-section-label">Fortsett der du slapp</div></div>
-      <div id="dashLastBeat" class="last-beat-card"></div>
-
-      <!-- Nylig lastet opp -->
-      <div class="dash-sec-hd" style="margin-top:16px"><div class="dash-section-label">Nylig lastet opp</div></div>
-      <div id="dashBeats"></div>
-
-      <!-- Kommentarfeed -->
-      <div class="dash-sec-hd" style="margin-top:18px">
-        <div class="dash-section-label">&#128172; Kommentarer</div>
-      </div>
-      <div id="dashCommentFeed" class="cf-feed">
-        <div class="cf-loading">Laster kommentarer&#8230;</div>
+      <!-- Hovedkolonne -->
+      <div class="dash-main">
+        <section class="dash-block">
+          <div class="dash-sec-hd"><div class="dash-section-label">Siste prosjekter</div></div>
+          <div class="dash-projects-grid" id="dashProjects"></div>
+        </section>
+        <section class="dash-block">
+          <div class="dash-sec-hd"><div class="dash-section-label">Nylig lastet opp</div></div>
+          <div id="dashBeats"></div>
+        </section>
       </div>
 
-      <!-- Bunn-grid: Aktivitet + Varsler + Fremdrift -->
-      <div class="hjem-bottom-row" style="margin-top:18px">
+      <!-- Statuskolonne: «hva bør jeg jobbe med». Mest handlingsrettet øverst. -->
+      <aside class="hjem-bottom-row">
+        <div class="hjem-bot-card" id="dashProgressCard">
+          <div class="dash-section-label">Fremdrift</div>
+          <div id="dashProgress"></div>
+        </div>
+        <div class="hjem-bot-card" id="dashAlertsCard">
+          <div class="dash-section-label">Varsler</div>
+          <div id="dashSmartAlerts"></div>
+        </div>
         <div class="hjem-bot-card" id="dashActivityCard">
-          <div class="dash-section-label" style="margin-bottom:12px">Aktivitet siste 7 dager</div>
+          <div class="dash-section-label">Aktivitet siste 7 dager</div>
           <div class="act-bars" id="dashActivity"></div>
           <div class="act-streak" id="dashStreak"></div>
         </div>
-        <div class="hjem-bot-card" id="dashAlertsCard">
-          <div class="dash-section-label" style="margin-bottom:12px">Varsler</div>
-          <div id="dashSmartAlerts"></div>
+      </aside>
+
+      <!-- Kommentarer -->
+      <section class="dash-comments">
+        <div class="dash-sec-hd"><div class="dash-section-label">Kommentarer</div></div>
+        <div id="dashCommentFeed" class="cf-feed">
+          <div class="cf-loading">Laster kommentarer&#8230;</div>
         </div>
-        <div class="hjem-bot-card" id="dashProgressCard">
-          <div class="dash-section-label" style="margin-bottom:12px">Fremdrift</div>
-          <div id="dashProgress"></div>
-        </div>
-      </div>
+      </section>
+
     </div>
   </div>
 </section>

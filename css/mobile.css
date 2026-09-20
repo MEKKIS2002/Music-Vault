@@ -246,13 +246,13 @@
     display: flex !important; flex-direction: column !important;
     align-items: center !important; justify-content: center !important;
     gap: 6px !important; padding: 12px 4px !important; min-height: 70px !important;
-    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
-    border: 1px solid rgba(255,212,160,.16) !important;
+    background: var(--surface-2) !important;
+    border: 0 !important;
     border-radius:var(--r-sm)!important;
-    color: rgba(255,255,255,.82) !important;
+    color: var(--text) !important;
     font-family: inherit !important; cursor: pointer !important;
   }
-  .hjem-shortcut:active { background: rgba(244,164,67,.14) !important; transform: scale(.97); }
+  .hjem-shortcut:active { background: var(--accent-soft) !important; transform: scale(.97); }
   .hjem-shortcut .hs-ico { font-size:var(--fs-lg)!important; line-height: 1 !important; }
   .hjem-shortcut .hs-lbl { font-size:var(--fs-xs)!important; font-weight: 700 !important; text-align: center; }
 
@@ -264,14 +264,14 @@
   .hjem-more-link {
     flex: 1 1 calc(50% - 4px) !important;
     min-height: 40px !important; padding: 8px 10px !important;
-    background: rgba(255,255,255,.04) !important;
-    border: 1px solid var(--line) !important;
+    background: var(--surface-1) !important;
+    border: 0 !important;
     border-radius:var(--r-sm)!important;
-    color: rgba(255,255,255,.62) !important;
+    color: var(--muted) !important;
     font-family: inherit !important; font-size:var(--fs-sm)!important; font-weight: 600 !important;
     cursor: pointer !important; text-align: center !important;
   }
-  .hjem-more-link:active { background: rgba(255,255,255,.08) !important; }
+  .hjem-more-link:active { background: var(--surface-3) !important; }
 
   /* BEATS — list grid is handled inside beats-tab.js (@768). Here we only
      make the header controls stack and the search go full width. */

@@ -1,127 +1,355 @@
-/* ════════════════════════════════════════════════════════════════
-   home.css — redesigned Hjem (dashboard).
-   CSS-ONLY: keeps all markup + the render JS in js/db.js (renderDashboard)
-   intact — every .dash-*/.hjem-* class the JS emits is preserved, just
-   restyled. Loaded AFTER ui.css (so it wins the older dashboard styles)
-   and BEFORE mobile.css. Warm dark + a single gold accent.
-   Corners kept fairly tight to match the app's more squared panels.
-   ════════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════════
+   home.css — Hjem (dashboard). Skrevet om 2026-09-20 i det flate språket.
 
-/* Centre + cap the content for a calmer rhythm on wide screens */
-.dash-inner{ max-width:1200px !important; margin:0 auto !important; padding:24px 28px 44px !important; }
+   Lastes ETTER refine.css: Hjem er et sidespesifikt lag oppå det globale
+   flate uttrykket, ikke en konkurrent til det. Alle verdier fra tokens.css.
 
-/* Mobile-only navigation blocks — hidden on desktop, revealed in mobile.css */
-.hjem-mobile-shortcuts, .hjem-mobile-more{ display:none; }
+   Layout: todelt rutenett på desktop (innhold + statuskolonne), én kolonne
+   på mobil. Markupen ligger i index.html (#hjemTab), innholdet fylles av
+   renderDashboard() i js/db.js — ingen av delene røres herfra.
 
-/* ── Hero greeting band ─────────────────────────────────────────── */
+   Det gamle designet hadde seks fullbredde-bånd stablet oppå hverandre, hver
+   med egen ramme, gradient og skygge, og TO konkurrerende hero-bokser
+   (hilsen + «fortsett der du slapp»). Det ga lang scroll og store hull.
+   Nå: én rolig topplinje, og statuskortene flyttet opp i en sidekolonne der
+   den tomme plassen var.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── Rutenettet ──────────────────────────────────────────────────────── */
+.dash-inner{
+  max-width:1240px;
+  margin:0 auto;
+  padding:var(--sp-6) var(--sp-6) var(--sp-8);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 304px;
+  grid-template-areas:
+    "head head"
+    "cont cont"
+    "main side"
+    "comm comm";
+  column-gap:var(--sp-6);
+  row-gap:var(--sp-5);
+  align-items:start;
+}
+.dash-greeting-row{ grid-area:head; }
+.dash-continue    { grid-area:cont; }
+.dash-main        { grid-area:main; min-width:0; }
+.hjem-bottom-row  { grid-area:side; }
+.dash-comments    { grid-area:comm; }
+
+/* Kun mobil — avslørt i mobile.css */
+.hjem-mobile-shortcuts,.hjem-mobile-more{ display:none; }
+
+/* ── Topplinje: type på siden, ikke en boks ──────────────────────────── */
 .dash-greeting-row{
-  position:relative; overflow:hidden;
-  align-items:center !important;
-  padding:26px 28px; margin-bottom:28px;
-  border:1px solid rgba(255,212,160,.16); border-radius:var(--r-sm);
-  background:
-    radial-gradient(130% 150% at 0% 0%, rgba(244,164,67,.18), transparent 55%),
-    linear-gradient(135deg, rgba(28,21,15,.92), rgba(12,10,8,.94));
-  box-shadow:0 22px 60px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.05);
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:var(--sp-5);
+  flex-wrap:wrap;
+  padding:0 0 var(--sp-5);
+  border-bottom:1px solid var(--line);
+  /* Den gamle gradient-bannerboksen er borte med vilje. */
+  background:none;
+  box-shadow:none;
 }
-.dash-greeting-row::after{
-  content:""; position:absolute; right:-80px; top:-100px; width:300px; height:300px; pointer-events:none;
-  background:radial-gradient(circle, rgba(255,183,87,.16), transparent 65%); filter:blur(10px);
+.dash-greeting{
+  font-family:var(--font-display);
+  font-size:var(--fs-xl);
+  font-weight:var(--fw-bold);
+  line-height:var(--lh-tight);
+  letter-spacing:-.02em;
+  color:var(--text);
 }
-.dash-greeting{ font-size:clamp(24px,3.2vw,34px) !important; line-height:1.04; }
-#dashSub{ margin-top:11px !important; margin-bottom:0 !important; }
-.ds-pill{ font-size:var(--fs-xs); padding:5px 11px; border-radius:var(--r-sm)!important; }
 
-/* Quick actions */
-.dash-quick{ gap:8px !important; }
+/* Nøkkeltall: rolig tallrad, ikke fargede piller */
+#dashSub #dashSubPills{ gap:0 !important; margin-top:var(--sp-2) !important; }
+.ds-pill{
+  background:none !important;
+  border:0 !important;
+  padding:0 !important;
+  color:var(--muted);
+  font-size:var(--fs-sm);
+  font-family:var(--font-mono);
+  letter-spacing:.01em;
+}
+.ds-pill + .ds-pill::before{
+  content:"·";
+  margin:0 var(--sp-2);
+  color:var(--faint);
+}
+.ds-pill.ds-accent{ color:var(--muted); }
+.ds-pill.ds-warn{ color:var(--warn); }
+
+/* ── Handlinger: én tydelig, resten stille ───────────────────────────── */
+.dash-quick{ display:flex; gap:var(--sp-2); flex-wrap:wrap; }
 .dq-btn{
-  height:38px !important; padding:0 16px !important; border-radius:var(--r-sm)!important; font-size:var(--fs-base)!important;
-  background:rgba(255,255,255,.06) !important; border:1px solid var(--line) !important; color:rgba(255,255,255,.8) !important;
-  transition:transform .12s ease, background .14s ease, border-color .14s ease !important;
+  height:36px; padding:0 var(--sp-4);
+  border:0 !important;
+  border-radius:var(--r-sm);
+  background:var(--surface-2);
+  color:var(--muted);
+  font-family:var(--font-ui);
+  font-size:var(--fs-base);
+  font-weight:var(--fw-medium);
+  cursor:pointer;
+  transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
 }
-.dq-btn:hover{ background:rgba(255,255,255,.12) !important; transform:translateY(-1px); }
+.dq-btn:hover{ background:var(--surface-3); color:var(--text); transform:none; }
 .dq-btn.accent{
-  background:linear-gradient(135deg,#f4a443,#cb6e1a) !important; border:1px solid rgba(255,212,160,.32) !important;
-  color:#1a1206 !important; font-weight:800 !important; box-shadow:0 10px 24px rgba(203,110,26,.3) !important;
+  background:var(--accent) !important;
+  color:#17110a !important;
+  font-weight:var(--fw-bold);
+  box-shadow:none !important;
 }
-.dq-btn.accent:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+.dq-btn.accent:hover{ background:var(--accent2) !important; filter:none; }
 
-/* ── Section labels: legible (no leading tick) ──────────────────── */
-.dash-sec-hd{ margin-bottom:13px !important; }
-.dash-section-label{
-  font-size:var(--fs-xs)!important; color:rgba(255,233,202,.6) !important; letter-spacing:.16em !important;
+/* ── Seksjonsetiketter: stram rytme (dette var hovedkilden til hullene) ─ */
+.dash-inner .dash-sec-hd{
+  margin:0 0 var(--sp-3) !important;
+  padding:0 !important;
+}
+.dash-inner .dash-section-label{
+  margin:0 !important;
+  padding:0 !important;
+  font-size:var(--fs-xs) !important;
+  font-weight:var(--fw-bold) !important;
+  letter-spacing:.16em !important;
+  text-transform:uppercase;
+  color:var(--faint) !important;
 }
 
-/* ── Recent projects ────────────────────────────────────────────── */
-.dash-projects-grid{ gap:14px !important; }
+/* ── Fortsett der du slapp — én rolig stripe ─────────────────────────── */
+.last-beat-card{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-4);
+  padding:var(--sp-4) !important;
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  /* Eneste stedet på siden med en antydning til aksent. Det holder. */
+  background:var(--accent-soft) !important;
+  box-shadow:inset 3px 0 0 var(--accent) !important;
+}
+.last-beat-card:empty{ display:none; }
+.last-beat-cover{
+  width:56px !important; height:56px !important;
+  border-radius:var(--r-flat) !important;
+  box-shadow:none !important;
+  object-fit:cover;
+}
+.last-beat-label{
+  color:var(--muted) !important;
+  font-size:var(--fs-xs) !important;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.last-beat-name{
+  font-size:var(--fs-md) !important;
+  font-weight:var(--fw-bold);
+  color:var(--text);
+}
+.last-beat-info{ flex:1; min-width:0; }
+.last-beat-dur{ font-size:var(--fs-sm); color:var(--muted); margin-top:2px; }
+.last-beat-actions{ display:flex; gap:var(--sp-2); flex-shrink:0; }
+.last-beat-play,.last-beat-lab{
+  height:36px !important;
+  border-radius:var(--r-sm) !important;
+  box-shadow:none !important;
+}
+
+/* ── Hovedkolonne ────────────────────────────────────────────────────── */
+.dash-block + .dash-block{ margin-top:var(--sp-6); }
+
+/* Prosjektkort: flate, coveret bærer kortet */
+.dash-projects-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:var(--sp-4) !important;
+}
 .dash-proj-card{
-  border-radius:var(--r-sm)!important; border:1px solid var(--line) !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.28) !important;
-  transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease !important;
+  border:0 !important;
+  border-radius:var(--r-flat) !important;
+  background:none !important;
+  box-shadow:none !important;
+  transition:opacity var(--dur-fast) var(--ease) !important;
 }
 .dash-proj-card:hover{
-  transform:translateY(-3px) !important; border-color:rgba(244,164,67,.45) !important;
-  box-shadow:0 18px 40px rgba(0,0,0,.42), 0 0 0 1px rgba(244,164,67,.12) !important;
+  transform:none !important;
+  border-color:transparent !important;
+  box-shadow:none !important;
+  opacity:.82;
 }
-.dash-proj-footer{ padding:11px 13px 13px !important; }
-.dash-proj-name{ font-size:var(--fs-base)!important; }
-.dash-proj-meta{ font-size:var(--fs-xs)!important; color:rgba(255,255,255,.4) !important; }
-
-/* ── "Fortsett der du slapp": premium continue strip ────────────── */
-.last-beat-card{
-  gap:18px !important; padding:18px 22px !important; border-radius:var(--r-sm)!important;
-  border:1px solid rgba(255,212,160,.22) !important;
-  background:
-    radial-gradient(120% 190% at 0% 0%, rgba(244,164,67,.17), transparent 58%),
-    linear-gradient(135deg, rgba(30,22,15,.9), rgba(14,11,9,.92)) !important;
-  box-shadow:0 18px 44px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05) !important;
+.dash-proj-cover{ position:relative; aspect-ratio:1/1; overflow:hidden; background:var(--surface-2); }
+.dash-proj-cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+.dash-proj-prog-bar{
+  position:absolute; left:0; right:0; bottom:0; height:3px;
+  background:rgba(0,0,0,.5);
 }
-.last-beat-card:hover{ border-color:rgba(244,164,67,.42) !important; }
-.last-beat-cover{ width:66px !important; height:66px !important; border-radius:var(--r-sm)!important; box-shadow:0 8px 20px rgba(0,0,0,.45); }
-.last-beat-label{ color:rgba(244,164,67,.85) !important; }
-.last-beat-name{ font-size:var(--fs-md)!important; }
-.last-beat-play{ height:42px !important; padding:0 22px !important; border-radius:var(--r-sm)!important; box-shadow:0 8px 20px rgba(203,110,26,.32) !important; }
-.last-beat-lab{ height:42px !important; border-radius:var(--r-sm)!important; }
+.dash-proj-footer{ padding:var(--sp-2) 0 0 !important; }
+.dash-proj-name{
+  font-size:var(--fs-base) !important;
+  font-weight:var(--fw-medium);
+  color:var(--text);
+}
+.dash-proj-meta{ font-size:var(--fs-xs) !important; color:var(--faint) !important; }
 
-/* ── Recently uploaded beats ────────────────────────────────────── */
-#dashBeats{ gap:14px !important; }
+/* Nylig lastet opp: liste med hårstrek, samme språk som radene ellers */
+#dashBeats{
+  display:flex !important;
+  flex-direction:column;
+  gap:0 !important;
+}
 .dash-beat-card{
-  border-radius:var(--r-sm)!important; border:1px solid var(--line) !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)) !important;
-  box-shadow:0 8px 22px rgba(0,0,0,.24) !important;
-  transition:transform .14s ease, border-color .14s ease, box-shadow .14s ease !important;
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+  padding:var(--sp-3) var(--sp-2) !important;
+  border:0 !important;
+  border-bottom:1px solid var(--line) !important;
+  border-radius:var(--r-flat) !important;
+  background:none !important;
+  box-shadow:none !important;
+  transition:background var(--dur-fast) var(--ease) !important;
 }
-.dash-beat-card:hover{ transform:translateY(-2px) !important; border-color:rgba(255,255,255,.18) !important; box-shadow:0 14px 32px rgba(0,0,0,.36) !important; }
-.dash-beat-thumb{ width:46px !important; height:46px !important; border-radius:var(--r-sm)!important; }
-.dash-btn-play,.dash-btn-lab{ height:30px !important; border-radius:var(--r-sm)!important; }
-.dash-btn-play{ background:rgba(244,164,67,.2) !important; }
-.dash-btn-play:hover{ background:rgba(244,164,67,.34) !important; }
+.dash-beat-card:last-child{ border-bottom:0 !important; }
+.dash-beat-card:hover{
+  transform:none !important;
+  border-color:var(--line) !important;
+  box-shadow:none !important;
+  background:var(--surface-1) !important;
+}
+.dash-beat-top{
+  display:flex;
+  align-items:center;
+  gap:var(--sp-3);
+  flex:1;
+  min-width:0;
+}
+.dash-beat-info{ min-width:0; }
+.dash-beat-name{
+  font-size:var(--fs-base);
+  font-weight:var(--fw-medium);
+  color:var(--text);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.dash-beat-dur{ font-size:var(--fs-xs); color:var(--faint); font-family:var(--font-mono); }
+.dash-beat-btns{ display:flex; gap:var(--sp-2); flex-shrink:0; }
+.dash-beat-thumb{
+  width:40px !important; height:40px !important;
+  flex-shrink:0;
+  border-radius:var(--r-flat) !important;
+  object-fit:cover;
+}
+.dash-btn-play,.dash-btn-lab{
+  height:30px !important;
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  background:var(--surface-2) !important;
+  color:var(--muted) !important;
+}
+.dash-btn-play:hover,.dash-btn-lab:hover{ background:var(--surface-3) !important; color:var(--text) !important; }
 
-/* ── Bottom row cards ───────────────────────────────────────────── */
-.hjem-bottom-row{ gap:14px !important; }
+/* ── Statuskolonne ───────────────────────────────────────────────────── */
+.hjem-bottom-row{
+  display:flex !important;
+  flex-direction:column;
+  gap:var(--sp-5) !important;
+  position:sticky;
+  top:var(--sp-5);
+}
 .hjem-bot-card{
-  border-radius:var(--r-sm)!important; padding:18px 20px !important;
-  border:1px solid var(--line) !important;
-  background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)) !important;
-  box-shadow:0 10px 26px rgba(0,0,0,.26) !important;
+  padding:var(--sp-4) !important;
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  background:var(--surface-1) !important;
+  box-shadow:none !important;
 }
-.hjem-bot-card .dash-section-label{ margin-bottom:15px !important; }
+.hjem-bot-card .dash-section-label{ margin:0 0 var(--sp-3) !important; }
 
-/* Activity bars: taller with a gradient fill */
-.act-bars{ gap:9px !important; }
-.act-bar{ height:44px !important; border-radius:var(--r-sm)!important; }
-.act-bar.on{ background:linear-gradient(180deg, rgba(244,164,67,.5), rgba(244,164,67,.2)) !important; border-color:rgba(244,164,67,.5) !important; }
-.act-bar.on.today{ background:linear-gradient(180deg,#f4a443, rgba(244,164,67,.38)) !important; }
-.streak-num{ color:#f4a443 !important; font-weight:900 !important; font-size:var(--fs-lg)!important; }
+/* Aktivitetssøyler */
+.act-bars{ display:flex; gap:var(--sp-1) !important; align-items:flex-end; }
+.act-col{ flex:1; display:flex; flex-direction:column; gap:var(--sp-1); align-items:stretch; }
+.act-day-lbl{
+  font-size:var(--fs-xs);
+  color:var(--faint);
+  text-align:center;
+  font-family:var(--font-mono);
+}
+.act-bar{
+  width:100%;
+  height:36px !important;
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  background:var(--surface-2) !important;
+}
+.act-bar.on{ background:var(--accent-soft) !important; }
+.act-bar.on.today{ background:var(--accent) !important; }
+.act-streak{ margin-top:var(--sp-3); font-size:var(--fs-sm); color:var(--muted); }
+.streak-num{
+  color:var(--accent2) !important;
+  font-weight:var(--fw-bold) !important;
+  font-size:var(--fs-md) !important;
+}
 
-/* Smart alerts */
-.smart-alert{ border-radius:var(--r-sm)!important; padding:11px 13px !important; }
+/* Fremdrift */
+.prog-row{ margin-bottom:var(--sp-3); }
+.prog-row:last-child{ margin-bottom:0; }
+.prog-top{ display:flex; justify-content:space-between; gap:var(--sp-2); margin-bottom:var(--sp-1); }
+.prog-name{
+  font-size:var(--fs-sm); color:var(--text);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.prog-pct{ font-size:var(--fs-xs); font-family:var(--font-mono); flex-shrink:0; }
+.prog-track{ height:3px; background:var(--surface-2); overflow:hidden; }
+.prog-fill{ height:100%; }
 
-/* ── Mobile ─────────────────────────────────────────────────────── */
+/* Varsler */
+.smart-alert{
+  border:0 !important;
+  border-radius:var(--r-sm) !important;
+  background:var(--surface-2) !important;
+  padding:var(--sp-3) !important;
+  font-size:var(--fs-sm);
+  margin-bottom:var(--sp-2);
+}
+.smart-alert:last-child{ margin-bottom:0; }
+.smart-alert{ display:flex; align-items:flex-start; gap:var(--sp-2); cursor:pointer; }
+.smart-alert:hover{ background:var(--surface-3) !important; }
+.sa-icon{ flex-shrink:0; }
+.sa-body{ flex:1; min-width:0; }
+.sa-msg{ color:var(--text); }
+.sa-detail{ color:var(--faint); font-size:var(--fs-xs); margin-top:2px; }
+.sa-arrow{ color:var(--faint); flex-shrink:0; }
+.sa-empty{ color:var(--faint); font-size:var(--fs-sm); }
+
+/* ── Kommentarer ─────────────────────────────────────────────────────── */
+.dash-comments .cf-feed{
+  border:0 !important;
+  background:none !important;
+}
+.cf-loading{ color:var(--faint); font-size:var(--fs-sm); }
+
+/* ── Mellomstore skjermer: statuskolonnen legger seg under ───────────── */
+@media (max-width:1080px){
+  .dash-inner{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"head" "cont" "main" "side" "comm";
+  }
+  .hjem-bottom-row{
+    position:static;
+    display:grid !important;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:var(--sp-4) !important;
+  }
+}
+
+/* ── Mobil ───────────────────────────────────────────────────────────── */
 @media (max-width:768px){
-  .dash-inner{ padding:16px 14px 36px !important; }
-  .dash-greeting-row{ padding:18px 18px; border-radius:var(--r-sm); margin-bottom:20px; }
-  .dash-projects-grid, #dashBeats{ grid-template-columns:repeat(2,1fr) !important; }
-  .hjem-bottom-row{ grid-template-columns:1fr !important; }
+  .dash-inner{ padding:var(--sp-4) var(--sp-4) var(--sp-7); }
+  .dash-greeting-row{ align-items:stretch; }
+  .dash-greeting{ font-size:var(--fs-lg); }
+  .dash-projects-grid{ grid-template-columns:repeat(2,1fr) !important; }
+  .dash-quick{ display:grid; grid-template-columns:1fr 1fr; }
+  .dq-btn{ height:44px; }        /* touch-mål */
 }

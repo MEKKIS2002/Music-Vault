@@ -320,7 +320,8 @@ rammer. Skygge kun på det som faktisk svever (modal, bunnspiller, nedtrekksmeny
 | Fil | Lastes | Rolle |
 |-----|--------|-------|
 | `css/tokens.css` | **først** (før `lyriclab.css`) | Kun variabler, ingen regler. Null risiko for kaskaden. |
-| `css/refine.css` | **nest sist** (rett før `mobile.css`) | Det flate uttrykket: fjerner rammer, gir listerader hårstrek-skiller, samler knapper/felt/faner. |
+| `css/refine.css` | **nest sist** | Det flate uttrykket: fjerner rammer, gir listerader hårstrek-skiller, samler knapper/felt/faner. |
+| `css/home.css` | **etter refine.css** | Sidespesifikt lag for Hjem. Må ligge etter refine, ellers vinner refines seksjonsmarger. |
 
 `mobile.css` er fortsatt **aller sist** (§11) — ikke flytt `refine.css` forbi den.
 
@@ -344,6 +345,44 @@ Fem eldre `--mv-*-radius`-variabler peker nå på tokens. Det døde lilla temaet
 **Neste steg er å SLETTE de nå døde reglene** i `ui.css` og `track-cards.css` (til sammen
 1 502 `!important`) — etter hvert som `refine.css` beviser seg. Legg ikke til nye `!important`
 i `refine.css` uten at en gammel regel faktisk kjemper imot.
+
+### Hjem, redesignet (2026-09-20)
+
+Hjem hadde ikke fulgt med på det flate systemet: `home.css` var skrevet før tokens og hadde
+egne rammer, gradienter og skygger på sine egne klasser (`.dash-proj-card`, `.hjem-bot-card`,
+`.last-beat-card`, `.dash-greeting-row`), som `refine.css` ikke traff. Resultatet var seks
+fullbredde-bånd stablet oppå hverandre, **to konkurrerende hero-bokser** (hilsen + «fortsett
+der du slapp», begge med gradient, ramme og glød), og store hull mellom blokkene.
+
+**Ny struktur.** `.dash-inner` er nå et rutenett med fire områder:
+
+```
+"head head"      hilsen + nøkkeltall + handlinger (ingen boks — bare type + hårstrek under)
+"cont cont"      Fortsett der du slapp (eneste flate med aksentfarge)
+"main side"      innhold (prosjekter + nylig lastet opp)  |  statuskolonne (sticky)
+"comm comm"      kommentarer
+```
+
+Statuskortene (Fremdrift → Varsler → Aktivitet, mest handlingsrettet først) er flyttet fra
+bunnen opp i en **sidekolonne** — der var det bare tom plass før. Det halverer scrollen og
+fyller bredden. Under 1080px legger sidekolonnen seg under som et auto-fit-rutenett.
+
+**Hullene** kom fra tre kilder, alle fjernet: `refine.css` sin `margin:var(--sp-6)` på
+seksjonsetiketter (overstyrt lokalt til `0 0 var(--sp-3)`), `home.css` sin
+`margin-bottom:28px` på hilsenbåndet, og **inline `style="margin-top:16px"`** på
+seksjonsoverskriftene i `index.html` (som også brøt konvensjonen om ingen inline CSS —
+`#hjemTab` har nå null inline-stiler).
+
+**⚠️ Markupen ble omstrukturert, JS-en ikke.** Alle 14 id-ene `renderDashboard()` fyller er
+uendret, og `mobile.css` sin flex-`order`-reflow (§11) virker fortsatt fordi de samme
+elementene er direkte barn av `.dash-inner`: hilsen(1) → snarveier(2) → flere sider(3) →
+statuskort(4) → resten(5). Endrer du strukturen igjen, **sjekk de fire order-reglene i
+mobile.css ~L225**.
+
+**Gotcha ved styling av Hjem:** markupen fra `renderDashboard()` er mer nøstet enn
+klassenavnene antyder — `.act-bars > .act-col > .act-bar + .act-day-lbl`,
+`.dash-beat-card > .dash-beat-top > .dash-beat-thumb`, `.last-beat-card > .last-beat-info`.
+Legg `flex:1` på riktig nivå. Se render-koden i `js/db.js` (~L600-670) før du stiler.
 
 ### Fikset på veien: den ødelagte blokken i track-cards.css
 
@@ -520,6 +559,15 @@ Samme grep virker neste gang.
   `mvRestoreSession()` — hurtiglageret er bare fallback ved nettfeil. Se sikkerhetsavsnittet i §13.
   Verifisert headless: **30 sjekker over 9 scenarier**, alle passerte (inkl. degradert admin,
   manipulert `mv_role` i localStorage, og offline-fallback).
+- **2026-09-20** — **Hjem redesignet: todelt rutenett, statuskolonne, stram rytme.** Bumpet
+  alle stilark `?v=`→`202609200004`; `css/home.css` skrevet om fra bunnen i det flate språket,
+  `#hjemTab`-markupen i `index.html` omstrukturert, `home.css` flyttet til å lastes ETTER
+  `refine.css`. Bakgrunn: Hjem hang igjen i det gamle uttrykket (home.css var skrevet før
+  tokens), med to konkurrerende hero-bokser og seks stablede fullbredde-bånd med store hull.
+  Nå: rolig topplinje uten boks, «Fortsett der du slapp» som eneste aksentflate, og
+  statuskortene flyttet fra bunnen opp i en sticky sidekolonne. Alle 14 render-id-er og
+  mobil-reflowen (§11) er intakt — verifisert med skript. Flatet også
+  `.hjem-shortcut`/`.hjem-more-link` i `mobile.css`. Se §15. **Ikke pushet.**
 - **2026-09-20** — **Designsystem: tokens + flat uttrykk på tvers av alle faner.** Nye filer
   `css/tokens.css` (lastes først) og `css/refine.css` (nest sist, før `mobile.css`); alle 13
   stilark bumpet `?v=`→`202609200003`. Bakgrunn: designet var rotete med ulike stiler per fane
