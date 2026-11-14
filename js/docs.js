@@ -22,7 +22,8 @@
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function toast(m){ if(typeof window.showToast==='function') window.showToast(m); }
-  function stripHtml(html){ const d=document.createElement('div'); d.innerHTML=html||''; return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim(); }
+  // Mellomrom før <br> og blokk-tagger (åpne og lukke): ellers slår textContent «nå<div>Ingen» sammen til «nåIngen».
+  function stripHtml(html){ const d=document.createElement('div'); d.innerHTML=String(html||'').replace(/<\/?(br|p|div|li|h[1-6]|blockquote)\b[^>]*>/gi,' $&'); return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim(); }
   function el(id){ return document.getElementById(id); }
 
   async function getAuth(){
