@@ -138,6 +138,14 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **Collection song-reorder drag handle:** drag starts from the whole `.album-beat-card` row;
   `startCollectionDrag` (`js/db.js`) only blocks it over interactive controls. Don't re-narrow it
   back to `.ab-cover-wrap` (that thumbnail also click-toggles expand → felt broken).
+- **`app.js` dies at load (~line 752, «state is not defined"):** it is loaded BEFORE `db.js`
+  (which defines `state`), so an IIFE that touches `state` throws and **everything after it in
+  app.js never runs in production** (hoisted `function` declarations still exist; `window.x = …`
+  assignments and listeners after that point do not). Don't add new features at the end of
+  app.js — put them in their own file loaded after `db.js` (see `js/mixtape-share.js`). Fixing
+  the crash would suddenly activate ~650 lines of dormant code: do it deliberately, with testing.
+- **`mixtape_shares` RLS is wide open** (anyone with the anon key can list/update/delete all
+  rows); the lockdown SQL is prepared but commented out in `sql/mixtape_shares.sql`.
 - **Windows line endings:** git warns LF→CRLF on these files; harmless, expected.
 - **Secrets:** `js/db.js` / `js/supabase.js` contain the Supabase **anon** key (public by
   design, RLS-protected). `.local.json` and `.env*` are gitignored — never commit
@@ -153,7 +161,9 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   Rhyme bank currently uses a Haiku-class model via the Worker.
 - **Edge functions seen:** `admin-update-user` (plus RPCs `lookup_login_email`,
   `get_usernames`, `get_user_id_by_username`, `get_song_share`).
-- **Share tables:** `mixtape_shares` (pitch, via deployed Worker) and `song_shares`
+- **Share tables:** `mixtape_shares` (mixtape «Del lenke» → `mixtape.html?t=<token>`, read via RPC
+  `get_mixtape_share`; snapshot, refreshed by «Oppdater sporlisten» — see `sql/mixtape_shares.sql`;
+  Worker-era links `…workers.dev/share/<token>` still work) and `song_shares`
   (single song/beat public links, this repo — see `sql/song_shares.sql` + §4 gotcha).
 - **Users:** `marcus` (admin), `erik` (admin). Viewer mode shows only Mixtapes + Beats.
 
