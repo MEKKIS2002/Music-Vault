@@ -715,7 +715,6 @@ setTimeout(updateAdminUi, 50);
     parent.insertAdjacentHTML('afterend', `
       <div id="supabaseDataSyncPanel" class="settings-card supabase-sync-card">
         <h2>☁️ Supabase sync</h2>
-        <p class="hint">Metadata, tekster og ratings synkes automatisk på tvers av alle enheter. Lydfiler lagres i Cloudflare R2.</p>
         <div class="sync-actions">
           <button class="primary-btn" id="pullSupabaseBtn">↓ Hent fra sky</button>
           <button class="ghost-btn" id="pushSupabaseBtn">↑ Push lokale data</button>

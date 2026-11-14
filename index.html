@@ -68,24 +68,24 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202609200004">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202609200004">
-  <link rel="stylesheet" href="css/pipeline.css?v=202609200004">
-  <link rel="stylesheet" href="css/main.css?v=202609200004">
-  <link rel="stylesheet" href="css/ui.css?v=202609200004">
-  <link rel="stylesheet" href="css/track-cards.css?v=202609200004">
-  <link rel="stylesheet" href="css/archive.css?v=202609200004">
-  <link rel="stylesheet" href="css/mixtape.css?v=202609200004">
-  <link rel="stylesheet" href="css/docs.css?v=202609200004">
-  <link rel="stylesheet" href="css/player.css?v=202609200004">
+  <link rel="stylesheet" href="css/tokens.css?v=202611140001">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202611140001">
+  <link rel="stylesheet" href="css/pipeline.css?v=202611140001">
+  <link rel="stylesheet" href="css/main.css?v=202611140001">
+  <link rel="stylesheet" href="css/ui.css?v=202611140001">
+  <link rel="stylesheet" href="css/track-cards.css?v=202611140001">
+  <link rel="stylesheet" href="css/archive.css?v=202611140001">
+  <link rel="stylesheet" href="css/mixtape.css?v=202611140001">
+  <link rel="stylesheet" href="css/docs.css?v=202611140001">
+  <link rel="stylesheet" href="css/player.css?v=202611140001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202609200004">
+  <link rel="stylesheet" href="css/refine.css?v=202611140001">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
-  <link rel="stylesheet" href="css/home.css?v=202609200004">
-  <link rel="stylesheet" href="css/mobile.css?v=202609200004">
+  <link rel="stylesheet" href="css/home.css?v=202611140001">
+  <link rel="stylesheet" href="css/mobile.css?v=202611140001">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -397,7 +397,6 @@ AKTIVE BRUKERE:
         <h2>Mixtapes</h2>
         <button class="primary-btn" id="newMixtapeBtn" onclick="openNewMixtapeModal()">+ Ny mixtape</button>
       </div>
-      <p class="hint" style="margin-bottom:24px">Organiser beats i kasetter. Klikk på en kasett for å åpne den.</p>
       <div id="mixtapeGrid" class="mixtape-grid"></div>
     </div>
     <div id="mixtapeDetailView" class="hidden">
@@ -439,7 +438,6 @@ AKTIVE BRUKERE:
         <h2>Albumer</h2>
         <button class="primary-btn" id="newAlbumBtn">+ Nytt album</button>
       </div>
-      <p class="hint" style="margin-bottom:20px">Organiser beats i mapper. Klikk på et album for å åpne det og se innholdet.</p>
       <div id="albumGrid" class="album-grid"></div>
     </div>
     <div id="albumDetailView" class="hidden">
@@ -469,7 +467,7 @@ AKTIVE BRUKERE:
 <!-- PIPELINE -->
 <section id="pipelineTab" class="tab-view hidden">
   <section class="content-panel glass">
-    <div class="section-title"><h2>Album-pipeline</h2><span class="hint">Fremgang per sang i hvert album, basert på ferdigstillelse %.</span></div>
+    <div class="section-title"><h2>Album-pipeline</h2></div>
     <div id="pipelineBoard"></div>
   </section>
 </section>
@@ -481,7 +479,6 @@ AKTIVE BRUKERE:
   <div class="layout">
     <aside class="sidebar glass">
       <div class="section-title"><h2>Last opp sang</h2></div>
-      <p class="hint">Last opp lydfiler direkte fra skrivebordet. Filen lagres i Cloudflare R2 og synkes til Supabase automatisk.</p>
       <div class="input-group">
         <label>Velg lydfil(er)</label>
         <input id="beatFiles" type="file" accept="audio/*" multiple />
@@ -489,7 +486,6 @@ AKTIVE BRUKERE:
       <p class="hint" style="font-size:11px;color:var(--muted);margin-top:4px">Støttede formater: MP3, WAV, FLAC, M4A, OGG, AAC</p>
 
       <div class="section-title" style="margin-top:24px"><h2>Legg til via URL</h2></div>
-      <p class="hint">Lenk direkte til en lydfil på nett.</p>
       <div class="input-group">
         <input id="beatNameInput" placeholder="Sangnavn" />
         <input id="beatUrlInput" placeholder="https://..." />
@@ -514,7 +510,7 @@ AKTIVE BRUKERE:
 
       <div class="settings-card" id="soundcloudCard">
         <h2>🎵 SoundCloud</h2>
-        <p class="hint">Proxy-URL for private SoundCloud-tracks. Offentlige tracks fungerer uten proxy.</p>
+        <p class="hint">Kun nødvendig for private tracks.</p>
         <div class="input-group">
           <label>Proxy URL (valgfritt)</label>
           <input id="soundcloudProxy" placeholder="https://din-server.no/oembed?url=" />
@@ -524,7 +520,7 @@ AKTIVE BRUKERE:
 
       <div class="settings-card" id="dataToolsCard">
         <h2>🛠 Data-verktøy</h2>
-        <p class="hint">Bruk med forsiktighet. Backup anbefales alltid først.</p>
+        <p class="hint">Ta backup først.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
           <button class="ghost-btn" id="resetLocalBtn" onclick="if(confirm('Slett ALL lokal data? Dette kan ikke angres.')){localStorage.clear();sessionStorage.clear();location.reload();}">🗑 Reset lokal data</button>
           <button class="ghost-btn admin-only-btn" id="pushAllBtn" onclick="window.pushToSupabase?.()">☁ Push alt til Supabase</button>
@@ -533,7 +529,7 @@ AKTIVE BRUKERE:
 
       <div class="settings-card" id="wavConvertCard">
         <h2>🔄 WAV → MP3 konvertering</h2>
-        <p class="hint">Konverterer WAV-beats til MP3 for bedre støtte på mobil og inkognito. WAV-filer er store og spilles ikke av overalt.</p>
+        <p class="hint">WAV spilles ikke av overalt — MP3 fungerer på mobil og i inkognito.</p>
         <div style="margin-top:12px">
           <button class="ghost-btn" onclick="window.convertAllWavBeats()" style="display:flex;align-items:center;gap:8px">
             🔄 Konverter WAV-beats til MP3
@@ -909,12 +905,12 @@ window.addEventListener('load', () => {
   <script src="js/app.js?v=202609200002"></script>
   <script src="js/track-cards.js?v=202607020002"></script>
   <script src="js/r2-storage.js?v=202606230010"></script>
-  <script src="js/archive.js?v=202605262300"></script>
+  <script src="js/archive.js?v=202611140001"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202609070001"></script>
-  <script src="js/supabase.js?v=202609200002"></script>
-  <script src="js/db.js?v=202609200002"></script>
+  <script src="js/supabase.js?v=202611140001"></script>
+  <script src="js/db.js?v=202611140001"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
@@ -928,7 +924,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202606210001"></script>
   <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202609200002"></script>
+  <script src="js/docs.js?v=202611140001"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

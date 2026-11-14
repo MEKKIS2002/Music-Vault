@@ -89,7 +89,6 @@
     c.innerHTML = `<section class="content-panel glass docs-panel">
       <div class="section-title">
         <h2>Docs</h2>
-        <span class="hint">Idéer, lyrics, notater og planer — fritt fra beats, album og mixtaper.</span>
       </div>
       <div class="docs-wrap">${inner}</div>
     </section>`;

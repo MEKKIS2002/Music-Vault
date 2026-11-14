@@ -626,7 +626,7 @@ function renderDashboard(){
     if(recent){
       const cover=recent.cover?`<img src="${esc(recent.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:'<span style="font-size:36px">\uD83C\uDFB5</span>';
       const dur=recent.duration?Math.floor(recent.duration/60)+':'+String(Math.floor(recent.duration%60)).padStart(2,'0'):'';
-      lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-label">Fortsett der du slapp</div><div class="last-beat-name">${esc(recent.name)}</div>${dur?`<div class="last-beat-dur">${dur}</div>`:''}</div><div class="last-beat-actions"><button class="last-beat-play" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')">&#9654; Spill</button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')">&#9998; Lab</button></div>`;
+      lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-name">${esc(recent.name)}</div>${dur?`<div class="last-beat-dur">${dur}</div>`:''}</div><div class="last-beat-actions"><button class="last-beat-play" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')">&#9654; Spill</button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')">&#9998; Lab</button></div>`;
     } else {lastEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
   }
   const actEl=document.getElementById('dashActivity');
@@ -654,7 +654,7 @@ function renderDashboard(){
     else{bEl.innerHTML=recent2.map(b=>{
       const cover=b.cover?`<img src="${esc(b.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span style="font-size:20px">\uD83C\uDFB5</span>`;
       const dur=b.duration?Math.floor(b.duration/60)+':'+String(Math.floor(b.duration%60)).padStart(2,'0'):'';
-      return `<div class="dash-beat-card"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div><div class="dash-beat-dur">${dur||'\u2014'}</div></div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')">&#9654; Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')">&#9998; Lab</button></div></div>`;
+      return `<div class="dash-beat-card"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div>${dur?`<div class="dash-beat-dur">${dur}</div>`:''}</div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')">&#9654; Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')">&#9998; Lab</button></div></div>`;
     }).join('');}
   }
   const progEl=document.getElementById('dashProgress');

@@ -234,7 +234,9 @@
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .dash-beat-dur{ font-size:var(--fs-xs); color:var(--faint); font-family:var(--font-mono); }
-.dash-beat-btns{ display:flex; gap:var(--sp-2); flex-shrink:0; }
+/* padding:0 nullstiller den gamle kort-paddingen fra ui.css, som dyttet
+   knappene opp fra midtlinjen i raden. */
+.dash-beat-btns{ display:flex; gap:var(--sp-2); flex-shrink:0; padding:0 !important; }
 .dash-beat-thumb{
   width:40px !important; height:40px !important;
   flex-shrink:0;
@@ -242,6 +244,11 @@
   object-fit:cover;
 }
 .dash-btn-play,.dash-btn-lab{
+  /* ui.css gir flex:1 uten sidepadding, så «▶ Spill» brakk over to linjer. */
+  flex:none !important;
+  padding:0 var(--sp-3) !important;
+  white-space:nowrap;
+  gap:var(--sp-1) !important;
   height:30px !important;
   border:0 !important;
   border-radius:var(--r-sm) !important;
