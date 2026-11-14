@@ -62,7 +62,6 @@
   .mv-header-brand { border-right: none !important; padding: 0 !important; }
   .mv-logo { font-size:var(--fs-base)!important; }
   .mv-header-right { border-left: none !important; padding: 0 !important; gap: 8px !important; }
-  .mv-hdr-username { display: none !important; }   /* save horizontal space */
 
   /* ── App content: full-bleed + room for footer & mini-player ──────────── */
   .app {
@@ -103,12 +102,26 @@
   .track-view-toggle { margin-left: 0 !important; width: 100% !important; }
   .track-view-toggle button { flex: 1 !important; }
 
+  /* Every tab gets the same breathing room under the sticky header. */
+  .tab-view { padding-top: var(--sp-4) !important; }
+
   /* ── Accessible touch targets ─────────────────────────────────────────── */
   button,
   .primary-btn, .ghost-btn, .small-btn,
   label[for], a.tab-btn {
     min-height: 44px;
   }
+  /* …except small fixed-size icon buttons: min-height stretched them into
+     tall ovals (e.g. 30×44) while their width stayed put. */
+  .mv-header .mv-hdr-icon-btn,
+  .bl-row .bl-menu, .bl-row .bl-star,
+  .star-btn, .cc-del, .fa-chip-delete, .r2-refresh-btn, .ab-raw-btn,
+  .docs-new-btn, .docs-del-btn, .docs-toolbar button,
+  .ll-section-done-btn { min-height: 0 !important; }
+
+  /* FAB is «+ Ny sang» — only meaningful on Hjem and Beats. Elsewhere it
+     covered content (Lyric Lab buttons, the Docs editor). */
+  body:not(:has(#hjemTab.tab-visible, #beatsTab.tab-visible)) #mvMobFab { display: none !important; }
 
   /* ======================================================================
      BOTTOM TAB FOOTER  (the phone navigation)
@@ -222,8 +235,26 @@
        1 greeting  2 shortcuts  3 flere sider  4 status cluster  5 rest.
      The status cluster (Aktivitet/Varsler/Fremdrift = "hva bør du jobbe med")
      is lifted near the top; projects/last-beat/recent/comments follow. */
-  .dash-inner { display: flex !important; flex-direction: column !important; }
+  /* align-items:stretch is essential: home.css sets align-items:start for the
+     desktop grid, which in a flex column made every section shrink-to-content
+     (shortcuts too narrow, «Fortsett»/projects overflowing to the right). */
+  .dash-inner {
+    display: flex !important; flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 0 !important;          /* .app already provides the side gutter */
+    row-gap: var(--sp-5) !important;
+  }
   .dash-inner > * { order: 5; }
+
+  /* Fortsett der du slapp: buttons on their own row so the title gets room */
+  .last-beat-card { flex-wrap: wrap !important; row-gap: var(--sp-3) !important; }
+  .last-beat-actions { flex: 1 1 100% !important; }
+  .last-beat-play, .last-beat-lab {
+    flex: 1 !important; height: 44px !important;
+    padding: 0 var(--sp-3) !important; white-space: nowrap;
+  }
+  .dash-beat-card { padding: var(--sp-2) 0 !important; }
+  .dash-btn-play, .dash-btn-lab { padding: 0 var(--sp-2) !important; }
   .dash-greeting-row { order: 1 !important; display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 14px !important; }
   .hjem-mobile-shortcuts { order: 2 !important; }
   .hjem-mobile-more { order: 3 !important; }
@@ -240,7 +271,7 @@
     display: grid !important;
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 8px !important;
-    margin-bottom: 18px !important;
+    margin: 0 !important;
   }
   .hjem-shortcut {
     display: flex !important; flex-direction: column !important;
@@ -259,7 +290,7 @@
   /* Secondary "Flere sider": Arkivert / Integrasjoner / Label / Admin */
   .hjem-mobile-more {
     display: flex !important; flex-wrap: wrap !important;
-    gap: 8px !important; margin-bottom: 6px !important;
+    gap: 8px !important; margin: 0 !important;
   }
   .hjem-more-link {
     flex: 1 1 calc(50% - 4px) !important;
@@ -279,6 +310,8 @@
   .beats-tab-controls { flex-direction: column !important; align-items: stretch !important; gap: 8px !important; }
   .beats-search-wrap { width: 100% !important; }
   .beats-sort { width: 100% !important; }
+  /* Rows: playcount chip + stars ate most of the title. Title wins on phones. */
+  .bl-row .ab-playcount, .bl-row .bl-rating { display: none !important; }
 
   /* ALBUM/MIXTAPE DETAIL — strip the noise on phones -----------------------
      Hide secondary header/toolbar actions (Bytt bilde, A/B-side, Pitch, Del
@@ -290,8 +323,27 @@
   .drop-zone { display: none !important; }
 
   /* MIXTAPES & ALBUMS — two-column grids, generous tap area */
-  .mixtape-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
-  .album-grid   { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  /* minmax(0,1fr), not 1fr: the cassette is a fixed 264px wide, and plain 1fr
+     let it blow the columns out past the screen edge. */
+  .mixtape-grid { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: var(--sp-4) 12px !important; }
+  .album-grid   { grid-template-columns: repeat(2, minmax(0,1fr)) !important; gap: 12px !important; }
+  .cass-png-wrap { width: 100% !important; }
+  .cass-png-label { padding: 0 6px 0 10px !important; }
+  .cass-png-name, .cass-png-meta { font-size: 9px !important; }
+  /* The PNG has transparent margin below the cassette — pull the title up */
+  .cass-card-title {
+    margin-top: -14% !important;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .album-card strong {
+    white-space: normal !important;
+    display: -webkit-box !important; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden !important;
+  }
+  /* «Nytt album»/«Ny mixtape» tiles duplicate the button right above them */
+  .album-grid > .album-new-btn, .mixtape-grid > .cass-new-card { display: none !important; }
+  .content-panel > .section-title:first-child,
+  .content-panel > div > .section-title:first-child { margin-top: 0 !important; }
   .album-beat-grid { grid-template-columns: 1fr !important; }
 
   /* Collection detail header stacks vertically */
@@ -387,6 +439,8 @@
 
   /* PIPELINE — keep kanban columns swipeable */
   .kanban-board, #pipelineBoard { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+  .pl3-projsel { scrollbar-width: none; }
+  .pl3-projsel::-webkit-scrollbar { display: none; }
 
   /* LYRIC LAB — force the three-column studio into a single scroll column.
      (lyriclab.css already collapses, but its breakpoint is 760px; this keeps

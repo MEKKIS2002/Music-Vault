@@ -211,8 +211,6 @@
 
         <aside class="album-detail-side">
           <div class="meta-row"><span>Status</span><strong>${esc(album.status||'Idé')}</strong></div>
-          <div class="meta-row"><span>Tracks</span><strong>${beats.length}</strong></div>
-          <div class="meta-row"><span>Ferdig</span><strong>${avg}%</strong></div>
           <div class="progress-bar"><div style="width:${avg}%"></div></div>
           <select class="ux-input" onchange="albumStatusChange('${album.id}',this.value)">
             <option ${album.status==='Idé'?'selected':''}>Idé</option>

@@ -167,11 +167,11 @@
 .adm-username { font-size:13px;font-weight:700;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 .adm-useremail { font-size:11px;color:rgba(255,255,255,.38);white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 .adm-pkg-badge { font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;flex-shrink:0;white-space:nowrap;text-transform:capitalize;letter-spacing:.02em }
-.pkg-admin  { background:rgba(244,164,67,.18);color:#f4a443 }
-.pkg-artist { background:rgba(96,165,250,.15);color:#60a5fa }
-.pkg-pro    { background:rgba(168,85,247,.15);color:#a855f7 }
-.pkg-label  { background:rgba(52,211,153,.15);color:#34d399 }
-.pkg-viewer,.pkg-user { background:rgba(255,255,255,.08);color:rgba(255,255,255,.45) }
+.adm-pkg-badge.pkg-admin  { background:rgba(244,164,67,.18);color:#f4a443 }
+.adm-pkg-badge.pkg-artist { background:rgba(96,165,250,.15);color:#60a5fa }
+.adm-pkg-badge.pkg-pro    { background:rgba(168,85,247,.15);color:#a855f7 }
+.adm-pkg-badge.pkg-label  { background:rgba(52,211,153,.15);color:#34d399 }
+.adm-pkg-badge.pkg-viewer,.adm-pkg-badge.pkg-user { background:rgba(255,255,255,.08);color:rgba(255,255,255,.45) }
 /* Tom-tilstand */
 .adm-detail-empty { display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 20px;background:var(--adm-card);border:1px dashed var(--adm-line);border-radius:14px;color:rgba(255,255,255,.4) }
 .adm-empty-ico { font-size:34px;margin-bottom:12px;opacity:.6 }

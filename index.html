@@ -68,24 +68,24 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202611140001">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202611140001">
-  <link rel="stylesheet" href="css/pipeline.css?v=202611140001">
-  <link rel="stylesheet" href="css/main.css?v=202611140001">
-  <link rel="stylesheet" href="css/ui.css?v=202611140001">
-  <link rel="stylesheet" href="css/track-cards.css?v=202611140001">
-  <link rel="stylesheet" href="css/archive.css?v=202611140001">
-  <link rel="stylesheet" href="css/mixtape.css?v=202611140001">
-  <link rel="stylesheet" href="css/docs.css?v=202611140001">
-  <link rel="stylesheet" href="css/player.css?v=202611140001">
+  <link rel="stylesheet" href="css/tokens.css?v=202611140002">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202611140002">
+  <link rel="stylesheet" href="css/pipeline.css?v=202611140002">
+  <link rel="stylesheet" href="css/main.css?v=202611140002">
+  <link rel="stylesheet" href="css/ui.css?v=202611140002">
+  <link rel="stylesheet" href="css/track-cards.css?v=202611140002">
+  <link rel="stylesheet" href="css/archive.css?v=202611140002">
+  <link rel="stylesheet" href="css/mixtape.css?v=202611140002">
+  <link rel="stylesheet" href="css/docs.css?v=202611140002">
+  <link rel="stylesheet" href="css/player.css?v=202611140002">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202611140001">
+  <link rel="stylesheet" href="css/refine.css?v=202611140002">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
-  <link rel="stylesheet" href="css/home.css?v=202611140001">
-  <link rel="stylesheet" href="css/mobile.css?v=202611140001">
+  <link rel="stylesheet" href="css/home.css?v=202611140002">
+  <link rel="stylesheet" href="css/mobile.css?v=202611140002">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -320,7 +320,7 @@ AKTIVE BRUKERE:
           <button class="dq-btn accent" onclick="dashUploadTrigger()">&#xFF0B; Ny sang</button>
           <button class="dq-btn" onclick="dashNewAlbum()">Nytt album</button>
           <button class="dq-btn" onclick="dashNewMixtape()">Ny mixtape</button>
-          <button class="dq-btn" onclick="dashOpenLyricLab()">Lyric Lab</button>
+          <button class="dq-btn mv-mob-hide" onclick="dashOpenLyricLab()">Lyric Lab</button>
           <input type="file" accept="audio/*" multiple hidden id="dashUploadInput" onchange="dashUpload(this.files)">
         </div>
       </header>
@@ -897,12 +897,12 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202605161400"></script>
-  <script src="js/lock.js?v=202609200001"></script>
+  <script src="js/lock.js?v=202611140002"></script>
   <script src="js/pipeline.js?v=202606160002"></script>
-  <script src="js/lyriclab.js?v=202606210001"></script>
+  <script src="js/lyriclab.js?v=202611140002"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
-  <script src="js/app.js?v=202609200002"></script>
+  <script src="js/app.js?v=202611140002"></script>
   <script src="js/track-cards.js?v=202607020002"></script>
   <script src="js/r2-storage.js?v=202606230010"></script>
   <script src="js/archive.js?v=202611140001"></script>
@@ -922,7 +922,7 @@ window.addEventListener('load', () => {
 
   <script src="js/packages.js?v=202605251400"></script>
   <script src="js/label.js?v=202606170002"></script>
-  <script src="js/admin-panel.js?v=202606210001"></script>
+  <script src="js/admin-panel.js?v=202611140002"></script>
   <script src="js/share-song.js?v=202606210001"></script>
   <script src="js/docs.js?v=202611140001"></script>
 

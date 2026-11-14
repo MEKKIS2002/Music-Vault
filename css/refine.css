@@ -254,3 +254,59 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
 .stats-card:hover{
   transform:none !important;
 }
+
+/* ── Kortvisning (album/mixtape «Kort»): cover, tittel, play, favoritt, fremdrift ──
+   Lukkede kort viste alt på én gang: TAKE/DEMO-merke, nummer, avspillinger,
+   opplaster, fire ikonknapper, 10 stjerner og slider — og tittelen ble klemt
+   til null bredde. Alt det skjulte ligger fortsatt i utvidet kort (klikk cover). */
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-body::before{
+  content:none !important; display:none !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-body > div:first-child > div:first-child > span:first-child,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-playcount,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-uploader,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-share-btn,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-rename-btn,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-remove-btn,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-stars{
+  display:none !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-body{
+  padding:var(--sp-3) var(--sp-3) var(--sp-4) !important;
+  gap:var(--sp-3) !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-body > div:first-child{
+  align-items:flex-start !important;
+  gap:var(--sp-2) !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-title{
+  font-size:var(--fs-base) !important;
+  font-weight:var(--fw-bold) !important;
+  line-height:var(--lh-tight) !important;
+  white-space:normal !important;
+  display:-webkit-box !important;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-quick-play{
+  width:32px !important; height:32px !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .progress-wrap{
+  display:flex !important; align-items:center; gap:var(--sp-2);
+  margin:0 !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .progress-label{
+  display:flex; gap:var(--sp-1); flex-shrink:0;
+  font-size:var(--fs-xs) !important; color:var(--faint) !important; margin:0 !important;
+}
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .progress-label span{ display:none; }
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-progress-range{
+  flex:1; min-width:0; margin:0 !important;
+}
+/* Pynt-sirkel / «Arvet»-merke på coveret og hover-hinttekst: ren støy på små kort
+   («Arvet» står fortsatt i kortets tooltip). */
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-cover-wrap::before,
+.album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded)::after{
+  content:none !important; display:none !important;
+}

@@ -306,11 +306,10 @@ function injectUserCorner(role){
       </div>
     </div>`);
 
-  // Username + avatar
+  // Avatar — navnet ligger i tooltip, ikke som egen tekst ved siden av initialene
   slot.insertAdjacentHTML('beforeend', `
     <div class="mv-hdr-user">
-      <div class="mv-hdr-username">${username}</div>
-      <div class="mv-hdr-avatar">${(username||'?').slice(0,2).toUpperCase()}</div>
+      <div class="mv-hdr-avatar" title="${String(username||'').replace(/"/g,'&quot;')}">${(username||'?').slice(0,2).toUpperCase()}</div>
     </div>`);
 
   // Admin badge

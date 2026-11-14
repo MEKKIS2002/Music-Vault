@@ -426,7 +426,6 @@
 <div class="ll-empty">
   <div class="ll-empty-icon">✍️</div>
   <h2>Velg en låt å skrive på</h2>
-  <p>Lyric Lab samler beat, tekst og skrivehjelp på én skjerm. Velg et beat for å komme i gang.</p>
   <div class="ll-empty-btns">
     <button class="primary-btn" onclick="llPickBeat()">🎵 Velg fra beats</button>
     ${last ? `<button class="ghost-btn" onclick="openInLyricLab('${esc(last.id)}')">↩ Åpne siste: ${esc(last.name)}</button>` : ''}
