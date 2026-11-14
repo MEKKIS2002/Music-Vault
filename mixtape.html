@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Music Vault — mixtape</title>
+  <!--
+    Public, login-free page for a shared MIXTAPE (mixtape.html?t=<token>).
+    Replaces the Worker-rendered page (beat-vault…workers.dev/share/<token>).
+    Self-contained on purpose: no app scripts, no auth. It only calls the
+    token-gated RPC get_mixtape_share (see sql/mixtape_shares.sql), so it can
+    never reach other mixtapes or user data. Audio streams from the public R2
+    /file endpoint. Likes are anonymous per browser session (mixtape_likes).
+  -->
+  <style>
+    :root{
+      --bg:#090806; --surface:rgba(255,255,255,.035); --line:rgba(255,255,255,.08);
+      --txt:#f4ede4; --muted:rgba(244,237,228,.62); --faint:rgba(244,237,228,.42);
+      --amber:#f4a443; --amber2:#cb6e1a; --like:#fb7185;
+      --player-h:0px;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; }
+    body{
+      background:var(--bg); color:var(--txt);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      min-height:100vh; padding:40px 16px calc(var(--player-h) + 32px);
+    }
+    .page{ max-width:680px; margin:0 auto; }
+    .brand{ display:flex; align-items:center; gap:8px; font-size:11px; font-weight:900;
+      letter-spacing:.14em; text-transform:uppercase; color:var(--faint); margin-bottom:28px; }
+    .brand .dot{ width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 10px var(--amber); }
+
+    /* ── Hero ─────────────────────────────────────────────────────── */
+    .hero{ display:flex; gap:24px; align-items:flex-end; margin-bottom:32px; }
+    .cover{ width:168px; height:168px; flex-shrink:0; border-radius:6px; overflow:hidden;
+      background:var(--surface); box-shadow:0 16px 48px rgba(0,0,0,.6); }
+    .cover img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .cover-ph{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:56px; }
+    .hero-info{ min-width:0; flex:1; }
+    .eyebrow{ font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:var(--amber); margin-bottom:8px; }
+    h1{ margin:0 0 8px; font-family:Georgia,serif; font-size:clamp(28px,6vw,40px); font-weight:900;
+      letter-spacing:-.03em; line-height:1.05; overflow-wrap:anywhere; }
+    .meta{ font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .play-all{ margin-top:18px; display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 22px;
+      border:none; border-radius:999px; cursor:pointer; font:inherit; font-size:14px; font-weight:800;
+      background:linear-gradient(135deg,var(--amber),var(--amber2)); color:#1a1206;
+      box-shadow:0 8px 22px rgba(244,164,67,.3); }
+    .play-all:hover{ filter:brightness(1.05); }
+
+    /* ── Tracklist ────────────────────────────────────────────────── */
+    .tl-label{ font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; color:var(--faint);
+      padding-bottom:10px; border-bottom:1px solid var(--line); }
+    .tracks{ list-style:none; margin:0; padding:0; }
+    .track{ display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--line); position:relative; }
+    .track-btn{ flex:1; min-width:0; display:flex; align-items:center; gap:14px; padding:13px 8px;
+      background:none; border:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+    .track-btn:hover{ background:var(--surface); }
+    .track-btn:disabled{ cursor:default; opacity:.5; }
+    .t-num{ width:24px; flex-shrink:0; text-align:right; font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums; }
+    .t-name{ flex:1; min-width:0; font-size:15px; font-weight:700; overflow-wrap:anywhere; }
+    .t-note{ display:block; font-size:12px; font-weight:500; color:var(--faint); }
+    .t-dur{ flex-shrink:0; font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums; }
+    .track.active .t-name{ color:var(--amber); }
+    .track.active .t-num{ color:var(--amber); }
+    .track.active::after{ content:""; position:absolute; left:0; bottom:-1px; height:2px; background:var(--amber);
+      width:var(--progress,0%); transition:width .25s linear; }
+    .like{ flex-shrink:0; min-width:44px; height:32px; margin-right:4px; padding:0 10px; border-radius:999px;
+      border:1px solid var(--line); background:none; color:var(--faint); font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+    .like:hover, .like[aria-pressed="true"]{ color:var(--like); border-color:rgba(251,113,133,.45); background:rgba(251,113,133,.12); }
+
+    :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+    .foot{ margin-top:28px; font-size:11px; color:var(--faint); text-align:center; }
+    .state{ text-align:center; padding:64px 8px; color:var(--muted); }
+    .state .ico{ font-size:42px; margin-bottom:12px; }
+    .state h2{ margin:0 0 6px; font-size:18px; color:var(--txt); }
+    .state p{ margin:0; font-size:13px; }
+    .hidden{ display:none !important; }
+
+    /* ── Sticky player: follows you while you scroll the list ──────── */
+    .player{ position:fixed; left:0; right:0; bottom:0; z-index:10;
+      background:rgba(9,8,6,.96); border-top:1px solid var(--line);
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px)); }
+    .player-inner{ max-width:680px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; align-items:center; }
+    .p-title{ font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .p-sub{ font-size:12px; color:var(--faint); font-variant-numeric:tabular-nums; }
+    .p-ctrls{ display:flex; align-items:center; gap:6px; }
+    .p-btn{ width:40px; height:40px; border-radius:50%; border:none; background:none; color:var(--txt);
+      font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .p-btn:hover{ background:var(--surface); }
+    .p-btn.main{ width:44px; height:44px; background:var(--amber); color:#1a1206; font-size:17px; }
+    .p-seek{ grid-column:1 / -1; }
+    input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px; margin:0;
+      background:linear-gradient(to right,var(--amber) 0%,var(--amber) var(--pct,0%),rgba(255,255,255,.12) var(--pct,0%),rgba(255,255,255,.12) 100%);
+      outline:none; cursor:pointer; }
+    input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#fff; border:2px solid var(--amber); }
+    input[type=range]::-moz-range-thumb{ width:12px; height:12px; border-radius:50%; background:#fff; border:2px solid var(--amber); }
+
+    @media (max-width:520px){
+      body{ padding-top:24px; }
+      .hero{ flex-direction:column; align-items:flex-start; gap:18px; }
+      .cover{ width:100%; height:auto; aspect-ratio:1/1; max-width:320px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="brand"><span class="dot"></span> Music Vault</div>
+
+    <div id="loading" class="state"><div class="ico">⏳</div><p>Laster…</p></div>
+
+    <div id="error" class="state hidden">
+      <div class="ico">🔒</div>
+      <h2>Lenken er ikke tilgjengelig</h2>
+      <p>Denne delingslenken finnes ikke, eller den er deaktivert av eieren.</p>
+    </div>
+
+    <div id="content" class="hidden">
+      <section class="hero">
+        <div class="cover" id="cover"></div>
+        <div class="hero-info">
+          <div class="eyebrow">Mixtape</div>
+          <h1 id="title">—</h1>
+          <div class="meta" id="meta"></div>
+          <button id="playAll" class="play-all" type="button">▶ Spill alle</button>
+        </div>
+      </section>
+
+      <div class="tl-label" id="tlLabel">Spor</div>
+      <ol class="tracks" id="tracks"></ol>
+      <div class="foot">Laget med Music Vault</div>
+    </div>
+  </main>
+
+  <div id="player" class="player hidden" aria-label="Avspiller">
+    <div class="player-inner">
+      <div>
+        <div class="p-title" id="pTitle" aria-live="polite">—</div>
+        <div class="p-sub"><span id="pCur">0:00</span> / <span id="pDur">0:00</span></div>
+      </div>
+      <div class="p-ctrls">
+        <button id="pPrev" class="p-btn" type="button" aria-label="Forrige spor">⏮</button>
+        <button id="pPlay" class="p-btn main" type="button" aria-label="Spill av">▶</button>
+        <button id="pNext" class="p-btn" type="button" aria-label="Neste spor">⏭</button>
+      </div>
+      <input id="pSeek" class="p-seek" type="range" min="0" max="1000" value="0" aria-label="Posisjon i sporet">
+    </div>
+  </div>
+
+  <audio id="audio" preload="none"></audio>
+
+  <script>
+  (function(){
+    'use strict';
+    var SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
+    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    var HDR = { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' };
+
+    function $(id){ return document.getElementById(id); }
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function fmt(sec){ sec=Number(sec)||0; if(!isFinite(sec)||sec<=0) return '0:00'; var m=Math.floor(sec/60), s=Math.floor(sec%60); return m+':'+(s<10?'0':'')+s; }
+    function playable(b){ return /^https?:\/\//i.test(b && b.audio_url || ''); }
+    function safeImg(u){ return /^(https?:|data:image\/)/i.test(u||'') ? u : ''; }
+
+    var token = new URLSearchParams(location.search).get('t') || '';
+    var tracks = [], current = -1;
+    var audio = $('audio');
+
+    function fail(){ $('loading').classList.add('hidden'); $('error').classList.remove('hidden'); }
+
+    function render(data){
+      var mt = data.mt || {};
+      tracks = Array.isArray(data.beats) ? data.beats : [];
+      document.title = (mt.name || 'Mixtape') + ' — Music Vault';
+      $('title').textContent = mt.name || 'Uten navn';
+
+      var img = safeImg(mt.cover);
+      $('cover').innerHTML = img
+        ? '<img src="'+esc(img)+'" alt="Cover for '+esc(mt.name||'mixtapen')+'">'
+        : '<div class="cover-ph" style="background:'+esc(/^#[0-9a-f]{3,8}$/i.test(mt.color||'')?mt.color+'33':'rgba(244,164,67,.15)')+'">📼</div>';
+
+      var n = tracks.length;
+      var total = tracks.reduce(function(s,b){ return s+(Number(b.duration)||0); },0);
+      $('meta').textContent = n + ' spor' + (total>0 ? ' · ' + fmt(total) : '');
+      $('tlLabel').textContent = n ? 'Spor' : 'Ingen spor ennå';
+      $('playAll').classList.toggle('hidden', !tracks.some(playable));
+
+      $('tracks').innerHTML = tracks.map(function(b,i){
+        var ok = playable(b);
+        return '<li class="track" data-idx="'+i+'">'
+          + '<button class="track-btn" type="button" data-play="'+i+'"'+(ok?'':' disabled')+' aria-label="'+(ok?'Spill ':'')+esc(b.name||'Uten tittel')+(ok?'':' (ikke tilgjengelig)')+'">'
+          +   '<span class="t-num" aria-hidden="true">'+(i+1)+'</span>'
+          +   '<span class="t-name">'+esc(b.name||'Uten tittel')+(ok?'':'<span class="t-note">Lyd ikke tilgjengelig</span>')+'</span>'
+          +   '<span class="t-dur">'+(Number(b.duration)>0?fmt(b.duration):'')+'</span>'
+          + '</button>'
+          + '<button class="like" type="button" data-like="'+esc(b.id)+'" aria-pressed="false" aria-label="Lik '+esc(b.name||'sporet')+'">♡</button>'
+          + '</li>';
+      }).join('');
+
+      $('loading').classList.add('hidden');
+      $('content').classList.remove('hidden');
+      loadLikes();
+    }
+
+    // ── Playback ────────────────────────────────────────────────────
+    function rows(){ return document.querySelectorAll('.track'); }
+    function nextPlayable(from, dir){
+      for(var i=from+dir; i>=0 && i<tracks.length; i+=dir){ if(playable(tracks[i])) return i; }
+      return -1;
+    }
+    function play(i){
+      var b = tracks[i]; if(!b || !playable(b)) return;
+      current = i;
+      if(audio.src !== b.audio_url) audio.src = b.audio_url;
+      audio.play().catch(setPlayIcons);   // blocked/failed → icons must not claim «Pause»
+      Array.prototype.forEach.call(rows(), function(r,ri){
+        r.classList.toggle('active', ri===i);
+        r.style.removeProperty('--progress');
+      });
+      $('pTitle').textContent = b.name || 'Uten tittel';
+      $('player').classList.remove('hidden');
+      syncPlayerHeight();
+    }
+    function toggle(){
+      if(current<0){ var f=nextPlayable(-1,1); if(f>=0) play(f); return; }
+      if(audio.paused) audio.play().catch(setPlayIcons); else audio.pause();
+    }
+    function setPlayIcons(){
+      var playing = !audio.paused;
+      $('pPlay').textContent = playing ? '⏸' : '▶';
+      $('pPlay').setAttribute('aria-label', playing ? 'Pause' : 'Spill av');
+      $('playAll').textContent = playing ? '⏸ Pause' : (current>=0 ? '▶ Fortsett' : '▶ Spill alle');
+    }
+    function syncPlayerHeight(){
+      document.documentElement.style.setProperty('--player-h', $('player').offsetHeight + 'px');
+    }
+
+    audio.addEventListener('play', setPlayIcons);
+    audio.addEventListener('pause', setPlayIcons);
+    audio.addEventListener('ended', function(){ var n=nextPlayable(current,1); if(n>=0) play(n); else setPlayIcons(); });
+    audio.addEventListener('loadedmetadata', function(){ $('pDur').textContent = fmt(audio.duration); });
+    audio.addEventListener('timeupdate', function(){
+      var d = audio.duration || 0, pct = d ? audio.currentTime/d*100 : 0;
+      $('pCur').textContent = fmt(audio.currentTime);
+      if(document.activeElement !== $('pSeek')) $('pSeek').value = Math.round(pct*10);
+      $('pSeek').style.setProperty('--pct', pct+'%');
+      var r = rows()[current]; if(r) r.style.setProperty('--progress', pct+'%');
+    });
+    $('pSeek').addEventListener('input', function(){
+      var pct = this.value/10; this.style.setProperty('--pct', pct+'%');
+      if(audio.duration) audio.currentTime = pct/100*audio.duration;
+    });
+    $('pPlay').addEventListener('click', toggle);
+    $('playAll').addEventListener('click', toggle);
+    $('pPrev').addEventListener('click', function(){
+      if(audio.currentTime > 3){ audio.currentTime = 0; return; }
+      var p = nextPlayable(current,-1); if(p>=0) play(p);
+    });
+    $('pNext').addEventListener('click', function(){ var n=nextPlayable(current,1); if(n>=0) play(n); });
+    $('tracks').addEventListener('click', function(e){
+      var pb = e.target.closest('[data-play]');
+      if(pb){ var i=Number(pb.getAttribute('data-play')); if(i===current) toggle(); else play(i); return; }
+      var lb = e.target.closest('[data-like]');
+      if(lb) toggleLike(lb.getAttribute('data-like'), lb);
+    });
+    window.addEventListener('resize', syncPlayerHeight);
+
+    // ── Likes (anonymous, one per browser session) ──────────────────
+    function sessionId(){
+      var s = sessionStorage.getItem('mv_sid');
+      if(!s){ s = Math.random().toString(36).slice(2); sessionStorage.setItem('mv_sid', s); }
+      return s;
+    }
+    var likedKey = 'mv_liked_' + token;
+    var liked = {}; try{ liked = JSON.parse(sessionStorage.getItem(likedKey)||'{}'); }catch(e){}
+    var counts = {};
+    function paintLike(btn, id){
+      var n = counts[id]||0, on = !!liked[id];
+      btn.textContent = (on ? '♥' : '♡') + (n>0 ? ' '+n : '');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    function loadLikes(){
+      fetch(SB_URL+'/rest/v1/mixtape_likes?mixtape_id=eq.'+encodeURIComponent(token)+'&select=beat_id', { headers:HDR })
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(list){
+          counts = {}; (list||[]).forEach(function(r){ counts[r.beat_id]=(counts[r.beat_id]||0)+1; });
+          Array.prototype.forEach.call(document.querySelectorAll('[data-like]'), function(b){ paintLike(b, b.getAttribute('data-like')); });
+        }).catch(function(){});
+    }
+    function toggleLike(id, btn){
+      var on = !liked[id];
+      if(on){
+        liked[id]=true; counts[id]=(counts[id]||0)+1;
+        fetch(SB_URL+'/rest/v1/mixtape_likes', { method:'POST', headers:Object.assign({'Prefer':'return=minimal'},HDR),
+          body:JSON.stringify({ mixtape_id:token, beat_id:id, session_id:sessionId() }) }).catch(function(){});
+      } else {
+        delete liked[id]; counts[id]=Math.max(0,(counts[id]||0)-1);
+        fetch(SB_URL+'/rest/v1/mixtape_likes?mixtape_id=eq.'+encodeURIComponent(token)+'&beat_id=eq.'+encodeURIComponent(id)+'&session_id=eq.'+encodeURIComponent(sessionId()),
+          { method:'DELETE', headers:Object.assign({'Prefer':'return=minimal'},HDR) }).catch(function(){});
+      }
+      sessionStorage.setItem(likedKey, JSON.stringify(liked));
+      paintLike(btn, id);
+    }
+
+    // ── Load ────────────────────────────────────────────────────────
+    if(!token){ fail(); return; }
+    fetch(SB_URL+'/rest/v1/rpc/get_mixtape_share', { method:'POST', headers:HDR, body:JSON.stringify({ p_token:token }) })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(data){ if(data && data.mt) render(data); else fail(); })
+      .catch(fail);
+  })();
+  </script>
+</body>
+</html>

@@ -1209,47 +1209,9 @@ window.mvPitch = function(btn) {
     showToast('\u26a0 Album pitch ikke tilgjengelig');
   } else if(type==='mixtape'){
     if(typeof window.mixtapeShareMode==='function'){window.mixtapeShareMode(id);return;}
-    _mvMixtapePitchFallback(id);
+    showToast('⚠ Deling er ikke klar ennå — prøv igjen om litt');
   }
 };
-function _mvMixtapePitchFallback(mixtapeId){
-  const st=typeof state!=='undefined'?state:window.state;
-  const mt=st?.mixtapes?.find(m=>m.id===mixtapeId);
-  if(!mt){showToast('Mixtape ikke funnet');return;}
-  const WORKER=window.R2_WORKER_URL||'https://beat-vault.marcus-aas-mekiassen.workers.dev';
-  if(mt._shareToken&&mt._shareEnabled!==false){_mvShowPitchModal(mt,`${WORKER}/share/${mt._shareToken}`);return;}
-  showToast('Publiserer pitch-side...');
-  const token=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-  const beats=(typeof beatsFromIds==='function'?beatsFromIds:window.beatsFromIds)(mt.beatIds||[]);
-  const payload={mt:{id:mt.id,name:mt.name,cover:mt.cover||'',color:mt.color||'#f4a443'},beats:beats.map(b=>({id:b.id,name:b.name,duration:b.duration||0,audio_url:b.audio_url||b.url||''}))};
-  fetch(`${WORKER}/share/${token}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(r=>r.json()).then(data=>{
-      if(!data.ok)throw new Error(data.error||'Ukjent feil');
-      mt._shareToken=token;mt._shareUrl=data.url;mt._shareEnabled=true;
-      if(typeof saveState==='function')saveState();
-      _mvShowPitchModal(mt,data.url);
-    }).catch(e=>showToast('\u26a0 Kunne ikke publisere: '+e.message));
-}
-function _mvShowPitchModal(mt,shareUrl){
-  let modal=document.getElementById('_mvPM');
-  if(!modal){modal=document.createElement('div');modal.id='_mvPM';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});document.body.appendChild(modal);}
-  modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
-  modal.innerHTML=`
-    <div style="background:#1c1a17;border:1px solid rgba(255,255,255,.12);max-width:480px;width:94%;padding:26px 28px;border-radius:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-        <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4ede4">\uD83C\uDFA4 Pitch: ${esc(mt.name)}</h2>
-        <button onclick="document.getElementById('_mvPM').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
-      </div>
-      <p style="font-size:12px;color:rgba(255,255,255,.4);margin:0 0 14px">Del denne lenken med labels eller partnere:</p>
-      <div style="display:flex;gap:8px">
-        <input id="_mvPM_url" readonly value="${shareUrl}"
-          style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4ede4;padding:9px 12px;font-size:12px;font-family:system-ui;outline:none;border-radius:8px">
-        <button onclick="navigator.clipboard.writeText(document.getElementById('_mvPM_url').value).then(()=>{this.textContent='\u2713';setTimeout(()=>this.textContent='Kopier',2000)})"
-          style="background:#f4a443;border:none;color:#000;font-size:12px;font-weight:800;padding:9px 16px;cursor:pointer;border-radius:8px;font-family:inherit">Kopier</button>
-      </div>
-    </div>`;
-}
-
 // ── renameBeatInline ──────────────────────────────────────────────────────────
 window.renameBeatInline = function(id) {
   const el=document.getElementById('abt-'+id);if(!el)return;
@@ -1647,7 +1609,7 @@ function renderMixtapeDetail(){
       </div>
       <div class="mixtape-detail-actions">
         <button class="primary-btn" id="playMixtapeBtn" onclick="playMixtapeFromStart('${mt.id}')">▶ Spill fra start</button>
-        ${(typeof window.isOwnerOrEditor==='function'&&window.isOwnerOrEditor())?`<button class="ghost-btn mv-mob-hide" data-pitch="mixtape|${mt.id}|" onclick="mvPitch(this)" title="Artist one-pager">📄 Pitch</button>`:''}
+        ${(typeof window.isOwnerOrEditor==='function'&&window.isOwnerOrEditor())?`<button class="ghost-btn mv-mob-hide" data-pitch="mixtape|${mt.id}|" onclick="mvPitch(this)" title="Offentlig lenke som alle med lenken kan lytte på">🌐 Del lenke</button>`:''}
         ${!mt._shared?`<button class="ghost-btn mv-mob-hide" data-share="mixtape|${mt.id}|${esc(mt.name)}" onclick="mvShare(this)">👤 Del med bruker</button>`:''}
         <button class="small-btn danger hidden" id="stopMixtapeBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
       </div>
