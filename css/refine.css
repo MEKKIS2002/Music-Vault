@@ -41,13 +41,14 @@ body::before{ content:none !important; }   /* grain-teksturen fra ui.css */
   backdrop-filter:none !important;
 }
 #archiveTab .fa-page::before{ content:none !important; }
-/* Kort inni en side (innstillinger, statistikk, metadata) beholder en svak flate. */
+/* Kort inni en side (innstillinger, statistikk, metadata) er også helt svarte;
+   en hårstrek holder dem fra hverandre. */
 .stats-card,
 .settings-card,
 .meta-panel{
-  border:0 !important;
+  border:1px solid var(--line) !important;
   border-radius:var(--r-flat) !important;
-  background:var(--surface-1) !important;
+  background:transparent !important;
   box-shadow:var(--shadow-none) !important;
   backdrop-filter:none !important;
 }
