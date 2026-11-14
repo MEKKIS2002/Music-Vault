@@ -42,14 +42,21 @@ $$;
 revoke all on function public.get_mixtape_share(text) from public;
 grant execute on function public.get_mixtape_share(text) to anon, authenticated;
 
--- ── NOT YET APPLIED — needs a decision (breaks the old Worker page if it reads
---    with the anon key). The policies below are today wide open: anyone holding
---    the public anon key can list, overwrite or delete every mixtape share.
---
--- update public.mixtape_shares set owner_id = '<marcus uid>' where owner_id is null;
--- drop policy if exists "Anyone can read"   on public.mixtape_shares;
--- drop policy if exists "Anyone can insert" on public.mixtape_shares;
--- drop policy if exists "Anyone can update" on public.mixtape_shares;
--- drop policy if exists "Anyone can delete" on public.mixtape_shares;
--- create policy mixtape_shares_owner_all on public.mixtape_shares
---   for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
+-- ── Owner-only RLS (migration: mixtape_shares_owner_rls, applied 2026-11-14) ──
+-- Before this, policies "Anyone can read/insert/update/delete" let anyone holding the
+-- public anon key list, overwrite or delete every share. Now only the owner can touch
+-- their rows; recipients read exclusively via get_mixtape_share (security definer).
+-- Consequence: the old Worker page (…workers.dev/share/<token>) read the table with the
+-- anon key and now returns 404. Same token works on mixtape.html?t=<token>.
+-- Legacy rows (no owner; incl. shares of since-deleted mixtapes) were assigned to marcus.
+update public.mixtape_shares set owner_id = 'b35198e1-e3a2-4f81-b7a3-9d0bf7404de8' where owner_id is null;
+
+drop policy if exists "Anyone can read"   on public.mixtape_shares;
+drop policy if exists "Anyone can insert" on public.mixtape_shares;
+drop policy if exists "Anyone can update" on public.mixtape_shares;
+drop policy if exists "Anyone can delete" on public.mixtape_shares;
+
+create policy mixtape_shares_owner_all on public.mixtape_shares
+  for all
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);

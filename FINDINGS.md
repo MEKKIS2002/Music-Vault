@@ -144,8 +144,10 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   assignments and listeners after that point do not). Don't add new features at the end of
   app.js — put them in their own file loaded after `db.js` (see `js/mixtape-share.js`). Fixing
   the crash would suddenly activate ~650 lines of dormant code: do it deliberately, with testing.
-- **`mixtape_shares` RLS is wide open** (anyone with the anon key can list/update/delete all
-  rows); the lockdown SQL is prepared but commented out in `sql/mixtape_shares.sql`.
+- **`mixtape_shares` is owner-only** (since 2026-11-14): only `auth.uid() = owner_id` may
+  select/insert/update/delete; recipients read ONLY via RPC `get_mixtape_share`. The old Worker
+  share page read with the anon key and now 404s — don't "fix" that by re-adding a public read
+  policy (it would expose every share). `mixtape_likes` is still open (anyone can delete likes).
 - **Windows line endings:** git warns LF→CRLF on these files; harmless, expected.
 - **Secrets:** `js/db.js` / `js/supabase.js` contain the Supabase **anon** key (public by
   design, RLS-protected). `.local.json` and `.env*` are gitignored — never commit
@@ -163,7 +165,8 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
   `get_usernames`, `get_user_id_by_username`, `get_song_share`).
 - **Share tables:** `mixtape_shares` (mixtape «Del lenke» → `mixtape.html?t=<token>`, read via RPC
   `get_mixtape_share`; snapshot, refreshed by «Oppdater sporlisten» — see `sql/mixtape_shares.sql`;
-  Worker-era links `…workers.dev/share/<token>` still work) and `song_shares`
+  Worker-era links `…workers.dev/share/<token>` stopped working with the owner-only RLS — same
+  token works on `mixtape.html`) and `song_shares`
   (single song/beat public links, this repo — see `sql/song_shares.sql` + §4 gotcha).
 - **Users:** `marcus` (admin), `erik` (admin). Viewer mode shows only Mixtapes + Beats.
 

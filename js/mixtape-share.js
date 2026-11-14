@@ -11,8 +11,9 @@
 // Public page: mixtape.html?t=<token> (in this repo). Rows live in Supabase
 // public.mixtape_shares and are read ONLY via the RPC get_mixtape_share — see
 // sql/mixtape_shares.sql. The link is a SNAPSHOT: it shows the tracks from the
-// last publish/«Oppdater», not the live mixtape. Worker-era links
-// (…workers.dev/share/<token>) keep working; their tokens open here too.
+// last publish/«Oppdater», not the live mixtape. The table is owner-only (RLS);
+// Worker-era links (…workers.dev/share/<token>) 404 since then — their tokens
+// still open on mixtape.html.
 function _mtShareToken(){
   const A='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const buf=new Uint8Array(24); crypto.getRandomValues(buf);
