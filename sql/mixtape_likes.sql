@@ -71,12 +71,14 @@ revoke all on function public.set_mixtape_like(text, text, text, boolean) from p
 grant execute on function public.get_mixtape_like_counts(text) to anon, authenticated;
 grant execute on function public.set_mixtape_like(text, text, text, boolean) to anon, authenticated;
 
--- ── Step 2 (migration: mixtape_likes_lock) — run AFTER the new mixtape.html is
---    live, otherwise likes stop working on the deployed page in between. ──
--- drop policy if exists "Anyone can read likes"       on public.mixtape_likes;
--- drop policy if exists "Anyone can insert likes"     on public.mixtape_likes;
--- drop policy if exists "Anyone can delete own likes" on public.mixtape_likes;
--- -- Share owners may read likes on their own shares (no write access for anyone).
--- create policy mixtape_likes_owner_read on public.mixtape_likes
---   for select using (exists (select 1 from public.mixtape_shares s
---                             where s.id = mixtape_id and s.owner_id = auth.uid()));
+-- ── Step 2 (migration: mixtape_likes_lock, applied 2026-11-14, after the new
+--    mixtape.html was live) — removes all direct public access. ──
+drop policy if exists "Anyone can read likes"       on public.mixtape_likes;
+drop policy if exists "Anyone can insert likes"     on public.mixtape_likes;
+drop policy if exists "Anyone can delete own likes" on public.mixtape_likes;
+
+-- Share owners may read likes on their own shares (no write access for anyone).
+create policy mixtape_likes_owner_read on public.mixtape_likes
+  for select
+  using (exists (select 1 from public.mixtape_shares s
+                 where s.id = mixtape_id and s.owner_id = auth.uid()));
