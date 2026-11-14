@@ -85,7 +85,7 @@ AKTIVE BRUKERE:
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611140002">
-  <link rel="stylesheet" href="css/mobile.css?v=202611140002">
+  <link rel="stylesheet" href="css/mobile.css?v=202611140005">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -327,7 +327,6 @@ AKTIVE BRUKERE:
 
       <!-- Mobil: snarveier til de andre fanene (skjult på desktop via home.css) -->
       <nav class="hjem-mobile-shortcuts" aria-label="Snarveier">
-        <button class="hjem-shortcut" onclick="mvMobileTab('beats')"><span class="hs-ico">&#127925;</span><span class="hs-lbl">Beats</span></button>
         <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico">&#9997;&#65039;</span><span class="hs-lbl">Lyric Lab</span></button>
         <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico">&#128202;</span><span class="hs-lbl">Pipeline</span></button>
         <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico">&#128221;</span><span class="hs-lbl">Docs</span></button>
@@ -552,6 +551,10 @@ AKTIVE BRUKERE:
     <span class="mv-mob-icon">🏠</span>
     <span class="mv-mob-lbl">Hjem</span>
   </button>
+  <button class="mv-mob-btn" data-mob-tab="beats" onclick="mvMobileTab('beats')">
+    <span class="mv-mob-icon">🎵</span>
+    <span class="mv-mob-lbl">Beats</span>
+  </button>
   <button class="mv-mob-btn" data-mob-tab="mixtapes" onclick="mvMobileTab('mixtapes')">
     <span class="mv-mob-icon">📼</span>
     <span class="mv-mob-lbl">Mixtapes</span>
@@ -559,10 +562,6 @@ AKTIVE BRUKERE:
   <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
     <span class="mv-mob-icon">📁</span>
     <span class="mv-mob-lbl">Album</span>
-  </button>
-  <button class="mv-mob-btn" data-mob-tab="docs" onclick="mvMobileTab('docs')">
-    <span class="mv-mob-icon">📝</span>
-    <span class="mv-mob-lbl">Docs</span>
   </button>
 </nav>
 
@@ -590,6 +589,15 @@ document.addEventListener('click', e => {
   const t = btn.dataset.tab;
   document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.mobTab === t));
+});
+// Publish the mini player's real height as a CSS var so the "+" FAB (mobile.css)
+// always sits above it instead of guessing a fixed height.
+window.addEventListener('load', () => {
+  const bp = document.getElementById('bottomPlayer');
+  if (!bp || !window.ResizeObserver) return;
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--mv-player-live-h', bp.offsetHeight + 'px');
+  }).observe(bp);
 });
 // On phones, land on the Hjem dashboard (it is now in the footer).
 window.addEventListener('load', () => {
@@ -899,7 +907,7 @@ window.addEventListener('load', () => {
   <script src="js/audio-compress.js?v=202605161400"></script>
   <script src="js/lock.js?v=202611140002"></script>
   <script src="js/pipeline.js?v=202606160002"></script>
-  <script src="js/lyriclab.js?v=202611140002"></script>
+  <script src="js/lyriclab.js?v=202611140005"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
   <script src="js/app.js?v=202611140002"></script>
@@ -908,9 +916,9 @@ window.addEventListener('load', () => {
   <script src="js/archive.js?v=202611140001"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
   <script src="js/changelog.js?v=202606210001"></script>
-  <script src="js/beats-tab.js?v=202609070001"></script>
+  <script src="js/beats-tab.js?v=202611140005"></script>
   <script src="js/supabase.js?v=202611140001"></script>
-  <script src="js/db.js?v=202611140001"></script>
+  <script src="js/db.js?v=202611140005"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
@@ -924,7 +932,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202611140002"></script>
   <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202611140001"></script>
+  <script src="js/docs.js?v=202611140005"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

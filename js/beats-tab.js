@@ -81,6 +81,7 @@
     const albums   = (typeof state !== 'undefined' ? state.albums   : window.state?.albums   || []).filter(a=>!a.archived);
     menu.innerHTML = `
       <button onclick="beatsTab.playBeat('${beatId}')">▶ Spill</button>
+      <button onclick="beatsTab.openLyricLab('${beatId}')">✍️ Åpne i Lyric Lab</button>
       ${admin ? `<button onclick="downloadBeat('${beatId}')">⬇ Last ned</button>` : ''}
       ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil</button>` : ''}
       ${admin ? `<button onclick="renameBeat('${beatId}')">✏️ Gi nytt navn</button>` : ''}
@@ -182,7 +183,7 @@
         <div class="beats-tab-header">
           <div class="beats-tab-title">
             <h1>Beats</h1>
-            <span class="beats-count">${total} sanger</span>
+            <span class="beats-count" aria-live="polite">${searchQ ? `${beats.length} av ${total}` : `${total} sanger`}</span>
           </div>
           <div class="beats-tab-controls">
             <div class="beats-search-wrap">
@@ -246,9 +247,9 @@
                 <span class="bl-date">${fmtDate(b.createdAt)}</span>
                 <span class="bl-dur">${fmtDur(b.duration)}</span>
                 <span class="bl-actions">
-                  <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill">▶</button>
-                  <button class="bl-star${b.favorite?' active':''}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}">★</button>
-                  <button class="bl-menu" onclick="event.stopPropagation();beatsTab.openDropdown('${b.id}',this)" title="Mer">⋯</button>
+                  <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill" aria-label="Spill ${esc(b.name)}">▶</button>
+                  <button class="bl-star${b.favorite?' active':''}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}">★</button>
+                  <button class="bl-menu" onclick="event.stopPropagation();beatsTab.openDropdown('${b.id}',this)" title="Mer" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
                 </span>
               </div>
             `;
@@ -304,7 +305,7 @@
         font-size: 13px; font-family: inherit; outline: none; width: 240px;
         transition: border-color .15s;
       }
-      .beats-search:focus { border-color: rgba(168,85,247,.5); background: rgba(168,85,247,.06); }
+      .beats-search:focus { border-color: var(--accent-line); background: var(--accent-soft); }
       .beats-search-clear {
         position: absolute; right: 10px; background: none; border: none;
         color: var(--muted); cursor: pointer; font-size: 12px; padding: 2px 4px;
@@ -435,7 +436,9 @@
         .bl-title { font-size: 15px; }
         .bl-row { cursor: pointer; }          /* tap the row to play */
         .bl-actions { gap: 6px; }
-        .bl-play { display: none; }           /* no play button — tap row instead */
+        /* Synlig spillknapp: radtrykk spiller fortsatt, men nå ser du det på forhånd */
+        .bl-play { display: flex; opacity: 1; width: 34px; height: 34px; font-size: 12px; }
+        .bl-title { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; }
         .bl-menu { width: 34px; height: 34px; }
         .bl-star { font-size: 18px; }
 
@@ -530,6 +533,7 @@
   // ── Public API ────────────────────────────────────────────────────────────
   window.beatsTab = { renderBeatsTab, onSearch, onSort, openDropdown, playBeat, toggleFav, swapAudio, archiveBeat, deleteBeat,
     renameBeat: (id) => window.renameBeat?.(id),
+    openLyricLab(id){ closeDropdown(); if(typeof window.openInLyricLab==='function') window.openInLyricLab(id); },
     shareLink(id){ closeDropdown(); if(typeof window.shareSong==='function') window.shareSong(id); },
     addToCollection(beatId, type, colId){
       const st = typeof state !== 'undefined' ? state : window.state;

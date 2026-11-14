@@ -300,7 +300,7 @@
       <div class="ll-rec-btns">
         <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten">🎙️ Take</button>
         <button class="ll-rec-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo">⬤ Memo</button>
-        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke">🌐 Del</button>
+        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne">🌐 Del lenke</button>
       </div>
       <details class="ll-rec-details">
         <summary>Takes <span class="ll-count-badge" id="llTakeCount"></span></summary>
@@ -323,7 +323,7 @@
       <div class="ll-editor-actions">
         <button class="ll-tool-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">🌊 Flow</button>
         <button class="ll-tool-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">💡 Inspirer</button>
-        <button class="ll-tool-btn" onclick="llShare()" title="Generer delbar demo-side">🔗 Del</button>
+        <button class="ll-tool-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke.">📄 Tekstark</button>
         <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
       </div>
     </div>
@@ -947,13 +947,19 @@
       return `<div class="ll-stat-title">Struktur</div>
         <div class="ll-struct-ok">✓ Alle hoveddeler er med</div>`;
     }
-    return `<div class="ll-stat-title">Mangler</div>
+    // Skill «finnes ikke» fra «finnes, men er tom»: llAddMissing hopper allerede
+    // til en tom seksjon av typen i stedet for å lage en duplikat.
+    const secs = getSections(beat) || [];
+    return `<div class="ll-stat-title">Mangler tekst</div>
       <div class="ll-missing-list">
-        ${missing.map(t=>`<button class="ll-missing-item" onclick="llAddMissing('${t}')">
+        ${missing.map(t=>{
+          const exists = secs.some(s => s.type === t);
+          const name = esc(TYPE_LABELS[t]||t);
+          return `<button class="ll-missing-item" onclick="llAddMissing('${t}')" aria-label="${exists ? `Gå til tom seksjon: ${name}` : `Legg til seksjon: ${name}`}">
           <span class="ll-missing-dot ll-type-${t}"></span>
-          <span class="ll-missing-name">${esc(TYPE_LABELS[t]||t)}</span>
-          <span class="ll-missing-add">+ legg til</span>
-        </button>`).join('')}
+          <span class="ll-missing-name">${name}</span>
+          <span class="ll-missing-add">${exists ? 'Tom – gå til' : '+ Legg til'}</span>
+        </button>`;}).join('')}
       </div>`;
   }
   function refreshMissing(beat) {
@@ -1847,7 +1853,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${beat.name}</title>
+<title>${esc(beat.name)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:#0d0c0b;color:#f4ede4;font-family:'Georgia',serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px}
@@ -1868,14 +1874,14 @@
 <div class="card">
   <div class="header">
     <div class="label">Demo</div>
-    <h1>${beat.name}</h1>
-    ${beat.source ? `<div class="meta">prod. ${beat.source}</div>` : ''}
-    ${audioUrl ? `<audio controls src="${audioUrl}"></audio>` : ''}
+    <h1>${esc(beat.name)}</h1>
+    ${beat.source ? `<div class="meta">prod. ${esc(beat.source)}</div>` : ''}
+    ${audioUrl ? `<audio controls src="${esc(audioUrl)}"></audio>` : ''}
   </div>
   <div class="lyrics">
     ${sections.filter(s=>s.text.trim()).map(s=>`
     <div class="section">
-      <div class="section-label">${s.title}</div>
+      <div class="section-label">${esc(s.title)}</div>
       <div class="text">${s.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
     </div>`).join('')}
   </div>
@@ -1888,7 +1894,7 @@
     const blob = new Blob([html], {type:'text/html'});
     const url  = URL.createObjectURL(blob);
     window.open(url, '_blank');
-    if(typeof showToast==='function') showToast('✓ Demo-side åpnet i ny fane');
+    if(typeof showToast==='function') showToast('✓ Tekstark åpnet i ny fane');
   };
 
 

@@ -68,7 +68,7 @@
     width: 100% !important;
     max-width: 100% !important;
     padding: 14px 12px
-             calc(var(--mv-footer-h) + var(--mv-mini-player-h) + var(--mv-safe-bottom) + 16px)
+             calc(var(--mv-footer-h) + var(--mv-player-live-h, var(--mv-mini-player-h)) + var(--mv-safe-bottom) + 16px)
              !important;
   }
   .tab-view { padding: 0 !important; }
@@ -114,7 +114,7 @@
   /* …except small fixed-size icon buttons: min-height stretched them into
      tall ovals (e.g. 30×44) while their width stayed put. */
   .mv-header .mv-hdr-icon-btn,
-  .bl-row .bl-menu, .bl-row .bl-star,
+  .bl-row .bl-menu, .bl-row .bl-star, .bl-row .bl-play,
   .star-btn, .cc-del, .fa-chip-delete, .r2-refresh-btn, .ab-raw-btn,
   .docs-new-btn, .docs-del-btn, .docs-toolbar button,
   .ll-section-done-btn { min-height: 0 !important; }
@@ -176,7 +176,10 @@
     display: flex !important;
     position: fixed !important;
     right: 16px !important;
-    bottom: calc(var(--mv-footer-h) + var(--mv-mini-player-h) + var(--mv-safe-bottom) + 10px) !important;
+    /* Uten spiller: rett over bunnmenyen. Med spiller: over spillerens FAKTISKE
+       høyde (--mv-player-live-h settes av en ResizeObserver i index.html) —
+       den faste 78px-antakelsen ga overlapp når tittelen/spilleren ble høyere. */
+    bottom: calc(var(--mv-footer-h) + var(--mv-safe-bottom) + 16px) !important;
     width: 54px !important; height: 54px !important;
     align-items: center !important;
     justify-content: center !important;
@@ -192,6 +195,10 @@
     transition: transform .15s !important;
   }
   #mvMobFab:active { transform: scale(.92) !important; }
+  body:has(.bottom-player.show) #mvMobFab {
+    bottom: calc(var(--mv-footer-h) + var(--mv-safe-bottom) + 8px
+                 + var(--mv-player-live-h, var(--mv-mini-player-h)) + 12px) !important;
+  }
 
   /* ── Mini bottom player: simplified Spotify-style bar ─────────────────────
      Two rows on phones: [cover + title] ....... [prev · play · next] on row 1,
@@ -232,7 +239,9 @@
 
   /* HJEM (dashboard) — phone redesign ------------------------------------
      Reflow with flex `order` so the desktop DOM/markup stays untouched:
-       1 greeting  2 shortcuts  3 flere sider  4 status cluster  5 rest.
+       1 greeting  2 fortsett der du slapp  3 shortcuts  4 flere sider
+       5 status cluster  6 rest. «Fortsett» står øverst: det er raskeste vei
+       tilbake i arbeid.
      The status cluster (Aktivitet/Varsler/Fremdrift = "hva bør du jobbe med")
      is lifted near the top; projects/last-beat/recent/comments follow. */
   /* align-items:stretch is essential: home.css sets align-items:start for the
@@ -244,7 +253,7 @@
     padding: 0 !important;          /* .app already provides the side gutter */
     row-gap: var(--sp-5) !important;
   }
-  .dash-inner > * { order: 5; }
+  .dash-inner > * { order: 6; }
 
   /* Fortsett der du slapp: buttons on their own row so the title gets room */
   .last-beat-card { flex-wrap: wrap !important; row-gap: var(--sp-3) !important; }
@@ -256,9 +265,10 @@
   .dash-beat-card { padding: var(--sp-2) 0 !important; }
   .dash-btn-play, .dash-btn-lab { padding: 0 var(--sp-2) !important; }
   .dash-greeting-row { order: 1 !important; display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 14px !important; }
-  .hjem-mobile-shortcuts { order: 2 !important; }
-  .hjem-mobile-more { order: 3 !important; }
-  .hjem-bottom-row { order: 4 !important; }
+  .dash-continue { order: 2 !important; }
+  .hjem-mobile-shortcuts { order: 3 !important; }
+  .hjem-mobile-more { order: 4 !important; }
+  .hjem-bottom-row { order: 5 !important; }
 
   /* Greeting quick-actions: full-width tap targets in a 2-up grid;
      "Ny sang" (accent) spans the full width on its own row. */
@@ -266,10 +276,10 @@
   .dq-btn { width: 100% !important; height: 44px !important; }
   .dq-btn.accent { grid-column: 1 / -1 !important; }
 
-  /* Primary shortcuts: Beats / Lyric Lab / Pipeline / Docs */
+  /* Snarveier: Lyric Lab / Pipeline / Docs (Beats ligger i bunnmenyen) */
   .hjem-mobile-shortcuts {
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 8px !important;
     margin: 0 !important;
   }

@@ -583,9 +583,9 @@ function renderDashboard(){
   const avgDone=allDemos.length?Math.round(allDemos.reduce((s,b)=>s+Number(b.done||0),0)/allDemos.length):0;
   if(sEl){
     sEl.innerHTML=`<div id="dashSubPills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">`+
-      `<span class="ds-pill">${beats.length} beats</span>`+
-      `<span class="ds-pill ds-accent">${albums.length} albumer</span>`+
-      `<span class="ds-pill ds-accent">${mixtapes.length} mixtapes</span>`+
+      `<span class="ds-pill">${beats.length} ${beats.length===1?'beat':'beats'}</span>`+
+      `<span class="ds-pill ds-accent">${albums.length} ${albums.length===1?'album':'albumer'}</span>`+
+      `<span class="ds-pill ds-accent">${mixtapes.length} ${mixtapes.length===1?'mixtape':'mixtapes'}</span>`+
       (noAudio.length?`<span class="ds-pill ds-warn" title="${noAudio.slice(0,3).map(b=>b.name).join(', ')}">${noAudio.length} uten lyd</span>`:'')+
       `<span class="ds-pill">${avgDone}% snitt ferdig</span></div>`;
   }
