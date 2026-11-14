@@ -222,7 +222,7 @@
               <span class="pl3-projchip-cover">${cover}</span>
               <span class="pl3-projchip-meta">
                 <span class="pl3-projchip-name">${esc(p.obj.name || 'Uten navn')}</span>
-                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album'} · ${avg}%</span>
+                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album'} · ${avg} % ferdig</span>
               </span>
             </button>`;
         }).join('')}
@@ -263,13 +263,13 @@
               <div class="pl3-ring" style="background:conic-gradient(${avgCol} ${m.avg*3.6}deg, rgba(255,255,255,.08) 0)">
                 <div class="pl3-ring-hole"><b style="color:${avgCol}">${m.avg}%</b></div>
               </div>
-              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
+              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av «Ferdig %» på hver låt</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric">
               <div class="pl3-ring" style="background:conic-gradient(${readyCol} ${r.pct*3.6}deg, rgba(255,255,255,.08) 0)">
                 <div class="pl3-ring-hole"><b style="color:${readyCol}">${r.pct}%</b></div>
               </div>
-              <div class="pl3-metric-lbl"><b>Release-klar</b><span>${r.passed} av ${r.total} krav oppfylt</span></div>
+              <div class="pl3-metric-lbl"><b>Release-klar</b><span>${r.passed} av ${r.total} krav i sjekklisten er oppfylt</span></div>
             </div>
           </div>
         </div>

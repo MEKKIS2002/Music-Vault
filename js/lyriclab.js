@@ -316,7 +316,8 @@
   <!-- CENTER: Editor -->
   <div class="ll-center">
     <div class="ll-editor-header">
-      <div class="ll-editor-progress">
+      <div class="ll-editor-progress" title="Hvor ferdig teksten er: seksjoner merket ferdig teller fullt, påbegynte delvis. Ikke det samme som «Ferdig %» på låten.">
+        <span class="ll-prog-lbl">Tekst</span>
         <div class="ll-progbar"><div class="ll-progbar-fill" id="llProgFill" style="width:${prog}%"></div></div>
         <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
       </div>

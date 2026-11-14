@@ -69,7 +69,7 @@ AKTIVE BRUKERE:
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=202611150001">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202611150001">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202611150002">
   <link rel="stylesheet" href="css/pipeline.css?v=202611150001">
   <link rel="stylesheet" href="css/main.css?v=202611150001">
   <link rel="stylesheet" href="css/ui.css?v=202611150001">
@@ -81,7 +81,7 @@ AKTIVE BRUKERE:
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202611150001">
+  <link rel="stylesheet" href="css/refine.css?v=202611150003">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611150001">
@@ -92,6 +92,7 @@ AKTIVE BRUKERE:
   body.pkg-label #deleteMixtapeBtn,
   body.pkg-label #archiveAlbumBtn,
   body.pkg-label #deleteAlbumBtn,
+  body.pkg-label .mv-proj-menu,
   body.pkg-label [onclick*="archiveCurrentCollection"],
   body.pkg-label [onclick*="deleteBeat"],
   body.pkg-label [onclick*="archiveBeat"],
@@ -412,8 +413,13 @@ AKTIVE BRUKERE:
           <option value="name">Navn A–Å</option>
         </select>
         <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
-        <button class="ghost-btn" id="archiveMixtapeBtn" onclick="archiveCurrentCollection('mixtape')">Arkiver mixtape</button>
-        <button class="small-btn danger mv-mob-hide" id="deleteMixtapeBtn">Slett mixtape</button>
+        <details class="mv-proj-menu">
+          <summary class="ghost-btn" aria-label="Flere valg for mixtapen">⋯ Prosjekt</summary>
+          <div class="mv-proj-menu-panel">
+            <button class="ghost-btn" id="archiveMixtapeBtn" onclick="archiveCurrentCollection('mixtape')">Arkiver mixtape</button>
+            <button class="small-btn danger mv-mob-hide" id="deleteMixtapeBtn">Slett mixtape</button>
+          </div>
+        </details>
         <div class="track-view-toggle" id="mixtapeViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
@@ -446,8 +452,13 @@ AKTIVE BRUKERE:
         <button class="primary-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
         <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
-        <button class="ghost-btn" id="archiveAlbumBtn" onclick="archiveCurrentCollection('album')">Arkiver album</button>
-        <button class="small-btn danger mv-mob-hide" id="deleteAlbumBtn">Slett album</button>
+        <details class="mv-proj-menu">
+          <summary class="ghost-btn" aria-label="Flere valg for albumet">⋯ Prosjekt</summary>
+          <div class="mv-proj-menu-panel">
+            <button class="ghost-btn" id="archiveAlbumBtn" onclick="archiveCurrentCollection('album')">Arkiver album</button>
+            <button class="small-btn danger mv-mob-hide" id="deleteAlbumBtn">Slett album</button>
+          </div>
+        </details>
         <div class="track-view-toggle" id="albumViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
@@ -589,6 +600,26 @@ document.addEventListener('click', e => {
   const t = btn.dataset.tab;
   document.querySelectorAll('.mv-mob-btn[data-mob-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.mobTab === t));
+});
+// «⋯ Prosjekt»-menyen (<details>): lukk etter et valg, ved klikk utenfor og på Escape.
+document.addEventListener('click', e => {
+  document.querySelectorAll('details.mv-proj-menu[open]').forEach(d => {
+    if (!d.contains(e.target) || e.target.closest('.mv-proj-menu-panel button')) d.open = false;
+  });
+});
+// Åpne mot venstre hvis panelet ellers går ut over høyre skjermkant (mobil).
+document.querySelectorAll('details.mv-proj-menu').forEach(d => d.addEventListener('toggle', () => {
+  if (!d.open) return;
+  d.classList.remove('mv-align-right');
+  const panel = d.querySelector('.mv-proj-menu-panel');
+  if (panel && panel.getBoundingClientRect().right > document.documentElement.clientWidth - 8) {
+    d.classList.add('mv-align-right');
+  }
+}));
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const d = document.querySelector('details.mv-proj-menu[open]');
+  if (d) { d.open = false; d.querySelector('summary')?.focus(); }
 });
 // Publish the mini player's real height as a CSS var so the "+" FAB (mobile.css)
 // always sits above it instead of guessing a fixed height.
@@ -906,8 +937,8 @@ window.addEventListener('load', () => {
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202605161400"></script>
   <script src="js/lock.js?v=202611140002"></script>
-  <script src="js/pipeline.js?v=202611150001"></script>
-  <script src="js/lyriclab.js?v=202611140005"></script>
+  <script src="js/pipeline.js?v=202611150002"></script>
+  <script src="js/lyriclab.js?v=202611150002"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
   <script src="js/app.js?v=202611150001"></script>
@@ -918,7 +949,7 @@ window.addEventListener('load', () => {
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202611140005"></script>
   <script src="js/supabase.js?v=202611140001"></script>
-  <script src="js/db.js?v=202611150001"></script>
+  <script src="js/db.js?v=202611150002"></script>
   <script src="js/mixtape-share.js?v=202611140006"></script>
 
     <!-- LYRIC LAB TAB -->
