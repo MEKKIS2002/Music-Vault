@@ -147,7 +147,11 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **`mixtape_shares` is owner-only** (since 2026-11-14): only `auth.uid() = owner_id` may
   select/insert/update/delete; recipients read ONLY via RPC `get_mixtape_share`. The old Worker
   share page read with the anon key and now 404s — don't "fix" that by re-adding a public read
-  policy (it would expose every share). `mixtape_likes` is still open (anyone can delete likes).
+  policy (it would expose every share).
+- **`mixtape_likes`:** `mixtape.html` uses ONLY the RPCs `get_mixtape_like_counts` /
+  `set_mixtape_like` (see `sql/mixtape_likes.sql`) — counts without session ids, and a session
+  can only add/remove its own like on a beat that is in an enabled share. Don't go back to
+  direct table reads/writes from the public page; the open policies are being removed.
 - **Windows line endings:** git warns LF→CRLF on these files; harmless, expected.
 - **Secrets:** `js/db.js` / `js/supabase.js` contain the Supabase **anon** key (public by
   design, RLS-protected). `.local.json` and `.env*` are gitignored — never commit
