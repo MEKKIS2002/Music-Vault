@@ -1474,7 +1474,7 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
   border-top: 1px solid var(--line);
 }
 .streak-num { font-size:var(--fs-xl); font-weight:900; color:#f4a443; letter-spacing:-.04em; }
-.streak-txt { font-size:var(--fs-xs); color:rgba(255,255,255,.35); }
+.streak-txt { font-size:var(--fs-xs); color:var(--faint); }
 
 /* Varsler: kompakt i kort */
 .smart-alert {
@@ -1731,7 +1731,7 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
   border-radius: 0 !important;
   background: none !important;
   box-shadow: none !important;
-  color: rgba(255,255,255,.4) !important;
+  color: var(--faint) !important;
   font-size:var(--fs-sm)!important;
   font-weight: 700 !important;
   letter-spacing: .02em !important;
@@ -1750,7 +1750,7 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
 .mv-more-wrap { position: relative; display: inline-flex; align-items: center; height: 100%; flex-shrink: 0; }
 .mv-more-btn {
   height: 58px; padding: 0 14px; border: none; border-bottom: 2px solid transparent;
-  background: none; color: rgba(255,255,255,.4); font-size:var(--fs-sm); font-weight: 700;
+  background: none; color: var(--faint); font-size:var(--fs-sm); font-weight: 700;
   letter-spacing: .02em; cursor: pointer; white-space: nowrap; font-family: inherit;
   display: inline-flex; align-items: center; gap: 5px; transition: color .15s, border-color .15s;
 }

@@ -248,7 +248,7 @@
               <div class="pl3-hero-kicker">${project.type === 'mixtape' ? 'MIXTAPE' : 'ALBUM'} · ${m.n} låt${m.n!==1?'er':''}</div>
               <div class="pl3-hero-title">${esc(a.name || 'Uten navn')}</div>
             </div>
-            <button class="pl3-iconbtn" title="Notater" onclick="plToggleNotes('${esc(project.ref)}')">📝</button>
+            <button class="pl3-iconbtn" title="Notater" aria-label="Notater" onclick="plToggleNotes('${esc(project.ref)}')">📝</button>
           </div>
 
           <div class="pl3-hero-statusrow">

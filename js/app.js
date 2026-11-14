@@ -315,7 +315,7 @@
       const sideDiv = beats.length>=4&&(i===0||i===mid)
         ? `<div class="side-label">${i===0?'A':'B'}-SIDE</div>` : '';
       const d=Number(b.duration||0), dStr=d>0?Math.floor(d/60)+':'+String(Math.floor(d%60)).padStart(2,'0'):'';
-      return sideDiv+`<div class="track-row" data-idx="${i}" onclick="playPreview(${i})">
+      return sideDiv+`<div class="track-row" data-idx="${i}" onclick="playPreview(${i})" role="button" tabindex="0" aria-label="Spill ${b.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playPreview(${i})}">
         <span class="track-num">${String(i+1).padStart(2,'0')}</span>
         <div class="track-play-icon">▶</div>
         <span class="track-name">${b.name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>

@@ -242,7 +242,7 @@
         <span class="r2-widget-icon">☁</span>
         <span class="r2-widget-title">R2 Lagring</span>
         <span class="r2-widget-status r2-status-ok">Tilkoblet</span>
-        <button class="r2-refresh-btn ghost-btn" onclick="window.r2StorageWidget.refresh()" title="Oppdater">↻</button>
+        <button class="r2-refresh-btn ghost-btn" onclick="window.r2StorageWidget.refresh()" title="Oppdater" aria-label="Oppdater lagringsstatus">↻</button>
       </div>
 
       <div class="r2-bar-wrap">
