@@ -11,7 +11,8 @@
     Self-contained on purpose: no app scripts, no auth. It only calls the
     token-gated RPC get_mixtape_share (see sql/mixtape_shares.sql), so it can
     never reach other mixtapes or user data. Audio streams from the public R2
-    /file endpoint. Likes are anonymous per browser session (mixtape_likes).
+    /file endpoint. Likes are anonymous per browser session, via the RPCs
+    get_mixtape_like_counts / set_mixtape_like (see sql/mixtape_likes.sql).
   -->
   <style>
     :root{
@@ -269,10 +270,20 @@
     window.addEventListener('resize', syncPlayerHeight);
 
     // ── Likes (anonymous, one per browser session) ──────────────────
+    // Only via RPCs: counts come back without session ids, and a session can
+    // only add/remove ITS OWN like on a track that is in this enabled share.
     function sessionId(){
       var s = sessionStorage.getItem('mv_sid');
-      if(!s){ s = Math.random().toString(36).slice(2); sessionStorage.setItem('mv_sid', s); }
+      if(!s || s.length < 8){
+        var buf = new Uint8Array(16); crypto.getRandomValues(buf);
+        s = Array.prototype.map.call(buf, function(n){ return (n%36).toString(36); }).join('');
+        sessionStorage.setItem('mv_sid', s);
+      }
       return s;
+    }
+    function rpc(name, args){
+      return fetch(SB_URL+'/rest/v1/rpc/'+name, { method:'POST', headers:HDR, body:JSON.stringify(args) })
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); });
     }
     var likedKey = 'mv_liked_' + token;
     var liked = {}; try{ liked = JSON.parse(sessionStorage.getItem(likedKey)||'{}'); }catch(e){}
@@ -282,27 +293,30 @@
       btn.textContent = (on ? '♥' : '♡') + (n>0 ? ' '+n : '');
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
+    function paintAll(){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-like]'), function(b){ paintLike(b, b.getAttribute('data-like')); });
+    }
     function loadLikes(){
-      fetch(SB_URL+'/rest/v1/mixtape_likes?mixtape_id=eq.'+encodeURIComponent(token)+'&select=beat_id', { headers:HDR })
-        .then(function(r){ return r.ok ? r.json() : []; })
+      rpc('get_mixtape_like_counts', { p_token:token })
         .then(function(list){
-          counts = {}; (list||[]).forEach(function(r){ counts[r.beat_id]=(counts[r.beat_id]||0)+1; });
-          Array.prototype.forEach.call(document.querySelectorAll('[data-like]'), function(b){ paintLike(b, b.getAttribute('data-like')); });
+          counts = {}; (list||[]).forEach(function(r){ counts[r.beat_id] = Number(r.likes)||0; });
+          paintAll();
         }).catch(function(){});
     }
     function toggleLike(id, btn){
       var on = !liked[id];
-      if(on){
-        liked[id]=true; counts[id]=(counts[id]||0)+1;
-        fetch(SB_URL+'/rest/v1/mixtape_likes', { method:'POST', headers:Object.assign({'Prefer':'return=minimal'},HDR),
-          body:JSON.stringify({ mixtape_id:token, beat_id:id, session_id:sessionId() }) }).catch(function(){});
-      } else {
-        delete liked[id]; counts[id]=Math.max(0,(counts[id]||0)-1);
-        fetch(SB_URL+'/rest/v1/mixtape_likes?mixtape_id=eq.'+encodeURIComponent(token)+'&beat_id=eq.'+encodeURIComponent(id)+'&session_id=eq.'+encodeURIComponent(sessionId()),
-          { method:'DELETE', headers:Object.assign({'Prefer':'return=minimal'},HDR) }).catch(function(){});
-      }
+      if(on) liked[id]=true; else delete liked[id];
+      counts[id] = Math.max(0, (counts[id]||0) + (on?1:-1));   // optimistic
       sessionStorage.setItem(likedKey, JSON.stringify(liked));
       paintLike(btn, id);
+      rpc('set_mixtape_like', { p_token:token, p_beat_id:id, p_session:sessionId(), p_liked:on })
+        .then(function(n){ counts[id] = Number(n)||0; paintLike(btn, id); })   // server count wins
+        .catch(function(){
+          if(on) delete liked[id]; else liked[id]=true;
+          counts[id] = Math.max(0, (counts[id]||0) + (on?-1:1));
+          sessionStorage.setItem(likedKey, JSON.stringify(liked));
+          paintLike(btn, id);
+        });
     }
 
     // ── Load ────────────────────────────────────────────────────────
