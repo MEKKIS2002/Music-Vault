@@ -234,6 +234,16 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
   padding:0 0 var(--sp-3) !important;
   margin:var(--sp-6) 0 var(--sp-3) !important;
 }
+/* …men selve sidetittelen (Mixtapes, Albumer, Album-pipeline …) er en ekte
+   overskrift, lik «Beats»: før arvet den etikett-stilen over (liten, grå, VERSALER). */
+.section-title h2{
+  font-size:var(--fs-xl) !important;
+  font-weight:900 !important;
+  letter-spacing:-.04em !important;
+  line-height:var(--lh-tight);
+  text-transform:none;
+  color:var(--text) !important;
+}
 .hint{ color:var(--muted); font-size:var(--fs-sm); }
 
 /* ── 12. Det som FAKTISK svever beholder skygge ────────────────────────── */
@@ -322,4 +332,14 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
 .album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded) .ab-cover-wrap::before,
 .album-beat-grid:not(.album-beat-listmode) .album-beat-card:not(.expanded)::after{
   content:none !important; display:none !important;
+}
+
+/* ── Tastaturfokus: én synlig ring overalt ──────────────────────────────
+   Flere eldre stilark fjerner outline. :focus-visible slår bare inn ved
+   tastatur (ikke museklikk), så dette endrer ingenting for musebrukere.
+   Tekstfelt har egen fokusmarkering og er holdt utenfor. */
+:where(button, a[href], [role="button"], [tabindex]:not([tabindex="-1"]), summary, select,
+       input[type="range"], input[type="checkbox"], input[type="radio"]):focus-visible{
+  outline:2px solid var(--accent2) !important;
+  outline-offset:2px !important;
 }

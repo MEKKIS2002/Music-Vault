@@ -157,7 +157,9 @@ function updateBottomUI(){
   const beat=bottomPlayer.queue[bottomPlayer.index];
   const active=!!beat||bottomPlayer.started;
   bar.classList.toggle("show",active);
-  document.getElementById("bpPlayBtn").textContent=bottomPlayer.audio.paused?"▶":"⏸";
+  const _bpBtn=document.getElementById("bpPlayBtn");
+  _bpBtn.textContent=bottomPlayer.audio.paused?"▶":"⏸";
+  _bpBtn.setAttribute("aria-label",bottomPlayer.audio.paused?"Spill av":"Pause");
   document.getElementById("bpTitle").textContent=beat?beat.name:"Ingen sang valgt";
   const ctx=bottomPlayer.context?`${bottomPlayer.context.label||"Spiller"}${bottomPlayer.queue.length>1?` · ${bottomPlayer.index+1}/${bottomPlayer.queue.length}`:""}`:"Beat";
   document.getElementById("bpSub").textContent=beat?ctx:"Trykk play på en beat, et album eller en mixtape";
@@ -698,7 +700,7 @@ function renderBeats(container,beats,albumMode){
           <strong>${esc(b.name)}</strong>
           <span>${b.lyrics?.trim()?"✏️ Tekst lagret":"Ingen tekst"} · ${esc(b.source||"URL")}</span>
         </div>
-        <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt">★</button>
+        <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt">★</button>
         <span class="expand-arrow">▾</span>
       </div>
       <div class="beat-expand">
@@ -742,7 +744,7 @@ function copyBeatLyrics(id){const b=state.beats.find(x=>x.id===id);if(b)navigato
 function toggleFav(id,btn){
   const b=state.beats.find(x=>x.id===id);if(!b)return;
   b.favorite=!b.favorite;saveState();
-  document.querySelectorAll(`[data-fav-id="${id}"]`).forEach(el=>el.classList.toggle("active",!!b.favorite));
+  document.querySelectorAll(`[data-fav-id="${id}"]`).forEach(el=>{el.classList.toggle("active",!!b.favorite);el.setAttribute("aria-pressed",b.favorite?"true":"false");});
   if(btn)btn.classList.toggle("active",!!b.favorite);
   renderStats();
   showToast(b.favorite?"★ Lagt til som favoritt":"☆ Fjernet fra favoritter");
@@ -801,9 +803,9 @@ function renderAlbums(){
       <div class="album-info">
         <strong>${esc(a.name)}</strong>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
-          <span style="font-size:11px;color:rgba(255,255,255,.45)">${n} sang${n===1?'':'er'}</span>
-          ${(()=>{const totalSec=(a.beatIds||[]).reduce((s,id)=>{const b=state.beats.find(x=>x.id===id);return s+(b&&!b.archived?Number(b.duration||0):0);},0);const m=Math.floor(totalSec/60),sec=Math.floor(totalSec%60);return totalSec>0?`<span style="font-size:11px;color:rgba(255,255,255,.3)">•</span><span style="font-size:11px;color:rgba(255,255,255,.35)">${m}:${String(sec).padStart(2,'0')}</span>`:'';})()}
-          ${(()=>{const STATUS_COLORS={'Idé':'rgba(168,85,247,.6)','Skriving':'rgba(96,165,250,.6)','Innspilling':'rgba(249,115,22,.7)','Mixing':'rgba(244,164,67,.7)','Ferdig':'rgba(52,211,153,.7)'};const s=a.status||'Idé';const c=STATUS_COLORS[s]||'rgba(255,255,255,.3)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
+          <span style="font-size:11px;color:var(--muted)">${n} sang${n===1?'':'er'}</span>
+          ${(()=>{const totalSec=(a.beatIds||[]).reduce((s,id)=>{const b=state.beats.find(x=>x.id===id);return s+(b&&!b.archived?Number(b.duration||0):0);},0);const m=Math.floor(totalSec/60),sec=Math.floor(totalSec%60);return totalSec>0?`<span style="font-size:11px;color:var(--faint)">•</span><span style="font-size:11px;color:var(--muted)">${m}:${String(sec).padStart(2,'0')}</span>`:'';})()}
+          ${(()=>{const STATUS_COLORS={'Idé':'rgba(168,85,247,.6)','Skriving':'rgba(96,165,250,.6)','Innspilling':'rgba(249,115,22,.7)','Mixing':'rgba(244,164,67,.7)','Ferdig':'rgba(52,211,153,.7)'};const s=a.status||'Idé';const c=STATUS_COLORS[s]||'rgba(244,237,228,.7)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
         </div>
       </div>
       <button class="small-btn" style="margin-top:8px;padding:7px 12px" onclick="event.stopPropagation();playAlbumFromStart('${a.id}')">▶ Spill</button>
@@ -1034,7 +1036,7 @@ function renderAlbumBeats(beats,mode,customEl){
     if(isProducerUser()&&listMode==="mixtape"){
       return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}">
         <div class="ab-top">
-          <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')">${coverHtml}</div>
+          <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlbumBeat('${b.id}')}" aria-label="Vis detaljer: ${esc(b.name)}">${coverHtml}</div>
           <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
@@ -1058,7 +1060,7 @@ function renderAlbumBeats(beats,mode,customEl){
     const coverDragAttrs=canDrag?`draggable="true" ondragstart="startCollectionDrag(event,'${b.id}','${listMode}')" ondragend="endCollectionDrag()"`:"";
     return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}" ${dropAttrs} style="user-select:none;-webkit-user-select:none">
       <div class="ab-top">
-        <div class="ab-cover-wrap" ${coverDragAttrs} onclick="toggleAlbumBeat('${b.id}')">
+        <div class="ab-cover-wrap" ${coverDragAttrs} onclick="toggleAlbumBeat('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlbumBeat('${b.id}')}" aria-label="Vis detaljer: ${esc(b.name)}">
           ${coverHtml}
         </div>
         <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
@@ -1071,11 +1073,11 @@ function renderAlbumBeats(beats,mode,customEl){
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#fb7185;display:block;margin-right:2px"></span>'; return ''; })()}
-              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
-              <button class="ab-share-btn" onclick="event.stopPropagation();shareSong('${b.id}')" title="Del offentlig lenke" style="width:24px;height:24px;background:none;border:none;color:rgba(244,164,67,.7);font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">🔗</button>
-              <button class="ab-rename-btn" onclick="event.stopPropagation();renameBeatInline('${b.id}')" title="Gi nytt navn" style="width:24px;height:24px;background:none;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#9998;</button>
-              <button class="ab-remove-btn" onclick="event.stopPropagation();removeFromCollection('${b.id}','${listMode}')" title="Fjern" style="width:24px;height:24px;background:none;border:none;color:rgba(251,113,133,.4);font-size:13px;font-weight:900;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#215;</button>
-              <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" style="width:24px;height:24px;font-size:18px;padding:0;flex-shrink:0;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9733;</button>
+              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
+              <button class="ab-share-btn" onclick="event.stopPropagation();shareSong('${b.id}')" title="Del offentlig lenke" aria-label="Del offentlig lenke: ${esc(b.name)}" style="width:24px;height:24px;background:none;border:none;color:rgba(244,164,67,.7);font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">🔗</button>
+              <button class="ab-rename-btn" onclick="event.stopPropagation();renameBeatInline('${b.id}')" title="Gi nytt navn" aria-label="Gi nytt navn: ${esc(b.name)}" style="width:24px;height:24px;background:none;border:none;color:rgba(255,255,255,.4);font-size:14px;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#9998;</button>
+              <button class="ab-remove-btn" onclick="event.stopPropagation();removeFromCollection('${b.id}','${listMode}')" title="Fjern" aria-label="Fjern fra samlingen: ${esc(b.name)}" style="width:24px;height:24px;background:none;border:none;color:rgba(251,113,133,.4);font-size:13px;font-weight:900;cursor:pointer;flex-shrink:0;padding:0;opacity:0;transition:opacity .15s;border-radius:4px;display:flex;align-items:center;justify-content:center">&#215;</button>
+              <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" style="width:24px;height:24px;font-size:18px;padding:0;flex-shrink:0;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">&#9733;</button>
             </div>
           </div>
           <div class="ab-stars" onclick="event.stopPropagation()">${stars}</div>
@@ -1089,7 +1091,7 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-expand-top-bar">
           <div id="au-wrap-${b.id}" style="display:flex;align-items:center;gap:8px;width:100%">
             <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')">▶ Spill</button>
-            <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#f4a443':'rgba(255,255,255,.25)'}">★</button>
+            <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#f4a443':'rgba(255,255,255,.25)'}">★</button>
             <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(251,113,133,.15);color:#fb7185;border:1px solid rgba(251,113,133,.3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>
           <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
@@ -1258,8 +1260,8 @@ window.renderCollectionComments = async function(type, id) {
   try{const r=await fetch(`${SBU}/rest/v1/pitch_comments?album_id=eq.${id}&order=created_at.asc&select=*`,{headers:hdrs});if(r.ok)pitchComments=await r.json();}catch(e){}
   try{const r=await fetch(`${SBU}/rest/v1/notifications?content_id=eq.${id}&type=eq.label_comment&order=created_at.asc&select=*`,{headers:hdrs});if(r.ok)labelComments=await r.json();}catch(e){}
   const all=[
-    ...pitchComments.map(c=>{const initials=(c.author||'?').slice(0,2).toUpperCase();const dt=new Date(c.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===c.sender_id;return `<div class="cc-item" id="cc-${c.id}"><div class="cc-avatar">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(c.author||'Anonym')}</span><span class="cc-tag cc-tag-pitch">Pitch</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" onclick="deleteCollectionComment('pitch','${c.id}','${type}','${id}')">&#215;</button>`:''}</div><div class="cc-text">${esc(c.comment||'')}</div></div></div>`}),
-    ...labelComments.map(n=>{const author=n.content_name||'Label';const initials=author.slice(0,2).toUpperCase();const dt=new Date(n.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===n.recipient_id||uid===n.sender_id;return `<div class="cc-item" id="cc-${n.id}"><div class="cc-avatar cc-avatar-label">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(author)}</span><span class="cc-tag cc-tag-label">Label</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" onclick="deleteCollectionComment('notification','${n.id}','${type}','${id}')">&#215;</button>`:''}</div></div></div>`})
+    ...pitchComments.map(c=>{const initials=(c.author||'?').slice(0,2).toUpperCase();const dt=new Date(c.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===c.sender_id;return `<div class="cc-item" id="cc-${c.id}"><div class="cc-avatar">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(c.author||'Anonym')}</span><span class="cc-tag cc-tag-pitch">Pitch</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" aria-label="Slett kommentar" title="Slett kommentar" onclick="deleteCollectionComment('pitch','${c.id}','${type}','${id}')">&#215;</button>`:''}</div><div class="cc-text">${esc(c.comment||'')}</div></div></div>`}),
+    ...labelComments.map(n=>{const author=n.content_name||'Label';const initials=author.slice(0,2).toUpperCase();const dt=new Date(n.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===n.recipient_id||uid===n.sender_id;return `<div class="cc-item" id="cc-${n.id}"><div class="cc-avatar cc-avatar-label">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(author)}</span><span class="cc-tag cc-tag-label">Label</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" aria-label="Slett kommentar" title="Slett kommentar" onclick="deleteCollectionComment('notification','${n.id}','${type}','${id}')">&#215;</button>`:''}</div></div></div>`})
   ];
   el.innerHTML=`<div class="cc-wrap"><div class="cc-title">&#128172; Kommentarer ${all.length?'<span class="cc-count">'+all.length+'</span>':''}</div><div class="cc-list">${all.length?all.join(''):'<div class="cc-empty">Ingen kommentarer enn\u00e5.</div>'}</div></div>`;
 };
@@ -1603,7 +1605,7 @@ function renderMixtapeDetail(){
       </div>
       <div class="mixtape-detail-copy">
         <div class="mixtape-detail-kicker">Mixtape</div>
-        <h2 style="display:flex;align-items:center;gap:8px">${esc(mt.name)}<button onclick="renameMixtape('${mt.id}')" title="Gi nytt navn" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;opacity:.7;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">✏️</button></h2>
+        <h2 style="display:flex;align-items:center;gap:8px">${esc(mt.name)}<button onclick="renameMixtape('${mt.id}')" title="Gi nytt navn" aria-label="Gi nytt navn til mixtapen" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;opacity:.7;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">✏️</button></h2>
         <span style="color:var(--muted);font-size:13px">${(()=>{const n=(mt.beatIds||[]).filter(id=>{const b=state.beats.find(x=>x.id===id);return b&&!b.archived;}).length;return n+' beat'+(n===1?'':'s');})()}</span>
         <div id="mixtapeNowPlaying" class="hint" style="margin-top:6px"></div>
       </div>
@@ -2111,7 +2113,7 @@ function showRenameModal(label, currentName, onSave) {
       <div class="modal-card modal-sm" style="max-width:380px">
         <div class="modal-hd">
           <div class="modal-hd-left"><h2 id="mvRenameTitle">Gi nytt navn</h2></div>
-          <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('mvRenameModal')">×</button></div>
+          <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('mvRenameModal')" aria-label="Lukk">×</button></div>
         </div>
         <div class="modal-body" style="padding:22px 28px 28px;display:grid;gap:14px">
           <input id="mvRenameInput" class="text-input" style="font-size:15px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box" />

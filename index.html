@@ -68,24 +68,24 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202611140002">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202611140002">
-  <link rel="stylesheet" href="css/pipeline.css?v=202611140002">
-  <link rel="stylesheet" href="css/main.css?v=202611140002">
-  <link rel="stylesheet" href="css/ui.css?v=202611140002">
-  <link rel="stylesheet" href="css/track-cards.css?v=202611140002">
-  <link rel="stylesheet" href="css/archive.css?v=202611140002">
-  <link rel="stylesheet" href="css/mixtape.css?v=202611140002">
-  <link rel="stylesheet" href="css/docs.css?v=202611140002">
-  <link rel="stylesheet" href="css/player.css?v=202611140002">
+  <link rel="stylesheet" href="css/tokens.css?v=202611150001">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202611150001">
+  <link rel="stylesheet" href="css/pipeline.css?v=202611150001">
+  <link rel="stylesheet" href="css/main.css?v=202611150001">
+  <link rel="stylesheet" href="css/ui.css?v=202611150001">
+  <link rel="stylesheet" href="css/track-cards.css?v=202611150001">
+  <link rel="stylesheet" href="css/archive.css?v=202611150001">
+  <link rel="stylesheet" href="css/mixtape.css?v=202611150001">
+  <link rel="stylesheet" href="css/docs.css?v=202611150001">
+  <link rel="stylesheet" href="css/player.css?v=202611150001">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202611140004">
+  <link rel="stylesheet" href="css/refine.css?v=202611150001">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
-  <link rel="stylesheet" href="css/home.css?v=202611140002">
-  <link rel="stylesheet" href="css/mobile.css?v=202611140005">
+  <link rel="stylesheet" href="css/home.css?v=202611150001">
+  <link rel="stylesheet" href="css/mobile.css?v=202611150001">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -617,20 +617,20 @@ window.addEventListener('load', () => {
   </div>
   <div class="bp-center">
     <div class="bp-controls">
-      <button class="bp-btn" onclick="bottomPrev()" title="Forrige">⏮</button>
-      <button id="bpPlayBtn" class="bp-btn bp-play" onclick="bottomTogglePlay()" title="Play / pause">▶</button>
-      <button class="bp-btn" onclick="bottomNext()" title="Neste">⏭</button>
+      <button class="bp-btn" onclick="bottomPrev()" title="Forrige" aria-label="Forrige spor">⏮</button>
+      <button id="bpPlayBtn" class="bp-btn bp-play" onclick="bottomTogglePlay()" title="Spill av / pause" aria-label="Spill av">▶</button>
+      <button class="bp-btn" onclick="bottomNext()" title="Neste" aria-label="Neste spor">⏭</button>
     </div>
     <div class="bp-progress">
       <span id="bpCurrent" class="bp-time">0:00</span>
-      <input id="bpSeek" class="bp-seek" type="range" min="0" max="1000" value="0" oninput="bottomSeek(this.value)" />
+      <input id="bpSeek" class="bp-seek" aria-label="Posisjon i sporet" type="range" min="0" max="1000" value="0" oninput="bottomSeek(this.value)" />
       <span id="bpDuration" class="bp-time">0:00</span>
     </div>
   </div>
   <div class="bp-actions">
     <span style="color:var(--muted);font-size:15px">🔊</span>
-    <input id="bpVolume" class="bp-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="bottomSetVolume(this.value)" />
-    <button class="bp-btn bp-close" onclick="bottomStop()" title="Stopp og lukk">✕</button>
+    <input id="bpVolume" class="bp-vol" aria-label="Volum" type="range" min="0" max="1" step="0.01" value="1" oninput="bottomSetVolume(this.value)" />
+    <button class="bp-btn bp-close" onclick="bottomStop()" title="Stopp og lukk" aria-label="Stopp og lukk spilleren">✕</button>
   </div>
 </div>
 
@@ -647,7 +647,7 @@ window.addEventListener('load', () => {
           <div class="modal-score-num" id="editModalScore">—</div>
           <div class="modal-score-lbl">Release Score</div>
         </div>
-        <button class="close-btn" id="closeModalBtn">×</button>
+        <button class="close-btn" id="closeModalBtn" aria-label="Lukk">×</button>
       </div>
     </div>
     <div class="modal-tabs">
@@ -708,7 +708,7 @@ window.addEventListener('load', () => {
   <div class="modal-card modal-sm">
     <div class="modal-hd">
       <div class="modal-hd-left"><h2>Nytt album</h2></div>
-      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('newAlbumModal')">×</button></div>
+      <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('newAlbumModal')">×</button></div>
     </div>
     <div style="padding:22px 28px 28px;display:grid;gap:14px">
       <div class="input-group"><label>Albumnavn</label><input id="newAlbumName" placeholder="F.eks. Noe som får deg opp om morran" /></div>
@@ -729,7 +729,7 @@ window.addEventListener('load', () => {
   <div class="modal-card modal-sm">
     <div class="modal-hd">
       <div class="modal-hd-left"><h2>Legg til beats</h2></div>
-      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('addBeatsModal')">×</button></div>
+      <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('addBeatsModal')">×</button></div>
     </div>
     <div style="padding:22px 28px 28px;display:grid;gap:14px">
       <p class="hint">Velg beats du vil legge til i albumet.</p>
@@ -745,7 +745,7 @@ window.addEventListener('load', () => {
   <div class="modal-card modal-sm">
     <div class="modal-hd">
       <div class="modal-hd-left"><h2>Ny mixtape</h2></div>
-      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('newMixtapeModal')">×</button></div>
+      <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('newMixtapeModal')">×</button></div>
     </div>
     <div style="padding:22px 28px 28px;display:grid;gap:14px">
       <div class="input-group"><label>Mixtape-navn</label><input id="newMixtapeName" placeholder="F.eks. Late Night Sessions" /></div>
@@ -767,7 +767,7 @@ window.addEventListener('load', () => {
   <div class="modal-card modal-sm">
     <div class="modal-hd">
       <div class="modal-hd-left"><h2>Legg til beats</h2></div>
-      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('addBeatsToMixtapeModal')">×</button></div>
+      <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('addBeatsToMixtapeModal')">×</button></div>
     </div>
     <div style="padding:22px 28px 28px;display:grid;gap:14px">
       <p class="hint">Velg beats du vil legge til i mixtapen.</p>
@@ -783,7 +783,7 @@ window.addEventListener('load', () => {
   <div class="modal-card modal-sm" style="max-width:400px">
     <div class="modal-hd">
       <div class="modal-hd-left"><h2 id="deleteConfirmTitle" style="font-size:16px;color:#fb7185">Bekreft sletting</h2></div>
-      <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('deleteConfirmModal')">×</button></div>
+      <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('deleteConfirmModal')">×</button></div>
     </div>
     <div style="padding:20px 28px 26px;display:grid;gap:14px">
       <p class="hint" id="deleteConfirmMsg" style="font-size:14px;line-height:1.6"></p>
@@ -906,19 +906,19 @@ window.addEventListener('load', () => {
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202605161400"></script>
   <script src="js/lock.js?v=202611140002"></script>
-  <script src="js/pipeline.js?v=202606160002"></script>
+  <script src="js/pipeline.js?v=202611150001"></script>
   <script src="js/lyriclab.js?v=202611140005"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
-  <script src="js/app.js?v=202611140002"></script>
+  <script src="js/app.js?v=202611150001"></script>
   <script src="js/track-cards.js?v=202607020002"></script>
-  <script src="js/r2-storage.js?v=202606230010"></script>
-  <script src="js/archive.js?v=202611140001"></script>
+  <script src="js/r2-storage.js?v=202611150001"></script>
+  <script src="js/archive.js?v=202611150001"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
   <script src="js/changelog.js?v=202606210001"></script>
   <script src="js/beats-tab.js?v=202611140005"></script>
   <script src="js/supabase.js?v=202611140001"></script>
-  <script src="js/db.js?v=202611140006"></script>
+  <script src="js/db.js?v=202611150001"></script>
   <script src="js/mixtape-share.js?v=202611140006"></script>
 
     <!-- LYRIC LAB TAB -->
@@ -933,7 +933,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202611140002"></script>
   <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202611140005"></script>
+  <script src="js/docs.js?v=202611150001"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

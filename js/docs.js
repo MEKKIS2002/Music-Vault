@@ -129,7 +129,7 @@
     if(!_docs.length){
       shell(`<aside class="docs-sidebar">
           <div class="docs-side-hd"><span>Dokumenter</span>
-            <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument">＋</button></div>
+            <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument" aria-label="Nytt dokument">＋</button></div>
           <div id="docsList" class="docs-list"></div>
         </aside>
         <section class="docs-editor docs-editor-empty">
@@ -141,7 +141,7 @@
     shell(`
       <aside class="docs-sidebar">
         <div class="docs-side-hd"><span>Dokumenter</span>
-          <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument">＋</button></div>
+          <button class="docs-new-btn" onclick="window.docsNew()" title="Nytt dokument" aria-label="Nytt dokument">＋</button></div>
         <div class="docs-search-wrap">
           <input id="docsSearch" class="docs-search" placeholder="Søk i dokumenter…" oninput="window.docsFilter(this.value)">
         </div>
@@ -175,26 +175,26 @@
       <div class="docs-ed-bar">
         <input id="docsTitle" class="docs-ed-title" value="${esc(doc.title||'')}" placeholder="Uten tittel" spellcheck="false">
         <span id="docsSaveState" class="docs-save-state"></span>
-        <button class="docs-del-btn" onclick="window.docsDelete('${doc.id}')" title="Slett dokument">🗑</button>
+        <button class="docs-del-btn" onclick="window.docsDelete('${doc.id}')" title="Slett dokument" aria-label="Slett dokument">🗑</button>
       </div>
-      <div class="docs-toolbar" id="docsToolbar">
-        <button data-cmd="bold" title="Fet (Ctrl+B)"><b>B</b></button>
-        <button data-cmd="italic" title="Kursiv (Ctrl+I)"><i>I</i></button>
+      <div class="docs-toolbar" id="docsToolbar" role="toolbar" aria-label="Formatering">
+        <button data-cmd="bold" title="Fet (Ctrl+B)" aria-label="Fet"><b>B</b></button>
+        <button data-cmd="italic" title="Kursiv (Ctrl+I)" aria-label="Kursiv"><i>I</i></button>
         <span class="docs-tb-sep"></span>
-        <button data-block="h1" title="Overskrift 1">H1</button>
-        <button data-block="h2" title="Overskrift 2">H2</button>
-        <button data-block="p" title="Vanlig tekst">¶</button>
+        <button data-block="h1" title="Overskrift 1" aria-label="Overskrift 1">H1</button>
+        <button data-block="h2" title="Overskrift 2" aria-label="Overskrift 2">H2</button>
+        <button data-block="p" title="Vanlig tekst" aria-label="Vanlig tekst">¶</button>
         <span class="docs-tb-sep"></span>
-        <button data-cmd="insertUnorderedList" title="Punktliste">•</button>
-        <button data-cmd="insertOrderedList" title="Nummerert liste">1.</button>
+        <button data-cmd="insertUnorderedList" title="Punktliste" aria-label="Punktliste">•</button>
+        <button data-cmd="insertOrderedList" title="Nummerert liste" aria-label="Nummerert liste">1.</button>
         <span class="docs-tb-sep"></span>
-        <button class="docs-hl-btn" data-hl="#f59e0b" style="background:#f59e0b" title="Uthev gul"></button>
-        <button class="docs-hl-btn" data-hl="#10b981" style="background:#10b981" title="Uthev grønn"></button>
-        <button class="docs-hl-btn" data-hl="#3b82f6" style="background:#3b82f6" title="Uthev blå"></button>
-        <button class="docs-hl-btn" data-hl="#ec4899" style="background:#ec4899" title="Uthev rosa"></button>
-        <button class="docs-hl-btn" data-hl="#ef4444" style="background:#ef4444" title="Uthev rød"></button>
-        <button class="docs-hl-btn" data-hl="#a855f7" style="background:#a855f7" title="Uthev lilla"></button>
-        <button class="docs-hl-btn docs-hl-clear" data-hl="" title="Fjern uthevning">✕</button>
+        <button class="docs-hl-btn" data-hl="#f59e0b" style="background:#f59e0b" title="Uthev gul" aria-label="Uthev gul"></button>
+        <button class="docs-hl-btn" data-hl="#10b981" style="background:#10b981" title="Uthev grønn" aria-label="Uthev grønn"></button>
+        <button class="docs-hl-btn" data-hl="#3b82f6" style="background:#3b82f6" title="Uthev blå" aria-label="Uthev blå"></button>
+        <button class="docs-hl-btn" data-hl="#ec4899" style="background:#ec4899" title="Uthev rosa" aria-label="Uthev rosa"></button>
+        <button class="docs-hl-btn" data-hl="#ef4444" style="background:#ef4444" title="Uthev rød" aria-label="Uthev rød"></button>
+        <button class="docs-hl-btn" data-hl="#a855f7" style="background:#a855f7" title="Uthev lilla" aria-label="Uthev lilla"></button>
+        <button class="docs-hl-btn docs-hl-clear" data-hl="" title="Fjern uthevning" aria-label="Fjern uthevning">✕</button>
       </div>
       <div id="docsBody" class="docs-ed-body" contenteditable="true" spellcheck="true" data-placeholder="Skriv her…">${doc.content||''}</div>`;
 
