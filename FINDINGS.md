@@ -138,12 +138,14 @@ server, no install. UI language is **Norwegian** — match it in any user-facing
 - **Collection song-reorder drag handle:** drag starts from the whole `.album-beat-card` row;
   `startCollectionDrag` (`js/db.js`) only blocks it over interactive controls. Don't re-narrow it
   back to `.ab-cover-wrap` (that thumbnail also click-toggles expand → felt broken).
-- **`app.js` dies at load (~line 752, «state is not defined"):** it is loaded BEFORE `db.js`
-  (which defines `state`), so an IIFE that touches `state` throws and **everything after it in
-  app.js never runs in production** (hoisted `function` declarations still exist; `window.x = …`
-  assignments and listeners after that point do not). Don't add new features at the end of
-  app.js — put them in their own file loaded after `db.js` (see `js/mixtape-share.js`). Fixing
-  the crash would suddenly activate ~650 lines of dormant code: do it deliberately, with testing.
+- **`app.js` is loaded BEFORE `db.js`**, so `state` does not exist while app.js runs. Until
+  2026-11-15 an archive IIFE called `ensureArchiveData()` at load → ReferenceError → the last
+  ~410 lines (notifications, an old share modal, old mixtape pitch) never ran. That dead code was
+  removed/moved (`js/notifications.js`, `mvShare` in db.js, `js/mixtape-share.js`) and app.js no
+  longer throws. Rule: never touch `state` at the top level of app.js (only inside functions
+  called later); put new features in their own file loaded after `db.js`.
+- **Notifications** (`js/notifications.js`) must load after `db.js` and BEFORE `label.js` —
+  label.js patches `window.openNotifPanel` at load time.
 - **`mixtape_shares` is owner-only** (since 2026-11-14): only `auth.uid() = owner_id` may
   select/insert/update/delete; recipients read ONLY via RPC `get_mixtape_share`. The old Worker
   share page read with the anon key and now 404s — don't "fix" that by re-adding a public read
