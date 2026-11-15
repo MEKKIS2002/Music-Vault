@@ -1191,6 +1191,12 @@ window.mvTapPlay=function(e,id,kind){
 // ══════════════════════════════════════════════════════════════════════════════
 // mvShare — standalone share modal (reads data-share="type|id|name")
 // ══════════════════════════════════════════════════════════════════════════════
+// Låt-id-ene i et album/en mixtape (fra lokal state), eller [] for en enkelt låt.
+function _mvSMcollectionBeatIds(type,id){
+  const st=typeof state!=='undefined'?state:window.state;
+  const col=type==='album'?(st?.albums||[]).find(a=>String(a.id)===String(id)):type==='mixtape'?(st?.mixtapes||[]).find(m=>String(m.id)===String(id)):null;
+  return col?(col.beatIds||[]).slice():[];
+}
 window.mvShare = async function(btn) {
   const raw = btn.dataset.share || '';
   const i1 = raw.indexOf('|'), i2 = raw.indexOf('|', i1+1);
@@ -1219,7 +1225,7 @@ window.mvShare = async function(btn) {
   }catch(e){}
   const typeLabel={beat:'Beat',album:'Album',mixtape:'Mixtape'}[contentType]||contentType;
   const existHTML=existing.length
-    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;font-weight:700;color:#f4ede4;flex:1">\uD83D\uDC64 ${names[r.grantee_id]||r.grantee_id}</span><span style="font-size:11px;color:rgba(255,255,255,.4)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span></div>`).join('')
+    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;font-weight:700;color:#f4ede4;flex:1">\uD83D\uDC64 ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgba(251,113,133,.3);color:#fb7185;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
     :'<p style="font-size:12px;color:rgba(255,255,255,.3);margin:0">Ingen har tilgang</p>';
   let modal=document.getElementById('_mvSM');
   if(!modal){modal=document.createElement('div');modal.id='_mvSM';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});document.body.appendChild(modal);}
@@ -1230,7 +1236,8 @@ window.mvShare = async function(btn) {
         <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4ede4">Del ${typeLabel}</h2>
         <button onclick="document.getElementById('_mvSM').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
       </div>
-      <p style="font-size:12px;color:rgba(255,255,255,.35);margin:0 0 18px">${contentName}</p>
+      <p style="font-size:12px;color:var(--faint);margin:0 0 6px">${esc(contentName)}</p>
+      <p style="font-size:12px;color:var(--faint);margin:0 0 18px;line-height:1.5">Gir en annen Music Vault-bruker tilgang i appen${contentType!=='beat'?' — til samlingen og låtene i den':''}. «Kan se» kan lytte; «Kan redigere» kan også endre. Mottakeren får et varsel.</p>
       <div style="display:grid;gap:10px">
         <input id="_mvSM_u" placeholder="Brukernavn"
           style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4ede4;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;border-radius:8px;width:100%;box-sizing:border-box"
@@ -1247,7 +1254,8 @@ window.mvShare = async function(btn) {
       </div>
     </div>`;
   window._mvSMdo=async function(){
-    const username=(document.getElementById('_mvSM_u')?.value||'').trim().toLowerCase();
+    // Ikke gjør om til små bokstaver: brukernavn slås opp eksakt (f.eks. «Bounceprovida Records»).
+    const username=(document.getElementById('_mvSM_u')?.value||'').trim();
     const role=document.getElementById('_mvSM_r')?.value||'viewer';
     const statusEl=document.getElementById('_mvSM_s');
     if(!username){if(statusEl)statusEl.textContent='Skriv inn brukernavn';return;}
@@ -1261,10 +1269,42 @@ window.mvShare = async function(btn) {
       const body=JSON.stringify({owner_id:uid,grantee_id:granteeId,content_type:contentType,content_id:contentId,role,content_name:contentName});
       const res=await fetch(`${SBU}/rest/v1/content_access`,{method:'POST',headers:{...hdrs,'Prefer':'resolution=merge-duplicates'},body});
       if(!res.ok){const err=await res.text();if(statusEl){statusEl.style.color='#fb7185';statusEl.textContent='Feil: '+err;}return;}
+      // Album/mixtape: gi tilgang til l\u00e5tene som ALLEREDE ligger der. (Triggeren
+      // auto_share_on_*_beat_add dekker bare l\u00e5ter som legges til senere.)
+      const beatIds=_mvSMcollectionBeatIds(contentType,contentId);
+      if(beatIds.length){
+        await fetch(`${SBU}/rest/v1/content_access`,{method:'POST',headers:{...hdrs,'Prefer':'resolution=merge-duplicates'},
+          body:JSON.stringify(beatIds.map(id=>({owner_id:uid,grantee_id:granteeId,content_type:'beat',content_id:String(id),role})))});
+      }
+      // Varsel til mottakeren (notifications.js viser det i klokka hans)
+      await fetch(`${SBU}/rest/v1/notifications`,{method:'POST',headers:{...hdrs,'Prefer':'return=minimal'},
+        body:JSON.stringify({recipient_id:granteeId,sender_id:uid,type:{beat:'share_beat',album:'share_album',mixtape:'share_mixtape'}[contentType]||'share_beat',content_id:contentId,content_name:contentName,role,read:false})}).catch(()=>{});
       if(statusEl){statusEl.style.color='#34d399';statusEl.textContent='\u2713 Delt med '+username;}
       if(document.getElementById('_mvSM_u')) document.getElementById('_mvSM_u').value='';
       setTimeout(()=>window.mvShare(btn),800);
     }catch(e){if(statusEl){statusEl.style.color='#fb7185';statusEl.textContent='Feil: '+e.message;}}
+  };
+  // Fjern tilgang. For album/mixtape fjernes også tilgangen til låtene — bortsett
+  // fra låter som mottakeren fortsatt har via en ANNEN delt samling.
+  window._mvSMrevoke=async function(granteeId,name){
+    if(!confirm(`Fjerne tilgangen for ${name||'denne brukeren'} til «${contentName}»?`))return;
+    const statusEl=document.getElementById('_mvSM_s');
+    try{
+      const del=await fetch(`${SBU}/rest/v1/content_access?owner_id=eq.${uid}&grantee_id=eq.${encodeURIComponent(granteeId)}&content_type=eq.${contentType}&content_id=eq.${encodeURIComponent(contentId)}`,
+        {method:'DELETE',headers:{...hdrs,'Prefer':'return=representation'}});
+      if(!del.ok||!(await del.json()).length)throw new Error('ingen tilgang ble fjernet');
+      const beatIds=_mvSMcollectionBeatIds(contentType,contentId);
+      if(beatIds.length){
+        const other=await fetch(`${SBU}/rest/v1/content_access?owner_id=eq.${uid}&grantee_id=eq.${encodeURIComponent(granteeId)}&content_type=in.(album,mixtape)&select=content_type,content_id`,{headers:hdrs});
+        const keep=new Set();
+        if(other.ok)(await other.json()).forEach(r=>_mvSMcollectionBeatIds(r.content_type,r.content_id).forEach(id=>keep.add(String(id))));
+        const drop=beatIds.map(String).filter(id=>!keep.has(id));
+        if(drop.length)await fetch(`${SBU}/rest/v1/content_access?owner_id=eq.${uid}&grantee_id=eq.${encodeURIComponent(granteeId)}&content_type=eq.beat&content_id=in.(${drop.map(encodeURIComponent).join(',')})`,
+          {method:'DELETE',headers:{...hdrs,'Prefer':'return=minimal'}});
+      }
+      showToast('✓ Tilgang fjernet');
+      window.mvShare(btn);
+    }catch(e){if(statusEl){statusEl.style.color='#fb7185';statusEl.textContent='Kunne ikke fjerne: '+e.message;}}
   };
 };
 
@@ -1510,7 +1550,7 @@ function renderAlbumAddBeatSearch(){
 
 document.getElementById("addBeatsToAlbumBtn").addEventListener("click",()=>{
   const album=state.albums.find(a=>a.id===currentAlbumId);if(!album)return;
-  albumAddBeatCandidates=state.beats.filter(b=>!album.beatIds.includes(b.id));
+  albumAddBeatCandidates=state.beats.filter(b=>!b.archived&&!album.beatIds.includes(b.id));   // arkiverte låter skal ikke foreslås
   const search=document.getElementById("beatSearchInput");
   if(search)search.value="";
   renderAlbumAddBeatSearch();
@@ -2145,7 +2185,7 @@ function renderMixtapeAddBeatSearch(){
 
 document.getElementById("addBeatsToMixtapeBtn").addEventListener("click",()=>{
   const mt=state.mixtapes.find(x=>x.id===currentMixtapeId);if(!mt)return;
-  mixtapeAddBeatCandidates=state.beats.filter(b=>!mt.beatIds.includes(b.id));
+  mixtapeAddBeatCandidates=state.beats.filter(b=>!b.archived&&!mt.beatIds.includes(b.id));   // arkiverte låter skal ikke foreslås
   const search=document.getElementById("mixtapeBeatSearchInput");
   if(search)search.value="";
   renderMixtapeAddBeatSearch();
