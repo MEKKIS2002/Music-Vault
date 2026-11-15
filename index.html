@@ -85,7 +85,9 @@ AKTIVE BRUKERE:
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611150001">
-  <link rel="stylesheet" href="css/mobile.css?v=202611150001">
+  <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
+  <link rel="stylesheet" href="css/system.css?v=202611150011">
+  <link rel="stylesheet" href="css/mobile.css?v=202611150010">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -149,7 +151,7 @@ AKTIVE BRUKERE:
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
       <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
-      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v2.6</div>
+      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v4.0</div>
     </div>
     <div style="text-align:center;margin-top:16px">
       <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
@@ -318,9 +320,9 @@ AKTIVE BRUKERE:
           <div id="dashSub"></div>
         </div>
         <div class="dash-quick">
-          <button class="dq-btn accent" onclick="dashUploadTrigger()">&#xFF0B; Ny sang</button>
-          <button class="dq-btn" onclick="dashNewAlbum()">Nytt album</button>
-          <button class="dq-btn" onclick="dashNewMixtape()">Ny mixtape</button>
+          <button class="dq-btn accent" onclick="dashUploadTrigger()">+ Ny sang</button>
+          <button class="dq-btn" onclick="dashNewAlbum()">+ Nytt album</button>
+          <button class="dq-btn" onclick="dashNewMixtape()">+ Ny mixtape</button>
           <button class="dq-btn mv-mob-hide" onclick="dashOpenLyricLab()">Lyric Lab</button>
           <input type="file" accept="audio/*" multiple hidden id="dashUploadInput" onchange="dashUpload(this.files)">
         </div>
@@ -403,7 +405,7 @@ AKTIVE BRUKERE:
       <div style="margin-bottom:18px"><button class="ghost-btn" id="backToMixtapesBtn">← Tilbake til mixtapes</button></div>
       <div class="album-detail-hd" id="mixtapeDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
-        <button class="primary-btn" id="addBeatsToMixtapeBtn">+ Legg til eksisterende</button>
+        <button class="ghost-btn" id="addBeatsToMixtapeBtn">+ Legg til eksisterende</button>
         <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <select id="mixtapeSortSelect" class="mixtape-sort-select" title="Sorter beats">
           <option value="custom">Sorter: Egen rekkefølge</option>
@@ -449,7 +451,7 @@ AKTIVE BRUKERE:
       <div style="margin-bottom:18px"><button class="ghost-btn" id="backToAlbumsBtn">← Tilbake til albumer</button></div>
       <div class="album-detail-hd" id="albumDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
-        <button class="primary-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
+        <button class="ghost-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
         <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
         <details class="mv-proj-menu">
@@ -640,7 +642,7 @@ window.addEventListener('load', () => {
 
 <div id="bottomPlayer" class="bottom-player" aria-live="polite">
   <div class="bp-track">
-    <div id="bpCover" class="bp-cover">🎵</div>
+    <div id="bpCover" class="bp-cover"><svg class="bp-ico bp-ico-note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.5V6.2a1 1 0 0 1 .76-.97l9-2.25A1 1 0 0 1 20 4v11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="15.5" r="2.5"/></svg></div>
     <div class="bp-meta">
       <div id="bpTitle" class="bp-title">Ingen sang valgt</div>
       <div id="bpSub" class="bp-sub">Trykk play på en beat, et album eller en mixtape</div>
@@ -648,9 +650,9 @@ window.addEventListener('load', () => {
   </div>
   <div class="bp-center">
     <div class="bp-controls">
-      <button class="bp-btn" onclick="bottomPrev()" title="Forrige" aria-label="Forrige spor">⏮</button>
-      <button id="bpPlayBtn" class="bp-btn bp-play" onclick="bottomTogglePlay()" title="Spill av / pause" aria-label="Spill av">▶</button>
-      <button class="bp-btn" onclick="bottomNext()" title="Neste" aria-label="Neste spor">⏭</button>
+      <button class="bp-btn" onclick="bottomPrev()" title="Forrige" aria-label="Forrige spor"><svg class="bp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5a1 1 0 0 1 1 1v4.8l10.5-6.56A1 1 0 0 1 19 5.1v13.8a1 1 0 0 1-1.5.86L7 13.2V18a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1z"/></svg></button>
+      <button id="bpPlayBtn" class="bp-btn bp-play" onclick="bottomTogglePlay()" title="Spill av / pause" aria-label="Spill av"><svg class="bp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg></button>
+      <button class="bp-btn" onclick="bottomNext()" title="Neste" aria-label="Neste spor"><svg class="bp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5a1 1 0 0 0-1 1v4.8L6.5 4.24A1 1 0 0 0 5 5.1v13.8a1 1 0 0 0 1.5.86L17 13.2V18a1 1 0 1 0 2 0V6a1 1 0 0 0-1-1z"/></svg></button>
     </div>
     <div class="bp-progress">
       <span id="bpCurrent" class="bp-time">0:00</span>
@@ -659,9 +661,9 @@ window.addEventListener('load', () => {
     </div>
   </div>
   <div class="bp-actions">
-    <span style="color:var(--muted);font-size:15px">🔊</span>
+    <span class="bp-vol-ico" style="color:var(--muted)"><svg class="bp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3.5L12 5v14l-4.5-4H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
     <input id="bpVolume" class="bp-vol" aria-label="Volum" type="range" min="0" max="1" step="0.01" value="1" oninput="bottomSetVolume(this.value)" />
-    <button class="bp-btn bp-close" onclick="bottomStop()" title="Stopp og lukk" aria-label="Stopp og lukk spilleren">✕</button>
+    <button class="bp-btn bp-close" onclick="bottomStop()" title="Stopp og lukk" aria-label="Stopp og lukk spilleren"><svg class="bp-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
   </div>
 </div>
 
@@ -937,22 +939,23 @@ window.addEventListener('load', () => {
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202605161400"></script>
   <script src="js/lock.js?v=202611140002"></script>
-  <script src="js/pipeline.js?v=202611150002"></script>
-  <script src="js/lyriclab.js?v=202611150004"></script>
+  <script src="js/pipeline.js?v=202611150007"></script>
+  <script src="js/lyriclab.js?v=202611150008"></script>
   <script src="js/audio-compress.js?v=202605261500"></script>
   <script src="js/audio-compress.js?v=202605261900"></script>
   <script src="js/app.js?v=202611150005"></script>
   <script src="js/track-cards.js?v=202607020002"></script>
   <script src="js/r2-storage.js?v=202611150001"></script>
-  <script src="js/archive.js?v=202611150001"></script>
+  <script src="js/archive.js?v=202611150012"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202606210001"></script>
-  <script src="js/beats-tab.js?v=202611150004"></script>
+  <script src="js/changelog.js?v=202611150010"></script>
+  <script src="js/beats-tab.js?v=202611150007"></script>
   <script src="js/supabase.js?v=202611140001"></script>
   <script src="js/bpm.js?v=202611150004"></script>
-  <script src="js/db.js?v=202611150005"></script>
+  <script src="js/db.js?v=202611150012"></script>
   <script src="js/mixtape-share.js?v=202611150005"></script>
   <script src="js/notifications.js?v=202611150005"></script>
+  <script src="js/mini-player.js?v=202611150010"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
@@ -966,7 +969,7 @@ window.addEventListener('load', () => {
   <script src="js/label.js?v=202606170002"></script>
   <script src="js/admin-panel.js?v=202611140002"></script>
   <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202611150001"></script>
+  <script src="js/docs.js?v=202611150007"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

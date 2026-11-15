@@ -182,7 +182,7 @@
     <div class="ll-section${sec.collapsed?' collapsed':''}" data-section-id="${esc(sec.id)}" id="llsec-${esc(sec.id)}">
       <div class="ll-section-header" onclick="llToggleSection('${esc(sec.id)}')">
         <span class="ll-section-type ${typeClass}">${esc(TYPE_LABELS[sec.type]||sec.type)}</span>
-        <input class="ll-section-title-input" value="${esc(sec.title)}" onclick="event.stopPropagation()"
+        <input class="ll-section-title-input" value="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(sec.title)}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llRenameSection('${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
         <button class="ll-section-menu-btn" onclick="event.stopPropagation();llToggleSectionMenu('${esc(sec.id)}')">⋯</button>
@@ -1024,7 +1024,7 @@
     return `<div class="ll-section${sec.collapsed?' collapsed':''}" id="llins-sec-${esc(beatId)}-${esc(sec.id)}" style="margin-bottom:8px">
       <div class="ll-section-header" onclick="llInlineToggle('${esc(beatId)}','${esc(sec.id)}')">
         <span class="ll-section-type ${typeClass}">${esc(TYPE_LABELS[sec.type]||sec.type)}</span>
-        <input class="ll-section-title-input" value="${esc(sec.title)}" onclick="event.stopPropagation()"
+        <input class="ll-section-title-input" value="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(sec.title)}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llInlineRename('${esc(beatId)}','${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
         <button class="ll-section-toggle">${sec.collapsed?'▸':'▾'}</button>
