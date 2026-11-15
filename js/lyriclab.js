@@ -258,7 +258,7 @@
           <div class="ll-beat-title">${esc(beat.name)}</div>
           ${beat.source ? `<div class="ll-beat-source">prod. ${esc(beat.source)}</div>` : ''}
           <div class="ll-chip-row">
-            <span class="ll-chip"><span class="ll-chip-k">BPM</span><span class="ll-chip-v">${beat.bpm?esc(String(beat.bpm)):'–'}</span></span>
+            <label class="ll-chip ll-chip-bpm" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span class="ll-chip-k">BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}"></label>
             <span class="ll-chip"><span class="ll-chip-k">Key</span><span class="ll-chip-v">${beat.key?esc(beat.key):'–'}</span></span>
             <span class="ll-chip"><span class="ll-chip-k">Tid</span><span class="ll-chip-v">${dur}</span></span>
             ${beat.mood?`<span class="ll-chip"><span class="ll-chip-k">Mood</span><span class="ll-chip-v">${esc(beat.mood)}</span></span>`:''}
@@ -1353,26 +1353,38 @@
       return;
     }
 
+    // Bølgeformen spiller gjennom BUNNSPILLERENS lydelement (db.js mvCueBeat), så
+    // det som spiller fortsetter uavbrutt inn i Lyric Lab, og posisjon/pause er
+    // felles. Er src den samme, laster WaveSurfer ikke lyden på nytt.
+    async function build() {
+      let src = null, media = null;
+      if (typeof window.mvCueBeat === 'function' && window.mvBottomAudio) {
+        try { src = await window.mvCueBeat(beat.id); } catch(e) {}
+        if (src) media = window.mvBottomAudio;
+      }
+      if (!document.body.contains(container)) return;      // view re-rendered meanwhile
+      _buildWS(container, src || audioUrl, media);
+    }
     function load() {
-      if (window.WaveSurfer && window.WaveSurfer.Regions) { _buildWS(container, audioUrl); return; }
+      if (window.WaveSurfer && window.WaveSurfer.Regions) { build(); return; }
       if (!window.WaveSurfer) {
         const s = document.createElement('script'); s.src = WS_URL;
         s.onload = () => {
           const r = document.createElement('script'); r.src = REGIONS_URL;
-          r.onload = () => _buildWS(container, audioUrl);
+          r.onload = build;
           document.head.appendChild(r);
         };
         document.head.appendChild(s);
       } else {
         const r = document.createElement('script'); r.src = REGIONS_URL;
-        r.onload = () => _buildWS(container, audioUrl);
+        r.onload = build;
         document.head.appendChild(r);
       }
     }
     load();
   }
 
-  function _buildWS(container, audioUrl) {
+  function _buildWS(container, audioUrl, media) {
     // WaveSurfer v7 UMD: plugin exposed as WaveSurfer.Regions
     const RegionsCtor = window.WaveSurfer?.Regions;
     let regions = null;
@@ -1389,8 +1401,14 @@
         cursorWidth:    2,
         height: 72, barWidth: 2, barGap: 1, barRadius: 3,
         normalize: true, url: audioUrl,
+        ...(media ? { media } : {}),
         plugins,
       });
+      // Delt lydelement som allerede spiller: vis riktig knapp/tid med en gang.
+      if (media) {
+        _setPlayIcon(!media.paused);
+        const cur = document.getElementById('llWaveCur'); if (cur) cur.textContent = fmtT(media.currentTime);
+      }
 
       _ws.on('play',  () => _setPlayIcon(true));
       _ws.on('pause', () => _setPlayIcon(false));

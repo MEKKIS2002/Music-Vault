@@ -865,3 +865,10 @@ audio::-webkit-media-controls-panel { background: rgba(255,255,255,.08); }
 /* ── Fargemark ───────────────────────────────────────── */
 .ll-color-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ll-color-hint { font-size:var(--fs-xs); color: rgba(255,255,255,.25); margin-top: 8px; }
+/* BPM kan rettes direkte i chipen (mvSetBpm i db.js) */
+.ll-chip-bpm { cursor: text; }
+.ll-bpm-input { width: 3.4em; background: transparent; border: 0; padding: 0; margin: 0;
+  color: var(--text); font: inherit; font-size:var(--fs-xs); font-weight: 800; -moz-appearance: textfield; }
+.ll-bpm-input::-webkit-outer-spin-button, .ll-bpm-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.ll-bpm-input:focus { outline: none; }
+.ll-chip-bpm:focus-within { box-shadow: 0 0 0 2px var(--accent2); }
