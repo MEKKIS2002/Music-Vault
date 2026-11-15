@@ -589,7 +589,7 @@ function renderDashboard(){
       `<span class="ds-pill ds-accent">${albums.length} ${albums.length===1?'album':'albumer'}</span>`+
       `<span class="ds-pill ds-accent">${mixtapes.length} ${mixtapes.length===1?'mixtape':'mixtapes'}</span>`+
       (noAudio.length?`<span class="ds-pill ds-warn" title="${noAudio.slice(0,3).map(b=>b.name).join(', ')}">${noAudio.length} uten lyd</span>`:'')+
-      `<span class="ds-pill">${avgDone}% snitt ferdig</span></div>`;
+      `<span class="ds-pill" title="Snittet av «Ferdig %» på alle låter">${avgDone}% snitt ferdig</span></div>`;
   }
   const saEl=document.getElementById('dashSmartAlerts');
   if(saEl){

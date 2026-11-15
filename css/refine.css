@@ -343,3 +343,25 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
   outline:2px solid var(--accent2) !important;
   outline-offset:2px !important;
 }
+
+/* ── «⋯ Prosjekt»-meny (album/mixtape): Arkiver + Slett ute av verktøylinja ──
+   Bygd på <details>, så den åpnes med tastatur uten JS; index.html lukker den
+   etter et valg, ved klikk utenfor og på Escape. Knappene beholder id-ene sine. */
+.mv-proj-menu{ position:relative; }
+.mv-proj-menu > summary{ list-style:none; cursor:pointer; user-select:none; }
+.mv-proj-menu > summary::-webkit-details-marker{ display:none; }
+.mv-proj-menu[open] > summary{ background:var(--surface-3) !important; color:var(--text) !important; }
+.mv-proj-menu-panel{
+  position:absolute; top:calc(100% + 6px); left:0; z-index:60;
+  min-width:220px; display:grid; gap:4px; padding:6px;
+  background:#15120e; border:1px solid var(--line-strong); border-radius:var(--r-sm);
+  box-shadow:0 16px 40px rgba(0,0,0,.55);
+}
+.mv-proj-menu-panel > button{
+  width:100%; margin:0 !important; justify-content:flex-start !important; text-align:left !important;
+}
+/* main.css gir .toolbar overflow:auto ≤900px — det klippet menyen og ga rullefelt.
+   Verktøylinja brytes allerede til flere rader (mobile.css), så rulling trengs ikke. */
+.toolbar:has(.mv-proj-menu){ overflow:visible !important; }
+/* Satt av index.html når panelet ellers ville gått ut over høyre kant. */
+.mv-proj-menu.mv-align-right .mv-proj-menu-panel{ left:auto; right:0; }
