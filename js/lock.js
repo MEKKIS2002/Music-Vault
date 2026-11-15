@@ -1,19 +1,8 @@
 // === main-script-0 ===
 if(history.scrollRestoration) history.scrollRestoration = 'manual';
 
-// ── Username → Supabase email mapping ──────────────────────────────────────
-// Legg til nye brukere her: { brukernavn: 'epost@example.com' }
-const USERNAME_MAP = {
-  'marcus':   'marcus.aas.mekiassen@gmail.com',
-  'erik':     'erikalfsen11@gmail.com',
-  // ── Testbrukere per pakke ─────────────────────────────────────
-  'artist':   'artist@test.no',
-  'producer': 'producer@test.no',
-  'lyricist': 'lyricist@test.no',
-  'label':    'label@test.no',
-  'viewer':   'viewer@test.no',
-};
-// ───────────────────────────────────────────────────────────────────────────
+// Innlogging med brukernavn går via Edge Function «login-username» — e-postadressen
+// bak et brukernavn sendes aldri til nettleseren.
 
 function getUserRole(){return sessionStorage.getItem('mv_role')||'';}
 function isProducerUser(){return getUserRole()==='producer';}
@@ -403,39 +392,6 @@ async function loginWithUsername(){
     return;
   }
 
-  const email = USERNAME_MAP[username];
-  let loginEmail = email;
-
-  if(!loginEmail){
-    if(username.includes('@')){
-      // Direkte e-post-innlogging
-      loginEmail = username;
-    } else {
-      // Slå opp e-post fra profiles-tabellen
-      if(errEl){errEl.textContent='Søker...';errEl.style.display='block';}
-      try {
-        const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
-        // Sikker oppslag via RPC (anon kan ikke lenger dumpe alle eposter)
-        const res = await fetch(
-          `${SB_URL}/rest/v1/rpc/lookup_login_email`,
-          {method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_username:username})}
-        );
-        const foundEmail = res.ok ? await res.json() : null;
-        if(!foundEmail){
-          if(errEl){errEl.textContent='Ukjent brukernavn.';errEl.style.display='block';}
-          if(btn){btn.disabled=false;btn.textContent='Logg inn';}
-          return;
-        }
-        loginEmail = foundEmail;
-      } catch(e) {
-        if(errEl){errEl.textContent='Kunne ikke koble til. Prøv igjen.';errEl.style.display='block';}
-        if(btn){btn.disabled=false;btn.textContent='Logg inn';}
-        return;
-      }
-    }
-  }
-
   if(btn){btn.disabled=true;btn.textContent='Logger inn...';}
   if(errEl){errEl.style.display='none';}
 
@@ -445,7 +401,26 @@ async function loginWithUsername(){
       return;
     }
 
-    const {data, error} = await window.supabaseClient.auth.signInWithPassword({email: loginEmail, password});
+    let data, error;
+    if(username.includes('@')){
+      // Direkte e-post-innlogging
+      ({data, error} = await window.supabaseClient.auth.signInWithPassword({email: username, password}));
+    } else {
+      // Brukernavn: serveren slår opp e-posten og logger inn; vi får bare sesjonen tilbake
+      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
+      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      let res, body;
+      try {
+        res = await fetch(`${SB_URL}/functions/v1/login-username`, {
+          method:'POST',
+          headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+          body:JSON.stringify({username, password})
+        });
+        body = await res.json().catch(()=>({}));
+      } catch(e) { throw new Error('Kunne ikke koble til. Prøv igjen.'); }
+      if(!res.ok || !body.access_token) throw new Error(body.error || 'Feil brukernavn eller passord.');
+      ({data, error} = await window.supabaseClient.auth.setSession({access_token: body.access_token, refresh_token: body.refresh_token}));
+    }
     if(error) throw error;
 
     // Hent rolle OG pakke fra profiles
@@ -746,24 +721,3 @@ window.registerUser = async function() {
   }
 };
 
-// Legg til USERNAME_MAP for nye brukere dynamisk
-const _origLogin2 = window.loginWithUsername;
-if(_origLogin2 && !window._usernameFallbackPatched) {
-  window._usernameFallbackPatched = true;
-  window.loginWithUsername = async function() {
-    const username = (document.getElementById('adminUsername')?.value||'').trim().toLowerCase();
-    // Hvis brukernavn ikke er i USERNAME_MAP, prøv å finne epost fra profiles
-    if(username && !USERNAME_MAP[username] && window.supabaseClient) {
-      const { data } = await window.supabaseClient
-        .from('profiles')
-        .select('id, username')
-        .eq('username', username)
-        .maybeSingle();
-      if(data) {
-        // Hent epost fra auth (kun mulig som anon via signin)
-        // Fallback: vis "ukjent brukernavn" fra original
-      }
-    }
-    return _origLogin2.apply(this, arguments);
-  };
-}

@@ -59,7 +59,7 @@ VIKTIGE REGLER:
   Metadata synkes til Supabase automatisk etter opplasting (via saveState → schedulePush).
 - Kassettdesign bruker nå assets/cassette.png — ikke CSS-tegnet kassett.
   Navn og beat-antall vises som tekstoverlay via .cass-png-label.
-- USERNAME_MAP i lock.js mapper brukernavn til Supabase-epost.
+- Innlogging med brukernavn går via Edge Function login-username (lock.js).
 
 AKTIVE BRUKERE:
   marcus → marcus.aas.mekiassen@gmail.com (admin)
@@ -939,7 +939,7 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202611150030"></script>
-  <script src="js/lock.js?v=202611150030"></script>
+  <script src="js/lock.js?v=202611150031"></script>
   <script src="js/pipeline.js?v=202611150030"></script>
   <script src="js/lyriclab.js?v=202611150030"></script>
   <script src="js/audio-compress.js?v=202611150030"></script>
