@@ -94,6 +94,9 @@
     .p-btn:hover{ background:var(--surface); }
     .p-btn.main{ width:44px; height:44px; background:var(--amber); color:#1a1206; font-size:17px; }
     .p-seek{ grid-column:1 / -1; }
+    .ico{ width:20px; height:20px; fill:currentColor; flex-shrink:0; display:block; }
+    .p-btn.main .ico{ width:22px; height:22px; }
+    .play-all .ico{ width:18px; height:18px; }
     input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px; margin:0;
       background:linear-gradient(to right,var(--amber) 0%,var(--amber) var(--pct,0%),rgba(255,255,255,.12) var(--pct,0%),rgba(255,255,255,.12) 100%);
       outline:none; cursor:pointer; }
@@ -126,7 +129,7 @@
           <div class="eyebrow">Mixtape</div>
           <h1 id="title">—</h1>
           <div class="meta" id="meta"></div>
-          <button id="playAll" class="play-all" type="button">▶ Spill alle</button>
+          <button id="playAll" class="play-all" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg><span>Spill alle</span></button>
         </div>
       </section>
 
@@ -143,9 +146,9 @@
         <div class="p-sub"><span id="pCur">0:00</span> / <span id="pDur">0:00</span></div>
       </div>
       <div class="p-ctrls">
-        <button id="pPrev" class="p-btn" type="button" aria-label="Forrige spor">⏮</button>
-        <button id="pPlay" class="p-btn main" type="button" aria-label="Spill av">▶</button>
-        <button id="pNext" class="p-btn" type="button" aria-label="Neste spor">⏭</button>
+        <button id="pPrev" class="p-btn" type="button" aria-label="Forrige spor"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5a1 1 0 0 1 1 1v4.8l10.5-6.56A1 1 0 0 1 19 5.1v13.8a1 1 0 0 1-1.5.86L7 13.2V18a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1z"/></svg></button>
+        <button id="pPlay" class="p-btn main" type="button" aria-label="Spill av"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg></button>
+        <button id="pNext" class="p-btn" type="button" aria-label="Neste spor"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5a1 1 0 0 0-1 1v4.8L6.5 4.24A1 1 0 0 0 5 5.1v13.8a1 1 0 0 0 1.5.86L17 13.2V18a1 1 0 1 0 2 0V6a1 1 0 0 0-1-1z"/></svg></button>
       </div>
       <input id="pSeek" class="p-seek" type="range" min="0" max="1000" value="0" aria-label="Posisjon i sporet">
     </div>
@@ -229,11 +232,16 @@
       if(current<0){ var f=nextPlayable(-1,1); if(f>=0) play(f); return; }
       if(audio.paused) audio.play().catch(setPlayIcons); else audio.pause();
     }
+    // SVG-ikoner (samme som bunnspilleren i appen) — ingen emoji/tegn i spilleren
+    var ICO = {
+      play:  '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86A1 1 0 0 0 8 5.14z"/></svg>',
+      pause: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>'
+    };
     function setPlayIcons(){
       var playing = !audio.paused;
-      $('pPlay').textContent = playing ? '⏸' : '▶';
+      $('pPlay').innerHTML = playing ? ICO.pause : ICO.play;
       $('pPlay').setAttribute('aria-label', playing ? 'Pause' : 'Spill av');
-      $('playAll').textContent = playing ? '⏸ Pause' : (current>=0 ? '▶ Fortsett' : '▶ Spill alle');
+      $('playAll').innerHTML = (playing ? ICO.pause : ICO.play) + '<span>' + (playing ? 'Pause' : (current>=0 ? 'Fortsett' : 'Spill alle')) + '</span>';
     }
     function syncPlayerHeight(){
       document.documentElement.style.setProperty('--player-h', $('player').offsetHeight + 'px');
