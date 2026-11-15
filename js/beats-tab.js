@@ -46,6 +46,7 @@
         (b.name||'').toLowerCase().includes(q) ||
         (b.source||'').toLowerCase().includes(q) ||
         (b.uploadedBy||'').toLowerCase().includes(q) ||
+        (Number(b.bpm)>0 && String(b.bpm)===q.replace(/\s*bpm$/,'').trim()) ||   // «140» eller «140 bpm»
         getCollections(b.id).some(c => c.name.toLowerCase().includes(q))
       );
     }

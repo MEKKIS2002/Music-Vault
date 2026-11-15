@@ -80,6 +80,9 @@ bottomPlayer.audio.preload="auto";
 // A track that genuinely played to the END advances the queue; the LAST track ending is the
 // ONLY thing allowed to report "Ferdigspilt". Load/access failures must never reach this path.
 bottomPlayer.audio.addEventListener("ended",()=>{
+  // I Lyric Lab eier bølgeformen den samme lyden: ikke stopp og tøm spilleren
+  // (det fjerner src under WaveSurfer). Låten står klar fra start / looper der.
+  if(mvLyricLabOwnsPlayer()){updateBottomUI();return;}
   if(bottomPlayer.index+1<bottomPlayer.queue.length)playBottomIndex(bottomPlayer.index+1);
   else{bottomStop(true);showToast("✓ Ferdigspilt");}
 });
@@ -281,6 +284,32 @@ async function playQueue(queue,context){
   bottomPlayer.queue=queue;bottomPlayer.index=0;bottomPlayer.context=context||null;
   await playBottomIndex(0);
 }
+// ── Lyric Lab deler bunnspillerens lydelement (js/lyriclab.js → initWaveSurfer) ──
+// Én spiller: det som spiller fortsetter når du åpner låten i Lyric Lab, og
+// posisjon/pause følger med begge veier.
+function mvLyricLabOwnsPlayer(){
+  const tab=document.getElementById("lyriclabTab");
+  const cur=bottomPlayer.queue[bottomPlayer.index];
+  return !!(tab&&!tab.classList.contains("hidden")&&cur&&cur.id===window.currentLyricLabBeatId);
+}
+// Legg en låt klar i bunnspilleren uten å starte den. Står den der allerede,
+// røres ingenting (posisjon og avspilling beholdes). Returnerer src-en.
+async function mvCueBeat(beatId){
+  const cur=bottomPlayer.queue[bottomPlayer.index];
+  if(cur&&cur.id===beatId&&bottomPlayer.audio.src)return bottomPlayer.audio.src;
+  const beat=state.beats.find(b=>b.id===beatId);if(!beat)return null;
+  const url=await getPlayableAudioUrl(beat);if(!url)return null;
+  if(bottomPlayer.objectUrl)URL.revokeObjectURL(bottomPlayer.objectUrl);
+  bottomPlayer.objectUrl=url.startsWith("blob:")?url:null;
+  bottomPlayer.queue=[beat];bottomPlayer.index=0;
+  bottomPlayer.context={type:"beat",id:beatId,label:"Lyric Lab"};
+  bottomPlayer.started=true;bottomPlayer.playCounted=false;
+  bottomPlayer.audio.pause();bottomPlayer.audio.src=url;bottomPlayer.audio.load();
+  updateBottomUI();
+  return url;
+}
+window.mvCueBeat=mvCueBeat;
+window.mvBottomAudio=bottomPlayer.audio;
 async function playSingleBeat(beatId){const beat=state.beats.find(b=>b.id===beatId);if(!beat)return;await playQueue([beat],{type:"beat",id:beatId,label:"Beat"});}
 // Play a song inside an album/mixtape and keep playing the rest of that collection after it
 // (in the order shown on screen). Falls back to single-beat playback if no collection is open.
@@ -333,6 +362,7 @@ async function uploadBeatAudio(beatId,file){
   await audioDB.save(beatId,file);
   b.url=beatId+":idb"; // sentinel so we know audio exists
   b.source="local";
+  if(!(Number(b.bpm)>0))await mvApplyBpm(b,{file,name:file.name});   // ny fil kan ha tempo i metadata
   saveState();
   const el=document.getElementById("au-"+beatId);
   if(el){
@@ -479,8 +509,48 @@ async function createBeatFromFileIDB(file){
   const b={id:uid(),name:file.name.replace(/\.[^/.]+$/,""),url:"",source:"local",favorite:false,lyrics:"",rating:0,cover:"",done:0,createdAt:Date.now()};
   await audioDB.save(b.id,file);
   b.url=b.id+":idb";
+  await mvApplyBpm(b,{file,name:file.name});
   return b;
 }
+
+// ── BPM (js/bpm.js) ──────────────────────────────────────────────────────────
+// Leses fra ORIGINALFILEN ved opplasting — audio-compress fjerner metadata når
+// WAV gjøres om til MP3, så etterpå er det for sent. Ellers: filnavnet, hvis entydig.
+// bpmSource: 'fil' | 'filnavn' | 'manuell'. En manuell verdi overskrives aldri.
+async function mvApplyBpm(b,src){
+  if(!b||b.bpmSource==="manuell"||!window.mvBpm)return false;
+  try{
+    const r=await window.mvBpm.detect(src);
+    b.bpmChecked=true;
+    if(r){b.bpm=r.bpm;b.bpmSource=r.source;return true;}
+  }catch(e){}
+  return false;
+}
+// Etterfyll én gang for låter som fantes før dette: lagret fil (bare starten via
+// Range) → filnavn. bpmChecked hindrer at samme låt sjekkes på nytt.
+async function mvBackfillBpm(){
+  if(!window.mvBpm||sessionStorage.getItem("mv_unlocked")!=="1")return;
+  const todo=(state.beats||[]).filter(b=>!b._shared&&!b.bpmChecked&&!(Number(b.bpm)>0));
+  if(!todo.length)return;
+  let found=0;
+  for(const b of todo){
+    const u=b.audio_url||b.url||"";
+    if(await mvApplyBpm(b,{url:/^https?:\/\//i.test(u)?u:null,name:b.name}))found++;
+  }
+  saveState();
+  console.log(`[BPM] Etterfylt ${found} av ${todo.length} låter`);
+}
+window.mvBackfillBpm=mvBackfillBpm;
+setTimeout(()=>{mvBackfillBpm().catch(e=>console.warn("[BPM]",e));},8000);
+// Rett BPM for hånd (Lyric Lab). Tom/0 fjerner verdien.
+window.mvSetBpm=function(beatId,val){
+  const b=state.beats.find(x=>x.id===beatId);if(!b)return;
+  const n=Math.round(Number(String(val).replace(",",".")));
+  if(n>=40&&n<=300){b.bpm=n;b.bpmSource="manuell";}
+  else if(!String(val).trim()){b.bpm=null;b.bpmSource="manuell";}
+  else{showToast("⚠ BPM må være mellom 40 og 300");return false;}
+  b.bpmChecked=true;saveState();return true;
+};
 
 const STAGES=["Idé","Hook","Vers","Innspilt","Mix","Master","Klar"];
 const SK="musicVault.v4";
