@@ -207,31 +207,56 @@
      Spotify/Apple Music mini-players, pause stops playback) and the
      0:00/0:00 time labels. `.bp-center` is display:contents so its controls +
      progress become direct flex items of the player and wrap independently. */
+  /* Spotify-stil minispiller: ÉN lav rad — cover · tittel/undertekst · spill/pause —
+     med en tynn fremdriftsstrek langs bunnen. Bakgrunnen er en mørk tone hentet
+     fra coveret (--bp-tint, settes av js/mini-player.js). Forrige/neste, volum,
+     lukk og tider er skjult; full kontroll finnes på desktop og i Lyric Lab. */
   .bottom-player.show {
     left: 8px !important; right: 8px !important;
-    bottom: calc(var(--mv-footer-h) + var(--mv-safe-bottom) + 8px) !important;
+    bottom: calc(var(--mv-footer-h) + var(--mv-safe-bottom) + 6px) !important;
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
     align-items: center !important;
-    gap: 6px 8px !important;
-    padding: 9px 12px !important;
-    border-radius:var(--r-sm)!important;
+    gap: 10px !important;
+    padding: 8px 8px 10px 8px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: var(--bp-tint, #2a1d12) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,.45) !important;
+    overflow: hidden !important;
+    transition: background .4s ease !important;
   }
   .bp-center { display: contents !important; }
-  .bp-track { flex: 1 1 auto !important; min-width: 0 !important; max-width: none !important; order: 1 !important; }
-  .bp-controls { order: 2 !important; flex: 0 0 auto !important; gap: 8px !important; margin: 0 !important; }
-  .bp-progress { order: 4 !important; flex: 1 1 100% !important; margin: 0 !important; }
+  .bp-track { flex: 1 1 auto !important; min-width: 0 !important; max-width: none !important; order: 1 !important; gap: 10px !important; }
+  .bp-controls { order: 2 !important; flex: 0 0 auto !important; gap: 0 !important; margin: 0 !important; }
+  .bp-controls .bp-btn:not(.bp-play) { display: none !important; }
 
-  .bp-cover { width: 40px !important; height: 40px !important; border-radius:var(--r-sm)!important; }
-  .bp-title { font-size:var(--fs-base)!important; }
-  .bp-sub { font-size:var(--fs-xs)!important; }
+  .bp-cover { width: 40px !important; height: 40px !important; border-radius: 4px !important; box-shadow: none !important; flex-shrink: 0 !important; }
+  .bp-title { font-size: 13px !important; font-weight: 700 !important; color: #fff !important; }
+  .bp-sub { font-size: 12px !important; color: rgba(255,255,255,.72) !important; }
 
-  /* Drop the noise: entire right cluster (volume + close) and the time labels */
+  /* Spill/pause: hvitt ikon uten sirkel, stor nok trykkflate */
+  .bp-play, .bp-btn.bp-play {
+    width: 44px !important; height: 44px !important; min-height: 0 !important;
+    background: transparent !important; color: #fff !important; box-shadow: none !important;
+    font-size: 22px !important; border-radius: 50% !important;
+  }
+  .bp-play:hover, .bp-btn.bp-play:hover { background: transparent !important; color: #fff !important; transform: none !important; }
+
+  /* Fremdrift: 2 px strek helt nederst i kortet, kun visning (som Spotify) */
+  .bp-progress {
+    position: absolute !important; left: 8px !important; right: 8px !important; bottom: 4px !important;
+    height: 2px !important; margin: 0 !important; gap: 0 !important; pointer-events: none !important;
+  }
+  .bp-seek {
+    height: 2px !important; border-radius: 2px !important;
+    background: linear-gradient(to right, #fff 0, #fff var(--pct,0%), rgba(255,255,255,.25) var(--pct,0%), rgba(255,255,255,.25) 100%) !important;
+  }
+  .bp-seek::-webkit-slider-thumb { opacity: 0 !important; width: 0 !important; }
+
+  /* Bort med resten: volum + lukk og tidsangivelser */
   .bp-actions { display: none !important; }
   .bp-time { display: none !important; }
-
-  /* Compact controls; keep the gold play button as the clear primary */
-  .bp-btn { width: 36px !important; height: 36px !important; }
 
   /* ======================================================================
      TAB CONTENT

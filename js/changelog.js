@@ -6,6 +6,53 @@
 
   const VERSIONS = [
     {
+      version: 'v4.0',
+      date: '15. november 2026',
+      label: 'Stor opprydding: design, deling, avspilling og sikkerhet',
+      color: '#df7f22',
+      changes: [
+        // Design og lesbarhet
+        'Én flat, svart bakgrunn på alle sider — paneler, fargeskyer og korntekstur fjernet',
+        'Felles knapper overalt: samme høyde, radius og vekt; oransje kun for hovedhandlingen',
+        'Felles ikonknapper i sporlister i samme rekkefølge: ▶ spill · ☆/★ favoritt · ⋯ flere valg',
+        'Spillknappen i Beats vises alltid (var skjult til man holdt musen over)',
+        'Sjeldne radhandlinger (del, gi nytt navn, fjern) samlet i en ⋯-meny med «Åpne i Lyric Lab»',
+        'Arkiver og Slett flyttet til en «⋯ Prosjekt»-meny på album og mixtape',
+        'Felles stil på søk, sortering og nedtrekksfelt; søk og sortering på én linje i Beats',
+        'Dropsonen er diskret i hvile og lyser oransje først når en fil dras inn',
+        'Lister uten ytterrammer — hårstrek mellom rader, tydelig markering av spor som spilles',
+        '«Nytt album»- og «Ny mixtape»-kortet vises bare når siden er tom',
+        'Sidetitler er ekte overskrifter; metadata-etiketter i små versaler',
+        'Kontrast løftet til WCAG AA: faner, metadata og hjelpetekst er lettere å lese',
+        'Statusfarger samkjørt: grå = ikke startet, oransje = i arbeid, grønn = ferdig, rødt kun for feil',
+        'Docs: rolig markering av valgt dokument og verktøylinje som viser aktiv formatering',
+        'Lyric Lab: seksjonstitler ser ut som titler, ikke felt inni felt',
+        'Pipeline: forklaring av hva prosentene måler, kompakt statusvelger, «Dagens fokus» uten ekstra rammer',
+        'Kortvisning i album/mixtape: bare cover, tittel, spill, favoritt og fremdrift',
+        'Header: bare initialer (navn i tooltip); kompakt admin-merke på mobil så varselklokka får plass',
+        // Mobil
+        'Ny bunnmeny: Hjem, Beats, Mixtapes, Album — «Fortsett der du slapp» øverst på Hjem',
+        'Spotify-inspirert minispiller: én lav rad, bakgrunnsfarge fra coveret og tynn fremdriftsstrek',
+        '«+»-knappen følger spillerens faktiske høyde og overlapper ikke lenger',
+        'Mixtapes passer skjermen, ikonknapper er ikke lenger strukket til høye ovaler',
+        // Avspilling og Lyric Lab
+        'Lyric Lab deler spilleren: musikken fortsetter uavbrutt når du åpner låten, pause og posisjon er felles',
+        'BPM hentes fra selve lydfilen (MP3, WAV, FLAC, M4A) eller fra filnavnet, og kan rettes for hånd',
+        'Søk i Beats viser «N av M» treff og finner tempo («140» / «140 bpm»)',
+        '«Mangler tekst» skiller mellom tom seksjon («Tom – gå til») og manglende seksjon',
+        // Deling
+        'Ny offentlig mixtapeside med fast minispiller, likes og tastaturstyring',
+        'Delingsdialogen viser hva mottakeren faktisk får («16 av 17 spor deles») og kan oppdatere sporlisten',
+        '«Del med bruker»: «Fjern tilgang», låtene i delte album/mixtapes følger med, og mottakeren får varsel',
+        'Varsler virker igjen: teller, panel, «Merk alle som lest» og slett',
+        // Sikkerhet og stabilitet
+        'Mixtape-delinger og likes er låst: bare eier kan endre, mottakere leser via sikre funksjoner',
+        'Sterke tilfeldige tokens på nye delingslenker',
+        'app.js krasjer ikke lenger ved oppstart (død kode fjernet eller flyttet)',
+        'Tilgjengelighet: navn på alle ikonknapper, synlig tastaturfokus, tastaturstyring på sporrader',
+      ],
+    },
+    {
       version: 'v3.1',
       date: '21. juni 2026',
       label: 'Docs, offentlig deling og avspillingsfikser',

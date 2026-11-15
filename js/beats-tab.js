@@ -249,7 +249,7 @@
                 <span class="bl-dur">${fmtDur(b.duration)}</span>
                 <span class="bl-actions">
                   <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill" aria-label="Spill ${esc(b.name)}">▶</button>
-                  <button class="bl-star${b.favorite?' active':''}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}">★</button>
+                  <button class="bl-star${b.favorite?' active':''}" data-fav-id="${b.id}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}">${b.favorite?'★':'☆'}</button>
                   <button class="bl-menu" onclick="event.stopPropagation();beatsTab.openDropdown('${b.id}',this)" title="Mer" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
                 </span>
               </div>

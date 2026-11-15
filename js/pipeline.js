@@ -39,7 +39,9 @@
   function save()   { if (typeof saveState === 'function') saveState(); }
   function esc(s)   { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function clamp(n) { return Math.max(0, Math.min(100, Number(n) || 0)); }
-  function pctColor(p){ return p >= 70 ? '#34d399' : p >= 40 ? '#f4a443' : '#fb7185'; }
+  // Felles statusfarger: ikke startet = nøytral, i arbeid = oransje, ferdig = grønn.
+  // Rødt er forbeholdt feil og destruktive handlinger (ikke «lav prosent»).
+  function pctColor(p){ return p >= 100 ? '#34d399' : p > 0 ? '#f4a443' : 'rgba(244,237,228,.6)'; }
 
   function hasAudio(b)  { return !!(b.audio_url || b.url); }
   function hasLyrics(b) { return (b.lyricSections||[]).some(s => s && s.text && s.text.trim()) || !!(b.lyrics||'').trim(); }

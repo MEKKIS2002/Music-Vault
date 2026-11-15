@@ -216,7 +216,26 @@
       if(b.dataset.cmd){ document.execCommand(b.dataset.cmd, false, null); }
       else if(b.dataset.block){ document.execCommand('formatBlock', false, b.dataset.block); }
       scheduleSave();
+      syncToolbarState();
     });
+
+    // Vis aktiv formatering (fet, kursiv, liste, overskrift) der markøren står —
+    // knappene har ingen ramme i hvile, så tilstanden må synes på annen måte.
+    function syncToolbarState(){
+      const sel = document.getSelection();
+      const inside = sel && sel.rangeCount && bodyEl.contains(sel.anchorNode);
+      const block = inside ? String(document.queryCommandValue('formatBlock') || '').toLowerCase().replace(/[<>]/g,'') : '';
+      tb.querySelectorAll('button[data-cmd], button[data-block]').forEach(btn => {
+        let on = false;
+        if (inside && btn.dataset.cmd) { try { on = document.queryCommandState(btn.dataset.cmd); } catch(e) {} }
+        else if (inside && btn.dataset.block && btn.dataset.block !== 'p') on = block === btn.dataset.block;
+        btn.classList.toggle('is-on', !!on);
+        btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    }
+    // Editoren bygges på nytt ved bytte av dokument: gamle lyttere fjerner seg selv.
+    const onSel = () => { if (!document.body.contains(tb)) { document.removeEventListener('selectionchange', onSel); return; } syncToolbarState(); };
+    document.addEventListener('selectionchange', onSel);
   }
 
   // ── Paste sanitising ─────────────────────────────────────────────────────────
