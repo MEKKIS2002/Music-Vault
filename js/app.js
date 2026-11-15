@@ -116,7 +116,7 @@
     ensureUxData();
     if(typeof _oldRenderMixtapes==='function')_oldRenderMixtapes();
     const grid=document.getElementById('mixtapeGrid');
-    if(grid && !(state.mixtapes||[]).length){grid.innerHTML=emptyState('📼','Ingen mixtapes ennå','Lag en mixtape for å samle beats og produsent-uploads.','Lag mixtape',"document.getElementById('newMixtapeBtn').click()");}
+    if(grid && !(state.mixtapes||[]).length){grid.innerHTML=emptyState('<span class="ic ic-cassette" aria-hidden="true"></span>','Ingen mixtapes ennå','Lag en mixtape for å samle beats og produsent-uploads.','Lag mixtape',"document.getElementById('newMixtapeBtn').click()");}
     injectProducerDashboard();
     hydrateCards();
   };
@@ -126,7 +126,7 @@
     ensureUxData();
     if(typeof _oldRenderAlbums==='function')_oldRenderAlbums();
     const grid=document.getElementById('albumGrid');
-    if(grid && !(state.albums||[]).filter(a=>!a.archived).length){grid.innerHTML=emptyState('💿','Ingen albumer ennå','Lag et album for å flytte favorittbeats over til demoer.','Lag album',"document.getElementById('newAlbumBtn').click()");}
+    if(grid && !(state.albums||[]).filter(a=>!a.archived).length){grid.innerHTML=emptyState('<span class="ic ic-disc" aria-hidden="true"></span>','Ingen albumer ennå','Lag et album for å flytte favorittbeats over til demoer.','Lag album',"document.getElementById('newAlbumBtn').click()");}
     hydrateCards();
   };
 
@@ -138,7 +138,7 @@
 
   function enhancePipeline(){
     const board=document.getElementById('pipelineBoard'); if(!board)return;
-    if(!state.albums?.length){board.innerHTML=emptyState('📊','Pipeline er tom','Lag et album og legg til demoer for å bygge pipeline.','Lag album',"document.querySelector('[data-tab=albums]').click();setTimeout(()=>document.getElementById('newAlbumBtn')?.click(),80)");return;}
+    if(!state.albums?.length){board.innerHTML=emptyState('<span class="ic ic-chart" aria-hidden="true"></span>','Pipeline er tom','Lag et album og legg til demoer for å bygge pipeline.','Lag album',"document.querySelector('[data-tab=albums]').click();setTimeout(()=>document.getElementById('newAlbumBtn')?.click(),80)");return;}
     if(!document.getElementById('pipelineFilterbar')){
       board.insertAdjacentHTML('beforebegin',`<div id="pipelineFilterbar" class="pipeline-filterbar"><input id="pipelineSearch" class="ux-input" placeholder="Søk i pipeline"><select id="pipelineStatusFilter" class="ux-input"><option value="">Alle statuser</option><option>Idé</option><option>Demo</option><option>Valgt</option><option>Miks</option><option>Master</option><option>Klar for release</option></select><select id="pipelinePriorityFilter" class="ux-input"><option value="">Alle prioriteter</option><option value="high">Høy</option><option value="medium">Medium</option><option value="low">Lav</option></select></div>`);
       ['pipelineSearch','pipelineStatusFilter','pipelinePriorityFilter'].forEach(id=>document.getElementById(id)?.addEventListener('input',filterPipeline));
@@ -200,12 +200,12 @@
             <span>${avg}% ferdig</span>
           </p>
           <div class="album-detail-actions">
-            <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')">▶ Spill fra start</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
-            <button class="ghost-btn mv-mob-hide" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning">💿 A/B-side</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn mv-mob-hide" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager">📄 Pitch</button>` : ''}
-            ${!album._shared ? `<button class="ghost-btn mv-mob-hide" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)">👤 Del med bruker</button>` : ''}
-            <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
+            <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>
+            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn mv-mob-hide" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
+            <button class="ghost-btn mv-mob-hide" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
+            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn mv-mob-hide" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>` : ''}
+            ${!album._shared ? `<button class="ghost-btn mv-mob-hide" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)"><span class="ic ic-user" aria-hidden="true"></span> Del med bruker</button>` : ''}
+            <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()"><span class="ic ic-stop" aria-hidden="true"></span> Stopp</button>
           </div>
         </div>
 
@@ -273,7 +273,7 @@
   window.albumToggleABSide = function(albumId) {
     _abSideActive = !_abSideActive;
     const btn = document.getElementById('abSideBtn');
-    if (btn) { btn.classList.toggle('active', _abSideActive); btn.textContent = _abSideActive ? '💿 Full liste' : '💿 A/B-side'; }
+    if (btn) { btn.classList.toggle('active', _abSideActive); btn.textContent = _abSideActive ? 'Full liste' : 'A/B-side'; }
     const album = state.albums.find(a=>a.id===albumId);
     if (!album) return;
     const beats = beatsFromIds(album.beatIds);
@@ -317,7 +317,7 @@
       const d=Number(b.duration||0), dStr=d>0?Math.floor(d/60)+':'+String(Math.floor(d%60)).padStart(2,'0'):'';
       return sideDiv+`<div class="track-row" data-idx="${i}" onclick="playPreview(${i})" role="button" tabindex="0" aria-label="Spill ${b.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playPreview(${i})}">
         <span class="track-num">${String(i+1).padStart(2,'0')}</span>
-        <div class="track-play-icon">▶</div>
+        <div class="track-play-icon"><span class="ic ic-play" aria-hidden="true"></span></div>
         <span class="track-name">${b.name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>
         <span class="track-dur">${dStr}</span>
       </div>`;
@@ -385,7 +385,7 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
 <div class="page">
   <div class="hero">
     <div class="sleeve-wrap">
-      <div class="sleeve">${coverUrl?`<img src="${coverUrl}" alt="">`:'<div class="sleeve-ph">🎵</div>'}</div>
+      <div class="sleeve">${coverUrl?`<img src="${coverUrl}" alt="">`:'<div class="sleeve-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}</div>
       <div class="vinyl-wrap paused" id="vinylWrap">
         <div class="vinyl-disc">
           <div class="vinyl-grooves"></div>
@@ -403,8 +403,8 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
         <span>• ${new Date().getFullYear()}</span>
       </div>
       <div class="controls">
-        <button class="ctrl-btn" id="playAllBtn" onclick="togglePlayAll()">▶ Spill preview</button>
-        <button class="ctrl-btn" onclick="stopAll()">⏹</button>
+        <button class="ctrl-btn" id="playAllBtn" onclick="togglePlayAll()"><span class="ic ic-play" aria-hidden="true"></span> Spill preview</button>
+        <button class="ctrl-btn" onclick="stopAll()"><span class="ic ic-stop" aria-hidden="true"></span></button>
         <span class="preview-label" id="previewLabel">17 sek per sang</span>
       </div>
     </div>
@@ -440,7 +440,7 @@ function stopAll(silent){
   document.querySelectorAll('.track-row').forEach(r=>{r.classList.remove('active');r.style.removeProperty('--progress');});
   document.getElementById('vinylWrap').classList.add('paused');
   const btn=document.getElementById('playAllBtn');
-  btn.classList.remove('active-play');btn.textContent='▶ Spill preview';
+  btn.classList.remove('active-play');btn.innerHTML='<span class="ic ic-play" aria-hidden="true"></span> Spill preview';
   document.getElementById('previewLabel').textContent='17 sek per sang';
   if(!silent)currentIdx=-1;
 }
@@ -454,7 +454,7 @@ async function playPreview(idx){
   document.querySelectorAll('.track-row')[idx]?.scrollIntoView({behavior:'smooth',block:'nearest'});
   document.getElementById('vinylWrap').classList.remove('paused');
   document.getElementById('playAllBtn').classList.add('active-play');
-  document.getElementById('playAllBtn').textContent='⏸ Spiller';
+  document.getElementById('playAllBtn').innerHTML='<span class="ic ic-pause" aria-hidden="true"></span> Spiller';
   document.getElementById('previewLabel').textContent=beat.name;
   audio=new Audio();audio.volume=VOL;
   try{const res=await fetch(beat.audio_url);if(res.ok){const blob=await res.blob();audio.src=URL.createObjectURL(blob);}else audio.src=beat.audio_url;}
@@ -476,8 +476,8 @@ async function playPreview(idx){
 }
 function nextTrack(fromIdx){clearInterval(progressInterval);const next=fromIdx+1;if(next<BEATS.length)playPreview(next);else stopAll();}
 function togglePlayAll(){
-  if(currentIdx>=0&&audio&&!audio.paused){audio.pause();document.getElementById('vinylWrap').classList.add('paused');document.getElementById('playAllBtn').classList.remove('active-play');document.getElementById('playAllBtn').textContent='▶ Fortsett';clearInterval(progressInterval);}
-  else if(currentIdx>=0&&audio&&audio.paused){audio.play();document.getElementById('vinylWrap').classList.remove('paused');document.getElementById('playAllBtn').classList.add('active-play');document.getElementById('playAllBtn').textContent='⏸ Spiller';}
+  if(currentIdx>=0&&audio&&!audio.paused){audio.pause();document.getElementById('vinylWrap').classList.add('paused');document.getElementById('playAllBtn').classList.remove('active-play');document.getElementById('playAllBtn').innerHTML='<span class="ic ic-play" aria-hidden="true"></span> Fortsett';clearInterval(progressInterval);}
+  else if(currentIdx>=0&&audio&&audio.paused){audio.play();document.getElementById('vinylWrap').classList.remove('paused');document.getElementById('playAllBtn').classList.add('active-play');document.getElementById('playAllBtn').innerHTML='<span class="ic ic-pause" aria-hidden="true"></span> Spiller';}
   else playPreview(0);
 }
 async function loadComments(){
@@ -516,7 +516,7 @@ loadComments();
     if(!el)return;
     if(!el.querySelector('.album-beat-card') && (!beatsFromDom(el).length))return;
     if(el.innerHTML.includes('Ingen beats')){
-      el.innerHTML=emptyState(mode==='mixtape'?'🎧':'💿',mode==='mixtape'?'Mixtapen er tom':'Albumet er tomt',mode==='mixtape'?'Last opp beats eller legg til eksisterende beats.':'Legg til beats som demoer for å starte albumet.',mode==='mixtape'?'Last opp beats':'Legg til eksisterende',mode==='mixtape'?"document.getElementById('mixtapeUploadInput').click()":"document.getElementById('addBeatsToAlbumBtn').click()");
+      el.innerHTML=emptyState(mode==='mixtape'?'<span class="ic ic-headphones" aria-hidden="true"></span>':'<span class="ic ic-disc" aria-hidden="true"></span>',mode==='mixtape'?'Mixtapen er tom':'Albumet er tomt',mode==='mixtape'?'Last opp beats eller legg til eksisterende beats.':'Legg til beats som demoer for å starte albumet.',mode==='mixtape'?'Last opp beats':'Legg til eksisterende',mode==='mixtape'?"document.getElementById('mixtapeUploadInput').click()":"document.getElementById('addBeatsToAlbumBtn').click()");
       return;
     }
     el.querySelectorAll('.album-beat-card').forEach(card=>{
@@ -551,7 +551,7 @@ loadComments();
   function injectProducerDashboard(){
     if(!isProducerUser())return;
     const list=document.getElementById('mixtapesListView'); if(!list||document.getElementById('producerDashboard'))return;
-    list.insertAdjacentHTML('afterbegin',`<div id="producerDashboard" class="producer-dashboard"><h3 style="margin:0 0 6px">Produsent-dashboard</h3><p class="hint" style="margin:0 0 12px">Last opp beats, lag mixtapes og følg med på pipeline-status. Sletting og admin-endringer er låst.</p><button class="primary-btn" onclick="document.getElementById('newMixtapeBtn').click()">+ Ny mixtape</button> <label class="ghost-btn" style="cursor:pointer;margin-left:8px">📂 Last opp beats<input type="file" accept="audio/*" multiple hidden onchange="producerQuickUpload(this.files)"></label></div>`);
+    list.insertAdjacentHTML('afterbegin',`<div id="producerDashboard" class="producer-dashboard"><h3 style="margin:0 0 6px">Produsent-dashboard</h3><p class="hint" style="margin:0 0 12px">Last opp beats, lag mixtapes og følg med på pipeline-status. Sletting og admin-endringer er låst.</p><button class="primary-btn" onclick="document.getElementById('newMixtapeBtn').click()">+ Ny mixtape</button> <label class="ghost-btn" style="cursor:pointer;margin-left:8px"><span class="ic ic-folder" aria-hidden="true"></span> Last opp beats<input type="file" accept="audio/*" multiple hidden onchange="producerQuickUpload(this.files)"></label></div>`);
   }
   window.producerQuickUpload=async function(files){let mt=state.mixtapes[0];if(!mt){mt={id:uid(),name:'Producer Uploads',beatIds:[],color:CASS_COLORS[0],status:'Åpen for uploads',createdAt:Date.now()};state.mixtapes.unshift(mt);}currentMixtapeId=mt.id;for(const f of [...files])addBeatToMixtape(await createBeatFromFile(f));saveState();renderMixtapes();showToast(`✓ ${files.length} beat${files.length===1?'':'s'} lastet opp`);};
 
@@ -651,7 +651,7 @@ loadComments();
     d.innerHTML=`<div class="queue-hd"><strong>Play queue</strong><button class="ghost-btn" onclick="document.getElementById('queueDrawer').classList.remove('open')">Lukk</button></div><div id="queueList" class="queue-list"></div><div class="queue-hd"><strong>Recently played</strong></div><div id="recentList" class="queue-list"></div>`;document.body.appendChild(d);
     const btn=document.createElement('button');btn.id='queueToggleBtn';btn.className='ghost-btn';btn.textContent='Kø';btn.onclick=()=>{d.classList.toggle('open');renderQueueDrawer();}; $('.bp-right')?.prepend(btn);
   }
-  function renderQueueDrawer(){const q=$('#queueList'), r=$('#recentList'); if(q){q.innerHTML=(bottomPlayer.queue||[]).map((b,i)=>`<div class="queue-item ${i===bottomPlayer.index?'active':''}" onclick="playBottomIndex(${i})"><span class="queue-num">${i+1}</span><div style="min-width:0"><div class="queue-title">${safeEsc(b.name)}</div><div class="queue-sub">${safeEsc(bottomPlayer.context?.label||'Queue')}</div></div></div>`).join('')||'<div class="queue-item"><span class="queue-sub">Køen er tom.</span></div>';} if(r){r.innerHTML=(state.settings.recentlyPlayed||[]).slice(0,12).map(id=>state.beats.find(b=>b.id===id)).filter(Boolean).map(b=>`<div class="queue-item" onclick="playSingleBeat('${b.id}')"><span class="queue-num">▶</span><div class="queue-title">${safeEsc(b.name)}</div></div>`).join('')||'<div class="queue-item"><span class="queue-sub">Ingen nylig spilte.</span></div>';}}
+  function renderQueueDrawer(){const q=$('#queueList'), r=$('#recentList'); if(q){q.innerHTML=(bottomPlayer.queue||[]).map((b,i)=>`<div class="queue-item ${i===bottomPlayer.index?'active':''}" onclick="playBottomIndex(${i})"><span class="queue-num">${i+1}</span><div style="min-width:0"><div class="queue-title">${safeEsc(b.name)}</div><div class="queue-sub">${safeEsc(bottomPlayer.context?.label||'Queue')}</div></div></div>`).join('')||'<div class="queue-item"><span class="queue-sub">Køen er tom.</span></div>';} if(r){r.innerHTML=(state.settings.recentlyPlayed||[]).slice(0,12).map(id=>state.beats.find(b=>b.id===id)).filter(Boolean).map(b=>`<div class="queue-item" onclick="playSingleBeat('${b.id}')"><span class="queue-num"><span class="ic ic-play" aria-hidden="true"></span></span><div class="queue-title">${safeEsc(b.name)}</div></div>`).join('')||'<div class="queue-item"><span class="queue-sub">Ingen nylig spilte.</span></div>';}}
   const oldPlayIndex=window.playBottomIndex; if(oldPlayIndex){window.playBottomIndex=async function(i){await oldPlayIndex(i); const b=bottomPlayer.queue?.[bottomPlayer.index]; if(b){state.settings.recentlyPlayed=[b.id,...(state.settings.recentlyPlayed||[]).filter(x=>x!==b.id)].slice(0,30); if(oldSave)oldSave();} renderQueueDrawer();};}
   bottomPlayer?.audio?.addEventListener('timeupdate',()=>{const b=bottomPlayer.queue?.[bottomPlayer.index]; if(!b)return; const s=parseTime(b.loopStart), e=parseTime(b.loopEnd); if(s!=null&&e!=null&&e>s&&bottomPlayer.audio.currentTime>=e){bottomPlayer.audio.currentTime=s; showLoopFlash(b.id);}});
   function showLoopFlash(id){const card=$('#abi-'+id); if(card){card.classList.add('loop-active');setTimeout(()=>card.classList.remove('loop-active'),700);}}
@@ -854,7 +854,7 @@ loadComments();
     const tabs=document.querySelector('.tabs');
     if(!tabs)return;
     if(!document.querySelector('[data-tab="archive"]')){
-      tabs.insertAdjacentHTML('beforeend','<button class="tab-btn" data-tab="archive">🗄️ Arkivert</button>');
+      tabs.insertAdjacentHTML('beforeend','<button class="tab-btn" data-tab="archive"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>');
     }
     if(!document.getElementById('archiveTab')){
       const integrations=document.getElementById('integrationsTab');

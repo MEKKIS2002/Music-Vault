@@ -69,7 +69,7 @@
     return `<div class="app"><div class="adm-wrap">
       <div class="adm-topbar">
         <div class="adm-topbar-l">
-          <span class="adm-topbar-icon">🛠</span>
+          <span class="adm-topbar-icon"><span class="ic ic-sliders" aria-hidden="true"></span></span>
           <div>
             <div class="adm-title">Admin-panel</div>
             <div class="adm-subtitle">Brukere, tilganger og invitasjoner</div>
@@ -101,7 +101,7 @@
           <div class="adm-section-hd">Valgt bruker</div>
           <div id="adminUserDetail">
             <div class="adm-detail-empty">
-              <div class="adm-empty-ico">👤</div>
+              <div class="adm-empty-ico"><span class="ic ic-user" aria-hidden="true"></span></div>
               <div class="adm-empty-t">Ingen bruker valgt</div>
               <div class="adm-empty-s">Velg en bruker fra listen for å se og redigere kontoen.</div>
             </div>
@@ -377,7 +377,7 @@
         <div class="adm-dc-danger">
           <button class="adm-danger-btn"
             onclick="window.adminDeleteUser('${esc(user.id)}','${esc((user.username||user.email||'').replace(/'/g,''))}')">
-            🗑 Slett bruker
+            Slett bruker
           </button>
         </div>
       </div>`;
@@ -543,7 +543,7 @@
       const on = !!r.enabled;
       const cover = d.cover
         ? `<img src="${esc(d.cover)}" alt="" style="width:38px;height:38px;border-radius:7px;object-fit:cover;flex-shrink:0">`
-        : `<div style="width:38px;height:38px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🎵</div>`;
+        : `<div style="width:38px;height:38px;border-radius:7px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0"><span class="ic ic-music" aria-hidden="true"></span></div>`;
       return `<div class="adm-share-row" style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.06)">
         ${cover}
         <div style="min-width:0;flex:1">
@@ -553,8 +553,8 @@
         <div style="display:flex;gap:5px;flex-shrink:0">
           <button class="adm-mini-btn" title="Åpne" onclick="window.open('${esc(url)}','_blank')">↗</button>
           <button class="adm-mini-btn" title="Kopier lenke" onclick="navigator.clipboard.writeText('${esc(url)}').then(()=>window.showToast&&window.showToast('✓ Lenke kopiert'))">⧉</button>
-          <button class="adm-mini-btn" title="${on?'Deaktiver':'Aktiver'}" onclick="window.adminToggleShare('${esc(r.id)}',${on?'false':'true'})">${on?'⏸':'▶'}</button>
-          <button class="adm-mini-btn" title="Slett" style="color:#fb7185" onclick="window.adminDeleteShare('${esc(r.id)}')">🗑</button>
+          <button class="adm-mini-btn" title="${on?'Deaktiver':'Aktiver'}" onclick="window.adminToggleShare('${esc(r.id)}',${on?'false':'true'})">${on?'<span class="ic ic-pause" aria-hidden="true"></span>':'<span class="ic ic-play" aria-hidden="true"></span>'}</button>
+          <button class="adm-mini-btn" title="Slett" style="color:#fb7185" onclick="window.adminDeleteShare('${esc(r.id)}')"><span class="ic ic-trash" aria-hidden="true"></span></button>
         </div>
       </div>`;
     }).join('');
@@ -566,7 +566,7 @@
   };
   window.adminDeleteShare = async function(token){
     const ok = await window.deleteSongShare(token);
-    if(ok && typeof window.showToast==='function') window.showToast('🗑 Delingslenke slettet');
+    if(ok && typeof window.showToast==='function') window.showToast('Delingslenke slettet');
     window.renderAdminShareLinks();
   };
 

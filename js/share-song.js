@@ -82,7 +82,7 @@
     const b=st?.beats?.find(x=>x.id===beatId);
     if(!b){ toast('Fant ikke sangen'); return; }
     if(!publicAudioUrl(b)){
-      toast('⚠ Last opp/publiser lydfilen først — offentlig deling krever en publisert lydfil.');
+      toast('Last opp/publiser lydfilen først — offentlig deling krever en publisert lydfil.');
       return;
     }
     const k = kind || (isSong(b)?'song':'beat');
@@ -121,11 +121,11 @@
     modal.innerHTML=`
       <div style="background:#1c1a17;border:1px solid rgba(255,255,255,.12);max-width:480px;width:94%;padding:26px 28px;border-radius:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4ede4">🔗 Del ${esc(kindLabel)}</h2>
+          <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4ede4"><span class="ic ic-link" aria-hidden="true"></span> Del ${esc(kindLabel)}</h2>
           <button onclick="document.getElementById('_mvSongShare').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;padding:0;line-height:1">&times;</button>
         </div>
         <div style="display:flex;align-items:center;gap:12px;margin:8px 0 18px">
-          ${b.cover?`<img src="${esc(b.cover)}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0">`:`<div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎵</div>`}
+          ${b.cover?`<img src="${esc(b.cover)}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0">`:`<div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"><span class="ic ic-music" aria-hidden="true"></span></div>`}
           <div style="min-width:0">
             <div style="font-size:14px;font-weight:800;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.name||'Uten tittel')}</div>
             <div style="font-size:12px;color:rgba(255,255,255,.4)">${esc(artistOf(b)||'—')}</div>

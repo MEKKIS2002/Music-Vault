@@ -206,9 +206,9 @@
         <button onclick="llDuplicateSection('${esc(sec.id)}')">⧉ Dupliser</button>
         <button onclick="llMoveSectionUp('${esc(sec.id)}')">↑ Flytt opp</button>
         <button onclick="llMoveSectionDown('${esc(sec.id)}')">↓ Flytt ned</button>
-        <button onclick="llSaveVersion('${esc(sec.id)}')">💾 Lagre versjon</button>
-        <button onclick="llShowHistory('${esc(sec.id)}')">⌛ Historikk</button>
-        <button class="danger" onclick="llDeleteSection('${esc(sec.id)}')">🗑 Slett seksjon</button>
+        <button onclick="llSaveVersion('${esc(sec.id)}')"><span class="ic ic-save" aria-hidden="true"></span> Lagre versjon</button>
+        <button onclick="llShowHistory('${esc(sec.id)}')"><span class="ic ic-clock" aria-hidden="true"></span> Historikk</button>
+        <button class="danger" onclick="llDeleteSection('${esc(sec.id)}')"><span class="ic ic-trash" aria-hidden="true"></span> Slett seksjon</button>
       </div>
     </div>`;
   }
@@ -237,11 +237,11 @@
     const dur      = fmtDur(beat.duration);
     const coverEl  = beat.cover
       ? `<img class="ll-cover-img" src="${esc(beat.cover)}" alt="${esc(beat.name)}">`
-      : `<div class="ll-cover-ph">🎵</div>`;
+      : `<div class="ll-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
 
     container.innerHTML = `
 <div class="ll-wrap">
-<div class="ll-header">\n  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>\n  <span class="ll-header-title">✍️ Lyric Lab</span>\n  <span class="ll-header-beat-name">${esc(beat.name)}</span>\n  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>\n  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>\n</div>
+<div class="ll-header">\n  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>\n  <span class="ll-header-title"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</span>\n  <span class="ll-header-beat-name">${esc(beat.name)}</span>\n  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>\n  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>\n</div>
 <div class="ll-layout">
 
   <!-- LEFT: Beat -->
@@ -251,7 +251,7 @@
         <div class="ll-cover-wrap">
           ${coverEl}
           <div class="ll-play-overlay" onclick="llWavePlay()">
-            <button class="ll-play-overlay-btn" id="llPlayBtn">▶</button>
+            <button class="ll-play-overlay-btn" id="llPlayBtn"><span class="ic ic-play" aria-hidden="true"></span></button>
           </div>
         </div>
         <div class="ll-beat-head-info">
@@ -269,13 +269,13 @@
       <div class="ll-player">
         <div id="llWaveSurfer" class="ll-wave"></div>
         <div class="ll-player-row">
-          <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()">▶</button>
+          <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()"><span class="ic ic-play" aria-hidden="true"></span></button>
           <span class="ll-time"><span id="llWaveCur">0:00</span><span class="ll-time-sep">/</span><span id="llWaveTot">${dur}</span></span>
           <span class="ll-player-spacer"></span>
           <button class="ll-icon-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på">↺</button>
         </div>
         <div class="ll-zoom-row">
-          <span class="ll-zoom-ico">🔍</span>
+          <span class="ll-zoom-ico"><span class="ic ic-search" aria-hidden="true"></span></span>
           <input type="range" id="llWaveZoom" class="ll-zoom-slider" min="0" max="100" value="0" oninput="llZoomWave(this.value)">
           <span class="ll-zoom-val" id="llWaveZoomVal">1×</span>
         </div>
@@ -298,9 +298,9 @@
 
     <div class="ll-rec-card">
       <div class="ll-rec-btns">
-        <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten">🎙️ Take</button>
+        <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-mic" aria-hidden="true"></span> Take</button>
         <button class="ll-rec-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo">⬤ Memo</button>
-        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne">🌐 Del lenke</button>
+        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del lenke</button>
       </div>
       <details class="ll-rec-details">
         <summary>Takes <span class="ll-count-badge" id="llTakeCount"></span></summary>
@@ -322,9 +322,9 @@
         <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
       </div>
       <div class="ll-editor-actions">
-        <button class="ll-tool-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">🌊 Flow</button>
-        <button class="ll-tool-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">💡 Inspirer</button>
-        <button class="ll-tool-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke.">📄 Tekstark</button>
+        <button class="ll-tool-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow</button>
+        <button class="ll-tool-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirer</button>
+        <button class="ll-tool-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
         <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
       </div>
     </div>
@@ -425,11 +425,11 @@
     const last  = beats.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0))[0];
     container.innerHTML = `
 <div class="ll-empty">
-  <div class="ll-empty-icon">✍️</div>
+  <div class="ll-empty-icon"><span class="ic ic-pen" aria-hidden="true"></span></div>
   <h2>Velg en låt å skrive på</h2>
   <div class="ll-empty-btns">
-    <button class="primary-btn" onclick="llPickBeat()">🎵 Velg fra beats</button>
-    ${last ? `<button class="ghost-btn" onclick="openInLyricLab('${esc(last.id)}')">↩ Åpne siste: ${esc(last.name)}</button>` : ''}
+    <button class="primary-btn" onclick="llPickBeat()"><span class="ic ic-music" aria-hidden="true"></span> Velg fra beats</button>
+    ${last ? `<button class="ghost-btn" onclick="openInLyricLab('${esc(last.id)}')"><span class="ic ic-clock" aria-hidden="true"></span> Åpne siste: ${esc(last.name)}</button>` : ''}
     <button class="ghost-btn" onclick="llCreateNewBeat()">+ Opprett ny låt</button>
   </div>
 </div>`;
@@ -709,9 +709,9 @@
         _memoRecorder.ondataavailable = e => { if(e.data.size>0) _memoChunks.push(e.data); };
         _memoRecorder.onstart = () => {
           const btn = document.getElementById('llMemoBtn');
-          if(btn){ btn.textContent='⏹ Stopp memo'; btn.style.background='rgba(251,113,133,.2)'; btn.style.borderColor='rgba(251,113,133,.4)'; }
+          if(btn){ btn.textContent='Stopp memo'; btn.style.background='rgba(251,113,133,.2)'; btn.style.borderColor='rgba(251,113,133,.4)'; }
           let secs = 0;
-          _memoInterval = setInterval(()=>{ secs++; const b=document.getElementById('llMemoBtn'); if(b) b.textContent=`⏹ Stopp (${secs}s)`; if(secs>=60) _memoRecorder?.stop(); }, 1000);
+          _memoInterval = setInterval(()=>{ secs++; const b=document.getElementById('llMemoBtn'); if(b) b.textContent=`Stopp (${secs}s)`; if(secs>=60) _memoRecorder?.stop(); }, 1000);
           if(typeof showToast==='function') showToast('⬤ Tar opp memo... (maks 60s)');
         };
         _memoRecorder.onstop = () => {
@@ -853,7 +853,7 @@
       if (!beats.length) return `<div class="ll-picker-empty">${emptyMsg}</div>`;
       return beats.map(b => `
         <div class="ll-picker-row" onclick="openInLyricLab('${esc(b.id)}');document.getElementById('llBeatPicker').remove()">
-          ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph">🎵</div>'}
+          ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}
           <div class="ll-picker-info">
             <div class="ll-picker-name">${esc(b.name)}</div>
             <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
@@ -927,7 +927,7 @@
     list.innerHTML = beats.length
       ? beats.map(b => `
           <div class="ll-picker-row" onclick="openInLyricLab('${esc(b.id)}');document.getElementById('llBeatPicker')?.remove()">
-            ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph">🎵</div>'}
+            ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}
             <div class="ll-picker-info">
               <div class="ll-picker-name">${esc(b.name)}</div>
               <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
@@ -1013,7 +1013,7 @@
       </div>
       <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
         <button class="ghost-btn" style="font-size:11px;padding:5px 10px" onclick="llInlineAddSection('${esc(beatId)}')">+ Seksjon</button>
-        <button class="ghost-btn" style="font-size:11px;padding:5px 10px" onclick="openInLyricLab('${esc(beatId)}')">✍️ Åpne i Lyric Lab</button>
+        <button class="ghost-btn" style="font-size:11px;padding:5px 10px" onclick="openInLyricLab('${esc(beatId)}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
       </div>
     </div>`;
   }
@@ -1104,11 +1104,11 @@
 
     function startCountdown() {
       if(overlay) { overlay.style.display='flex'; overlay.querySelector('.ll-take-count').textContent = count; }
-      if(btn) btn.textContent = `🎙️ Starter om ${count}s...`;
+      if(btn) btn.textContent = `Starter om ${count}s...`;
       const cd = setInterval(() => {
         count--;
         if(overlay) overlay.querySelector('.ll-take-count').textContent = count || 'REC';
-        if(btn) btn.textContent = count > 0 ? `🎙️ Starter om ${count}s...` : '⏹ Stopp innspilling';
+        if(btn) btn.textContent = count > 0 ? `Starter om ${count}s...` : 'Stopp innspilling';
         if (count <= 0) {
           clearInterval(cd);
           startRecording();
@@ -1169,7 +1169,7 @@
                 const timer = document.getElementById('llTakeTimer');
                 if(timer) timer.textContent = `${m}:${s}`;
               }, 1000);
-              if(typeof showToast==='function') showToast('🎙️ Innspilling startet');
+              if(typeof showToast==='function') showToast('Innspilling startet');
             };
 
             _takeRecorder.onstop = () => {
@@ -1179,7 +1179,7 @@
               if(localAudio) { localAudio.pause(); }
               if(blobUrl) URL.revokeObjectURL(blobUrl);
               if(overlay) overlay.style.display='none';
-              if(btn){ btn.textContent='🎙️ Spill inn over beat'; btn.style.background=''; }
+              if(btn){ btn.textContent='Spill inn over beat'; btn.style.background=''; }
               const blob2 = new Blob(_takeChunks, { type: mime });
               const reader = new FileReader();
               reader.onload = ev => {
@@ -1196,7 +1196,7 @@
           })
           .catch(err => {
             if(overlay) overlay.style.display='none';
-            if(btn) btn.textContent='🎙️ Spill inn over beat';
+            if(btn) btn.textContent='Spill inn over beat';
             if(typeof showToast==='function') showToast('Mikrofon feil: ' + err.message);
           });
       } // end doRecord
@@ -1326,8 +1326,8 @@
     return Math.floor(sec/60) + ':' + String(Math.floor(sec%60)).padStart(2,'0');
   }
   function _setPlayIcon(playing) {
-    const b = document.getElementById('llWavePlayBtn'); if (b) b.textContent = playing ? '⏸' : '▶';
-    const o = document.getElementById('llPlayBtn');     if (o) o.textContent = playing ? '⏸' : '▶';
+    const b = document.getElementById('llWavePlayBtn'); if (b) b.innerHTML = playing ? '<span class="ic ic-pause" aria-hidden="true"></span>' : '<span class="ic ic-play" aria-hidden="true"></span>';
+    const o = document.getElementById('llPlayBtn');     if (o) o.innerHTML = playing ? '<span class="ic ic-pause" aria-hidden="true"></span>' : '<span class="ic ic-play" aria-hidden="true"></span>';
   }
   function _setLoopBtn(on) {
     const b = document.getElementById('llWaveLoopBtn');
@@ -1737,7 +1737,7 @@
         <button onclick="document.getElementById('llHistoryModal').remove()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer">✕</button>
       </div>
       <div style="overflow-y:auto;padding:8px">
-        ${hist.length === 0 ? '<p style="padding:16px;color:rgba(255,255,255,.3);font-size:13px">Ingen lagrede versjoner ennå. Klikk ⌛ i seksjonmenyen for å lagre.</p>'
+        ${hist.length === 0 ? '<p style="padding:16px;color:rgba(255,255,255,.3);font-size:13px">Ingen lagrede versjoner ennå. Klikk <span class="ic ic-clock" aria-hidden="true"></span> i seksjonmenyen for å lagre.</p>'
           : [...hist].reverse().map((v, i) => {
             const d = new Date(v.ts);
             const label = d.toLocaleString('no-NO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -1764,7 +1764,7 @@
     if(typeof saveState==='function') saveState();
     document.getElementById('llHistoryModal')?.remove();
     renderLyricLab();
-    if(typeof showToast==='function') showToast('↩ Versjon gjenopprettet');
+    if(typeof showToast==='function') showToast('Versjon gjenopprettet');
   };
 
   // Auto-snapshot on every save (after debounce)

@@ -94,7 +94,7 @@
     .p-btn:hover{ background:var(--surface); }
     .p-btn.main{ width:44px; height:44px; background:var(--amber); color:#1a1206; font-size:17px; }
     .p-seek{ grid-column:1 / -1; }
-    .ico{ width:20px; height:20px; fill:currentColor; flex-shrink:0; display:block; }
+    svg.ico{ width:20px; height:20px; fill:currentColor; flex-shrink:0; display:block; }
     .p-btn.main .ico{ width:22px; height:22px; }
     .play-all .ico{ width:18px; height:18px; }
     input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px; margin:0;
@@ -109,15 +109,16 @@
       .cover{ width:100%; height:auto; aspect-ratio:1/1; max-width:320px; }
     }
   </style>
+  <link rel="stylesheet" href="css/icons.css?v=202611150030">
 </head>
 <body>
   <main class="page">
     <div class="brand"><span class="dot"></span> Music Vault</div>
 
-    <div id="loading" class="state"><div class="ico">⏳</div><p>Laster…</p></div>
+    <div id="loading" class="state"><div class="ico"><span class="ic ic-clock" aria-hidden="true"></span></div><p>Laster…</p></div>
 
     <div id="error" class="state hidden">
-      <div class="ico">🔒</div>
+      <div class="ico"><span class="ic ic-lock" aria-hidden="true"></span></div>
       <h2>Lenken er ikke tilgjengelig</h2>
       <p>Denne delingslenken finnes ikke, eller den er deaktivert av eieren.</p>
     </div>
@@ -184,7 +185,7 @@
       var img = safeImg(mt.cover);
       $('cover').innerHTML = img
         ? '<img src="'+esc(img)+'" alt="Cover for '+esc(mt.name||'mixtapen')+'">'
-        : '<div class="cover-ph" style="background:'+esc(/^#[0-9a-f]{3,8}$/i.test(mt.color||'')?mt.color+'33':'rgba(244,164,67,.15)')+'">📼</div>';
+        : '<div class="cover-ph" style="background:'+esc(/^#[0-9a-f]{3,8}$/i.test(mt.color||'')?mt.color+'33':'rgba(244,164,67,.15)')+'"><span class="ic ic-cassette" aria-hidden="true"></span></div>';
 
       var n = tracks.length;
       var total = tracks.reduce(function(s,b){ return s+(Number(b.duration)||0); },0);

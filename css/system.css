@@ -261,15 +261,27 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
     width:40px !important; height:40px !important; min-height:0 !important; font-size:16px !important;
   }
   .primary-btn, .ghost-btn, .small-btn, .dq-btn, label.ghost-btn, .mv-proj-menu > summary{ height:44px !important; }
-  /* Header: «⚡ ADMIN» tok plassen så varselklokka ble kuttet — bare ⚡ på mobil */
+  /* Header: «ADMIN»-merket tok plassen så varselklokka ble kuttet — bare lyn-ikonet på mobil */
   .mv-hdr-admin-badge{
     font-size:0 !important; padding:0 !important; width:30px; height:30px;
     display:inline-flex !important; align-items:center; justify-content:center; flex-shrink:0;
   }
-  .mv-hdr-admin-badge::before{ content:"⚡"; font-size:14px; }
+  .mv-hdr-admin-badge .ic{ font-size:14px; }
   .mv-header-right{ flex-shrink:0; min-width:0; }
   /* .app gir allerede sidekant på mobil; søk/sortering stables (mobile.css) */
   .beats-tab-wrap{ padding:0 0 80px !important; }
   .beats-tab-controls{ flex-wrap:wrap !important; }
   .beats-search, .beats-sort{ width:100% !important; }
 }
+
+/* ── Faner i headeren: egne strek-ikoner i stedet for emojier ─────────────── */
+.mv-tabs .tab-btn{ display:inline-flex; align-items:center; gap:7px; }
+.mv-tabs .tab-btn .ic{ font-size:15px; opacity:.6; transition:opacity .15s; }
+.mv-tabs .tab-btn:hover .ic, .mv-tabs .tab-btn.active .ic{ opacity:1; }
+/* Mobil bunnmeny og Hjem-snarveier: ikonene arver fargen, litt større */
+.mv-mob-icon .ic{ font-size:21px; }
+.hs-ico .ic{ font-size:22px; }
+.hjem-more-link .ic{ margin-right:4px; opacity:.75; }
+/* Store plassholdere (cover uten bilde, tomtilstander) — dempet ikon */
+.record-sleeve-ph .ic, .sleeve-ph .ic, .ab-cover-ph .ic, .ll-cover-ph .ic, .pl3-card-thumb-ph .ic,
+.empty-icon .ic, .docs-state-ico .ic, .ll-empty-icon .ic, .pl3-empty-icn .ic, .adm-empty-ico .ic{ opacity:.55; }

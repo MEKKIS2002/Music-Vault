@@ -45,12 +45,12 @@
     return `<div class="app"><div class="label-dashboard">
       <div class="label-topbar">
         <div class="label-topbar-left">
-          <span class="label-icon">🏷</span>
+          <span class="label-icon"><span class="ic ic-tag" aria-hidden="true"></span></span>
           <span id="labelName" class="label-title">Label</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="ghost-btn label-invite-btn" onclick="window.labelShowOverview()" id="labelOverviewBtn">← Oversikt</button>
-          <button class="ghost-btn label-invite-btn" onclick="window.labelShowFeed()">📋 Aktivitet</button>
+          <button class="ghost-btn label-invite-btn" onclick="window.labelShowFeed()"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitet</button>
           <button class="ghost-btn label-invite-btn" onclick="window.labelOpenInvite()">+ Inviter artist</button>
         </div>
       </div>
@@ -82,7 +82,7 @@
     <div id="labelFeedModal" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,.75);align-items:flex-start;justify-content:center;backdrop-filter:blur(4px);padding-top:60px;overflow-y:auto">
       <div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(600px,92vw);padding:0 0 24px">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
-          <h2 style="font-size:16px;font-weight:800;margin:0">📋 Aktivitetsfeed</h2>
+          <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitetsfeed</h2>
           <button onclick="document.getElementById('labelFeedModal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1">×</button>
         </div>
         <div id="labelFeedContent" style="padding:0 24px"></div>
@@ -274,7 +274,7 @@
       </div>
 
       ${pending.length ? `<div style="background:rgba(244,164,67,.06);border:1px solid rgba(244,164,67,.15);padding:10px 14px;margin-bottom:20px;font-size:12px;color:rgba(244,164,67,.8)">
-        ⏳ ${pending.length} invitasjon${pending.length>1?'er':''} venter på svar
+        ${pending.length} invitasjon${pending.length>1?'er':''} venter på svar
       </div>` : ''}
 
       <div class="label-section-hd" style="margin-bottom:12px">Artister</div>
@@ -569,7 +569,7 @@
           + '<span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">'+String(i+1).padStart(2,'0')+'</span>'
           + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+bTitle+'</div>'
           + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11px;color:#f4a443">'+stars+'</span><span style="font-size:10px;color:rgba(255,255,255,.35)">'+bDone+'% ferdig</span>'+(dStr?'<span style="font-size:10px;color:rgba(255,255,255,.25)">'+dStr+'</span>':'')+'</div></div>'
-          + (hasAudio ? '<button onclick="window.labelPlayBeat(\''+b.id+'\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%">▶</button>' : '<div style="width:26px"></div>')
+          + (hasAudio ? '<button onclick="window.labelPlayBeat(\''+b.id+'\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:26px"></div>')
           + '</div>';
       }).join('');
 
@@ -585,17 +585,17 @@
 
       return '<div style="border:1px solid '+borderCol+';margin-bottom:10px'+bgStr+'">'
         + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer" onclick="var t=document.getElementById(\'at'+safeId+'\');var ar=document.getElementById(\'arr'+safeId+'\');if(t.style.display===\'none\'){t.style.display=\'block\';ar.textContent=\'▲\';}else{t.style.display=\'none\';ar.textContent=\'▼\';}">'
-          + '<div class="label-album-cover">'+(cover?'<img src="'+cover+'" style="width:100%;height:100%;object-fit:cover">':'🎵')+'</div>'
-          + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px">'+(isPriority?'<span style="font-size:12px">🔥</span>':'')+'<div class="label-album-name">'+albumName+'</div></div>'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span class="label-album-meta">'+beatCount+' sanger'+(durStr?' · '+durStr:'')+'</span>'+(releaseDate?'<span style="font-size:10px;color:#60a5fa">📅 '+relDateStr+'</span>':'')+'</div></div>'
+          + '<div class="label-album-cover">'+(cover?'<img src="'+cover+'" style="width:100%;height:100%;object-fit:cover">':'<span class="ic ic-music" aria-hidden="true"></span>')+'</div>'
+          + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px">'+(isPriority?'<span style="font-size:12px"><span class="ic ic-flame" aria-hidden="true"></span></span>':'')+'<div class="label-album-name">'+albumName+'</div></div>'
+          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span class="label-album-meta">'+beatCount+' sanger'+(durStr?' · '+durStr:'')+'</span>'+(releaseDate?'<span style="font-size:10px;color:#60a5fa"><span class="ic ic-calendar" aria-hidden="true"></span> '+relDateStr+'</span>':'')+'</div></div>'
           + '<div style="min-width:60px"><div class="label-progress"><div class="label-progress-fill" style="width:'+avgBeatDone+'%"></div></div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;text-align:right">'+avgBeatDone+'%</div></div>'
           + '<span id="arr'+safeId+'" style="color:rgba(255,255,255,.3);font-size:11px">▼</span>'
         + '</div>'
         + '<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15);flex-wrap:wrap" onclick="event.stopPropagation()">'
           + '<select onchange="window.labelSetAlbumStatus(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#1a1612;border:1px solid rgba(255,255,255,.12);color:#f4ede4;padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer">'+statusOpts+'</select>'
-          + '<button onclick="window.labelTogglePriority(\''+a.id+'\',\''+artistId+'\','+(!isPriority)+')" style="background:'+priBtnBg+';border:1px solid '+priBtnBd+';color:'+priBtnCol+';font-size:11px;padding:4px 10px;cursor:pointer;font-family:system-ui">🔥 '+priLabel+'</button>'
+          + '<button onclick="window.labelTogglePriority(\''+a.id+'\',\''+artistId+'\','+(!isPriority)+')" style="background:'+priBtnBg+';border:1px solid '+priBtnBd+';color:'+priBtnCol+';font-size:11px;padding:4px 10px;cursor:pointer;font-family:system-ui"><span class="ic ic-flame" aria-hidden="true"></span> '+priLabel+'</button>'
           + '<input type="date" value="'+releaseDate+'" onchange="window.labelSetRelease(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#1a1612;border:1px solid rgba(255,255,255,.12);color:'+datCol+';padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer" title="Release-dato">'
-          + '<button onclick="event.stopPropagation();window.labelOpenComments(\''+a.id+'\',\''+albumName+'\',\''+artistId+'\')" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:11px;padding:4px 8px;cursor:pointer;font-family:system-ui">💬</button>'
+          + '<button onclick="event.stopPropagation();window.labelOpenComments(\''+a.id+'\',\''+albumName+'\',\''+artistId+'\')" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:11px;padding:4px 8px;cursor:pointer;font-family:system-ui"><span class="ic ic-chat" aria-hidden="true"></span></button>'
         + '</div>'
         + '<div id="at'+safeId+'" style="display:none">'
           + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)">'
@@ -617,7 +617,7 @@
           <div class="label-detail-name">${name}</div>
           <div class="label-detail-meta">${profile.email || ''}</div>
         </div>
-        <button class="ghost-btn" style="font-size:12px" onclick="window.labelPitchArtist('${artistId}')">📄 Pitch</button>
+        <button class="ghost-btn" style="font-size:12px" onclick="window.labelPitchArtist('${artistId}')"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>
       </div>
 
       <div class="label-stats">
@@ -652,12 +652,12 @@
           return `<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)">
             <span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">${String(i+1).padStart(2,'0')}</span>
             <div style="font-size:13px;font-weight:700;color:#f4ede4;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${bTitle}</div>
-            ${hasAudio ? '<button onclick="window.labelPlayBeat(\'' + b.id + '\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%">▶</button>' : '<div style="width:24px"></div>'}
+            ${hasAudio ? '<button onclick="window.labelPlayBeat(\'' + b.id + '\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:24px"></div>'}
           </div>`;
         }).join('');
         return `<div style="border:1px solid rgba(255,255,255,.06);margin-bottom:8px">
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer" onclick="var t=document.getElementById('mt${safeId}');var ar=document.getElementById('mrr${safeId}');if(t.style.display==='none'){t.style.display='block';ar.textContent='▲';}else{t.style.display='none';ar.textContent='▼';}">
-            <div class="label-album-cover">📼</div>
+            <div class="label-album-cover"><span class="ic ic-cassette" aria-hidden="true"></span></div>
             <div class="label-album-name" style="flex:1">${m.title||meta.name||'Untitled'}</div>
             <span style="font-size:11px;color:rgba(255,255,255,.35)">${mBeats.length} sanger</span>
             <span id="mrr${safeId}" style="color:rgba(255,255,255,.3);font-size:11px;margin-left:6px">▼</span>
@@ -669,7 +669,7 @@
       }).join('')}</div>` : ''}
 
       <!-- Interne notater (kun label ser dette) -->
-      <div class="label-section-hd" style="margin-top:20px">🔒 Interne notater</div>
+      <div class="label-section-hd" style="margin-top:20px"><span class="ic ic-lock" aria-hidden="true"></span> Interne notater</div>
       <textarea id="labelNotesArea" placeholder="Private merknader om artisten — artisten ser ikke dette..." rows="4"
         style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#f4ede4;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:6px"
         oninput="window.labelNoteDirty=true">${artistNotes.replace(/</g,'&lt;')}</textarea>
@@ -680,8 +680,8 @@
 
       <!-- Verktøylinje -->
       <div style="display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
-        <button onclick="window.labelCompareArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui">⚖️ Sammenlign</button>
-        <button onclick="window.labelExportArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui">📊 Eksporter CSV</button>
+        <button onclick="window.labelCompareArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui">Sammenlign</button>
+        <button onclick="window.labelExportArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui"><span class="ic ic-chart" aria-hidden="true"></span> Eksporter CSV</button>
       </div>
     `;
   };
@@ -723,7 +723,7 @@
       const aTitle = aData[0]?.title || 'album';
       await fetch(`${SB_URL}/rest/v1/notifications`,{
         method:'POST', headers:{...sbH(token),'Prefer':'return=minimal'},
-        body:JSON.stringify({recipient_id:artistId,sender_id:uid,type:'label_comment',content_id:albumId,content_name:'🔥 '+labelName+' har prioritert: '+aTitle,role:'label',read:false})
+        body:JSON.stringify({recipient_id:artistId,sender_id:uid,type:'label_comment',content_id:albumId,content_name:''+labelName+' har prioritert: '+aTitle,role:'label',read:false})
       });
     }
     window.labelSelectArtist(artistId);
@@ -766,7 +766,7 @@
     modal.style.display='flex';
     modal.innerHTML='<div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(800px,96vw);padding:0 0 24px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">'
-        +'<h2 style="font-size:16px;font-weight:800;margin:0">⚖️ Sammenlign artist</h2>'
+        +'<h2 style="font-size:16px;font-weight:800;margin:0">Sammenlign artist</h2>'
         +'<button onclick="document.getElementById(\'labelCompareModal\').style.display=\'none\'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer">×</button>'
       +'</div>'
       +'<div style="padding:20px 24px">'
@@ -853,7 +853,7 @@
     link.href = url; link.download = name+'_rapport.csv';
     link.click();
     URL.revokeObjectURL(url);
-    if(typeof window.showToast==='function') window.showToast('📊 CSV lastet ned');
+    if(typeof window.showToast==='function') window.showToast('CSV lastet ned');
   };
 
   // ── Inviter artist ──────────────────────────────────────────────────────
@@ -1070,7 +1070,7 @@
     );
     const notifs = nRes.ok ? await nRes.json() : [];
 
-    const typeLabels = {share_beat:'🎵 Ny sang', share_album:'💿 Nytt album', share_mixtape:'📼 Ny mixtape'};
+    const typeLabels = {share_beat:'Ny sang', share_album:'Nytt album', share_mixtape:'Ny mixtape'};
 
     const senderIds = [...new Set(notifs.map(n=>n.sender_id).filter(Boolean))];
     let senderNames = {};
@@ -1085,7 +1085,7 @@
     }
 
     feedEl.innerHTML = notifs.map(n => {
-      const label = typeLabels[n.type] || '📌 Hendelse';
+      const label = typeLabels[n.type] || 'Hendelse';
       const who = senderNames[n.sender_id] || 'Artist';
       const when = new Date(n.created_at).toLocaleDateString('no-NO', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
       return `<div style="padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:12px;align-items:flex-start">
@@ -1118,7 +1118,7 @@
     modal.innerHTML = `<div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(560px,92vw);padding:0 0 24px">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
         <div>
-          <h2 style="font-size:16px;font-weight:800;margin:0">💬 Kommentarer</h2>
+          <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer</h2>
           <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px">${albumName}</div>
         </div>
         <button onclick="document.getElementById('labelCommentModal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1">×</button>

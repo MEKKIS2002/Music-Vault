@@ -127,13 +127,13 @@ async function onBottomAudioError(){
   console.error('[player] Audio error',{beat:name,beatId:beat&&beat.id,src,code:a.error&&a.error.code,reason});
   a.pause();
   updateBottomUI();
-  showToast(`⚠ Kunne ikke spille «${name}» – ${reason}`,6000);
+  showToast(`Kunne ikke spille «${name}» – ${reason}`,6000);
   if(/^https?:/i.test(src)){
     try{
       const res=await fetch(src,{method:'HEAD'});
-      if(!res.ok)showToast(`⚠ «${name}»: lydfil utilgjengelig (HTTP ${res.status}). Sjekk audio_url / tilgang i R2.`,7000);
+      if(!res.ok)showToast(`«${name}»: lydfil utilgjengelig (HTTP ${res.status}). Sjekk audio_url / tilgang i R2.`,7000);
     }catch(e){
-      showToast(`⚠ «${name}»: får ikke kontakt med lydfilen (nettverk/CORS). Sjekk audio_url.`,7000);
+      showToast(`«${name}»: får ikke kontakt med lydfilen (nettverk/CORS). Sjekk audio_url.`,7000);
     }
   }
 }
@@ -143,8 +143,8 @@ function reportUnplayableBeat(beat){
   const name=beat?beat.name:'sangen';
   const localOnly=beat&&/:idb$/.test(String(beat.url||beat.audio_url||''));
   console.warn('[player] Unplayable beat',{name,id:beat&&beat.id,url:beat&&beat.url,audio_url:beat&&beat.audio_url});
-  if(localOnly)showToast(`⚠ «${name}» finnes bare lokalt hos opplasteren – aldri lastet opp til skylagring (R2), så den kan ikke spilles her. Last den opp på nytt for å dele.`,7000);
-  else showToast(`⚠ Ingen lydfil koblet til «${name}» (mangler audio_url / tilgang).`,6000);
+  if(localOnly)showToast(`«${name}» finnes bare lokalt hos opplasteren – aldri lastet opp til skylagring (R2), så den kan ikke spilles her. Last den opp på nytt for å dele.`,7000);
+  else showToast(`Ingen lydfil koblet til «${name}» (mangler audio_url / tilgang).`,6000);
 }
 function beatsFromIds(ids){return (ids||[]).map(id=>state.beats.find(b=>b.id===id)).filter(b=>b&&!b.archived);}
 function fmtTime(sec){sec=Number(sec||0);if(!isFinite(sec))return "0:00";const m=Math.floor(sec/60);const s=Math.floor(sec%60);return `${m}:${String(s).padStart(2,"0")}`;}
@@ -191,7 +191,7 @@ function updateOpenCollectionControls(){
   const update=(type,currentId,playBtnId,stopBtnId,nowId)=>{
     const isThis=playing&&ctx.type===type&&ctx.id===currentId;
     const btn=document.getElementById(playBtnId);
-    if(btn)btn.textContent=isThis?`⏸ Spiller: ${beat.name}`:"▶ Spill fra start";
+    if(btn)btn.innerHTML=isThis?`<span class="ic ic-pause" aria-hidden="true"></span> Spiller: ${esc(beat.name)}`:`<span class="ic ic-play" aria-hidden="true"></span> Spill fra start`;
     const stop=document.getElementById(stopBtnId);
     if(stop)stop.classList.toggle("hidden",!isThis);
     const now=document.getElementById(nowId);
@@ -278,7 +278,7 @@ function updatePlayCountBadges(beatId){
   const n=Number(b.playCount)||0;
   const sel=(window.CSS&&CSS.escape)?CSS.escape(String(beatId)):String(beatId);
   document.querySelectorAll(`[data-pc-id="${sel}"]`).forEach(el=>{
-    el.textContent=`▶ ${n}`;
+    el.innerHTML=`<span class="ic ic-play" aria-hidden="true"></span> ${n}`;
     el.classList.toggle('empty',!n);
     el.title=playCountTitle(b);
   });
@@ -332,7 +332,7 @@ async function playCollectionFromBeat(beatId,mode){
 function bottomTogglePlay(){if(!bottomPlayer.audio.src&&bottomPlayer.queue.length){playBottomIndex(bottomPlayer.index);return;}if(bottomPlayer.audio.paused){bottomPlayer.audio.play().catch(()=>showToast("Trykk Play igjen hvis nettleseren blokkerte avspilling"));}else bottomPlayer.audio.pause();updateBottomUI();}
 function bottomNext(auto=false){if(bottomPlayer.index+1<bottomPlayer.queue.length)playBottomIndex(bottomPlayer.index+1);else if(auto)bottomStop(true);}
 function bottomPrev(){if(bottomPlayer.audio.currentTime>3){bottomPlayer.audio.currentTime=0;return;}playBottomIndex(Math.max(0,bottomPlayer.index-1));}
-function bottomStop(silent=false){bottomPlayer.audio.pause();bottomPlayer.audio.removeAttribute("src");bottomPlayer.audio.load();if(bottomPlayer.objectUrl)URL.revokeObjectURL(bottomPlayer.objectUrl);bottomPlayer.objectUrl=null;bottomPlayer.queue=[];bottomPlayer.index=0;bottomPlayer.context=null;bottomPlayer.started=false;updateBottomUI();if(!silent)showToast("⏹ Avspilling stoppet");}
+function bottomStop(silent=false){bottomPlayer.audio.pause();bottomPlayer.audio.removeAttribute("src");bottomPlayer.audio.load();if(bottomPlayer.objectUrl)URL.revokeObjectURL(bottomPlayer.objectUrl);bottomPlayer.objectUrl=null;bottomPlayer.queue=[];bottomPlayer.index=0;bottomPlayer.context=null;bottomPlayer.started=false;updateBottomUI();if(!silent)showToast("Avspilling stoppet");}
 function stopCollectionPlayback(silent=false){bottomStop(silent);}
 async function playAlbumFromStart(albumId){const album=state.albums.find(a=>a.id===albumId);if(!album)return;const queue=beatsFromIds(album.beatIds);if(!queue.length){showToast("Albumet har ingen sanger ennå");return;}await playQueue(queue,{type:"album",id:albumId,label:album.name});}
 async function playMixtapeFromStart(mixtapeId){const mt=state.mixtapes.find(m=>m.id===mixtapeId);if(!mt)return;const queue=beatsFromIds(mt.beatIds);if(!queue.length){showToast("Mixtapen har ingen sanger ennå");return;}await playQueue(queue,{type:"mixtape",id:mixtapeId,label:mt.name});}
@@ -358,10 +358,10 @@ window.isAudioFile=isAudioFile;
 async function uploadBeatAudio(beatId,file){
   // NB: mobile file pickers often give an empty `type` for .wav/.m4a/.aiff, so fall back
   // to the file extension instead of rejecting a perfectly good demo.
-  if(!file||!isAudioFile(file)){showToast("⚠ Velg en gyldig lydfil");return;}
+  if(!file||!isAudioFile(file)){showToast("Velg en gyldig lydfil");return;}
   const b=state.beats.find(x=>x.id===beatId);if(!b)return;
   const hadAudio=!!(b.audio_url||b.url);
-  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nNy fil: ${file.name}\n\n⚠ ADVARSEL: den gamle lydfilen slettes PERMANENT for å spare lagringsplass. Den kan ikke gjenopprettes — last den ned først hvis du vil beholde den.`))return;
+  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nNy fil: ${file.name}\n\nADVARSEL: den gamle lydfilen slettes PERMANENT for å spare lagringsplass. Den kan ikke gjenopprettes — last den ned først hvis du vil beholde den.`))return;
   // Lokal kopi for umiddelbar avspilling (getPlayableAudioUrl foretrekker IDB-bloben)
   await audioDB.save(beatId,file);
   b.url=beatId+":idb"; // sentinel so we know audio exists
@@ -385,7 +385,7 @@ async function uploadBeatAudio(beatId,file){
     try{
       let up=file;
       if(window.audioCompress?.shouldCompress(up))up=await window.audioCompress.compress(up);
-      showToast(`⬆ Erstatter lydfil (${(up.size/(1024*1024)).toFixed(1)}MB) i R2...`);
+      showToast(`Erstatter lydfil (${(up.size/(1024*1024)).toFixed(1)}MB) i R2...`);
       const url=await window.r2Storage.upload(beatId,up,!!b.archived);
       // Same key → same URL; bust caches/CDN so the new audio is served, not the old.
       b.audio_url=url+(url.includes("?")?"&":"?")+"v="+Date.now();
@@ -400,7 +400,7 @@ async function uploadBeatAudio(beatId,file){
       showToast("✓ Lydfil erstattet — gammel fil slettet");
     }catch(e){
       console.error("[R2] Bytt lydfil feilet:",e);
-      showToast("⚠ R2 feilet — ny lydfil lagret lokalt");
+      showToast("R2 feilet — ny lydfil lagret lokalt");
     }
   }else{
     showToast("✓ Lydfil lastet opp (lokalt)");
@@ -416,15 +416,15 @@ function rawVocalsMarkup(b){
   const list=Array.isArray(b.rawVocals)?b.rawVocals:[];
   const items=list.map(r=>{
     const dl = r.url
-      ? `<a class="ab-raw-btn" href="${esc(r.url)}" target="_blank" rel="noopener" download="${esc(r.name)}" title="Last ned / åpne">⬇</a>`
-      : `<button class="ab-raw-btn" onclick="event.stopPropagation();downloadLocalRaw('${b.id}','${r.id}')" title="Last ned (lokal kopi)">⬇</button>`;
+      ? `<a class="ab-raw-btn" href="${esc(r.url)}" target="_blank" rel="noopener" download="${esc(r.name)}" title="Last ned / åpne"><span class="ic ic-download" aria-hidden="true"></span></a>`
+      : `<button class="ab-raw-btn" onclick="event.stopPropagation();downloadLocalRaw('${b.id}','${r.id}')" title="Last ned (lokal kopi)"><span class="ic ic-download" aria-hidden="true"></span></button>`;
     return `
     <div class="ab-raw-item">
-      <span class="ab-raw-name" title="${esc(r.name)}">🎤 ${esc(r.name)}${r.url?"":` <span class="ab-raw-local" title="Kun lagret lokalt — del-lenke lages ved opplasting til R2 (live-siden)">lokal</span>`}</span>
+      <span class="ab-raw-name" title="${esc(r.name)}"><span class="ic ic-mic" aria-hidden="true"></span> ${esc(r.name)}${r.url?"":` <span class="ab-raw-local" title="Kun lagret lokalt — del-lenke lages ved opplasting til R2 (live-siden)">lokal</span>`}</span>
       <span class="ab-raw-size">${(Number(r.size||0)/(1024*1024)).toFixed(1)}MB</span>
       ${dl}
-      <button class="ab-raw-btn" onclick="event.stopPropagation();copyRawVocalLink('${b.id}','${r.id}')" title="Kopier delingslenke">🔗</button>
-      <button class="ab-raw-btn danger" onclick="event.stopPropagation();deleteRawVocal('${b.id}','${r.id}')" title="Slett permanent">🗑</button>
+      <button class="ab-raw-btn" onclick="event.stopPropagation();copyRawVocalLink('${b.id}','${r.id}')" title="Kopier delingslenke"><span class="ic ic-link" aria-hidden="true"></span></button>
+      <button class="ab-raw-btn danger" onclick="event.stopPropagation();deleteRawVocal('${b.id}','${r.id}')" title="Slett permanent"><span class="ic ic-trash" aria-hidden="true"></span></button>
     </div>`;
   }).join("");
   return `
@@ -461,7 +461,7 @@ async function uploadRawVocals(beatId,files){
     // 2) Last opp til R2 i bakgrunnen for en delbar offentlig lenke (krever live-origin pga CORS).
     if(window.r2Storage&&window.r2Storage.ready()){
       try{
-        showToast(`⬆ Deler «${file.name}» (${(file.size/(1024*1024)).toFixed(1)}MB) til R2…`);
+        showToast(`Deler «${file.name}» (${(file.size/(1024*1024)).toFixed(1)}MB) til R2…`);
         const url=await window.r2Storage.uploadKey(r2key,file);   // NB: ingen komprimering — full kvalitet
         entry.url=url;
         saveState();
@@ -470,7 +470,7 @@ async function uploadRawVocals(beatId,files){
         showToast(`✓ «${file.name}» klar til deling`);
       }catch(e){
         console.error("[RAW] R2-opplasting feilet:",e);
-        showToast("⚠ Lagret lokalt — deling til R2 virker bare på live-siden");
+        showToast("Lagret lokalt — deling til R2 virker bare på live-siden");
       }
     }
   }
@@ -481,12 +481,12 @@ async function downloadLocalRaw(beatId,rawId){
   if(!raw)return;
   try{
     const blob=await audioDB.load(raw.idbKey);
-    if(!blob){showToast("⚠ Fant ikke den lokale filen");return;}
+    if(!blob){showToast("Fant ikke den lokale filen");return;}
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a");a.href=url;a.download=raw.name||"raw-vokal";
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
-  }catch(e){console.warn("[RAW] lokal nedlasting feilet:",e);showToast("⚠ Kunne ikke laste ned");}
+  }catch(e){console.warn("[RAW] lokal nedlasting feilet:",e);showToast("Kunne ikke laste ned");}
 }
 async function deleteRawVocal(beatId,rawId){
   const b=state.beats.find(x=>x.id===beatId);if(!b||!Array.isArray(b.rawVocals))return;
@@ -505,7 +505,7 @@ function copyRawVocalLink(beatId,rawId){
   const raw=b&&Array.isArray(b.rawVocals)&&b.rawVocals.find(r=>r.id===rawId);
   if(!raw)return;
   if(!raw.url){showToast("Kun lagret lokalt — del-lenke lages når filen lastes opp til R2 (på live-siden)");return;}
-  navigator.clipboard.writeText(raw.url).then(()=>showToast("✓ Delingslenke kopiert"),()=>showToast("⚠ Kunne ikke kopiere"));
+  navigator.clipboard.writeText(raw.url).then(()=>showToast("✓ Delingslenke kopiert"),()=>showToast("Kunne ikke kopiere"));
 }
 
 // When creating beats from file upload, also store in IDB
@@ -552,7 +552,7 @@ window.mvSetBpm=function(beatId,val){
   const n=Math.round(Number(String(val).replace(",",".")));
   if(n>=40&&n<=300){b.bpm=n;b.bpmSource="manuell";}
   else if(!String(val).trim()){b.bpm=null;b.bpmSource="manuell";}
-  else{showToast("⚠ BPM må være mellom 40 og 300");return false;}
+  else{showToast("BPM må være mellom 40 og 300");return false;}
   b.bpmChecked=true;saveState();return true;
 };
 
@@ -654,7 +654,7 @@ function renderDashboard(){
   const greet=h<10?'God morgen':h<17?'God dag':h<22?'God kveld':'God natt';
   const gEl=document.getElementById('dashGreeting');
   const sEl=document.getElementById('dashSub');
-  if(gEl) gEl.textContent=greet+', '+username+' \uD83D\uDC4B';
+  if(gEl) gEl.textContent=greet+', '+username;
   const beats=(state.beats||[]).filter(b=>!b.archived);
   const albums=(state.albums||[]).filter(a=>!a.archived);
   const mixtapes=(state.mixtapes||[]).filter(m=>!m.archived);
@@ -674,9 +674,9 @@ function renderDashboard(){
     const alerts=[];const now=Date.now(),DAY=86400000;
     const inAlbum=new Set(albums.flatMap(a=>a.beatIds||[]));
     const doneNotIn=beats.filter(b=>Number(b.done||0)>=100&&!inAlbum.has(b.id));
-    if(doneNotIn.length) alerts.push({type:'info',icon:'\u2728',msg:`${doneNotIn.length} sang${doneNotIn.length>1?'er er':'en er'} 100% ferdig men ikke i noe album`,detail:doneNotIn.slice(0,2).map(b=>esc(b.name)).join(', ')+(doneNotIn.length>2?' ...':''),tab:'albums'});
-    albums.forEach(a=>{const lu=a.updatedAt||a.createdAt||0;if(lu&&now-lu>14*DAY)alerts.push({type:'warn',icon:'\u23F0',msg:`\u00ab${esc(a.name)}\u00bb ikke oppdatert p\u00e5 ${Math.floor((now-lu)/DAY)} dager`,detail:'',tab:'albums'});});
-    if(noAudio.length) alerts.push({type:'warn',icon:'\uD83D\uDD07',msg:`${noAudio.length} sang${noAudio.length>1?'er mangler':'en mangler'} lydfil`,detail:noAudio.slice(0,2).map(b=>esc(b.name)).join(', ')+(noAudio.length>2?' ...':''),tab:'beats'});
+    if(doneNotIn.length) alerts.push({type:'info',icon:'<span class="ic ic-music" aria-hidden="true"></span>',msg:`${doneNotIn.length} sang${doneNotIn.length>1?'er er':'en er'} 100% ferdig men ikke i noe album`,detail:doneNotIn.slice(0,2).map(b=>esc(b.name)).join(', ')+(doneNotIn.length>2?' ...':''),tab:'albums'});
+    albums.forEach(a=>{const lu=a.updatedAt||a.createdAt||0;if(lu&&now-lu>14*DAY)alerts.push({type:'warn',icon:'<span class="ic ic-clock" aria-hidden="true"></span>',msg:`\u00ab${esc(a.name)}\u00bb ikke oppdatert p\u00e5 ${Math.floor((now-lu)/DAY)} dager`,detail:'',tab:'albums'});});
+    if(noAudio.length) alerts.push({type:'warn',icon:'<span class="ic ic-mute" aria-hidden="true"></span>',msg:`${noAudio.length} sang${noAudio.length>1?'er mangler':'en mangler'} lydfil`,detail:noAudio.slice(0,2).map(b=>esc(b.name)).join(', ')+(noAudio.length>2?' ...':''),tab:'beats'});
     if(!alerts.length) saEl.innerHTML='<div class="sa-empty">Ingen varsler akkurat n\u00e5 \u2713</div>';
     else saEl.innerHTML=alerts.map(a=>`<div class="smart-alert smart-alert-${a.type}" onclick="document.querySelector('.tab-btn[data-tab=\\'${a.tab}\\']')?.click()"><span class="sa-icon">${a.icon}</span><div class="sa-body"><div class="sa-msg">${a.msg}</div>${a.detail?`<div class="sa-detail">${a.detail}</div>`:''}</div><span class="sa-arrow">\u2192</span></div>`).join('');
   }
@@ -694,7 +694,7 @@ function renderDashboard(){
       const pct=pB.length?Math.round(pB.reduce((s,b)=>s+Number(b.done||0),0)/pB.length):0;
       const col=mvPctColor(pct);
       const count=pB.length;
-      const cover=p.cover?`<img src="${esc(p.cover)}" alt="" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:28px">${isAlbum?'\uD83C\uDFB5':'\uD83C\uDFBC'}</span>`;
+      const cover=p.cover?`<img src="${esc(p.cover)}" alt="" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:28px">${isAlbum?'<span class="ic ic-disc" aria-hidden="true"></span>':'<span class="ic ic-cassette" aria-hidden="true"></span>'}</span>`;
       return `<div class="dash-proj-card" onclick="dashOpenProject('${esc(p.id)}','${p._type}')"><div class="dash-proj-cover">${cover}<div class="dash-proj-prog-bar"><div style="width:${pct}%;background:${col};height:100%;border-radius:2px"></div></div></div><div class="dash-proj-footer"><div class="dash-proj-name">${esc(p.name)}</div><div class="dash-proj-meta">${count} sang${count===1?'':'er'} &middot; <span style="color:${col};font-weight:700">${pct}%</span></div></div></div>`;
     }).join('');}
   }
@@ -704,9 +704,9 @@ function renderDashboard(){
     const b=lastId?beats.find(x=>x.id===lastId):null;
     const recent=b||beats.slice().sort((a,b2)=>(b2.createdAt||b2.id||0)-(a.createdAt||a.id||0))[0];
     if(recent){
-      const cover=recent.cover?`<img src="${esc(recent.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:'<span style="font-size:36px">\uD83C\uDFB5</span>';
+      const cover=recent.cover?`<img src="${esc(recent.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:'<span style="font-size:36px"><span class="ic ic-music" aria-hidden="true"></span></span>';
       const dur=recent.duration?Math.floor(recent.duration/60)+':'+String(Math.floor(recent.duration%60)).padStart(2,'0'):'';
-      lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-name">${esc(recent.name)}</div>${dur?`<div class="last-beat-dur">${dur}</div>`:''}</div><div class="last-beat-actions"><button class="last-beat-play" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')">&#9654; Spill</button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')">&#9998; Lab</button></div>`;
+      lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-name">${esc(recent.name)}</div>${dur?`<div class="last-beat-dur">${dur}</div>`:''}</div><div class="last-beat-actions"><button class="last-beat-play" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Lab</button></div>`;
     } else {lastEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
   }
   const actEl=document.getElementById('dashActivity');
@@ -732,9 +732,9 @@ function renderDashboard(){
   if(bEl){
     if(!recent2.length){bEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
     else{bEl.innerHTML=recent2.map(b=>{
-      const cover=b.cover?`<img src="${esc(b.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span style="font-size:20px">\uD83C\uDFB5</span>`;
+      const cover=b.cover?`<img src="${esc(b.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span style="font-size:20px"><span class="ic ic-music" aria-hidden="true"></span></span>`;
       const dur=b.duration?Math.floor(b.duration/60)+':'+String(Math.floor(b.duration%60)).padStart(2,'0'):'';
-      return `<div class="dash-beat-card"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div>${dur?`<div class="dash-beat-dur">${dur}</div>`:''}</div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')">&#9654; Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')">&#9998; Lab</button></div></div>`;
+      return `<div class="dash-beat-card"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div>${dur?`<div class="dash-beat-dur">${dur}</div>`:''}</div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Lab</button></div></div>`;
     }).join('');}
   }
   const progEl=document.getElementById('dashProgress');
@@ -773,26 +773,26 @@ function renderBeats(container,beats,albumMode){
   el.innerHTML=beats.map(b=>`
     <div class="beat-item" id="bi-${b.id}">
       <div class="beat-row" onclick="toggleBeat('${b.id}')">
-        <div class="icon-pill">🎵</div>
+        <div class="icon-pill"><span class="ic ic-music" aria-hidden="true"></span></div>
         <div class="beat-meta">
           <strong>${esc(b.name)}</strong>
-          <span>${b.lyrics?.trim()?"✏️ Tekst lagret":"Ingen tekst"} · ${esc(b.source||"URL")}</span>
+          <span>${b.lyrics?.trim()?`<span class="ic ic-pen" aria-hidden="true"></span> Tekst lagret`:"Ingen tekst"} · ${esc(b.source||"URL")}</span>
         </div>
         <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt">${b.favorite?'★':'☆'}</button>
         <span class="expand-arrow">▾</span>
       </div>
       <div class="beat-expand">
         <div id="au-wrap-${b.id}" style="margin-bottom:12px">
-          <button class="primary-btn" onclick="playSingleBeat('${b.id}')">▶ Spill denne</button>
+          <button class="primary-btn" onclick="playSingleBeat('${b.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill denne</button>
         </div>
         <div style="margin-bottom:12px">
-          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Last opp / bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
+          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Last opp / bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
         </div>
         <div class="ab-lyric-editor">
           ${lyricsEditorMarkup(b.id,"Skriv hook, vers, tekst, ideer, flows...")}
         </div>
         <div class="beat-expand-actions">
-          <button class="ghost-btn" onclick="openInLyricLab('${b.id}')">✍️ Åpne i Lyric Lab</button>
+          <button class="ghost-btn" onclick="openInLyricLab('${b.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
           ${albumMode
   ? `<button class="small-btn danger" onclick="removeFromCollection('${b.id}','${listMode}')">Fjern fra ${listMode==="mixtape"?"mixtape":"album"}</button>
      ${isAdmin()?`<button class="small-btn danger" onclick="deleteBeat('${b.id}')">Slett sang</button>`:''}`
@@ -830,9 +830,9 @@ window.mvTrackMenu=function(btn,beatId,listMode){
   const m=document.createElement("div");m.className="mv-row-menu";m.setAttribute("role","menu");m.dataset.for=beatId;
   const item=(label,fn,cls)=>{const x=document.createElement("button");x.type="button";x.setAttribute("role","menuitem");x.textContent=label;if(cls)x.className=cls;x.onclick=e=>{e.stopPropagation();mvCloseTrackMenu();fn();};return x;};
   m.append(
-    item("✍️ Åpne i Lyric Lab",()=>window.openInLyricLab&&openInLyricLab(beatId)),
-    item("🌐 Del offentlig lenke",()=>window.shareSong&&shareSong(beatId)),
-    item("✏️ Gi nytt navn",()=>window.renameBeatInline&&renameBeatInline(beatId)),
+    item("Åpne i Lyric Lab",()=>window.openInLyricLab&&openInLyricLab(beatId)),
+    item("Del offentlig lenke",()=>window.shareSong&&shareSong(beatId)),
+    item("Gi nytt navn",()=>window.renameBeatInline&&renameBeatInline(beatId)),
     document.createElement("hr"),
     item("✕ Fjern fra "+where,()=>removeFromCollection(beatId,listMode),"danger"));
   document.body.appendChild(m);
@@ -853,7 +853,7 @@ function toggleFav(id,btn){
   showToast(b.favorite?"★ Lagt til som favoritt":"☆ Fjernet fra favoritter");
 }
 async function deleteBeat(id){
-  if(!window.isAdminMode){showToast("⚠ Kun admin kan slette sanger");return;}
+  if(!window.isAdminMode){showToast("Kun admin kan slette sanger");return;}
   if(!confirm("Slette denne sangen permanent? Den fjernes fra R2 og Supabase."))return;
   const beat = state.beats.find(b=>b.id===id);
   state.beats=state.beats.filter(b=>b.id!==id);
@@ -861,7 +861,7 @@ async function deleteBeat(id){
   state.mixtapes.forEach(m=>{m.beatIds=m.beatIds.filter(x=>x!==id);});
   saveState();
   renderAll();
-  showToast("🗑 Sang slettet");
+  showToast("Sang slettet");
   // Delete from R2
   if(beat && window.r2Storage?.ready()){
     try{
@@ -893,7 +893,7 @@ function renderAlbums(){
       :`<div class="vinyl-label"><div class="vinyl-label-ph">♪</div></div>`;
     const sleeve=a.cover
       ?`<div class="record-sleeve"><img src="${esc(a.cover)}" alt="${esc(a.name)}"></div>`
-      :`<div class="record-sleeve"><div class="record-sleeve-ph">🎵</div></div>`;
+      :`<div class="record-sleeve"><div class="record-sleeve-ph"><span class="ic ic-music" aria-hidden="true"></span></div></div>`;
     return`<div class="album-card" draggable="true" data-id="${a.id}" ondragstart="startCardDrag(event,'album','${a.id}')" ondragover="cardDragOver(event,'album','${a.id}')" ondragleave="cardDragLeave(event,'${a.id}')" ondrop="dropCard(event,'album','${a.id}')" ondragend="endCardDrag()" onclick="openAlbumFromCard(event,'${a.id}')">
       <div class="album-display">
         <div class="vinyl-disc">
@@ -911,7 +911,7 @@ function renderAlbums(){
           ${(()=>{const STATUS_COLORS={'Idé':'rgba(168,85,247,.6)','Skriving':'rgba(96,165,250,.6)','Innspilling':'rgba(249,115,22,.7)','Mixing':'rgba(244,164,67,.7)','Ferdig':'rgba(52,211,153,.7)'};const s=a.status||'Idé';const c=STATUS_COLORS[s]||'rgba(244,237,228,.7)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
         </div>
       </div>
-      <button class="small-btn" style="margin-top:8px;padding:7px 12px" onclick="event.stopPropagation();playAlbumFromStart('${a.id}')">▶ Spill</button>
+      <button class="small-btn" style="margin-top:8px;padding:7px 12px" onclick="event.stopPropagation();playAlbumFromStart('${a.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
     </div>`;
   });
   cards.push(`<div class="album-new-btn" onclick="document.getElementById('newAlbumBtn').click()">
@@ -1006,7 +1006,7 @@ function renderAlbumDetail(){
     :`<div class="vinyl-label"><div class="vinyl-label-ph">♪</div></div>`;
   const sleeve=album.cover
     ?`<div class="detail-sleeve"><img src="${esc(album.cover)}" alt="${esc(album.name)}"></div>`
-    :`<div class="detail-sleeve"><div class="record-sleeve-ph">🎵</div></div>`;
+    :`<div class="detail-sleeve"><div class="record-sleeve-ph"><span class="ic ic-music" aria-hidden="true"></span></div></div>`;
   hd.innerHTML=`
     <div class="detail-record">
       <div class="vinyl-disc">
@@ -1023,8 +1023,8 @@ function renderAlbumDetail(){
       <div id="albumNowPlaying" class="hint" style="margin-top:8px"></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')">▶ Spill fra start</button>
-      <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
+      <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>
+      <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()"><span class="ic ic-stop" aria-hidden="true"></span> Stopp</button>
     </div>`;
   const beats=beatsFromIds(album.beatIds);
   renderAlbumBeats(beats);
@@ -1135,7 +1135,7 @@ function renderAlbumBeats(beats,mode,customEl){
   el.innerHTML=hint+beats.map((b,idx)=>{
     const coverHtml=b.cover
       ?`<img class="ab-cover" src="${esc(b.cover)}" alt="${esc(b.name)}" draggable="false">`
-      :`<div class="ab-cover-ph" draggable="false" style="user-select:none;-webkit-user-select:none">&#127925;</div>`;
+      :`<div class="ab-cover-ph" draggable="false" style="user-select:none;-webkit-user-select:none"><span class="ic ic-music" aria-hidden="true"></span></div>`;
     if(isProducerUser()&&listMode==="mixtape"){
       return`<div${songBorderAttrs(b.id,listMode)} id="abi-${b.id}" data-beat-id="${b.id}">
         <div class="ab-top">
@@ -1145,13 +1145,13 @@ function renderAlbumBeats(beats,mode,customEl){
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" style="min-width:0">${esc(b.name)}</div>
             </div>
-            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,#ff8a1f);font-size:11px">👤 ${esc(b.uploadedBy)}</span></span>`:''}</div>
+            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,#ff8a1f);font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
           </div>
         </div>
         <div class="ab-expand">
           <div class="ab-expand-left">
             <div id="au-wrap-${b.id}" style="margin-bottom:12px">
-              <button class="primary-btn" onclick="playCollectionFromBeat('${b.id}','${listMode}')">▶ Spill denne</button>
+              <button class="primary-btn" onclick="playCollectionFromBeat('${b.id}','${listMode}')"><span class="ic ic-play" aria-hidden="true"></span> Spill denne</button>
             </div>
           </div>
         </div>
@@ -1171,12 +1171,12 @@ function renderAlbumBeats(beats,mode,customEl){
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
               <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
-              <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}">▶ ${Number(b.playCount)||0}</span>
-              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#ff8a1f);opacity:.8;white-space:nowrap">👤 ${esc(b.uploadedBy)}</span>`:''}
+              <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
+              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#ff8a1f);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#fb7185;display:block;margin-right:2px"></span>'; return ''; })()}
-              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">&#9654;</button>
+              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgba(244,164,67,.18);border:1px solid rgba(244,164,67,.4);color:#f4a443;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
               <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" title="Favoritt" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)">${b.favorite?'★':'☆'}</button>
               <button class="ab-more-btn" type="button" onclick="event.stopPropagation();mvTrackMenu(this,'${b.id}','${listMode}')" title="Flere valg" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
             </div>
@@ -1191,12 +1191,12 @@ function renderAlbumBeats(beats,mode,customEl){
       <div class="ab-expand">
         <div class="ab-expand-top-bar">
           <div id="au-wrap-${b.id}" style="display:flex;align-items:center;gap:8px;width:100%">
-            <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')">▶ Spill</button>
+            <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
             <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#f4a443':'rgba(255,255,255,.25)'}">${b.favorite?'★':'☆'}</button>
             <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(251,113,133,.15);color:#fb7185;border:1px solid rgba(251,113,133,.3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>
-          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
-          <label class="ghost-btn" style="cursor:pointer;font-size:12px;padding:6px 12px">🖼️ Coverbilde<input type="file" accept="image/*" hidden onchange="setAlbumBeatCover('${b.id}',this)"></label>
+          <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
+          <label class="ghost-btn" style="cursor:pointer;font-size:12px;padding:6px 12px"><span class="ic ic-image" aria-hidden="true"></span> Coverbilde<input type="file" accept="image/*" hidden onchange="setAlbumBeatCover('${b.id}',this)"></label>
           <button class="small-btn danger" onclick="removeFromCollection('${b.id}','${listMode}')">Fjern fra ${listMode==="mixtape"?"mixtape":"album"}</button>
         </div>
         <div class="ab-raw" id="abraw-${b.id}">${rawVocalsMarkup(b)}</div>
@@ -1256,7 +1256,7 @@ window.mvShare = async function(btn) {
   }catch(e){}
   const typeLabel={beat:'Beat',album:'Album',mixtape:'Mixtape'}[contentType]||contentType;
   const existHTML=existing.length
-    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;font-weight:700;color:#f4ede4;flex:1">\uD83D\uDC64 ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgba(251,113,133,.3);color:#fb7185;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
+    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;font-weight:700;color:#f4ede4;flex:1"><span class="ic ic-user" aria-hidden="true"></span> ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgba(251,113,133,.3);color:#fb7185;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
     :'<p style="font-size:12px;color:rgba(255,255,255,.3);margin:0">Ingen har tilgang</p>';
   let modal=document.getElementById('_mvSM');
   if(!modal){modal=document.createElement('div');modal.id='_mvSM';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});document.body.appendChild(modal);}
@@ -1349,10 +1349,10 @@ window.mvPitch = function(btn) {
   const id=sep>=0?raw.slice(sep+1).replace(/\|.*$/,''):'';
   if(type==='album'){
     if(typeof window.albumPitchMode==='function'){window.albumPitchMode(id);return;}
-    showToast('\u26a0 Album pitch ikke tilgjengelig');
+    showToast('Album pitch ikke tilgjengelig');
   } else if(type==='mixtape'){
     if(typeof window.mixtapeShareMode==='function'){window.mixtapeShareMode(id);return;}
-    showToast('⚠ Deling er ikke klar ennå — prøv igjen om litt');
+    showToast('Deling er ikke klar ennå — prøv igjen om litt');
   }
 };
 // ── renameBeatInline ──────────────────────────────────────────────────────────
@@ -1381,7 +1381,7 @@ window.downloadBeat = function(id) {
   const st=typeof state!=='undefined'?state:window.state;
   const b=st?.beats?.find(x=>x.id===id);
   const url=b?.audio_url||b?.url||b?.driveUrl||b?.drive_url;
-  if(!url){if(typeof showToast==='function')showToast('\u26a0 Ingen lydfil');return;}
+  if(!url){if(typeof showToast==='function')showToast('Ingen lydfil');return;}
   const a=document.createElement('a');a.href=url;
   a.download=(b.name||'beat').replace(/[^a-z0-9 ._-]/gi,'_')+'.mp3';
   a.target='_blank';document.body.appendChild(a);a.click();setTimeout(()=>a.remove(),300);
@@ -1404,7 +1404,7 @@ window.renderCollectionComments = async function(type, id) {
     ...pitchComments.map(c=>{const initials=(c.author||'?').slice(0,2).toUpperCase();const dt=new Date(c.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===c.sender_id;return `<div class="cc-item" id="cc-${c.id}"><div class="cc-avatar">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(c.author||'Anonym')}</span><span class="cc-tag cc-tag-pitch">Pitch</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" aria-label="Slett kommentar" title="Slett kommentar" onclick="deleteCollectionComment('pitch','${c.id}','${type}','${id}')">&#215;</button>`:''}</div><div class="cc-text">${esc(c.comment||'')}</div></div></div>`}),
     ...labelComments.map(n=>{const author=n.content_name||'Label';const initials=author.slice(0,2).toUpperCase();const dt=new Date(n.created_at);const ts=dt.toLocaleDateString('nb-NO',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'});const canDel=isAdmin()||uid===n.recipient_id||uid===n.sender_id;return `<div class="cc-item" id="cc-${n.id}"><div class="cc-avatar cc-avatar-label">${initials}</div><div class="cc-body"><div class="cc-header"><span class="cc-author">${esc(author)}</span><span class="cc-tag cc-tag-label">Label</span><span class="cc-time">${ts}</span>${canDel?`<button class="cc-del" aria-label="Slett kommentar" title="Slett kommentar" onclick="deleteCollectionComment('notification','${n.id}','${type}','${id}')">&#215;</button>`:''}</div></div></div>`})
   ];
-  el.innerHTML=`<div class="cc-wrap"><div class="cc-title">&#128172; Kommentarer ${all.length?'<span class="cc-count">'+all.length+'</span>':''}</div><div class="cc-list">${all.length?all.join(''):'<div class="cc-empty">Ingen kommentarer enn\u00e5.</div>'}</div></div>`;
+  el.innerHTML=`<div class="cc-wrap"><div class="cc-title"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer ${all.length?'<span class="cc-count">'+all.length+'</span>':''}</div><div class="cc-list">${all.length?all.join(''):'<div class="cc-empty">Ingen kommentarer enn\u00e5.</div>'}</div></div>`;
 };
 window.deleteCollectionComment = async function(source,commentId,type,collId) {
   if(!confirm('Slette denne kommentaren?'))return;
@@ -1412,7 +1412,7 @@ window.deleteCollectionComment = async function(source,commentId,type,collId) {
   let token=SBK;try{const {data:{session}}=await window.supabaseClient.auth.getSession();if(session?.access_token)token=session.access_token;}catch(e){}
   const hdrs={'apikey':SBK,'Authorization':'Bearer '+token};
   const table=source==='pitch'?'pitch_comments':'notifications';
-  try{const r=await fetch(`${SBU}/rest/v1/${table}?id=eq.${commentId}`,{method:'DELETE',headers:hdrs});if(r.ok||r.status===204){document.getElementById('cc-'+commentId)?.remove();if(typeof showToast==='function')showToast('\u2713 Kommentar slettet');};}catch(e){if(typeof showToast==='function')showToast('\u26a0 Feil: '+e.message);}
+  try{const r=await fetch(`${SBU}/rest/v1/${table}?id=eq.${commentId}`,{method:'DELETE',headers:hdrs});if(r.ok||r.status===204){document.getElementById('cc-'+commentId)?.remove();if(typeof showToast==='function')showToast('\u2713 Kommentar slettet');};}catch(e){if(typeof showToast==='function')showToast('Feil: '+e.message);}
 };
 
 function toggleAlbumBeat(id){
@@ -1603,7 +1603,7 @@ document.getElementById("deleteAlbumBtn").addEventListener("click",()=>{
   const a=state.albums.find(x=>x.id===currentAlbumId);if(!a)return;
   showDeleteConfirm(`Slette albumet "${a.name}"?`,()=>{
     state.albums=state.albums.filter(x=>x.id!==currentAlbumId);
-    currentAlbumId=null;saveState();renderAlbums();showToast("🗑 Album slettet");
+    currentAlbumId=null;saveState();renderAlbums();showToast("Album slettet");
   });
 });
 
@@ -1617,7 +1617,7 @@ function renderPipeline(){
     const avgCol=mvPctColor(avg);
     const coverHtml=album.cover
       ?`<img class="pipeline-album-cover" src="${esc(album.cover)}" alt="${esc(album.name)}">`
-      :`<div class="pipeline-album-cover-ph">🎵</div>`;
+      :`<div class="pipeline-album-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
     const beatRows=beats.map(b=>{
       const pct=clamp(b.done||0);
       const col=pct>=70?"#34d399":pct>=40?"#f97316":"#fb7185";
@@ -1746,15 +1746,15 @@ function renderMixtapeDetail(){
       </div>
       <div class="mixtape-detail-copy">
         <div class="mixtape-detail-kicker">Mixtape</div>
-        <h2 style="display:flex;align-items:center;gap:8px">${esc(mt.name)}<button onclick="renameMixtape('${mt.id}')" title="Gi nytt navn" aria-label="Gi nytt navn til mixtapen" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;opacity:.7;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">✏️</button></h2>
+        <h2 style="display:flex;align-items:center;gap:8px">${esc(mt.name)}<button onclick="renameMixtape('${mt.id}')" title="Gi nytt navn" aria-label="Gi nytt navn til mixtapen" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;padding:2px 4px;opacity:.7;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7"><span class="ic ic-pen" aria-hidden="true"></span></button></h2>
         <span style="color:var(--muted);font-size:13px">${(()=>{const n=(mt.beatIds||[]).filter(id=>{const b=state.beats.find(x=>x.id===id);return b&&!b.archived;}).length;return n+' beat'+(n===1?'':'s');})()}</span>
         <div id="mixtapeNowPlaying" class="hint" style="margin-top:6px"></div>
       </div>
       <div class="mixtape-detail-actions">
-        <button class="primary-btn" id="playMixtapeBtn" onclick="playMixtapeFromStart('${mt.id}')">▶ Spill fra start</button>
-        ${(typeof window.isOwnerOrEditor==='function'&&window.isOwnerOrEditor())?`<button class="ghost-btn mv-mob-hide" data-pitch="mixtape|${mt.id}|" onclick="mvPitch(this)" title="Offentlig lenke som alle med lenken kan lytte på">🌐 Del lenke</button>`:''}
-        ${!mt._shared?`<button class="ghost-btn mv-mob-hide" data-share="mixtape|${mt.id}|${esc(mt.name)}" onclick="mvShare(this)">👤 Del med bruker</button>`:''}
-        <button class="small-btn danger hidden" id="stopMixtapeBtn" onclick="stopCollectionPlayback()">⏹ Stopp</button>
+        <button class="primary-btn" id="playMixtapeBtn" onclick="playMixtapeFromStart('${mt.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>
+        ${(typeof window.isOwnerOrEditor==='function'&&window.isOwnerOrEditor())?`<button class="ghost-btn mv-mob-hide" data-pitch="mixtape|${mt.id}|" onclick="mvPitch(this)" title="Offentlig lenke som alle med lenken kan lytte på"><span class="ic ic-globe" aria-hidden="true"></span> Del lenke</button>`:''}
+        ${!mt._shared?`<button class="ghost-btn mv-mob-hide" data-share="mixtape|${mt.id}|${esc(mt.name)}" onclick="mvShare(this)"><span class="ic ic-user" aria-hidden="true"></span> Del med bruker</button>`:''}
+        <button class="small-btn danger hidden" id="stopMixtapeBtn" onclick="stopCollectionPlayback()"><span class="ic ic-stop" aria-hidden="true"></span> Stopp</button>
       </div>
     </div>
   `;
@@ -1857,7 +1857,7 @@ document.getElementById("deleteDemoBtn").addEventListener("click",()=>{
   if(isProducerUser()){showToast("Produsentmodus: sletting er låst");return;}
   const id=document.getElementById("editDemoId").value;if(!confirm("Slette demoen?"))return;
   state.demos=state.demos.filter(d=>d.id!==id);state.versions=state.versions.filter(v=>v.demoId!==id);
-  saveState();renderAll();document.getElementById("editDemoModal").classList.remove("open");showToast("🗑 Slettet");
+  saveState();renderAll();document.getElementById("editDemoModal").classList.remove("open");showToast("Slettet");
 });
 document.getElementById("addModalVerBtn").addEventListener("click",()=>{
   const did=document.getElementById("editDemoId").value;const t=document.getElementById("editVerInput").value.trim();if(!t)return;
@@ -2039,7 +2039,7 @@ let _tt;
 function showToast(msg,ms){
   let t=document.getElementById("_toast");
   if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgba(18,18,27,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
-  t.textContent=String(msg||'');t.style.transform="translateY(0)";t.style.opacity="1";
+  t.textContent=String(msg||'').replace(/^(?:[\u{1F000}-\u{1FAFF}☀-➿⏩-⏺⬆⬇▶]️?\s*)+/u,''); // ingen emojier i varslert.style.transform="translateY(0)";t.style.opacity="1";
   clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
 }
 
@@ -2145,7 +2145,7 @@ async function uploadBeatToR2(beat, file) {
       file = await window.audioCompress.compress(file);
     }
     const sizeMB = (file.size / (1024*1024)).toFixed(1);
-    showToast(`⬆ Laster opp ${sizeMB}MB til R2...`);
+    showToast(`Laster opp ${sizeMB}MB til R2...`);
     const url = await window.r2Storage.upload(beat.id, file, !!beat.archived);
     console.log('[R2] Opplasting OK. URL:', url);
     beat.audio_url = url;
@@ -2158,7 +2158,7 @@ async function uploadBeatToR2(beat, file) {
     showToast('✓ Lastet opp til R2 og synkronisert');
   } catch (e) {
     console.error('[R2] Opplasting feilet:', e);
-    showToast('⚠ R2 feilet — lydfil lagret lokalt');
+    showToast('R2 feilet — lydfil lagret lokalt');
   }
 }
 async function handleMixtapeDrop(e){
@@ -2176,7 +2176,7 @@ async function handleAlbumDrop(e){
   renderAlbumDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
 }
 document.getElementById("mixtapeUploadInput").addEventListener("change",async e=>{
-  if(!window.isAdminMode){showToast("⚠ Kun admin kan laste opp lydfiler");e.target.value="";return;}
+  if(!window.isAdminMode){showToast("Kun admin kan laste opp lydfiler");e.target.value="";return;}
   const files=[...e.target.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
   for(const f of files){const b=await createBeatFromFile(f);addBeatToMixtape(b);uploadBeatToR2(b,f);}
   renderMixtapeDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
@@ -2193,7 +2193,7 @@ document.getElementById("mixtapeCoverInput").addEventListener("change",e=>{
   e.target.value="";
 });
 document.getElementById("albumUploadInput").addEventListener("change",async e=>{
-  if(!window.isAdminMode){showToast("⚠ Kun admin kan laste opp lydfiler");e.target.value="";return;}
+  if(!window.isAdminMode){showToast("Kun admin kan laste opp lydfiler");e.target.value="";return;}
   const files=[...e.target.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
   for(const f of files){const b=await createBeatFromFile(f);addBeatToAlbum(b);uploadBeatToR2(b,f);}
   renderAlbumDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
@@ -2235,7 +2235,7 @@ document.getElementById("deleteMixtapeBtn").addEventListener("click",()=>{
   const mt=state.mixtapes.find(x=>x.id===currentMixtapeId);if(!mt)return;
   showDeleteConfirm(`Slette mixtapen "${mt.name}"?`,()=>{
     state.mixtapes=state.mixtapes.filter(x=>x.id!==currentMixtapeId);
-    currentMixtapeId=null;saveState();renderMixtapes();showToast("🗑 Mixtape slettet");
+    currentMixtapeId=null;saveState();renderMixtapes();showToast("Mixtape slettet");
   });
 });
 // (handled above)

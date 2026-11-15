@@ -148,7 +148,7 @@
     };
   }
 
-  console.log('[R2 Storage]', ready() ? 'Klar ✓' : 'Worker URL ikke konfigurert ⚠');
+  console.log('[R2 Storage]', ready() ? 'Klar ✓' : 'Worker URL ikke konfigurert ');
 })();
 
 
@@ -212,7 +212,7 @@
     if (data.error) {
       el.innerHTML = `
         <div class="r2-widget-header">
-          <span class="r2-widget-icon">☁</span>
+          <span class="r2-widget-icon"><span class="ic ic-cloud" aria-hidden="true"></span></span>
           <span class="r2-widget-title">R2 Lagring</span>
           <span class="r2-widget-status r2-status-warn">Ikke tilkoblet</span>
         </div>
@@ -223,7 +223,7 @@
     if (data.estimated) {
       el.innerHTML = `
         <div class="r2-widget-header">
-          <span class="r2-widget-icon">☁</span>
+          <span class="r2-widget-icon"><span class="ic ic-cloud" aria-hidden="true"></span></span>
           <span class="r2-widget-title">R2 Lagring</span>
           <span class="r2-widget-status r2-status-ok">Tilkoblet</span>
         </div>
@@ -239,7 +239,7 @@
 
     el.innerHTML = `
       <div class="r2-widget-header">
-        <span class="r2-widget-icon">☁</span>
+        <span class="r2-widget-icon"><span class="ic ic-cloud" aria-hidden="true"></span></span>
         <span class="r2-widget-title">R2 Lagring</span>
         <span class="r2-widget-status r2-status-ok">Tilkoblet</span>
         <button class="r2-refresh-btn ghost-btn" onclick="window.r2StorageWidget.refresh()" title="Oppdater" aria-label="Oppdater lagringsstatus">↻</button>
@@ -269,7 +269,7 @@
 
   async function refresh() {
     const el = document.getElementById('r2StorageWidget');
-    if (el) el.innerHTML = `<div class="r2-widget-header"><span class="r2-widget-icon">☁</span><span class="r2-widget-title">R2 Lagring</span><span class="r2-widget-status" style="opacity:.5">Laster...</span></div>`;
+    if (el) el.innerHTML = `<div class="r2-widget-header"><span class="r2-widget-icon"><span class="ic ic-cloud" aria-hidden="true"></span></span><span class="r2-widget-title">R2 Lagring</span><span class="r2-widget-status" style="opacity:.5">Laster...</span></div>`;
     try {
       const data = await fetchStats();
       renderWidget(data);
@@ -296,7 +296,7 @@
     const card = document.createElement('div');
     card.className = 'settings-card r2-storage-card';
     card.id = 'r2StorageWidget';
-    card.innerHTML = `<div class="r2-widget-header"><span class="r2-widget-icon">☁</span><span class="r2-widget-title">R2 Lagring</span></div>`;
+    card.innerHTML = `<div class="r2-widget-header"><span class="r2-widget-icon"><span class="ic ic-cloud" aria-hidden="true"></span></span><span class="r2-widget-title">R2 Lagring</span></div>`;
 
     // Insert before Supabase sync panel if it exists, else append
     const syncPanel = document.getElementById('supabaseDataSyncPanel');

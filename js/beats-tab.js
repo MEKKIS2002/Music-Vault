@@ -81,11 +81,11 @@
     const mixtapes = (typeof state !== 'undefined' ? state.mixtapes : window.state?.mixtapes || []).filter(m=>!m.archived);
     const albums   = (typeof state !== 'undefined' ? state.albums   : window.state?.albums   || []).filter(a=>!a.archived);
     menu.innerHTML = `
-      <button onclick="beatsTab.playBeat('${beatId}')">▶ Spill</button>
-      <button onclick="beatsTab.openLyricLab('${beatId}')">✍️ Åpne i Lyric Lab</button>
-      ${admin ? `<button onclick="downloadBeat('${beatId}')">⬇ Last ned</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent">🎵 Bytt lydfil</button>` : ''}
-      ${admin ? `<button onclick="renameBeat('${beatId}')">✏️ Gi nytt navn</button>` : ''}
+      <button onclick="beatsTab.playBeat('${beatId}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
+      <button onclick="beatsTab.openLyricLab('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
+      ${admin ? `<button onclick="downloadBeat('${beatId}')"><span class="ic ic-download" aria-hidden="true"></span> Last ned</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}
+      ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
       ${admin ? `<button onclick="beatsTab.toggleFav('${beatId}')">${beat.favorite ? '★ Fjern favoritt' : '☆ Legg til favoritt'}</button>` : ''}
       ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">
         <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase">Legg i mixtape</div>
@@ -105,10 +105,10 @@
         }).join('')}` : ''}
       ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
       ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
-      ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')">🔗 Del med bruker</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')">🌐 Del offentlig lenke</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '↩ Gjenopprett' : '📦 Arkiver sang'}</button>` : ''}
-      ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')">🗑 Slett permanent</button>` : ''}
+      ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Arkiver sang'}</button>` : ''}
+      ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')"><span class="ic ic-trash" aria-hidden="true"></span> Slett permanent</button>` : ''}
     `;
 
     // Position relative to trigger
@@ -188,7 +188,7 @@
           </div>
           <div class="beats-tab-controls">
             <div class="beats-search-wrap">
-              <span class="beats-search-icon">🔍</span>
+              <span class="beats-search-icon"><span class="ic ic-search" aria-hidden="true"></span></span>
               <input
                 id="beatsSearchInput"
                 class="beats-search"
@@ -240,15 +240,15 @@
                 <span class="bl-cover">${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>
-                  <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}">▶ ${Number(b.playCount)||0}</span>
+                  <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
                   ${b.rating ? `<span class="bl-rating">${'★'.repeat(Math.round(b.rating/2))}</span>` : ''}
                 </span>
                 <span class="bl-collections">${colChips}</span>
-                <span class="bl-uploader">${b.uploadedBy ? `<span class="bl-uploader-tag">👤 ${esc(b.uploadedBy)}</span>` : '<span style="color:var(--muted)">—</span>'}</span>
+                <span class="bl-uploader">${b.uploadedBy ? `<span class="bl-uploader-tag"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>` : '<span style="color:var(--muted)">—</span>'}</span>
                 <span class="bl-date">${fmtDate(b.createdAt)}</span>
                 <span class="bl-dur">${fmtDur(b.duration)}</span>
                 <span class="bl-actions">
-                  <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill" aria-label="Spill ${esc(b.name)}">▶</button>
+                  <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill" aria-label="Spill ${esc(b.name)}"><span class="ic ic-play" aria-hidden="true"></span></button>
                   <button class="bl-star${b.favorite?' active':''}" data-fav-id="${b.id}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}">${b.favorite?'★':'☆'}</button>
                   <button class="bl-menu" onclick="event.stopPropagation();beatsTab.openDropdown('${b.id}',this)" title="Mer" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
                 </span>

@@ -69,6 +69,7 @@ AKTIVE BRUKERE:
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=202611150001">
+  <link rel="stylesheet" href="css/icons.css?v=202611150030">
   <link rel="stylesheet" href="css/lyriclab.css?v=202611150004">
   <link rel="stylesheet" href="css/pipeline.css?v=202611150001">
   <link rel="stylesheet" href="css/main.css?v=202611150001">
@@ -86,7 +87,7 @@ AKTIVE BRUKERE:
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611150001">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=202611150011">
+  <link rel="stylesheet" href="css/system.css?v=202611150030">
   <link rel="stylesheet" href="css/mobile.css?v=202611150010">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
@@ -105,7 +106,7 @@ AKTIVE BRUKERE:
 <body>
 <!-- Viewer mode login shortcut -->
 <button id="viewerLoginBtn" onclick="returnToPasswordScreen()" title="Logg inn som admin" style="display:none;position:fixed;top:14px;right:16px;z-index:8000;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:7px 12px;color:#aaa4bd;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:.04em;gap:6px;align-items:center;font-family:inherit">
-  🔐 Admin
+  <span class="ic ic-lock" aria-hidden="true"></span> Admin
 </button>
 <!-- PASSWORD SCREEN -->
 <!-- Viewer mode login shortcut (legacy, hidden) -->
@@ -151,7 +152,7 @@ AKTIVE BRUKERE:
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
       <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
-      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v4.0</div>
+      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v4.1</div>
     </div>
     <div style="text-align:center;margin-top:16px">
       <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
@@ -168,15 +169,15 @@ AKTIVE BRUKERE:
     <!-- Package picker -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
       <div class="pkg-card" data-pkg="artist" onclick="selectPkg(this)" style="border:1px solid rgba(244,164,67,.5);background:rgba(244,164,67,.08);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4a443;margin-bottom:4px">🎤 Artist</div>
+        <div style="font-size:13px;font-weight:800;color:#f4a443;margin-bottom:4px"><span class="ic ic-mic" aria-hidden="true"></span> Artist</div>
         <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Beats · Mixtapes<br>Albumer · Lyric Lab</div>
       </div>
       <div class="pkg-card" data-pkg="pro" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px">⚡ PRO</div>
+        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px"><span class="ic ic-bolt" aria-hidden="true"></span> PRO</div>
         <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i Artist<br>+ Pipeline · AI · Stats</div>
       </div>
       <div class="pkg-card" data-pkg="label" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px">🏷 Label</div>
+        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px"><span class="ic ic-tag" aria-hidden="true"></span> Label</div>
         <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i PRO<br><span style="color:rgba(244,164,67,.6)">Krever invitasjonskode</span></div>
       </div>
     </div>
@@ -281,20 +282,20 @@ AKTIVE BRUKERE:
 
   <!-- Tab navigation -->
   <nav class="mv-tabs" role="navigation" aria-label="Hovednavigasjon">
-    <button class="tab-btn active" data-tab="hjem">🏠 Hjem</button>
-    <button class="tab-btn" data-tab="beats">🎵 Beats</button>
-    <button class="tab-btn" data-tab="docs">📝 Docs</button>
-    <button class="tab-btn" data-tab="mixtapes">📼 Mixtapes</button>
-    <button class="tab-btn" data-tab="albums">📁 Albumer</button>
-    <button class="tab-btn" data-tab="pipeline">📊 Pipeline</button>
-    <button class="tab-btn" data-tab="lyriclab">✍️ Lyric Lab</button>
+    <button class="tab-btn active" data-tab="hjem"><span class="ic ic-home" aria-hidden="true"></span> Hjem</button>
+    <button class="tab-btn" data-tab="beats"><span class="ic ic-music" aria-hidden="true"></span> Beats</button>
+    <button class="tab-btn" data-tab="docs"><span class="ic ic-file" aria-hidden="true"></span> Docs</button>
+    <button class="tab-btn" data-tab="mixtapes"><span class="ic ic-cassette" aria-hidden="true"></span> Mixtapes</button>
+    <button class="tab-btn" data-tab="albums"><span class="ic ic-folder" aria-hidden="true"></span> Albumer</button>
+    <button class="tab-btn" data-tab="pipeline"><span class="ic ic-chart" aria-hidden="true"></span> Pipeline</button>
+    <button class="tab-btn" data-tab="lyriclab"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
     <div class="mv-more-wrap">
       <button type="button" class="mv-more-btn" id="mvMoreBtn" aria-haspopup="true" aria-expanded="false">⋯ Mer ▾</button>
       <div class="mv-more-menu" id="mvMoreMenu" role="menu">
-        <button class="tab-btn" data-tab="archive">🗄️ Arkivert</button>
-        <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none">🏷 Label</button>
-        <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none">🛠 Admin</button>
-        <button class="tab-btn" data-tab="integrations">🔌 Integrasjoner</button>
+        <button class="tab-btn" data-tab="archive"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>
+        <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none"><span class="ic ic-tag" aria-hidden="true"></span> Label</button>
+        <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none"><span class="ic ic-sliders" aria-hidden="true"></span> Admin</button>
+        <button class="tab-btn" data-tab="integrations"><span class="ic ic-plug" aria-hidden="true"></span> Integrasjoner</button>
       </div>
     </div>
   </nav>
@@ -316,7 +317,7 @@ AKTIVE BRUKERE:
       <!-- Topplinje: hilsen + nøkkeltall til venstre, handlinger til høyre -->
       <header class="dash-greeting-row">
         <div class="dash-head-left">
-          <div class="dash-greeting" id="dashGreeting">Hei &#128075;</div>
+          <div class="dash-greeting" id="dashGreeting">Hei</div>
           <div id="dashSub"></div>
         </div>
         <div class="dash-quick">
@@ -330,15 +331,15 @@ AKTIVE BRUKERE:
 
       <!-- Mobil: snarveier til de andre fanene (skjult på desktop via home.css) -->
       <nav class="hjem-mobile-shortcuts" aria-label="Snarveier">
-        <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico">&#9997;&#65039;</span><span class="hs-lbl">Lyric Lab</span></button>
-        <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico">&#128202;</span><span class="hs-lbl">Pipeline</span></button>
-        <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico">&#128221;</span><span class="hs-lbl">Docs</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('lyriclab')"><span class="hs-ico"><span class="ic ic-pen" aria-hidden="true"></span></span><span class="hs-lbl">Lyric Lab</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('pipeline')"><span class="hs-ico"><span class="ic ic-chart" aria-hidden="true"></span></span><span class="hs-lbl">Pipeline</span></button>
+        <button class="hjem-shortcut" onclick="mvMobileTab('docs')"><span class="hs-ico"><span class="ic ic-file" aria-hidden="true"></span></span><span class="hs-lbl">Docs</span></button>
       </nav>
       <div class="hjem-mobile-more" aria-label="Flere sider">
-        <button class="hjem-more-link" data-req-tab="archive" onclick="mvMobileTab('archive')">&#128452;&#65039; Arkivert</button>
-        <button class="hjem-more-link" data-req-tab="integrations" onclick="mvMobileTab('integrations')">&#128268; Integrasjoner</button>
-        <button class="hjem-more-link" data-req-tab="label" onclick="mvMobileTab('label')">&#127991; Label</button>
-        <button class="hjem-more-link" data-req-tab="adminpanel" onclick="mvMobileTab('adminpanel')">&#128736; Admin</button>
+        <button class="hjem-more-link" data-req-tab="archive" onclick="mvMobileTab('archive')"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>
+        <button class="hjem-more-link" data-req-tab="integrations" onclick="mvMobileTab('integrations')"><span class="ic ic-plug" aria-hidden="true"></span> Integrasjoner</button>
+        <button class="hjem-more-link" data-req-tab="label" onclick="mvMobileTab('label')"><span class="ic ic-tag" aria-hidden="true"></span> Label</button>
+        <button class="hjem-more-link" data-req-tab="adminpanel" onclick="mvMobileTab('adminpanel')"><span class="ic ic-sliders" aria-hidden="true"></span> Admin</button>
       </div>
 
       <!-- Fortsett der du slapp — den viktigste veien tilbake i arbeid -->
@@ -406,7 +407,7 @@ AKTIVE BRUKERE:
       <div class="album-detail-hd" id="mixtapeDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
         <button class="ghost-btn" id="addBeatsToMixtapeBtn">+ Legg til eksisterende</button>
-        <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-folder" aria-hidden="true"></span> Last opp filer<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <select id="mixtapeSortSelect" class="mixtape-sort-select" title="Sorter beats">
           <option value="custom">Sorter: Egen rekkefølge</option>
           <option value="favorite">Favoritter først</option>
@@ -414,7 +415,7 @@ AKTIVE BRUKERE:
           <option value="newest">Nyest først</option>
           <option value="name">Navn A–Å</option>
         </select>
-        <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
+        <label class="ghost-btn mv-mob-hide" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Kassettbilde<input id="mixtapeCoverInput" type="file" accept="image/*" hidden /></label>
         <details class="mv-proj-menu">
           <summary class="ghost-btn" aria-label="Flere valg for mixtapen">⋯ Prosjekt</summary>
           <div class="mv-proj-menu-panel">
@@ -429,7 +430,7 @@ AKTIVE BRUKERE:
         </div>
       </div>
       <div id="mixtapeDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMixtapeDrop(event)">
-        <div class="drop-hint">🎵 Slipp lydfiler her for å legge til beats</div>
+        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å legge til beats</div>
       </div>
       <div id="mixtapeBeatList" class="beat-list"></div>
       <div id="mixtapeComments" class="collection-comments"></div>
@@ -452,8 +453,8 @@ AKTIVE BRUKERE:
       <div class="album-detail-hd" id="albumDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
         <button class="ghost-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
-        <label class="ghost-btn" style="cursor:pointer">📂 Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
-        <label class="ghost-btn mv-mob-hide" style="cursor:pointer">🖼️ Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-folder" aria-hidden="true"></span> Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <label class="ghost-btn mv-mob-hide" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input id="albumCoverInput" type="file" accept="image/*" hidden /></label>
         <details class="mv-proj-menu">
           <summary class="ghost-btn" aria-label="Flere valg for albumet">⋯ Prosjekt</summary>
           <div class="mv-proj-menu-panel">
@@ -468,7 +469,7 @@ AKTIVE BRUKERE:
         </div>
       </div>
       <div id="albumDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleAlbumDrop(event)">
-        <div class="drop-hint">🎵 Slipp lydfiler her for å legge til beats</div>
+        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å legge til beats</div>
       </div>
       <div id="albumBeatList" class="beat-list"></div>
       <div id="albumComments" class="collection-comments"></div>
@@ -506,8 +507,8 @@ AKTIVE BRUKERE:
 
       <div class="section-title" style="margin-top:24px"><h2>Data</h2></div>
       <div style="display:grid;gap:8px;margin-top:4px">
-        <button class="ghost-btn" id="exportBtn">⬇ Eksporter backup (JSON)</button>
-        <label class="ghost-btn" style="text-align:center;cursor:pointer">⬆ Importer backup<input id="importInput" type="file" accept="application/json" hidden /></label>
+        <button class="ghost-btn" id="exportBtn"><span class="ic ic-download" aria-hidden="true"></span> Eksporter backup (JSON)</button>
+        <label class="ghost-btn" style="text-align:center;cursor:pointer"><span class="ic ic-upload" aria-hidden="true"></span> Importer backup<input id="importInput" type="file" accept="application/json" hidden /></label>
       </div>
 
       <!-- Hidden legacy inputs kept for JS compatibility -->
@@ -521,7 +522,7 @@ AKTIVE BRUKERE:
       <!-- Admin panel + R2 widget + Supabase sync injected here by JS -->
 
       <div class="settings-card" id="soundcloudCard">
-        <h2>🎵 SoundCloud</h2>
+        <h2><span class="ic ic-music" aria-hidden="true"></span> SoundCloud</h2>
         <p class="hint">Kun nødvendig for private tracks.</p>
         <div class="input-group">
           <label>Proxy URL (valgfritt)</label>
@@ -531,20 +532,20 @@ AKTIVE BRUKERE:
       </div>
 
       <div class="settings-card" id="dataToolsCard">
-        <h2>🛠 Data-verktøy</h2>
+        <h2><span class="ic ic-sliders" aria-hidden="true"></span> Data-verktøy</h2>
         <p class="hint">Ta backup først.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-          <button class="ghost-btn" id="resetLocalBtn" onclick="if(confirm('Slett ALL lokal data? Dette kan ikke angres.')){localStorage.clear();sessionStorage.clear();location.reload();}">🗑 Reset lokal data</button>
-          <button class="ghost-btn admin-only-btn" id="pushAllBtn" onclick="window.pushToSupabase?.()">☁ Push alt til Supabase</button>
+          <button class="ghost-btn" id="resetLocalBtn" onclick="if(confirm('Slett ALL lokal data? Dette kan ikke angres.')){localStorage.clear();sessionStorage.clear();location.reload();}">Reset lokal data</button>
+          <button class="ghost-btn admin-only-btn" id="pushAllBtn" onclick="window.pushToSupabase?.()"><span class="ic ic-cloud" aria-hidden="true"></span> Push alt til Supabase</button>
         </div>
       </div>
 
       <div class="settings-card" id="wavConvertCard">
-        <h2>🔄 WAV → MP3 konvertering</h2>
+        <h2><span class="ic ic-refresh" aria-hidden="true"></span> WAV → MP3 konvertering</h2>
         <p class="hint">WAV spilles ikke av overalt — MP3 fungerer på mobil og i inkognito.</p>
         <div style="margin-top:12px">
           <button class="ghost-btn" onclick="window.convertAllWavBeats()" style="display:flex;align-items:center;gap:8px">
-            🔄 Konverter WAV-beats til MP3
+            <span class="ic ic-refresh" aria-hidden="true"></span> Konverter WAV-beats til MP3
           </button>
         </div>
       </div>
@@ -561,19 +562,19 @@ AKTIVE BRUKERE:
 <!-- ── Mobile bottom navigation ─────────────────────────────────────── -->
 <nav class="mv-mobile-nav" id="mvMobileNav" aria-label="Mobilnavigasjon">
   <button class="mv-mob-btn active" data-mob-tab="hjem" onclick="mvMobileTab('hjem')">
-    <span class="mv-mob-icon">🏠</span>
+    <span class="mv-mob-icon"><span class="ic ic-home" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Hjem</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="beats" onclick="mvMobileTab('beats')">
-    <span class="mv-mob-icon">🎵</span>
+    <span class="mv-mob-icon"><span class="ic ic-music" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Beats</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="mixtapes" onclick="mvMobileTab('mixtapes')">
-    <span class="mv-mob-icon">📼</span>
+    <span class="mv-mob-icon"><span class="ic ic-cassette" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Mixtapes</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
-    <span class="mv-mob-icon">📁</span>
+    <span class="mv-mob-icon"><span class="ic ic-folder" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Album</span>
   </button>
 </nav>
@@ -712,8 +713,8 @@ window.addEventListener('load', () => {
         <textarea id="editNotes" rows="4" style="min-height:90px" placeholder="Hva mangler?"></textarea>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="primary-btn" id="saveOverviewBtn">💾 Lagre endringer</button>
-        <button class="small-btn danger" id="deleteDemoBtn">🗑 Slett demo</button>
+        <button class="primary-btn" id="saveOverviewBtn"><span class="ic ic-save" aria-hidden="true"></span> Lagre endringer</button>
+        <button class="small-btn danger" id="deleteDemoBtn"><span class="ic ic-trash" aria-hidden="true"></span> Slett demo</button>
       </div>
     </div>
 
@@ -731,7 +732,7 @@ window.addEventListener('load', () => {
         <label>Lyrics / Ideer / Tekst</label>
         <textarea id="editDemoNotes" rows="14" placeholder="Skriv tekst, hooks, broer, punchlines..." style="min-height:340px"></textarea>
       </div>
-      <button class="primary-btn" id="saveDemoNotesBtn">💾 Lagre notater</button>
+      <button class="primary-btn" id="saveDemoNotesBtn"><span class="ic ic-save" aria-hidden="true"></span> Lagre notater</button>
     </div>
   </div>
 </div>
@@ -784,7 +785,7 @@ window.addEventListener('load', () => {
       <div class="input-group"><label>Mixtape-navn</label><input id="newMixtapeName" placeholder="F.eks. Late Night Sessions" /></div>
       <div class="input-group">
         <label>Kassettbilde <span style="color:var(--muted);font-weight:500">(valgfritt)</span></label>
-        <label class="ghost-btn" style="cursor:pointer;justify-content:center">🖼️ Last opp bilde<input id="newMixtapeCoverInput" type="file" accept="image/*" hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer;justify-content:center"><span class="ic ic-image" aria-hidden="true"></span> Last opp bilde<input id="newMixtapeCoverInput" type="file" accept="image/*" hidden /></label>
         <div id="newMixtapeCoverPreviewWrap" style="display:none;align-items:center;gap:10px;margin-top:8px">
           <img id="newMixtapeCoverPreview" style="width:120px;height:44px;border-radius:6px;object-fit:cover;border:1px solid var(--border)" />
           <span class="hint">Bildet maskes til fargefeltet på kasetten.</span>
@@ -937,24 +938,24 @@ window.addEventListener('load', () => {
   <script>window.R2_WORKER_URL = 'https://beat-vault.marcus-aas-mekiassen.workers.dev';</script>
 
   <!-- App scripts (load order matters) -->
-  <script src="js/audio-compress.js?v=202605161400"></script>
-  <script src="js/lock.js?v=202611150020"></script>
-  <script src="js/pipeline.js?v=202611150007"></script>
-  <script src="js/lyriclab.js?v=202611150008"></script>
-  <script src="js/audio-compress.js?v=202605261500"></script>
-  <script src="js/audio-compress.js?v=202605261900"></script>
-  <script src="js/app.js?v=202611150005"></script>
-  <script src="js/track-cards.js?v=202607020002"></script>
-  <script src="js/r2-storage.js?v=202611150001"></script>
-  <script src="js/archive.js?v=202611150012"></script>
+  <script src="js/audio-compress.js?v=202611150030"></script>
+  <script src="js/lock.js?v=202611150031"></script>
+  <script src="js/pipeline.js?v=202611150030"></script>
+  <script src="js/lyriclab.js?v=202611150030"></script>
+  <script src="js/audio-compress.js?v=202611150030"></script>
+  <script src="js/audio-compress.js?v=202611150030"></script>
+  <script src="js/app.js?v=202611150030"></script>
+  <script src="js/track-cards.js?v=202611150030"></script>
+  <script src="js/r2-storage.js?v=202611150030"></script>
+  <script src="js/archive.js?v=202611150030"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202611150010"></script>
-  <script src="js/beats-tab.js?v=202611150007"></script>
-  <script src="js/supabase.js?v=202611140001"></script>
+  <script src="js/changelog.js?v=202611150030"></script>
+  <script src="js/beats-tab.js?v=202611150030"></script>
+  <script src="js/supabase.js?v=202611150030"></script>
   <script src="js/bpm.js?v=202611150004"></script>
-  <script src="js/db.js?v=202611150012"></script>
-  <script src="js/mixtape-share.js?v=202611150005"></script>
-  <script src="js/notifications.js?v=202611150005"></script>
+  <script src="js/db.js?v=202611150030"></script>
+  <script src="js/mixtape-share.js?v=202611150030"></script>
+  <script src="js/notifications.js?v=202611150030"></script>
   <script src="js/mini-player.js?v=202611150010"></script>
 
     <!-- LYRIC LAB TAB -->
@@ -966,10 +967,10 @@ window.addEventListener('load', () => {
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
   <script src="js/packages.js?v=202605251400"></script>
-  <script src="js/label.js?v=202606170002"></script>
-  <script src="js/admin-panel.js?v=202611140002"></script>
-  <script src="js/share-song.js?v=202606210001"></script>
-  <script src="js/docs.js?v=202611150007"></script>
+  <script src="js/label.js?v=202611150030"></script>
+  <script src="js/admin-panel.js?v=202611150030"></script>
+  <script src="js/share-song.js?v=202611150030"></script>
+  <script src="js/docs.js?v=202611150030"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>
