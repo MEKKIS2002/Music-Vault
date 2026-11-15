@@ -177,7 +177,7 @@
     if (!projects.length) {
       board.innerHTML = `
         <div class="pl3-empty">
-          <div class="pl3-empty-icn">📊</div>
+          <div class="pl3-empty-icn"><span class="ic ic-chart" aria-hidden="true"></span></div>
           <div class="pl3-empty-title">Ingen prosjekter ennå</div>
           <div class="pl3-empty-sub">Opprett et album eller en mixtape og legg til låter for å bygge en release-pipeline.</div>
         </div>`;
@@ -218,7 +218,7 @@
           const avg = beats.length ? Math.round(beats.reduce((s,b)=>s+clamp(b.done||0),0)/beats.length) : 0;
           const cover = p.obj.cover
             ? `<img src="${esc(p.obj.cover)}" alt="">`
-            : `<span>${p.type === 'mixtape' ? '📼' : '🎵'}</span>`;
+            : `<span>${p.type === 'mixtape' ? '<span class="ic ic-cassette" aria-hidden="true"></span>' : '<span class="ic ic-music" aria-hidden="true"></span>'}</span>`;
           return `
             <button class="pl3-projchip ${p.ref === activeRef ? 'active' : ''}" onclick="plSelectProject('${esc(p.ref)}')">
               <span class="pl3-projchip-cover">${cover}</span>
@@ -238,7 +238,7 @@
     const readyCol = pctColor(r.pct);
     const cover = a.cover
       ? `<img class="pl3-hero-cover" src="${esc(a.cover)}" alt="">`
-      : `<div class="pl3-hero-cover pl3-hero-cover-ph">${project.type === 'mixtape' ? '📼' : '🎵'}</div>`;
+      : `<div class="pl3-hero-cover pl3-hero-cover-ph">${project.type === 'mixtape' ? '<span class="ic ic-cassette" aria-hidden="true"></span>' : '<span class="ic ic-music" aria-hidden="true"></span>'}</div>`;
     const status = a.status || (project.type === 'mixtape' ? 'Mixtape' : 'Idé');
 
     return `
@@ -250,14 +250,14 @@
               <div class="pl3-hero-kicker">${project.type === 'mixtape' ? 'MIXTAPE' : 'ALBUM'} · ${m.n} låt${m.n!==1?'er':''}</div>
               <div class="pl3-hero-title">${esc(a.name || 'Uten navn')}</div>
             </div>
-            <button class="pl3-iconbtn" title="Notater" aria-label="Notater" onclick="plToggleNotes('${esc(project.ref)}')">📝</button>
+            <button class="pl3-iconbtn" title="Notater" aria-label="Notater" onclick="plToggleNotes('${esc(project.ref)}')"><span class="ic ic-file" aria-hidden="true"></span></button>
           </div>
 
           <div class="pl3-hero-statusrow">
             <select class="pl3-statussel" onchange="plSetStatus('${esc(project.ref)}',this.value)">
               ${ALBUM_STATUS.map(s => `<option value="${esc(s)}"${s===status?' selected':''}>${esc(s)}</option>`).join('')}
             </select>
-            <span class="pl3-streak">🔥 ${streak} dag${streak!==1?'er':''} på rad</span>
+            <span class="pl3-streak"><span class="ic ic-flame" aria-hidden="true"></span> ${streak} dag${streak!==1?'er':''} på rad</span>
           </div>
 
           <div class="pl3-hero-metrics">
@@ -286,12 +286,12 @@
   // 3 ── Dagens fokus ───────────────────────────────────────────────────────────
   function renderFocus(beats) {
     const focus = todaysFocus(beats);
-    const icnMap = { audio:'🎙️', lyrics:'✍️', record:'🎛️', mix:'🎚️', master:'✨' };
+    const icnMap = { audio:'<span class="ic ic-mic" aria-hidden="true"></span>', lyrics:'<span class="ic ic-pen" aria-hidden="true"></span>', record:'<span class="ic ic-sliders" aria-hidden="true"></span>', mix:'<span class="ic ic-sliders" aria-hidden="true"></span>', master:'<span class="ic ic-disc" aria-hidden="true"></span>' };
     let inner;
     if (!beats.length) {
       inner = `<div class="pl3-focus-empty">Legg til låter for å få konkrete oppgaver.</div>`;
     } else if (!focus.length) {
-      inner = `<div class="pl3-focus-empty">🎉 Alt er ferdig her — prosjektet er klart!</div>`;
+      inner = `<div class="pl3-focus-empty">Alt er ferdig her — prosjektet er klart!</div>`;
     } else {
       inner = focus.map((f, i) => `
         <button class="pl3-focus-task" onclick="plFocusGoto('${esc(f.b.id)}','${f.step.kind}')">
@@ -314,10 +314,10 @@
   // 4 ── Tabs nav ───────────────────────────────────────────────────────────────
   function renderTabsNav(active) {
     const tabs = [
-      { id:'oversikt',  label:'Oversikt',  icn:'▦' },
-      { id:'board',     label:'Board',     icn:'▤' },
-      { id:'timeline',  label:'Timeline',  icn:'⎯' },
-      { id:'checklist', label:'Sjekkliste',icn:'☑' },
+      { id:'oversikt',  label:'Oversikt',  icn:'<span class="ic ic-grid" aria-hidden="true"></span>' },
+      { id:'board',     label:'Board',     icn:'<span class="ic ic-list" aria-hidden="true"></span>' },
+      { id:'timeline',  label:'Timeline',  icn:'<span class="ic ic-calendar" aria-hidden="true"></span>' },
+      { id:'checklist', label:'Sjekkliste',icn:'<span class="ic ic-clipboard" aria-hidden="true"></span>' },
     ];
     return `
       <div class="pl3-tabs">
@@ -369,7 +369,7 @@
     const step = nextStep(b);
     const thumb = b.cover
       ? `<img class="pl3-card-thumb" src="${esc(b.cover)}" alt="">`
-      : `<div class="pl3-card-thumb pl3-card-thumb-ph">🎵</div>`;
+      : `<div class="pl3-card-thumb pl3-card-thumb-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
 
     return `
       <div class="pl3-card" id="plcard-${esc(b.id)}">
@@ -390,7 +390,7 @@
         </div>
 
         ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b></div>`
-               : `<div class="pl3-card-next done"><span>Status</span><b>🎉 Ferdig</b></div>`}
+               : `<div class="pl3-card-next done"><span>Status</span><b>Ferdig</b></div>`}
 
         <div class="pl3-card-slider">
           <input type="range" min="0" max="100" value="${pct}" style="accent-color:${col}"
@@ -398,7 +398,7 @@
             onchange="plSaveBeat('${esc(b.id)}',this.value)">
         </div>
         <div class="pl3-card-actions">
-          <button class="pl3-cardbtn" onclick="plOpenLyric('${esc(b.id)}')">✍️ Lyric Lab</button>
+          <button class="pl3-cardbtn" onclick="plOpenLyric('${esc(b.id)}')"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
           ${pct < 100 ? `<button class="pl3-cardbtn ghost" onclick="plSaveBeat('${esc(b.id)}',100)">✓ Sett 100%</button>` : ''}
         </div>
       </div>`;
@@ -488,7 +488,7 @@
           </div>
           <div>
             <div class="pl3-check-sumtitle">${r.passed} av ${r.total} krav oppfylt</div>
-            <div class="pl3-check-sumsub">${r.pct === 100 ? 'Prosjektet er klart for release! 🚀' : 'Fullfør kravene under for å bli release-klar.'}</div>
+            <div class="pl3-check-sumsub">${r.pct === 100 ? 'Prosjektet er klart for release! ' : 'Fullfør kravene under for å bli release-klar.'}</div>
           </div>
         </div>
         <div class="pl3-check-list">${items}</div>

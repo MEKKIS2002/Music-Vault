@@ -39,12 +39,12 @@ async function _mtUid(){
 window.mixtapeShareMode = async function(mixtapeId) {
   const mt = (typeof state !== 'undefined' ? state : window.state)?.mixtapes?.find(m=>m.id===mixtapeId);
   if (!mt) { showToast('Mixtape ikke funnet'); return; }
-  if (!window.supabaseClient) { showToast('⚠ Ikke tilkoblet — prøv igjen om litt'); return; }
+  if (!window.supabaseClient) { showToast('Ikke tilkoblet — prøv igjen om litt'); return; }
 
   if (mt._shareToken && mt._shareEnabled !== false) { _showMixtapePitchDialog(mt); return; }
 
   const p = _mtSharePayload(mt);
-  if (!p.shared.length) { showToast('⚠ Ingen spor har offentlig lydfil ennå'); return; }
+  if (!p.shared.length) { showToast('Ingen spor har offentlig lydfil ennå'); return; }
   showToast('Publiserer pitch-side...');
   try {
     const token = _mtShareToken();
@@ -56,7 +56,7 @@ window.mixtapeShareMode = async function(mixtapeId) {
     if (typeof saveState === 'function') saveState();
     _showMixtapePitchDialog(mt);
   } catch(e) {
-    showToast('⚠ Kunne ikke publisere: ' + (e.message||e));
+    showToast('Kunne ikke publisere: ' + (e.message||e));
   }
 };
 
@@ -73,7 +73,7 @@ function _showMixtapePitchDialog(mt) {
 
   modal.innerHTML = `<div role="dialog" aria-modal="true" aria-labelledby="mvPitchHd" style="background:#110f0c;border:1px solid rgba(255,255,255,.12);max-width:460px;width:100%;padding:24px 28px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 id="mvPitchHd" style="font-size:16px;font-weight:800;margin:0">🌐 Alle med lenken</h2>
+      <h2 id="mvPitchHd" style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-globe" aria-hidden="true"></span> Alle med lenken</h2>
       <button id="mvPitchClose" aria-label="Lukk" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
     </div>
     <div style="display:grid;gap:14px;font-family:system-ui">
@@ -84,9 +84,9 @@ function _showMixtapePitchDialog(mt) {
         <button id="mvPitchCopy" style="background:#f4a443;border:none;color:#000;font-size:12px;font-weight:800;padding:8px 14px;cursor:pointer">Kopier</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="mvPitchOpen" style="${btn}">👁 Forhåndsvis som mottaker</button>
-        <button id="mvPitchUpdateBtn" style="${btn}">🔄 Oppdater sporlisten</button>
-        <button id="mvPitchDisableBtn" style="${btn};background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.3);color:#fb7185;margin-left:auto">⛔ Deaktiver</button>
+        <button id="mvPitchOpen" style="${btn}"><span class="ic ic-eye" aria-hidden="true"></span> Forhåndsvis som mottaker</button>
+        <button id="mvPitchUpdateBtn" style="${btn}"><span class="ic ic-refresh" aria-hidden="true"></span> Oppdater sporlisten</button>
+        <button id="mvPitchDisableBtn" style="${btn};background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.3);color:#fb7185;margin-left:auto"><span class="ic ic-alert" aria-hidden="true"></span> Deaktiver</button>
       </div>
       <div id="mvPitchStatus" role="status" style="font-size:12px;color:rgba(244,237,228,.62);min-height:16px"></div>
     </div>
@@ -132,7 +132,7 @@ function _showMixtapePitchDialog(mt) {
       if (error) throw error;
       status.textContent = '✓ Oppdatert';
       renderInfo();
-    } catch(e) { status.textContent = '⚠ ' + (e.message||e); }
+    } catch(e) { status.textContent = '' + (e.message||e); }
   };
 
   $m('mvPitchDisableBtn').onclick = async () => {
@@ -147,7 +147,7 @@ function _showMixtapePitchDialog(mt) {
       if(typeof saveState==='function') saveState();
       status.textContent = '✓ Deaktivert. Neste deling gir ny lenke.';
       setTimeout(()=>{modal.style.display='none';}, 2000);
-    } catch(e) { status.textContent = '⚠ ' + (e.message||e); }
+    } catch(e) { status.textContent = '' + (e.message||e); }
   };
 
   modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)';

@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v4.1',
+      date: '15. november 2026',
+      label: 'Egne ikoner i stedet for emojier',
+      color: '#df7f22',
+      changes: [
+        'Alle emojier er byttet ut med et eget sett strek-ikoner som følger tekstfargen — i faner, knapper, menyer og tomme visninger',
+        'Fanene i headeren har dempede ikoner som lyser opp på aktiv fane',
+        'Varsler, bekreftelser og verktøytips er ren tekst uten emojier',
+        'De offentlige delingssidene (sang og mixtape) bruker de samme ikonene',
+      ]
+    },
+    {
       version: 'v4.0',
       date: '15. november 2026',
       label: 'Stor opprydding: design, deling, avspilling og sikkerhet',
@@ -14,7 +26,7 @@
         // Design og lesbarhet
         'Én flat, svart bakgrunn på alle sider — paneler, fargeskyer og korntekstur fjernet',
         'Felles knapper overalt: samme høyde, radius og vekt; oransje kun for hovedhandlingen',
-        'Felles ikonknapper i sporlister i samme rekkefølge: ▶ spill · ☆/★ favoritt · ⋯ flere valg',
+        'Felles ikonknapper i sporlister i samme rekkefølge: spill · ☆/★ favoritt · ⋯ flere valg',
         'Spillknappen i Beats vises alltid (var skjult til man holdt musen over)',
         'Sjeldne radhandlinger (del, gi nytt navn, fjern) samlet i en ⋯-meny med «Åpne i Lyric Lab»',
         'Arkiver og Slett flyttet til en «⋯ Prosjekt»-meny på album og mixtape',
@@ -82,7 +94,7 @@
       changes: [
         'Ny Hjem-fane som standard startside — alltid første tab i rekken',
         'Topbar redesignet: logo til venstre, tabs i midten, brukerkontroller integrert til høyre',
-        'Admin-badge, brukernavn, avatar-sirkel, 🔔 varslingsknapp og ⚙ innstillinger i én sammenhengende header',
+        'Admin-badge, brukernavn, avatar-sirkel, varslingsknapp og innstillinger i én sammenhengende header',
         'Varslingsbjelle plassert direkte i header-sloten — ingen race condition',
         'Tannhjul-dropdown redesignet med brukerinfo, pakkevisning og Logg ut/Forlat label',
         'Hjem-dashboard: hilsen med tidspunkt, stat-pills (beats · albumer · mixtapes · uten lyd · snitt ferdig)',
@@ -111,8 +123,8 @@
         'Vinyl-animasjon på album: en plate stikker ut til venstre av coveret og spinner sakte når albumet spilles av',
         'Vinyl glir smidig inn og ut med cubic-bezier-overgang (5 sek per runde)',
         'Avspillingsknapp, Del med bruker, Bytt bilde (admin) og Pitch (admin) på begge album og mixtape',
-        'Sangkort-rad: ▶ play-knapp alltid synlig, ✏️ rename og ✕ fjern vises ved hover',
-        'Inline sangnavn-redigering: klikk ✏️ → tekstfelt direkte i raden',
+        'Sangkort-rad: play-knapp alltid synlig, rename og ✕ fjern vises ved hover',
+        'Inline sangnavn-redigering: klikk → tekstfelt direkte i raden',
         '"Mangler tekst"-statusdott fjernet — bare "mangler lyd" beholdt',
         'Kommentarfeed nederst på album- og mixtapesider: pitch-kommentarer og label-kommentarer',
         'Slette-knapp (✕) på kommentarer — kun synlig for admin eller eier',
@@ -131,13 +143,13 @@
       color: '#f4a443',
       changes: [
         'Label-dashboard: sidebar + detaljvisning (Versjon C) for label-pakke-brukere',
-        'Label kan invitere artister via brukernavn — artist får 🔔 varsel med Aksepter/Avslå',
+        'Label kan invitere artister via brukernavn — artist får varsel med Aksepter/Avslå',
         'Ved aksept: alle artistens beats, albumer og mixtapes deles automatisk med labelen',
         'Label ser artistens albumer med status-badge, progress-bar og mixtapes',
-        'Artist kan forlate label via ⚙-menyen — label beholder visningstilgang i 14 dager',
-        'Label får 👋-varsel når artist forlater',
+        'Artist kan forlate label via -menyen — label beholder visningstilgang i 14 dager',
+        'Label får -varsel når artist forlater',
         'Forlatte artister vises i sidebar med nedtelling: "12d tilgang igjen"',
-        'Tannhjul-meny ⚙ i topbar — samler Logg ut og Forlat label på ett sted',
+        'Tannhjul-meny i topbar — samler Logg ut og Forlat label på ett sted',
         'Varsel-bjelle flyttet inn i topbar ved siden av tannhjulet',
         'Duplikat Admin-label fjernet fra topbar',
         'Label-tab vises som første tab for label-brukere ved innlogging',
@@ -163,7 +175,7 @@
         'Beats deles automatisk når album/mixtape deles',
         'Auto-revoke: beat-tilgang trekkes når beat fjernes fra delt samling',
         'Supabase-triggere: ny beat/album/mixtape → automatisk delt med editor-tilgang',
-        'Varsel-bjelle 🔔 med ulest-teller og slett-knapp per varsel',
+        'Varsel-bjelle med ulest-teller og slett-knapp per varsel',
         'Varsler for ny deling, ny beat/album/mixtape og label-invitasjoner',
         'Viewer-brukere kan ikke redigere tekst, slette, arkivere eller pitch',
         'Del med bruker-knapp skjules for ikke-eiere',
@@ -183,7 +195,7 @@
         'pullFromSupabase henter eget + delt innhold i én operasjon',
         'Marcus og erik har automatisk redaktørtilgang på hverandres innhold',
         'Del med bruker-modal: søk opp brukernavn, velg rolle, send varsel',
-        'Varsel-bjelle 🔔 med ulest-teller — varsler ved ny deling',
+        'Varsel-bjelle med ulest-teller — varsler ved ny deling',
         'Del-knapp på beats (⋯-meny), album og mixtapes',
         'Tilgang kan trekkes tilbake direkte fra del-modalen',
         'Nye brukere starter med tom profil — arver ikke andres data',
@@ -237,7 +249,7 @@
       changes: [
         'Listevisning i album og mixtapes fullstendig omskrevet fra bunnen — ny HTML med egne klasser (abi-list-row)',
         'track-cards.js sin enhanceCards() hopper over abi-list-row — ingen CSS-konflikter lenger',
-        'Listevisning: 66px rader med kvadratisk cover, nummer, tittel, uploader, varighet, ▶-knapp, ★-knapp',
+        'Listevisning: 66px rader med kvadratisk cover, nummer, tittel, uploader, varighet, -knapp, ★-knapp',
         'Kortvisning: TAKE/DEMO-badge skjult på kollapsede kort — tittelen er nå synlig',
         'Beat-gjenoppretting: 18 beats som bare lå i R2 gjenopprettet til Supabase og localStorage',
         'supabase.js: automatisk retry (2x) ved push-feil med 3s mellomrom',
@@ -265,10 +277,10 @@
         'Pipeline: drag sanger mellom kolonner for å oppdatere ferdigstillelse',
         'Pipeline: neste steg per sang (Last opp lydfil / Skriv tekst / Ferdigstill seksjoner)',
         'Pipeline: drag-rekkefølge for prioritering innad i kolonner',
-        'Pipeline: ✍️ Lyric Lab-knapp direkte fra sangkortet',
+        'Pipeline: Lyric Lab-knapp direkte fra sangkortet',
         'Pipeline: hurtig-slider for ferdigstillelse uten å åpne sangen',
         'Pipeline: ukentlig fremgang-pill og streak-teller',
-        'Pipeline: albumnotater med 📝-knapp',
+        'Pipeline: albumnotater med -knapp',
         'Pipeline: album-status dropdown (Idé/Skriving/Innspilling/Mixing/Masterering/Ferdig)',
       ],
     },
@@ -323,7 +335,7 @@
         'Tab-rekkefølge endret til: Beats → Mixtapes → Albumer → Pipeline → Integrasjoner',
         'Mixtapes er nå standard startside',
         'Visningsmodus (viewer): gir nå tilgang til både Beats og Mixtapes — kun lytting',
-        'Innloggingsikon (🔐 Admin) vises øverst til høyre i visningsmodus for rask admin-innlogging',
+        'Innloggingsikon (Admin) vises øverst til høyre i visningsmodus for rask admin-innlogging',
         '"ADMIN"-boblen skjules i visningsmodus',
         'Alle tre visningsmoduser synlige i toggle: ☰ Rader · ▦ Kort · ▤ Studio',
         'Tab-flimring fikset med dirty-flagg system — kun aktiv tab re-rendres',
@@ -365,7 +377,7 @@
       changes: [
         '"Slett sang"-knapp lagt til i alle visninger — kun synlig for admin',
         'Sletting fjerner sangen fra R2, Supabase og lokal state i én operasjon',
-        'Brukernavnet til den som laster opp en sang vises på beat-kortet med 👤-ikon',
+        'Brukernavnet til den som laster opp en sang vises på beat-kortet med -ikon',
         'Brukernavnet lagres automatisk fra innloggingssession',
       ],
     },
@@ -452,7 +464,7 @@
     el.innerHTML = `
       <div class="cl-header">
         <div>
-          <h2 style="margin:0 0 4px">📋 Changelog</h2>
+          <h2 style="margin:0 0 4px">Changelog</h2>
           <p class="hint" style="margin:0">Siste: <strong style="color:${latest.color}">${latest.version} — ${latest.label}</strong> · ${latest.date}</p>
         </div>
         <button class="ghost-btn cl-toggle" onclick="changelogToggle()" id="clToggleBtn">

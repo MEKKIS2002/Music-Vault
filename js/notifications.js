@@ -25,15 +25,15 @@
   function uid(){ return window._mvCurrentUserId || sessionStorage.getItem('mv_user_id') || null; }
 
   const TYPE_LABELS = {
-    share_beat:    '🎵 Ny sang delt med deg',
-    share_album:   '💿 Nytt album delt med deg',
-    share_mixtape: '📼 Ny mixtape delt med deg',
-    new_beat:      '🎵 Ny sang tilgjengelig',
-    new_album:     '💿 Nytt album tilgjengelig',
-    new_mixtape:   '📼 Ny mixtape tilgjengelig',
-    label_invite:  '🏷 Labelinvitasjon',
-    label_left:    '👋 Artist forlot labelen',
-    label_comment: '💬 Kommentar fra label'
+    share_beat:    'Ny sang delt med deg',
+    share_album:   'Nytt album delt med deg',
+    share_mixtape: 'Ny mixtape delt med deg',
+    new_beat:      'Ny sang tilgjengelig',
+    new_album:     'Nytt album tilgjengelig',
+    new_mixtape:   'Ny mixtape tilgjengelig',
+    label_invite:  'Labelinvitasjon',
+    label_left:    'Artist forlot labelen',
+    label_comment: 'Kommentar fra label'
   };
 
   function setCount(unread){
@@ -64,7 +64,7 @@
     bell.setAttribute('aria-label', 'Varsler');
     bell.setAttribute('aria-haspopup', 'dialog');
     bell.style.cssText = 'position:relative;font-size:16px;';
-    bell.innerHTML = `🔔<span id="mvNotifCount" aria-hidden="true" style="display:none;position:absolute;top:3px;right:3px;background:#fb7185;color:#fff;font-size:9px;font-weight:900;border-radius:999px;padding:1px 4px;font-family:system-ui;min-width:14px;text-align:center;line-height:1.4;pointer-events:none"></span>`;
+    bell.innerHTML = `<span class="ic ic-bell" aria-hidden="true"></span><span id="mvNotifCount" aria-hidden="true" style="display:none;position:absolute;top:3px;right:3px;background:#fb7185;color:#fff;font-size:9px;font-weight:900;border-radius:999px;padding:1px 4px;font-family:system-ui;min-width:14px;text-align:center;line-height:1.4;pointer-events:none"></span>`;
     bell.onclick = (e) => { e.stopPropagation(); window.openNotifPanel(); };   // via window: label.js lapper den
 
     const slot = document.getElementById('mvNotifBellSlot');

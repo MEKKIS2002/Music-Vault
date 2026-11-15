@@ -202,7 +202,7 @@ function installAdminLoginPanel() {
 
   integrationsPanel.insertAdjacentHTML("afterbegin", `
     <div id="supabaseAdminPanel" class="settings-card supabase-admin-card">
-      <h2>🔐 Admin</h2>
+      <h2><span class="ic ic-lock" aria-hidden="true"></span> Admin</h2>
 
       <div class="admin-status-row">
         <span id="adminLoginStatus">Sjekker...</span>
@@ -714,7 +714,7 @@ setTimeout(updateAdminUi, 50);
     const parent = document.getElementById('supabaseAdminPanel') || document.querySelector('#integrationsTab .content-panel') || document.body;
     parent.insertAdjacentHTML('afterend', `
       <div id="supabaseDataSyncPanel" class="settings-card supabase-sync-card">
-        <h2>☁️ Supabase sync</h2>
+        <h2><span class="ic ic-cloud" aria-hidden="true"></span> Supabase sync</h2>
         <div class="sync-actions">
           <button class="primary-btn" id="pullSupabaseBtn">↓ Hent fra sky</button>
           <button class="ghost-btn" id="pushSupabaseBtn">↑ Push lokale data</button>
@@ -773,7 +773,7 @@ setTimeout(updateAdminUi, 50);
         if (!_staleWarned) {
           _staleWarned = true;
           console.error('[Sync] Endringer har stått ulagret i over 60 s.');
-          toast('⚠ Endringer er ikke lagret i skyen — sjekk nett/innlogging');
+          toast('Endringer er ikke lagret i skyen — sjekk nett/innlogging');
         }
       }
       if (isPullingFromSupabase || !canWrite()) return;

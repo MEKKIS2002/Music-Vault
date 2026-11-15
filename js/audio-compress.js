@@ -42,7 +42,7 @@
   async function compress(file, opts = {}){
     const { kbps = 192, onProgress } = opts;
 
-    if(typeof showToast === 'function') showToast('🔄 Konverterer til MP3...');
+    if(typeof showToast === 'function') showToast('Konverterer til MP3...');
 
     try {
       await loadLame();
@@ -125,16 +125,16 @@
 
   // ── Batch-konverter alle WAV-beats ──────────────────────────────────────
   window.convertAllWavBeats = async function(){
-    if(!window.r2Storage?.ready()){ if(typeof showToast==='function') showToast('⚠ R2 ikke klar'); return; }
+    if(!window.r2Storage?.ready()){ if(typeof showToast==='function') showToast('R2 ikke klar'); return; }
     const appState = window.state || (typeof state !== 'undefined' ? state : null);
-    if(!appState?.beats){ if(typeof showToast==='function') showToast('⚠ State ikke klar'); return; }
+    if(!appState?.beats){ if(typeof showToast==='function') showToast('State ikke klar'); return; }
 
     // Finn beats med audio_url som kan være WAV
     const candidates = appState.beats.filter(b =>
       !b.archived && (b.audio_url||'').includes('worker')
     );
 
-    if(typeof showToast==='function') showToast(`🔍 Sjekker ${candidates.length} beats...`);
+    if(typeof showToast==='function') showToast(`Sjekker ${candidates.length} beats...`);
 
     // Sjekk Content-Type for hver
     const toConvert = [];
@@ -156,7 +156,7 @@
     modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
     modal.innerHTML = `
       <div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(460px,92vw);padding:28px;font-family:system-ui">
-        <h2 style="font-size:16px;font-weight:800;margin:0 0 8px;color:#f4ede4">🔄 Konverter WAV til MP3</h2>
+        <h2 style="font-size:16px;font-weight:800;margin:0 0 8px;color:#f4ede4"><span class="ic ic-refresh" aria-hidden="true"></span> Konverter WAV til MP3</h2>
         <p style="font-size:13px;color:rgba(255,255,255,.5);margin:0 0 16px">Fant <strong style="color:#f4a443">${toConvert.length}</strong> WAV-beat${toConvert.length>1?'s':''}</p>
         <div style="max-height:200px;overflow-y:auto;margin-bottom:16px">
           ${toConvert.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">

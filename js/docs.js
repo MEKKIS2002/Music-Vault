@@ -117,9 +117,9 @@
     }catch(e){
       _loading = false;
       if(e.message==='not-logged-in'){
-        shell(stateView('🔒','Logg inn','Logg inn for å bruke Docs.',''));
+        shell(stateView('<span class="ic ic-lock" aria-hidden="true"></span>','Logg inn','Logg inn for å bruke Docs.',''));
       }else{
-        shell(stateView('⚠️','Kunne ikke laste','Noe gikk galt. Prøv igjen.',
+        shell(stateView('<span class="ic ic-alert" aria-hidden="true"></span>','Kunne ikke laste','Noe gikk galt. Prøv igjen.',
           `<button class="docs-btn-primary" onclick="window.renderDocs()">Prøv igjen</button>`));
       }
     }
@@ -133,7 +133,7 @@
           <div id="docsList" class="docs-list"></div>
         </aside>
         <section class="docs-editor docs-editor-empty">
-          ${stateView('📝','Ingen dokumenter ennå','Lag ditt første dokument for idéer, lyrics, notater og planer.',
+          ${stateView('<span class="ic ic-file" aria-hidden="true"></span>','Ingen dokumenter ennå','Lag ditt første dokument for idéer, lyrics, notater og planer.',
             `<button class="docs-btn-primary" onclick="window.docsNew()">Create new doc</button>`)}
         </section>`);
       return;
@@ -169,13 +169,13 @@
   function renderEditor(){
     const pane = el('docsEditorPane'); if(!pane) return;
     const doc = _docs.find(d=>d.id===_currentId);
-    if(!doc){ pane.classList.add('docs-editor-empty'); pane.innerHTML = stateView('📄','Velg et dokument','Velg et dokument fra listen, eller lag et nytt.',''); return; }
+    if(!doc){ pane.classList.add('docs-editor-empty'); pane.innerHTML = stateView('<span class="ic ic-file" aria-hidden="true"></span>','Velg et dokument','Velg et dokument fra listen, eller lag et nytt.',''); return; }
     pane.classList.remove('docs-editor-empty');
     pane.innerHTML = `
       <div class="docs-ed-bar">
         <input id="docsTitle" class="docs-ed-title" value="${esc(doc.title||'')}" placeholder="Uten tittel" spellcheck="false">
         <span id="docsSaveState" class="docs-save-state"></span>
-        <button class="docs-del-btn" onclick="window.docsDelete('${doc.id}')" title="Slett dokument" aria-label="Slett dokument">🗑</button>
+        <button class="docs-del-btn" onclick="window.docsDelete('${doc.id}')" title="Slett dokument" aria-label="Slett dokument"><span class="ic ic-trash" aria-hidden="true"></span></button>
       </div>
       <div class="docs-toolbar" id="docsToolbar" role="toolbar" aria-label="Formatering">
         <button data-cmd="bold" title="Fet (Ctrl+B)" aria-label="Fet"><b>B</b></button>
@@ -406,7 +406,7 @@
         _docs = _docs.filter(d=>d.id!==id);
         if(_currentId===id) _currentId = _docs.length ? _docs[0].id : null;
         renderLayout();
-        toast('🗑 Dokument slettet');
+        toast('Dokument slettet');
       }catch(e){ toast('Kunne ikke slette'); }
     };
     if(typeof window.showDeleteConfirm==='function') window.showDeleteConfirm(`Slette «${doc.title||'Uten tittel'}»?`, run);

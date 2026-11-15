@@ -292,7 +292,7 @@ function injectUserCorner(role){
   // Gear/settings button with dropdown
   slot.insertAdjacentHTML('beforeend', `
     <div style="position:relative">
-      <button id="mvGearBtn" class="mv-hdr-icon-btn" onclick="mvToggleGearMenu(event)" title="Innstillinger" aria-label="Innstillinger">⚙</button>
+      <button id="mvGearBtn" class="mv-hdr-icon-btn" onclick="mvToggleGearMenu(event)" title="Innstillinger" aria-label="Innstillinger"><span class="ic ic-sliders" aria-hidden="true"></span></button>
       <div id="mvGearMenu" class="mv-gear-dropdown" style="display:none">
         <div class="mv-gear-header">
           <div class="mv-gear-username">${username}</div>
@@ -300,9 +300,9 @@ function injectUserCorner(role){
         </div>
         <div class="mv-gear-divider"></div>
         <div id="mvGearLabelItem" style="display:none">
-          <button class="mv-gear-item mv-gear-danger" onclick="mvGearLeaveLabel()">👋 Forlat label</button>
+          <button class="mv-gear-item mv-gear-danger" onclick="mvGearLeaveLabel()">Forlat label</button>
         </div>
-        <button class="mv-gear-item" onclick="mvLogout()">🚪 Logg ut</button>
+        <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
       </div>
     </div>`);
 
@@ -315,7 +315,7 @@ function injectUserCorner(role){
   // Admin badge
   if(isAdmin){
     slot.insertAdjacentHTML('beforeend',
-      '<div class="mv-hdr-admin-badge">&#9889; ADMIN</div>');
+      '<div class="mv-hdr-admin-badge" title="Admin"><span class="ic ic-bolt" aria-hidden="true"></span> ADMIN</div>');
   }
 
   // Bell is placed by installNotificationBell() in app.js — no manual move needed

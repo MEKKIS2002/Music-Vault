@@ -127,7 +127,7 @@ document.documentElement.classList.add('mv-mixed-ui');
       if(titleRow && !titleRow.querySelector('.quick-play-btn')){
         const btn = document.createElement('button');
         btn.type='button'; btn.className='quick-play-btn'; btn.title='Spill sang';
-        btn.textContent = '▶';
+        btn.innerHTML = '<span class="ic ic-play" aria-hidden="true"></span>'; btn.setAttribute('aria-label','Spill sang');
         btn.onclick = e => { e.stopPropagation(); if(typeof playCollectionFromBeat==='function') playCollectionFromBeat(b.id, mode); else if(typeof playSingleBeat==='function') playSingleBeat(b.id); };
         let actions = titleRow.querySelector('.track-card-actions');
         if(!actions){ actions=document.createElement('div'); actions.className='track-card-actions'; titleRow.appendChild(actions); }
@@ -199,13 +199,13 @@ document.documentElement.classList.add('mv-mixed-ui');
           const cov=coverForBeat(b,mode);
           const pct=Math.max(0,Math.min(100,Number(b.done||0)));
           return `<div class="studio-track" data-beat-id="${safe(b.id)}" title="Åpne i Lyric Lab" onclick="if(typeof openInLyricLab==='function')openInLyricLab('${safe(b.id)}')">
-            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'🎵'}</div>
+            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'<span class="ic ic-music" aria-hidden="true"></span>'}</div>
             <div class="studio-main">
               <div class="studio-title">${safe(b.name)}</div>
               <div class="studio-prog"><span style="width:${pct}%"></span></div>
               <div class="studio-sub">${b.favorite?'★ ':''}${pct}% · ${hasAudio(b)?'Lyd':'<em>Mangler lyd</em>'}</div>
             </div>
-            <button class="studio-play" title="Spill" onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')">▶</button>
+            <button class="studio-play" title="Spill" onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>
           </div>`;
         }).join('')||'<div class="studio-empty">Ingen sanger her</div>'}</div>
       </div>`).join('')}</div>`;
@@ -297,8 +297,8 @@ document.documentElement.classList.add('mv-mixed-ui');
     const bp = (typeof bottomPlayer!=='undefined')?bottomPlayer:window.bottomPlayer;
     const id = bp?.queue?.[bp.index]?.id;
     const playing = id && bp.audio && !bp.audio.paused;
-    document.querySelectorAll('.quick-play-btn.playing').forEach(b=>{b.classList.remove('playing');b.textContent='▶';});
-    if(playing) document.querySelectorAll(`[data-beat-id="${CSS.escape(id)}"] .quick-play-btn`).forEach(b=>{b.classList.add('playing');b.textContent='⏸';});
+    document.querySelectorAll('.quick-play-btn.playing').forEach(b=>{b.classList.remove('playing');b.innerHTML='<span class="ic ic-play" aria-hidden="true"></span>';});
+    if(playing) document.querySelectorAll(`[data-beat-id="${CSS.escape(id)}"] .quick-play-btn`).forEach(b=>{b.classList.add('playing');b.innerHTML='<span class="ic ic-pause" aria-hidden="true"></span>';});
   }
   // Expose so db.js's updateBottomUI (loaded AFTER this file) can call it live on play/pause.
   window.markPlayingCard = markPlayingCard;
