@@ -6,6 +6,19 @@
 
   const VERSIONS = [
     {
+      version: 'v5.3',
+      date: '16. november 2026',
+      label: 'Skriveverktøy i Docs og Lyric Lab',
+      color: '#d68155',
+      changes: [
+        'Docs: skriv «# », «## », «- », «1. » eller «[] » for overskrift, lister og sjekkliste',
+        'Docs: hurtigtaster for overskrifter og lister, og Ctrl+/ viser alle hurtigtaster',
+        'Docs: oversikt over overskriftene ved siden av dokumentet, og ordtelling med lesetid',
+        'Lyric Lab: vis stavelser per linje, stavekontroll av/på og fokusmodus (Ctrl+Shift+F)',
+        'Lyric Lab: Alt+↑/↓ flytter linjer, Ctrl+Enter lager ny seksjon, Ctrl+Alt+↑/↓ bytter seksjon',
+      ]
+    },
+    {
       version: 'v5.2',
       date: '16. november 2026',
       label: 'Høyreklikk og kortere menyer',
