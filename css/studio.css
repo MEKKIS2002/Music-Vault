@@ -1714,3 +1714,16 @@ html body.ll-focus #lyriclabTab .ll-page-title{ font-size: 1.6rem !important; }
   html body .ll-view-tools{ width: 100%; overflow-x: auto; scrollbar-width: none; }
   html body .ll-view-btn{ flex: none; }
 }
+
+/* ── 33. Innlogging: nødutgang når gjenopprettingen henger ────────────────── */
+html body #mvRestoreMsg{ text-align: center; }
+html body #mvRestoreMsg .mv-restore-slow{ margin-top: 1.4rem; letter-spacing: normal; text-transform: none; }
+html body #mvRestoreMsg .mv-restore-slow[hidden]{ display: none; }
+html body #mvRestoreMsg .mv-restore-slow p{ margin: 0 0 .8rem; color: var(--muted); font: 500 .9rem var(--body); }
+html body #mvRestoreMsg .mv-restore-btns{ display: flex; gap: .5rem; justify-content: center; }
+html body #mvRestoreMsg .mv-restore-btns button{
+  min-height: 2.5rem; padding: 0 1.1rem; border-radius: var(--radius); cursor: pointer;
+  font: 600 .9rem var(--body); border: 1px solid var(--border-control); background: var(--raised); color: var(--text);
+}
+html body #mvRestoreMsg .mv-restore-btns button[data-act="retry"]{ background: var(--accent); border-color: var(--accent); color: #21130e; }
+html body #mvRestoreMsg .mv-restore-btns button:hover{ filter: brightness(1.08); }

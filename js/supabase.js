@@ -14,8 +14,29 @@ const isSupabaseConfigured =
   !SUPABASE_URL.includes("DIN_SUPABASE") &&
   !SUPABASE_ANON_KEY.includes("DIN_SUPABASE");
 
+// Innloggingslåsen: supabase-js bruker som standard navigator.locks, som deles
+// mellom ALLE faner. Henger én fane (f.eks. en bakgrunnsfane som nettleseren
+// har satt på pause midt i en token-fornyelse), venter alle andre faner på den
+// — «Logger inn…» står for alltid og ingen data lastes. En lås som bare gjelder
+// denne fanen fjerner det problemet.
+function mvTabLock(){
+  const queues = {};
+  return async (name, _acquireTimeout, fn) => {
+    const prev = queues[name] || Promise.resolve();
+    let release;
+    const mine = new Promise(r => { release = r; });
+    const chain = queues[name] = prev.then(() => mine);
+    // Vent maks 10 s på forrige holder, så en hengende operasjon ikke låser oss
+    await Promise.race([prev, new Promise(r => setTimeout(r, 10000))]);
+    try { return await fn(); }
+    finally { release(); if (queues[name] === chain) delete queues[name]; }
+  };
+}
+
 const supabaseClient = isSupabaseConfigured && window.supabase
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { lock: window.supabase.processLock || mvTabLock() }
+    })
   : null;
 
 window.supabaseClient = supabaseClient;
@@ -289,6 +310,8 @@ setTimeout(updateAdminUi, 50);
 
   const SYNC_STATUS_ID = 'supabaseSyncStatus';
   let isPullingFromSupabase = false;
+  let _pullRetries = 0;
+  let _pullAgain = false;   // en henting ble bedt om mens en annen pågikk
   let pushTimer = null;
   let lastPushAt = 0;
   let _pendingPush = false;  // dirty flag — set when changes exist but push hasn't run yet
@@ -469,7 +492,9 @@ setTimeout(updateAdminUi, 50);
   async function pullFromSupabase({force=false}={}){
     const st = appState();
     if(!st || !client()) { say('Supabase er ikke konfigurert.', 'warning'); return false; }
-    if(isPullingFromSupabase) return false;
+    // Pågår en henting allerede? Kjør en ny runde når den er ferdig i stedet
+    // for å forkaste forespørselen (ellers kan innlogging ende med tom app).
+    if(isPullingFromSupabase){ _pullAgain = true; return false; }
 
     // ⚠️ Pull er en HARD overskriving av lokal state (st.beats = ...). Har vi
     // ulagrede endringer — også fra en tidligere økt der fanen ble drept —
@@ -503,13 +528,14 @@ setTimeout(updateAdminUi, 50);
       // ── 1. Hent eget innhold ────────────────────────────────────
       const ownFilter = uid ? (q) => q.eq('owner_id', uid) : (q) => q;
 
-      const [ownBeats, ownAlbums, ownMixtapes, albumBeatRows, mixtapeBeatRows] = await Promise.all([
+      // Tidsfrist: henger ett kall, skal ikke hele synken stå fast for alltid
+      const [ownBeats, ownAlbums, ownMixtapes, albumBeatRows, mixtapeBeatRows] = await withTimeout(Promise.all([
         ownFilter(client().from('beats').select('*')).then(r=>{ if(r.error) throw r.error; return r.data||[]; }),
         ownFilter(client().from('albums').select('*')).then(r=>{ if(r.error) throw r.error; return r.data||[]; }),
         ownFilter(client().from('mixtapes').select('*')).then(r=>{ if(r.error) throw r.error; return r.data||[]; }),
         selectAll('album_beats'),
         selectAll('mixtape_beats')
-      ]);
+      ]), 25000, 'Supabase svarte ikke innen 25 sekunder');
 
       // ── 2. Hent delt innhold via content_access ─────────────────
       let sharedBeats = [], sharedAlbums = [], sharedMixtapes = [];
@@ -602,9 +628,12 @@ setTimeout(updateAdminUi, 50);
     }catch(err){
       console.error('Supabase pull-feil:', err);
       say(`Kunne ikke hente fra Supabase: ${err.message || err}.`, 'error');
+      // Prøv én gang til litt senere hvis ingenting er hentet ennå
+      if(!_hasPulledOk && _pullRetries++ < 3) _pullAgain = true;
       return false;
     }finally{
       isPullingFromSupabase = false;
+      if(_pullAgain){ _pullAgain = false; setTimeout(()=>pullFromSupabase(), 1500); }
     }
   }
 

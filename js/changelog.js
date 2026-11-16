@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.4',
+      date: '16. november 2026',
+      label: 'Stabil innlogging og egne adresser per side',
+      color: '#d68155',
+      changes: [
+        'Rettet: appen kunne bli stående på «Logger inn…» eller vise tom profil når en annen fane hang',
+        'Henting av låter og album har tidsfrist og prøver på nytt i stedet for å stå fast',
+        '«Prøv igjen» og «Logg ut» dukker opp hvis innloggingen tar mer enn noen sekunder',
+        'Hver side har sin egen adresse (#beats, #album, #lyric-lab …), så tilbakeknappen virker',
+      ]
+    },
+    {
       version: 'v5.3',
       date: '16. november 2026',
       label: 'Skriveverktøy i Docs og Lyric Lab',
