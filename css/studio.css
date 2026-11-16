@@ -1727,3 +1727,62 @@ html body #mvRestoreMsg .mv-restore-btns button{
 }
 html body #mvRestoreMsg .mv-restore-btns button[data-act="retry"]{ background: var(--accent); border-color: var(--accent); color: #21130e; }
 html body #mvRestoreMsg .mv-restore-btns button:hover{ filter: brightness(1.08); }
+
+/* ── 34. Bytt bruker (js/impersonate.js) ──────────────────────────────────── */
+html body .mv-switch{
+  position: fixed; z-index: 950; left: calc(var(--sidebar-width) + 1rem);
+  bottom: calc(var(--mv-player-space, 0px) + 1rem); font-family: var(--body); color: var(--text);
+}
+html body .mv-switch-fab{
+  display: inline-flex; align-items: center; gap: .45rem; height: 2.4rem; padding: 0 .85rem 0 .7rem;
+  border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted);
+  font: 600 .82rem var(--body); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.35); opacity: .75;
+}
+html body .mv-switch-fab:hover, html body .mv-switch-fab[aria-expanded="true"]{ opacity: 1; color: var(--text); border-color: var(--border-control); }
+html body .mv-switch-bar{
+  display: flex; align-items: center; gap: .6rem; padding: .45rem .5rem .45rem .85rem;
+  border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent);
+  box-shadow: 0 8px 26px rgba(0,0,0,.45);
+}
+html body .mv-switch-bar > .ic{ color: var(--accent-text); }
+html body .mv-switch-txt{ font-size: .88rem; white-space: nowrap; }
+html body .mv-switch-txt b{ color: var(--accent-text); }
+html body .mv-switch-ro{ margin-left: .5rem; padding: .1rem .45rem; border-radius: 999px; background: rgba(0,0,0,.25); color: var(--muted); font: 700 .66rem var(--body); letter-spacing: .08em; text-transform: uppercase; }
+html body .mv-switch-btn{
+  height: 2rem; padding: 0 .8rem; border-radius: 999px; border: 1px solid var(--border-control);
+  background: var(--raised); color: var(--text); font: 600 .8rem var(--body); cursor: pointer; white-space: nowrap;
+}
+html body .mv-switch-btn.is-primary{ background: var(--accent); border-color: var(--accent); color: #21130e; }
+html body .mv-switch-btn:hover{ filter: brightness(1.08); }
+html body .mv-switch-btn:disabled{ opacity: .6; cursor: progress; }
+html body .mv-switch-pop{
+  position: absolute; left: 0; bottom: calc(100% + .5rem); width: min(20rem, calc(100vw - 2rem));
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-modal); padding: .8rem;
+}
+html body .mv-switch-pop[hidden]{ display: none; }
+html body .mv-switch-pop-title{ margin: 0 0 .5rem; color: var(--accent-text); font: 700 .7rem var(--body); letter-spacing: .14em; text-transform: uppercase; }
+html body .mv-switch-search{ width: 100%; height: 2.3rem; padding: 0 .7rem; border-radius: var(--radius); border: 1px solid var(--border-control); background: var(--bg); color: var(--text); font: 500 .88rem var(--body); }
+html body .mv-switch-list{ list-style: none; margin: .5rem 0 0; padding: 0; max-height: 15rem; overflow: auto; display: flex; flex-direction: column; gap: 2px; }
+html body .mv-switch-list button{
+  width: 100%; display: flex; align-items: center; gap: .6rem; padding: .45rem .5rem; border: 0; border-radius: var(--radius);
+  background: transparent; color: var(--text); font: 500 .88rem var(--body); text-align: left; cursor: pointer;
+}
+html body .mv-switch-list button:hover, html body .mv-switch-list button:focus-visible{ background: var(--raised); }
+html body .mv-switch-list button[aria-current="true"]{ background: var(--accent-soft); }
+html body .mv-switch-list button .ic-check{ color: var(--accent-text); margin-left: .2rem; }
+html body .mv-switch-av{ width: 1.9rem; height: 1.9rem; border-radius: 50%; display: grid; place-items: center; background: var(--raised); color: var(--muted); font: 700 .68rem var(--body); flex: none; }
+html body .mv-switch-name{ flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body .mv-switch-tag{ color: var(--faint); font: 600 .72rem var(--body); text-transform: lowercase; }
+html body .mv-switch-empty{ color: var(--muted); font-size: .84rem; padding: .5rem; }
+html body .mv-switch-note{ margin: .6rem 0 0; color: var(--faint); font-size: .76rem; line-height: 1.4; }
+/* Tydelig ramme rundt hele appen mens man ser som en annen bruker */
+html body.mv-impersonating::after{ content: ""; position: fixed; inset: 0; border: 3px solid var(--accent); pointer-events: none; z-index: 940; }
+@media (max-width: 768px){
+  html body .mv-switch{ left: .75rem; right: .75rem; bottom: calc(var(--mv-player-space, 0px) + .75rem); }
+  html body .mv-switch-fab-txt{ display: none; }
+  html body .mv-switch-fab{ padding: 0; width: 2.4rem; justify-content: center; }
+  html body .mv-switch-bar{ flex-wrap: wrap; border-radius: var(--radius-panel); }
+  html body .mv-switch-txt{ flex: 1 1 100%; }
+  html body .mv-switch-btn{ flex: 1; }
+}

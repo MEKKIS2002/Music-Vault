@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.5',
+      date: '16. november 2026',
+      label: 'Bytt bruker (for admin)',
+      color: '#d68155',
+      changes: [
+        'Admin kan se appen nøyaktig slik en annen bruker ser den — knappen «Bytt bruker» nederst til venstre',
+        'Mens du ser som en annen bruker er alt skrivebeskyttet, og en oransje ramme viser at du ikke er deg selv',
+        'Panelet nederst lar deg bytte videre eller gå «Tilbake til» din egen konto med ett klikk',
+        'Hvert bytte logges i databasen',
+      ]
+    },
+    {
       version: 'v5.4',
       date: '16. november 2026',
       label: 'Stabil innlogging og egne adresser per side',
