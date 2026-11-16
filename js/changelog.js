@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.2',
+      date: '16. november 2026',
+      label: 'Høyreklikk og kortere menyer',
+      color: '#d68155',
+      changes: [
+        'Høyreklikk på sanger, album, mixtapes og prosjektkort for å få opp valgene',
+        'Kortere meny: mixtaper, album, deling og sjeldne valg ligger bak «›» med «‹ Tilbake»',
+        'Samme meny fra ⋯-knappen og høyreklikk, med tastaturstyring (piler, Enter, Escape)',
+        'Rettet: «Legg til favoritt» og «Del med bruker» i Beats-menyen virket ikke',
+      ]
+    },
+    {
       version: 'v5.1',
       date: '16. november 2026',
       label: 'Kø og mediekontroller',

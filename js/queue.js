@@ -102,7 +102,7 @@
   function cover(b){ return b && b.cover ? `<img src="${E(b.cover)}" alt="">` : ICON('music'); }
   function row(b, i, kind){
     const p = bp(); const first = i===p.index+1, last = i===p.queue.length-1;
-    return `<li class="mv-queue-row" data-qi="${i}" draggable="true">
+    return `<li class="mv-queue-row" data-qi="${i}" draggable="true" data-cm-beat="${E(b.id)}" data-cm-mode="queue">
       <button class="mv-queue-main" type="button" data-q="play" data-i="${i}" aria-label="Spill ${E(b.name)}">
         <span class="mv-queue-cover">${cover(b)}</span>
         <span class="mv-queue-text"><b>${E(b.name||'Uten tittel')}</b><span>${E(b.uploadedBy||p.context?.label||'')}</span></span>
