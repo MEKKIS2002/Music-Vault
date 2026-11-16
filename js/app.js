@@ -307,13 +307,16 @@
     const SB_URL_P = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
     const SB_KEY_P = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
 
+    const ICONS_URL = new URL('css/icons.css', location.href).href;
+    const escH = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const albumName = escH(album.name||'Uten tittel');
     const beatsJson = JSON.stringify(beats.map(b=>({
       id:b.id, name:b.name, duration:b.duration||0, audio_url:b.audio_url||b.url||''
     })));
 
     const rows = beats.map((b,i)=>{
       const sideDiv = beats.length>=4&&(i===0||i===mid)
-        ? `<div class="side-label">${i===0?'A':'B'}-SIDE</div>` : '';
+        ? `<div class="side-label">${i===0?'A':'B'}-side</div>` : '';
       const d=Number(b.duration||0), dStr=d>0?Math.floor(d/60)+':'+String(Math.floor(d%60)).padStart(2,'0'):'';
       return sideDiv+`<div class="track-row" data-idx="${i}" onclick="playPreview(${i})" role="button" tabindex="0" aria-label="Spill ${b.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();playPreview(${i})}">
         <span class="track-num">${String(i+1).padStart(2,'0')}</span>
@@ -325,104 +328,126 @@
 
     const html = `<!DOCTYPE html><html lang="no"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${album.name} — Pitch</title>
+<title>${albumName} — Music Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Text&display=swap">
+<link rel="stylesheet" href="${ICONS_URL}">
 <style>
+:root{--bg:#181615;--panel:#211d1a;--raised:#2a231e;--line:#40362f;--ctl:#897567;--text:#f4eadc;--muted:#bfb2a6;--faint:#a89a8d;--accent:#d68155;--accent-text:#f0a579;--accent-soft:#39271e;--on-accent:#21130e;--done:#a6be8b;--r:8px;--rp:12px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d0b09;color:#f4eadc;font-family:Georgia,serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px}
-.page{max-width:680px;width:100%}
-.hero{display:flex;align-items:flex-start;gap:48px;margin-bottom:56px}
-.sleeve-wrap{position:relative;width:200px;height:200px;flex-shrink:0}
-.sleeve{width:200px;height:200px;overflow:hidden;position:relative;z-index:2;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+body{background:var(--bg);color:var(--text);font:400 16px/1.55 "DM Sans",system-ui,sans-serif;min-height:100vh;padding:clamp(24px,6vw,72px) clamp(16px,4vw,32px) 48px;-webkit-font-smoothing:antialiased}
+.page{max-width:820px;margin:0 auto}
+.ic{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.17em;background:currentColor;-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-text);outline-offset:3px}
+.eyebrow{color:var(--accent-text);font:700 .72rem var(--body,"DM Sans");letter-spacing:.15em;text-transform:uppercase}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(24px,5vw,56px);align-items:center;margin-bottom:clamp(32px,6vw,56px)}
+.sleeve-wrap{position:relative;width:clamp(150px,26vw,220px);aspect-ratio:1;margin-right:clamp(40px,7vw,70px)}
+.sleeve{position:relative;z-index:2;width:100%;height:100%;border-radius:var(--r);overflow:hidden;background:var(--raised);box-shadow:inset 0 0 0 1px rgba(244,234,220,.15),0 20px 50px rgba(0,0,0,.55)}
 .sleeve img{width:100%;height:100%;object-fit:cover;display:block}
-.sleeve-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:rgba(255,255,255,.06)}
-.vinyl-wrap{position:absolute;right:-60px;top:10px;z-index:1}
-.vinyl-disc{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#1c1c1c 0%,#111 45%,#181615 100%);box-shadow:0 8px 32px rgba(0,0,0,.8);animation:vinylSpin 4s linear infinite;position:relative}
-.vinyl-grooves{position:absolute;inset:8px;border-radius:50%;background:repeating-radial-gradient(circle at center,transparent 0,transparent 4px,rgba(255,255,255,.025) 4px,rgba(255,255,255,.025) 5px)}
-.vinyl-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:${stCol};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#000;font-family:system-ui}
-.vinyl-hole{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#0d0b09}
-@keyframes vinylSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sleeve-ph{width:100%;height:100%;display:grid;place-items:center;font-size:3rem;color:var(--muted)}
+.vinyl-wrap{position:absolute;z-index:1;top:6%;right:-32%;width:88%;aspect-ratio:1}
+.vinyl-disc{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#1c1917 0%,#121010 45%,#1a1715 100%);box-shadow:0 8px 32px rgba(0,0,0,.6);animation:spin 4s linear infinite;position:relative}
+.vinyl-grooves{position:absolute;inset:6%;border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 4px,rgba(255,255,255,.03) 4px 5px)}
+.vinyl-label{position:absolute;inset:34%;border-radius:50%;background:var(--accent);display:grid;place-items:center;font:700 .62rem "DM Sans";letter-spacing:.12em;color:var(--on-accent)}
+.vinyl-hole{position:absolute;top:50%;left:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:var(--bg)}
+@keyframes spin{to{transform:rotate(360deg)}}
 .vinyl-wrap.paused .vinyl-disc{animation-play-state:paused}
-.hero-info{padding-top:6px;flex:1;min-width:0}
-.hero-status{font-size:10px;font-weight:800;letter-spacing:.2em;color:${stCol};text-transform:uppercase;font-family:system-ui;margin-bottom:12px}
-.hero-title{font-size:40px;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:14px}
-.hero-meta{display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,.4);font-family:system-ui;font-weight:700}
-.controls{display:flex;align-items:center;gap:10px;margin-top:20px;flex-wrap:wrap}
-.ctrl-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f4eadc;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:system-ui;letter-spacing:.04em;transition:all .15s}
-.ctrl-btn:hover{background:rgba(255,255,255,.13)}
-.ctrl-btn.active-play{background:${stCol};color:#000;border-color:${stCol}}
-.preview-label{font-size:11px;color:rgba(255,255,255,.3);font-family:system-ui;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tracklist-label{font-size:10px;font-weight:800;letter-spacing:.18em;color:rgba(255,255,255,.28);text-transform:uppercase;font-family:system-ui;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:6px}
-.side-label{font-size:9px;font-weight:800;letter-spacing:.18em;color:${stCol};text-transform:uppercase;font-family:system-ui;padding:14px 0 4px;opacity:.55}
-.track-row{display:flex;align-items:center;gap:14px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;transition:background .15s;position:relative;overflow:hidden}
-.track-row:hover{background:rgba(255,255,255,.04)}
-.track-num{font-size:11px;color:rgba(255,255,255,.22);min-width:22px;font-family:system-ui;font-variant-numeric:tabular-nums}
-.track-play-icon{font-size:11px;color:rgba(255,255,255,.3);width:16px;flex-shrink:0}
-.track-name{font-size:15px;font-weight:700;flex:1}
-.track-dur{font-size:11px;color:rgba(255,255,255,.28);font-family:system-ui;font-variant-numeric:tabular-nums}
-.track-row.active{background:rgba(255,255,255,.04)}
-.track-row.active .track-name{background:linear-gradient(90deg,#f4eadc 0%,${stCol} 40%,#fff 55%,${stCol} 70%,#f4eadc 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shineText 2.5s linear infinite;font-weight:900}
-.track-row.active .track-play-icon{color:${stCol}}
-.track-row.active .track-num{color:${stCol};opacity:.7}
-@keyframes shineText{0%{background-position:0% center}100%{background-position:200% center}}
-.track-row.active::after{content:'';position:absolute;bottom:0;left:0;height:2px;background:${stCol};width:var(--progress,0%);transition:width .3s linear}
-.comments-section{margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07)}
-.comments-label{font-size:10px;font-weight:800;letter-spacing:.18em;color:rgba(255,255,255,.28);text-transform:uppercase;font-family:system-ui;margin-bottom:16px}
-.comment-form{display:grid;gap:10px;margin-bottom:24px}
-.comment-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:10px 14px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
-.comment-input:focus{border-color:rgba(214,129,85,.4)}
-.comment-name-row{display:flex;gap:8px}
-.comment-name{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:8px 12px;font-size:13px;font-family:system-ui;outline:none;transition:border-color .15s}
-.comment-name:focus{border-color:rgba(214,129,85,.4)}
-.comment-submit{background:${stCol};border:none;color:#000;font-size:12px;font-weight:800;padding:8px 20px;cursor:pointer;font-family:system-ui}
-.comment-card{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:10px}
-.comment-author{font-size:12px;font-weight:800;color:${stCol};font-family:system-ui}
-.comment-date{font-size:11px;color:rgba(255,255,255,.28);font-family:system-ui;margin-left:8px}
-.comment-body{font-size:14px;line-height:1.65;color:rgba(255,255,255,.75);margin-top:8px;white-space:pre-wrap}
-.no-comments{font-size:12px;color:rgba(255,255,255,.3);font-family:system-ui}
-.footer{font-size:11px;color:rgba(255,255,255,.18);font-family:system-ui;text-align:center;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);margin-top:36px}
+@media (prefers-reduced-motion:reduce){.vinyl-disc{animation:none}}
+.hero-title{font:400 clamp(2rem,5vw,3.4rem)/1.05 "DM Serif Text",Georgia,serif;letter-spacing:-.02em;margin:.35rem 0 .6rem;overflow-wrap:anywhere}
+.hero-meta{display:flex;flex-wrap:wrap;gap:.3rem .6rem;color:var(--muted);font-size:.98rem}
+.hero-meta .dot{opacity:.6}
+.controls{display:flex;align-items:center;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;padding:0 1.1rem;border-radius:var(--r);border:1px solid var(--ctl);background:var(--panel);color:var(--text);font:600 .95rem "DM Sans"}
+.btn:hover{background:var(--raised)}
+.btn-primary{background:var(--accent);border-color:transparent;color:var(--on-accent)}
+.btn-primary:hover{background:var(--accent-text)}
+.btn-icon{width:2.75rem;padding:0}
+.preview-label{color:var(--muted);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--rp);padding:clamp(14px,2.5vw,22px)}
+.panel-title{font:400 1.7rem/1.1 "DM Serif Text",Georgia,serif;margin-bottom:.6rem}
+.side-label{color:var(--accent-text);font:700 .7rem "DM Sans";letter-spacing:.15em;text-transform:uppercase;padding:1rem .5rem .35rem}
+.side-label:first-child{padding-top:.2rem}
+.track-row{position:relative;display:grid;grid-template-columns:2rem 2rem minmax(0,1fr) auto;align-items:center;gap:.5rem;padding:.65rem .5rem;border-bottom:1px solid var(--line);border-radius:0;cursor:pointer;overflow:hidden}
+.track-row:last-child{border-bottom:0}
+.track-row:hover{background:var(--raised);border-radius:var(--r)}
+.track-num{color:var(--faint);font-size:.85rem;text-align:right;font-variant-numeric:tabular-nums}
+.track-play-icon{width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:.85rem}
+.track-row:hover .track-play-icon{background:var(--accent);color:var(--on-accent)}
+.track-name{font-weight:600;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-dur{color:var(--muted);font-size:.88rem;font-variant-numeric:tabular-nums}
+.track-row.active{background:var(--accent-soft);border-radius:var(--r);border-bottom-color:transparent}
+.track-row.active .track-name{color:var(--accent-text)}
+.track-row.active .track-play-icon{background:var(--accent);color:var(--on-accent)}
+.track-row.active::after{content:'';position:absolute;left:0;bottom:0;height:2px;background:var(--accent);width:var(--progress,0%);transition:width .3s linear}
+.comments-section{margin-top:clamp(20px,4vw,32px)}
+.comment-form{display:grid;gap:.6rem;margin-bottom:1.2rem}
+.comment-input,.comment-name{width:100%;background:var(--bg);border:1px solid var(--ctl);border-radius:var(--r);color:var(--text);font:400 1rem "DM Sans";padding:.65rem .8rem;outline:none}
+.comment-input{min-height:96px;resize:vertical}
+.comment-input:focus,.comment-name:focus{border-color:var(--accent);outline:2px solid var(--accent-text);outline-offset:2px}
+.comment-input::placeholder,.comment-name::placeholder{color:var(--muted)}
+.comment-name-row{display:flex;gap:.6rem}
+.comment-name{flex:1;min-width:0}
+.comment-submit{min-height:2.75rem}
+.comment-card{padding:.8rem .2rem;border-bottom:1px solid var(--line)}
+.comment-card:last-child{border-bottom:0}
+.comment-author{font-weight:700;color:var(--text)}
+.comment-date{color:var(--muted);font-size:.85rem;margin-left:.5rem}
+.comment-body{color:var(--text);opacity:.9;margin-top:.3rem;white-space:pre-wrap;line-height:1.6}
+.no-comments{color:var(--muted);font-size:.92rem}
+.footer{color:var(--faint);font-size:.82rem;text-align:center;margin-top:2.5rem;display:flex;align-items:center;justify-content:center;gap:.4rem}
+.footer b{font:400 1rem "DM Serif Text",Georgia,serif;color:var(--text)}
+@media (max-width:600px){
+  .hero{grid-template-columns:1fr;justify-items:start}
+  .sleeve-wrap{width:58vw;max-width:240px}
+  .track-row{grid-template-columns:1.6rem 2rem minmax(0,1fr) auto}
+  .comment-name-row{flex-direction:column}
+}
 </style>
 </head><body>
 <div class="page">
   <div class="hero">
     <div class="sleeve-wrap">
-      <div class="sleeve">${coverUrl?`<img src="${coverUrl}" alt="">`:'<div class="sleeve-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}</div>
+      <div class="sleeve">${coverUrl?`<img src="${escH(coverUrl)}" alt="">`:'<div class="sleeve-ph"><span class="ic ic-disc" aria-hidden="true"></span></div>'}</div>
       <div class="vinyl-wrap paused" id="vinylWrap">
         <div class="vinyl-disc">
           <div class="vinyl-grooves"></div>
-          <div class="vinyl-label">${album.name.slice(0,3).toUpperCase()}</div>
+          <div class="vinyl-label">${escH((album.name||'').slice(0,3).toUpperCase())}</div>
           <div class="vinyl-hole"></div>
         </div>
       </div>
     </div>
     <div class="hero-info">
-      <div class="hero-status">${album.status||'Album'}</div>
-      <h1 class="hero-title">${album.name}</h1>
+      <p class="eyebrow">Album</p>
+      <h1 class="hero-title">${albumName}</h1>
       <div class="hero-meta">
-        <span>${beats.length} sanger</span>
-        ${dur?`<span>• ${dur} total</span>`:''}
-        <span>• ${new Date().getFullYear()}</span>
+        <span>${beats.length} ${beats.length===1?'sang':'sanger'}</span>
+        ${dur?`<span class="dot">·</span><span>${dur}</span>`:''}
+        <span class="dot">·</span><span>${new Date().getFullYear()}</span>
       </div>
       <div class="controls">
-        <button class="ctrl-btn" id="playAllBtn" onclick="togglePlayAll()"><span class="ic ic-play" aria-hidden="true"></span> Spill preview</button>
-        <button class="ctrl-btn" onclick="stopAll()"><span class="ic ic-stop" aria-hidden="true"></span></button>
+        <button class="btn btn-primary" id="playAllBtn" onclick="togglePlayAll()"><span class="ic ic-play" aria-hidden="true"></span> Spill preview</button>
+        <button class="btn btn-icon" onclick="stopAll()" aria-label="Stopp" title="Stopp"><span class="ic ic-stop" aria-hidden="true"></span></button>
         <span class="preview-label" id="previewLabel">17 sek per sang</span>
       </div>
     </div>
   </div>
-  <div class="tracklist-label">Trackliste</div>
+  <section class="panel">
+  <h2 class="panel-title">Sporliste</h2>
   <div id="tracklist">${rows}</div>
-  <div class="comments-section">
-    <div class="comments-label">Tilbakemeldinger</div>
+  </section>
+  <section class="panel comments-section">
+    <h2 class="panel-title">Tilbakemeldinger</h2>
     <div class="comment-form">
       <textarea class="comment-input" id="commentBody" placeholder="Skriv en tilbakemelding..."></textarea>
       <div class="comment-name-row">
         <input class="comment-name" id="commentAuthor" placeholder="Ditt navn">
-        <button class="comment-submit" onclick="submitComment()">Send</button>
+        <button class="btn btn-primary comment-submit" onclick="submitComment()">Send</button>
       </div>
     </div>
     <div id="commentsList"><div class="no-comments">Laster kommentarer...</div></div>
-  </div>
-  <div class="footer">Laget med Music Vault</div>
+  </section>
+  <div class="footer">Laget med <b>Music Vault</b></div>
 </div>
 <script>
 const BEATS=${beatsJson};
@@ -485,7 +510,8 @@ async function loadComments(){
     const res=await fetch(SB_URL+'/rest/v1/pitch_comments?album_id=eq.'+ALBUM_ID+'&order=created_at.asc&select=*',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
     const comments=res.ok?await res.json():[];
     const el=document.getElementById('commentsList');
-    el.innerHTML=comments.length?comments.map(c=>'<div class="comment-card"><span class="comment-author">'+c.author+'</span><span class="comment-date">'+new Date(c.created_at).toLocaleDateString('no-NO')+'</span><div class="comment-body">'+c.comment+'</div></div>').join(''):'<div class="no-comments">Ingen tilbakemeldinger ennå.</div>';
+    const esc=v=>String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    el.innerHTML=comments.length?comments.map(c=>'<div class="comment-card"><span class="comment-author">'+esc(c.author)+'</span><span class="comment-date">'+new Date(c.created_at).toLocaleDateString('no-NO')+'</span><div class="comment-body">'+esc(c.comment)+'</div></div>').join(''):'<div class="no-comments">Ingen tilbakemeldinger ennå.</div>';
   }catch(e){document.getElementById('commentsList').innerHTML='<div class="no-comments">Kunne ikke laste.</div>';}
 }
 async function submitComment(){
