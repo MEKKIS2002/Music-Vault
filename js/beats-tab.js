@@ -136,7 +136,8 @@
 
   function toggleFav(beatId) {
     closeDropdown();
-    if (typeof toggleFav === 'function') { toggleFav(beatId); return; }
+    // NB: «toggleFav» her ville peke på denne funksjonen selv (uendelig rekursjon) — bruk den globale i db.js
+    if (typeof window.toggleFav === 'function' && window.toggleFav !== toggleFav) { window.toggleFav(beatId, document.querySelector('[data-fav-id="'+beatId+'"]')); renderBeatsTab(); return; }
     const st = typeof state !== 'undefined' ? state : window.state;
     const beat = st?.beats?.find(b => b.id === beatId);
     if (beat) { beat.favorite = !beat.favorite; if(typeof saveState==='function') saveState(); renderBeatsTab(); }

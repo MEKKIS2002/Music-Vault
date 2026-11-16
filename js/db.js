@@ -695,7 +695,7 @@ function renderDashboard(){
       const col=mvPctColor(pct);
       const count=pB.length;
       const cover=p.cover?`<img src="${esc(p.cover)}" alt="" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:28px">${isAlbum?'<span class="ic ic-disc" aria-hidden="true"></span>':'<span class="ic ic-cassette" aria-hidden="true"></span>'}</span>`;
-      return `<div class="dash-proj-card" onclick="dashOpenProject('${esc(p.id)}','${p._type}')"><div class="dash-proj-cover">${cover}<div class="dash-proj-prog-bar"><div style="width:${pct}%;background:${col};height:100%;border-radius:2px"></div></div></div><div class="dash-proj-footer"><div class="dash-proj-name">${esc(p.name)}</div><div class="dash-proj-meta">${count} sang${count===1?'':'er'} &middot; <span style="color:${col};font-weight:700">${pct}%</span></div></div></div>`;
+      return `<div class="dash-proj-card" onclick="dashOpenProject('${esc(p.id)}','${p._type}')" data-cm-type="${p._type}" data-cm-id="${esc(p.id)}"><div class="dash-proj-cover">${cover}<div class="dash-proj-prog-bar"><div style="width:${pct}%;background:${col};height:100%;border-radius:2px"></div></div></div><div class="dash-proj-footer"><div class="dash-proj-name">${esc(p.name)}</div><div class="dash-proj-meta">${count} sang${count===1?'':'er'} &middot; <span style="color:${col};font-weight:700">${pct}%</span></div></div></div>`;
     }).join('');}
   }
   const lastEl=document.getElementById('dashLastBeat');
@@ -707,6 +707,7 @@ function renderDashboard(){
       const cover=recent.cover?`<img src="${esc(recent.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`:'<span style="font-size:36px"><span class="ic ic-music" aria-hidden="true"></span></span>';
       const dur=recent.duration?Math.floor(recent.duration/60)+':'+String(Math.floor(recent.duration%60)).padStart(2,'0'):'';
       const meta=[recent.bpm?recent.bpm+' BPM':'',recent.key||'',dur].filter(Boolean).join(' · ');
+      lastEl.dataset.cmBeat=recent.id;
       lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-name">${esc(recent.name)}</div>${meta?`<div class="last-beat-dur">${esc(meta)}</div>`:''}<div class="last-beat-actions"><button class="last-beat-play" aria-label="Spill ${esc(recent.name)}" title="Spill" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')"><span class="ic ic-play" aria-hidden="true"></span></button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button></div></div>`;
     } else {lastEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
   }
@@ -735,7 +736,7 @@ function renderDashboard(){
     else{bEl.innerHTML=recent2.map(b=>{
       const cover=b.cover?`<img src="${esc(b.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span style="font-size:20px"><span class="ic ic-music" aria-hidden="true"></span></span>`;
       const dur=b.duration?Math.floor(b.duration/60)+':'+String(Math.floor(b.duration%60)).padStart(2,'0'):'';
-      return `<div class="dash-beat-card"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div>${dur?`<div class="dash-beat-dur">${dur}</div>`:''}</div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Lab</button></div></div>`;
+      return `<div class="dash-beat-card" data-cm-beat="${b.id}"><div class="dash-beat-top"><div class="dash-beat-thumb">${cover}</div><div class="dash-beat-info"><div class="dash-beat-name" title="${esc(b.name)}">${esc(b.name)}</div>${dur?`<div class="dash-beat-dur">${dur}</div>`:''}</div></div><div class="dash-beat-btns"><button class="dash-btn-play" onclick="event.stopPropagation();playSingleBeat('${b.id}');sessionStorage.setItem('mv_last_beat','${b.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button><button class="dash-btn-lab" onclick="event.stopPropagation();openInLyricLab('${b.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Lab</button></div></div>`;
     }).join('');}
   }
   const progEl=document.getElementById('dashProgress');

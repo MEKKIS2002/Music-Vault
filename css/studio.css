@@ -1602,3 +1602,34 @@ html body .mv-queue-empty{ color: var(--muted); font-size: .88rem; padding: .3re
   /* mobile.css skjuler alle .bp-btn unntatt play i minispilleren — kø-knappen skal vises */
   html body #bottomPlayer .bp-controls .bp-btn.mv-queue-btn-m{ display: inline-grid !important; place-items: center; width: 40px !important; height: 40px !important; background: transparent !important; border: 0 !important; color: rgba(255,255,255,.8) !important; }
 }
+
+/* ── 31. Felles meny (⋯ og høyreklikk) — js/context-menu.js ─────────────── */
+html body .mv-cm{
+  position: fixed; z-index: 9800; min-width: 15rem; max-width: min(20rem, calc(100vw - 16px));
+  max-height: min(70vh, 34rem); overflow-y: auto; padding: .35rem;
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-float); font-family: var(--body); color: var(--text);
+}
+html body .mv-cm-item{
+  display: flex; align-items: center; gap: .65rem; width: 100%; min-height: 2.4rem; padding: .35rem .6rem;
+  background: transparent; border: 0; border-radius: var(--radius); color: var(--text);
+  font: 500 .92rem var(--body); text-align: left; cursor: pointer;
+}
+html body .mv-cm-item:hover:not(:disabled), html body .mv-cm-item:focus-visible{ background: var(--raised); outline: none; }
+html body .mv-cm-item:focus-visible{ box-shadow: inset 0 0 0 2px var(--accent-text); }
+html body .mv-cm-item:disabled{ color: var(--muted); cursor: default; }
+html body .mv-cm-item.is-checked{ color: var(--muted); }
+html body .mv-cm-item.is-checked .mv-cm-ico{ color: var(--done); }
+html body .mv-cm-item.is-danger{ color: var(--error); }
+html body .mv-cm-item.is-danger:hover{ background: #3d2322; }
+html body .mv-cm-ico{ width: 1.1rem; flex: none; display: grid; place-items: center; color: var(--muted); }
+html body .mv-cm-item.is-danger .mv-cm-ico{ color: var(--error); }
+html body .mv-cm-text{ flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .mv-cm-chev{ color: var(--muted); font-size: 1.1rem; line-height: 1; }
+html body .mv-cm-back{ color: var(--muted); font-weight: 600; }
+html body .mv-cm-sep{ height: 1px; background: var(--line); margin: .3rem .4rem; }
+html body .mv-cm-label{ padding: .35rem .6rem .15rem; color: var(--accent-text); font: 700 .7rem var(--body); letter-spacing: .12em; text-transform: uppercase; }
+@media (max-width: 768px){
+  html body .mv-cm{ min-width: 13rem; }
+  html body .mv-cm-item{ min-height: 2.75rem; }
+}
