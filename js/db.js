@@ -831,6 +831,9 @@ window.mvTrackMenu=function(btn,beatId,listMode){
   const m=document.createElement("div");m.className="mv-row-menu";m.setAttribute("role","menu");m.dataset.for=beatId;
   const item=(label,fn,cls)=>{const x=document.createElement("button");x.type="button";x.setAttribute("role","menuitem");x.textContent=label;if(cls)x.className=cls;x.onclick=e=>{e.stopPropagation();mvCloseTrackMenu();fn();};return x;};
   m.append(
+    item("Spill neste",()=>window.mvQueuePlayNext&&mvQueuePlayNext(beatId)),
+    item("Legg i kø",()=>window.mvQueueAdd&&mvQueueAdd(beatId)),
+    document.createElement("hr"),
     item("Åpne i Lyric Lab",()=>window.openInLyricLab&&openInLyricLab(beatId)),
     item("Del offentlig lenke",()=>window.shareSong&&shareSong(beatId)),
     item("Gi nytt navn",()=>window.renameBeatInline&&renameBeatInline(beatId)),
