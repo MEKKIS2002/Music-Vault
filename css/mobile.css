@@ -19,7 +19,7 @@
 :root {
   --mv-footer-h: 58px;          /* height of the bottom tab footer            */
   --mv-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --mv-accent: #f4a443;
+  --mv-accent: #d68155;
   --mv-mini-player-h: 78px;     /* approx height of the mini bottom player (2 rows) */
 }
 
@@ -169,7 +169,7 @@
     white-space: nowrap !important;
   }
   .mv-mob-btn.active { color: var(--mv-accent) !important; }
-  .mv-mob-btn.active .mv-mob-icon { filter: drop-shadow(0 0 6px rgba(244,164,67,.5)) !important; }
+  .mv-mob-btn.active .mv-mob-icon { filter: drop-shadow(0 0 6px rgba(214,129,85,.5)) !important; }
 
   /* ── Floating "+ Ny sang" action button ───────────────────────────────── */
   #mvMobFab {
@@ -189,7 +189,7 @@
     color: #1a1206 !important;
     font-size:var(--fs-xl)!important;
     font-weight: 900 !important;
-    box-shadow: 0 6px 20px rgba(244,164,67,.45) !important;
+    box-shadow: 0 6px 20px rgba(214,129,85,.45) !important;
     z-index: 8400 !important;
     cursor: pointer !important;
     transition: transform .15s !important;
@@ -424,8 +424,8 @@
     font-size:var(--fs-base)!important; padding: 10px 12px !important; border-radius:var(--r-sm)!important;
   }
   .ab-expand-top-bar > label.ab-swap-audio {
-    background: rgba(244,164,67,.12) !important;
-    border: 1px solid rgba(244,164,67,.35) !important;
+    background: rgba(214,129,85,.12) !important;
+    border: 1px solid rgba(214,129,85,.35) !important;
     color: #ffd89d !important; font-weight: 800 !important;
   }
 
@@ -464,13 +464,13 @@
     position: absolute !important; inset: 0 !important;
     border-radius:var(--r-sm)!important; pointer-events: none !important;
     background:
-      linear-gradient(#f4a443,#f4a443) 25% 100% / 3px 40% no-repeat,
-      linear-gradient(#f4a443,#f4a443) 50% 100% / 3px 65% no-repeat,
-      linear-gradient(#f4a443,#f4a443) 75% 100% / 3px 50% no-repeat,
+      linear-gradient(#d68155,#d68155) 25% 100% / 3px 40% no-repeat,
+      linear-gradient(#d68155,#d68155) 50% 100% / 3px 65% no-repeat,
+      linear-gradient(#d68155,#d68155) 75% 100% / 3px 50% no-repeat,
       rgba(0,0,0,.5) !important;
     animation: mvEq .9s ease-in-out infinite !important;
   }
-  .now-playing-glow .ab-title { color: #f4a443 !important; }
+  .now-playing-glow .ab-title { color: #d68155 !important; }
 
   /* PIPELINE — keep kanban columns swipeable */
   .kanban-board, #pipelineBoard { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }

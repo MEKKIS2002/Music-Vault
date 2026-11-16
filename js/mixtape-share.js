@@ -28,7 +28,7 @@ function _mtSharePayload(mt){
   const shared=all.filter(b=>_mtPublicAudio(b));
   return {
     all, shared, skipped: all.filter(b=>!_mtPublicAudio(b)),
-    data:{ mt:{id:mt.id,name:mt.name,cover:mt.cover||'',color:mt.color||'#f4a443'},
+    data:{ mt:{id:mt.id,name:mt.name,cover:mt.cover||'',color:mt.color||'#d68155'},
            beats:shared.map(b=>({id:b.id,name:b.name,duration:b.duration||0,audio_url:_mtPublicAudio(b)})) }
   };
 }
@@ -69,7 +69,7 @@ function _showMixtapePitchDialog(mt) {
     document.body.appendChild(modal);
   }
   const shareUrl = _mtShareUrl(mt._shareToken);
-  const btn = 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f4ede4;font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui';
+  const btn = 'background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f4eadc;font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui';
 
   modal.innerHTML = `<div role="dialog" aria-modal="true" aria-labelledby="mvPitchHd" style="background:#110f0c;border:1px solid rgba(255,255,255,.12);max-width:460px;width:100%;padding:24px 28px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -77,18 +77,18 @@ function _showMixtapePitchDialog(mt) {
       <button id="mvPitchClose" aria-label="Lukk" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
     </div>
     <div style="display:grid;gap:14px;font-family:system-ui">
-      <div style="font-size:12px;color:rgba(244,237,228,.62);line-height:1.5">Hvem som helst med lenken kan lytte, uten innlogging. Ingen nedlasting.</div>
-      <div id="mvPitchInfo" style="font-size:13px;color:#f4ede4;line-height:1.5;background:rgba(255,255,255,.04);padding:10px 12px">Henter status…</div>
+      <div style="font-size:12px;color:rgba(244,234,220,.62);line-height:1.5">Hvem som helst med lenken kan lytte, uten innlogging. Ingen nedlasting.</div>
+      <div id="mvPitchInfo" style="font-size:13px;color:#f4eadc;line-height:1.5;background:rgba(255,255,255,.04);padding:10px 12px">Henter status…</div>
       <div style="display:flex;gap:8px">
-        <input id="mvPitchUrl" readonly aria-label="Delingslenke" style="flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4ede4;padding:9px 12px;font-size:12px;outline:none">
-        <button id="mvPitchCopy" style="background:#f4a443;border:none;color:#000;font-size:12px;font-weight:800;padding:8px 14px;cursor:pointer">Kopier</button>
+        <input id="mvPitchUrl" readonly aria-label="Delingslenke" style="flex:1;min-width:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:9px 12px;font-size:12px;outline:none">
+        <button id="mvPitchCopy" style="background:#d68155;border:none;color:#000;font-size:12px;font-weight:800;padding:8px 14px;cursor:pointer">Kopier</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button id="mvPitchOpen" style="${btn}"><span class="ic ic-eye" aria-hidden="true"></span> Forhåndsvis som mottaker</button>
         <button id="mvPitchUpdateBtn" style="${btn}"><span class="ic ic-refresh" aria-hidden="true"></span> Oppdater sporlisten</button>
-        <button id="mvPitchDisableBtn" style="${btn};background:rgba(251,113,133,.1);border-color:rgba(251,113,133,.3);color:#fb7185;margin-left:auto"><span class="ic ic-alert" aria-hidden="true"></span> Deaktiver</button>
+        <button id="mvPitchDisableBtn" style="${btn};background:rgba(255,170,163,.1);border-color:rgba(255,170,163,.3);color:#ffaaa3;margin-left:auto"><span class="ic ic-alert" aria-hidden="true"></span> Deaktiver</button>
       </div>
-      <div id="mvPitchStatus" role="status" style="font-size:12px;color:rgba(244,237,228,.62);min-height:16px"></div>
+      <div id="mvPitchStatus" role="status" style="font-size:12px;color:rgba(244,234,220,.62);min-height:16px"></div>
     </div>
   </div>`;
 
@@ -117,7 +117,7 @@ function _showMixtapePitchDialog(mt) {
     let html = `<strong>${linked.length} av ${p.all.length} spor</strong> deles${when?` · sist oppdatert ${esc(when)}`:''}.`;
     if (missing) html += `<br>${missing} nye spor er ikke med — trykk «Oppdater sporlisten».`;
     if (removed) html += `<br>${removed} spor i lenken er fjernet fra mixtapen.`;
-    if (p.skipped.length) html += `<br><span style="color:rgba(244,237,228,.62)">${p.skipped.length} spor mangler offentlig lydfil og kan ikke deles: ${p.skipped.slice(0,3).map(b=>esc(b.name)).join(', ')}${p.skipped.length>3?' …':''}</span>`;
+    if (p.skipped.length) html += `<br><span style="color:rgba(244,234,220,.62)">${p.skipped.length} spor mangler offentlig lydfil og kan ikke deles: ${p.skipped.slice(0,3).map(b=>esc(b.name)).join(', ')}${p.skipped.length>3?' …':''}</span>`;
     info.innerHTML = html;
   };
   renderInfo();

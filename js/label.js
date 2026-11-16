@@ -42,45 +42,28 @@
   }
 
   function buildDashboardShell(){
-    return `<div class="app"><div class="label-dashboard">
+    return `<div class="app"><div class="label-dashboard lbl-v2">
       <div class="label-topbar">
-        <div class="label-topbar-left">
-          <span class="label-icon"><span class="ic ic-tag" aria-hidden="true"></span></span>
-          <span id="labelName" class="label-title">Label</span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <h1 class="lbl-page-title">Label</h1>
+        <div class="lbl-top-actions">
           <button class="ghost-btn label-invite-btn" onclick="window.labelShowOverview()" id="labelOverviewBtn">← Oversikt</button>
-          <button class="ghost-btn label-invite-btn" onclick="window.labelShowFeed()"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitet</button>
-          <button class="ghost-btn label-invite-btn" onclick="window.labelOpenInvite()">+ Inviter artist</button>
         </div>
       </div>
 
-      <div class="label-body">
-        <!-- Sidebar -->
-        <div class="label-sidebar" id="labelSidebar">
-          <div style="padding:10px 12px">
-            <input id="labelArtistSearch" placeholder="Søk artist..." oninput="window.labelFilterArtists(this.value)"
-              style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f4ede4;padding:7px 10px;font-size:12px;font-family:system-ui;outline:none;border-radius:0">
-          </div>
-          <div class="label-sidebar-hd" style="padding-top:4px">Artister</div>
-          <div id="labelArtistList"><div class="label-loading">Laster...</div></div>
-        </div>
+      <!-- Skjult kompatibilitet: renderArtistList() skriver hit; oversikten viser egen artistliste -->
+      <div id="labelArtistList" hidden></div>
 
-        <!-- Main: oversikt eller artist-detalj -->
-        <div class="label-detail" id="labelDetail">
-          <!-- Oversikt -->
-          <div id="labelOverviewPane">
-            <div id="labelOverviewContent"><div class="label-loading">Laster oversikt...</div></div>
-          </div>
-          <!-- Artistdetalj -->
-          <div id="labelArtistPane" style="display:none"></div>
+      <div class="label-detail" id="labelDetail">
+        <div id="labelOverviewPane">
+          <div id="labelOverviewContent"><div class="label-loading">Laster oversikt...</div></div>
         </div>
+        <div id="labelArtistPane" style="display:none"></div>
       </div>
     </div>
 
     <!-- Activity feed modal -->
     <div id="labelFeedModal" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,.75);align-items:flex-start;justify-content:center;backdrop-filter:blur(4px);padding-top:60px;overflow-y:auto">
-      <div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(600px,92vw);padding:0 0 24px">
+      <div style="background:#211d1a;border:1px solid rgba(255,255,255,.12);width:min(600px,92vw);padding:0 0 24px">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
           <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitetsfeed</h2>
           <button onclick="document.getElementById('labelFeedModal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1">×</button>
@@ -91,17 +74,17 @@
 
     <!-- Invite modal -->
     <div id="labelInviteModal" style="display:none;position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,.75);align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-      <div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);max-width:400px;width:90%;padding:28px">
+      <div style="background:#211d1a;border:1px solid rgba(255,255,255,.12);max-width:400px;width:90%;padding:28px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
           <h2 style="font-size:16px;font-weight:800;margin:0">Inviter artist</h2>
           <button onclick="window.labelCloseInvite()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer;line-height:1">×</button>
         </div>
         <input id="labelInviteUsername" placeholder="Brukernavn"
-          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;padding:10px 12px;font-size:14px;font-family:system-ui;outline:none;margin-bottom:12px"
-          onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-          onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.06);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;padding:10px 12px;font-size:14px;font-family:system-ui;outline:none;margin-bottom:12px"
+          onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+          onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
         />
-        <button onclick="window.labelSendInvite()" style="width:100%;background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;color:#000;font-size:14px;font-weight:900;padding:12px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send invitasjon</button>
+        <button onclick="window.labelSendInvite()" style="width:100%;background:linear-gradient(135deg,#d68155,#b9683f);border:none;color:#000;font-size:14px;font-weight:900;padding:12px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send invitasjon</button>
         <div id="labelInviteStatus" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-family:system-ui;color:rgba(255,255,255,.5)"></div>
       </div>
     </div></div>`;
@@ -116,7 +99,7 @@
 .label-topbar { display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08) }
 .label-topbar-left { display:flex;align-items:center;gap:10px }
 .label-icon { font-size:18px }
-.label-title { font-size:16px;font-weight:800;color:#f4ede4;letter-spacing:-.02em }
+.label-title { font-size:16px;font-weight:800;color:#f4eadc;letter-spacing:-.02em }
 .label-invite-btn { font-size:12px !important;padding:7px 14px !important }
 .label-body { display:flex;flex:1;min-height:0 }
 
@@ -125,9 +108,9 @@
 .label-sidebar-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35);padding:8px 16px 6px }
 .label-artist-row { display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .12s;border-left:3px solid transparent }
 .label-artist-row:hover { background:rgba(255,255,255,.04) }
-.label-artist-row.active { background:rgba(244,164,67,.08);border-left-color:#f4a443 }
+.label-artist-row.active { background:rgba(214,129,85,.08);border-left-color:#d68155 }
 .label-avatar { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0 }
-.label-artist-name { font-size:13px;font-weight:700;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+.label-artist-name { font-size:13px;font-weight:700;color:#f4eadc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 .label-artist-sub { font-size:10px;color:rgba(255,255,255,.4) }
 .label-pending-row { display:flex;align-items:center;gap:10px;padding:9px 16px;opacity:.5 }
 
@@ -136,37 +119,37 @@
 .label-detail-empty { display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:rgba(255,255,255,.3);font-size:13px;text-align:center }
 .label-detail-header { display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08) }
 .label-detail-avatar { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0 }
-.label-detail-name { font-size:18px;font-weight:900;color:#f4ede4;letter-spacing:-.03em;margin-bottom:2px }
+.label-detail-name { font-size:18px;font-weight:900;color:#f4eadc;letter-spacing:-.03em;margin-bottom:2px }
 .label-detail-meta { font-size:12px;color:rgba(255,255,255,.4) }
 .label-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px }
 .label-stat { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);padding:12px;text-align:center }
-.label-stat-n { font-size:22px;font-weight:900;color:#f4ede4;letter-spacing:-.04em;line-height:1 }
+.label-stat-n { font-size:22px;font-weight:900;color:#f4eadc;letter-spacing:-.04em;line-height:1 }
 .label-stat-l { font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;text-transform:uppercase;letter-spacing:.1em }
 .label-section-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px }
 .label-album-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05) }
 .label-album-row:last-child { border-bottom:none }
 .label-album-cover { width:38px;height:38px;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden }
-.label-album-name { font-size:13px;font-weight:700;color:#f4ede4;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+.label-album-name { font-size:13px;font-weight:700;color:#f4eadc;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 .label-album-meta { font-size:11px;color:rgba(255,255,255,.4);margin-top:1px }
 .label-progress { height:3px;background:rgba(255,255,255,.1);overflow:hidden;min-width:60px }
-.label-progress-fill { height:100%;background:#f4a443 }
+.label-progress-fill { height:100%;background:#d68155 }
 .label-badge { display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;letter-spacing:.04em }
-.badge-master { background:rgba(244,164,67,.15);color:#f4a443 }
-.badge-ferdig { background:rgba(52,211,153,.15);color:#34d399 }
-.badge-skriving { background:rgba(96,165,250,.15);color:#60a5fa }
-.badge-ide { background:rgba(168,85,247,.15);color:#a855f7 }
-.badge-mixing { background:rgba(249,115,22,.15);color:#f97316 }
+.badge-master { background:rgba(214,129,85,.15);color:#d68155 }
+.badge-ferdig { background:rgba(166,190,139,.15);color:#a6be8b }
+.badge-skriving { background:rgba(191,178,166,.15);color:#bfb2a6 }
+.badge-ide { background:rgba(214,129,85,.15);color:#f0a579 }
+.badge-mixing { background:rgba(214,129,85,.15);color:#d68155 }
 .label-loading { padding:20px 16px;font-size:12px;color:rgba(255,255,255,.4);text-align:center }
 .label-empty { padding:20px 16px;font-size:12px;color:rgba(255,255,255,.4);text-align:center }
 
 /* Oversiktskort */
 .lov-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px }
 .lov-card { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:16px;text-align:center }
-.lov-n { font-size:28px;font-weight:900;color:#f4ede4;letter-spacing:-.06em;line-height:1 }
+.lov-n { font-size:28px;font-weight:900;color:#f4eadc;letter-spacing:-.06em;line-height:1 }
 .lov-l { font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.12em;margin-top:4px }
 .lov-artist-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px }
 .lov-artist-card { background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);padding:16px;cursor:pointer;transition:all .15s }
-.lov-artist-card:hover { background:rgba(255,255,255,.07);border-color:rgba(244,164,67,.3) }
+.lov-artist-card:hover { background:rgba(255,255,255,.07);border-color:rgba(214,129,85,.3) }
     `;
     document.head.appendChild(s);
   }
@@ -180,108 +163,153 @@
     if(btn) btn.style.display = 'none';
   };
 
+  // ── Oversikt (Label v2): hode med tall, utgivelser, kommende, artister ────
+  const LBL_STATUSES = ['Idé','Skriving','Innspilling','Mixing','Master','Ferdig'];
+  function lblEsc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+  function lblJs(v){ const B=String.fromCharCode(92); return lblEsc(String(v==null?'':v).split(B).join(B+B).split("'").join(B+"'")); }
+  function lblDate(d){ return d ? new Date(d+'T00:00:00').toLocaleDateString('no-NO',{day:'numeric',month:'short',year:'numeric'}) : ''; }
+  function lblStatusClass(st){ return st==='Ferdig'||st==='Master' ? 'is-done' : (st==='Idé' ? 'is-idea' : 'is-working'); }
+  function lblCover(r, size){
+    return r.cover ? `<img src="${lblEsc(r.cover)}" alt="" loading="lazy">` : `<span class="lbl-cover-ph"><span class="ic ic-disc" aria-hidden="true"></span></span>`;
+  }
+
   async function renderOverview(artists){
     const el = document.getElementById('labelOverviewContent');
     if(!el) return;
 
     const token = await getToken();
+    const uid   = await getUid();
     const accepted = artists.filter(a=>a.status==='accepted');
     const pending  = artists.filter(a=>a.status==='invited'||a.status==='pending');
+    const left     = artists.filter(a=>a.status==='left' && a.access_expires_at && new Date(a.access_expires_at) > new Date());
 
-    // Hent stats for alle artister parallelt
     const artistIds = accepted.map(a=>a.artist_id).filter(Boolean);
-    let allAlbums=[], allBeats=[], allMixtapes=[];
+    let albums=[], labData=[], albumBeats=[];
     if(artistIds.length){
-      const [ar,br,mr] = await Promise.all([
-        fetch(`${SB_URL}/rest/v1/albums?owner_id=in.(${artistIds.join(',')})&archived=eq.false&select=id,owner_id,metadata,status`,{headers:sbH(token)}),
-        fetch(`${SB_URL}/rest/v1/beats?owner_id=in.(${artistIds.join(',')})&archived=eq.false&select=id,owner_id,metadata`,{headers:sbH(token)}),
-        fetch(`${SB_URL}/rest/v1/mixtapes?owner_id=in.(${artistIds.join(',')})&archived=eq.false&select=id,owner_id,metadata`,{headers:sbH(token)})
+      const [ar, lr] = await Promise.all([
+        fetch(`${SB_URL}/rest/v1/albums?owner_id=in.(${artistIds.join(',')})&archived=eq.false&select=*`,{headers:sbH(token)}),
+        fetch(`${SB_URL}/rest/v1/label_album_data?label_id=eq.${uid}&select=*`,{headers:sbH(token)})
       ]);
-      allAlbums   = ar.ok  ? await ar.json()  : [];
-      allBeats    = br.ok  ? await br.json()  : [];
-      allMixtapes = mr.ok  ? await mr.json()  : [];
+      albums  = ar.ok ? await ar.json() : [];
+      labData = lr.ok ? await lr.json() : [];
+      if(albums.length){
+        const abr = await fetch(`${SB_URL}/rest/v1/album_beats?album_id=in.(${albums.map(a=>a.id).join(',')})&select=album_id,beat_id`,{headers:sbH(token)});
+        albumBeats = abr.ok ? await abr.json() : [];
+      }
     }
+    const labMap = {}; labData.forEach(r=>{ labMap[r.album_id]=r; });
+    const countMap = {}; albumBeats.forEach(r=>{ countMap[r.album_id]=(countMap[r.album_id]||0)+1; });
+    const nameOf = id => { const a=accepted.find(x=>x.artist_id===id); return a?.profile?.username || (id||'').slice(0,8) || 'Ukjent'; };
+    const today = new Date().toISOString().slice(0,10);
 
-    // Globale stats
-    const totalBeats   = allBeats.length;
-    const totalAlbums  = allAlbums.length;
-    const doneVals     = allBeats.map(b=>Number((b.metadata||{}).done||0));
-    const avgDone      = doneVals.length ? Math.round(doneVals.reduce((a,b)=>a+b,0)/doneVals.length) : 0;
-    const nearDone     = allAlbums.filter(a=>Number((a.metadata||{}).done||0)>=80).length;
+    const releases = albums.map(a=>{
+      const meta=a.metadata||{}; const lab=labMap[a.id]||{};
+      return { id:a.id, artistId:a.owner_id, artist:nameOf(a.owner_id), title:a.title||meta.name||'Uten tittel',
+        cover:meta.cover||'', status:meta.status||a.status||'Idé', tracks:countMap[a.id]||(meta.beatIds||[]).length||0,
+        release:lab.release_date||'', priority:!!lab.priority, created:a.created_at||'' };
+    });
+    window._lblReleases = releases;
+    const upcoming = releases.filter(r=>r.release && r.release>=today).sort((x,y)=>x.release.localeCompare(y.release));
+    const next = upcoming[0] || null;
 
-    // Bygg profiler-map
-    const profMap = {};
-    accepted.forEach(a=>{ if(a.profile) profMap[a.artist_id]=a.profile; });
+    const labelName = window._labelDisplayName || 'Label';
+    const heroCover = (releases.find(r=>r.priority&&r.cover)||releases.find(r=>r.cover)||{}).cover || '';
 
-    // Artistkort
-    const artistCards = accepted.map((a,i) => {
-      const prof    = profMap[a.artist_id] || {};
-      const name    = prof.username || a.artist_id?.slice(0,8) || '?';
-      const initials= name.slice(0,2).toUpperCase();
-      const col     = avatarColor(i);
-      const aBeats  = allBeats.filter(b=>b.owner_id===a.artist_id);
-      const aAlbums = allAlbums.filter(b=>b.owner_id===a.artist_id);
-      const aMixes  = allMixtapes.filter(b=>b.owner_id===a.artist_id);
-      const aDone   = aBeats.length ? Math.round(aBeats.reduce((s,b)=>s+Number((b.metadata||{}).done||0),0)/aBeats.length) : 0;
-      return `<div class="lov-artist-card" onclick="window.labelSelectArtist('${a.artist_id}')">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          <div class="label-avatar" style="width:40px;height:40px;font-size:15px;background:${col.bg};color:${col.color};flex-shrink:0">${initials}</div>
-          <div style="min-width:0">
-            <div style="font-size:14px;font-weight:800;color:#f4ede4">${name}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35)">${prof.email||''}</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
-          <div style="background:rgba(255,255,255,.04);padding:8px;text-align:center">
-            <div style="font-size:16px;font-weight:800;color:#f4ede4">${aAlbums.length}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em">Albumer</div>
-          </div>
-          <div style="background:rgba(255,255,255,.04);padding:8px;text-align:center">
-            <div style="font-size:16px;font-weight:800;color:#f4ede4">${aMixes.length}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em">Mixtapes</div>
-          </div>
-          <div style="background:rgba(255,255,255,.04);padding:8px;text-align:center">
-            <div style="font-size:16px;font-weight:800;color:#f4ede4">${aBeats.length}</div>
-            <div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em">Sanger</div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-          <span style="font-size:10px;color:rgba(255,255,255,.35)">Ferdigstillelse</span>
-          <span style="font-size:10px;color:#f4a443;font-weight:800">${aDone}%</span>
-        </div>
-        <div class="label-progress" style="height:4px"><div class="label-progress-fill" style="width:${aDone}%"></div></div>
-      </div>`;
+    const artistRows = accepted.map((a,i)=>{
+      const nm = a.profile?.username || a.artist_id?.slice(0,8) || '?';
+      const col = avatarColor(i);
+      const n = releases.filter(r=>r.artistId===a.artist_id).length;
+      return `<button class="label-artist-row lbl-artist" data-id="${lblEsc(a.artist_id)}" data-name="${lblEsc(nm)}" onclick="window.labelSelectArtist('${lblEsc(a.artist_id)}')">
+        <span class="label-avatar" style="background:${col.bg};color:${col.color}">${lblEsc(nm.slice(0,2).toUpperCase())}</span>
+        <span class="lbl-artist-main"><span class="label-artist-name">${lblEsc(nm)}</span><span class="label-artist-sub">${n} ${n===1?'utgivelse':'utgivelser'}</span></span>
+        <span class="lbl-chev" aria-hidden="true">›</span>
+      </button>`;
     }).join('');
+    const pendingRows = pending.map(a=>{ const nm=a.profile?.username||'Ukjent';
+      return `<div class="label-pending-row lbl-artist is-pending" data-name="${lblEsc(nm)}"><span class="label-avatar">?</span><span class="lbl-artist-main"><span class="label-artist-name">${lblEsc(nm)}</span><span class="label-artist-sub">Invitert – venter på svar</span></span></div>`; }).join('');
+    const leftRows = left.map(a=>{ const nm=a.profile?.username||'Ukjent'; const d=Math.ceil((new Date(a.access_expires_at)-new Date())/864e5);
+      return `<div class="label-pending-row lbl-artist is-left" data-name="${lblEsc(nm)}"><span class="label-avatar">✕</span><span class="lbl-artist-main"><span class="label-artist-name">${lblEsc(nm)}</span><span class="label-artist-sub">Forlot labelen · ${d}d tilgang igjen</span></span></div>`; }).join('');
 
     el.innerHTML = `
-      <div class="lov-grid">
-        <div class="lov-card">
-          <div class="lov-n">${accepted.length}</div>
-          <div class="lov-l">Aktive artister</div>
+      <section class="lbl-hero">
+        <div class="lbl-hero-cover">${heroCover ? `<img src="${lblEsc(heroCover)}" alt="">` : ''}<span class="lbl-hero-mark">${lblEsc(labelName)}</span></div>
+        <div class="lbl-hero-info">
+          <p class="mv-eyebrow">Label</p>
+          <h2 class="lbl-hero-name">${lblEsc(labelName)}</h2>
+          <p class="lbl-hero-sub">${accepted.length ? 'Utgivelser og status for artistene på labelen.' : 'Inviter artister for å følge utgivelsene deres her.'}</p>
+          <div class="lbl-stats">
+            <div class="lbl-stat"><span class="ic ic-disc" aria-hidden="true"></span><div><b>${releases.length}</b><span>Utgivelser</span></div></div>
+            <div class="lbl-stat"><span class="ic ic-user" aria-hidden="true"></span><div><b>${accepted.length}</b><span>Artister</span></div></div>
+            <div class="lbl-stat"><span class="ic ic-calendar" aria-hidden="true"></span><div><b>${upcoming.length}</b><span>Kommende</span></div></div>
+          </div>
+          <div class="lbl-hero-actions">
+            <button class="primary-btn" onclick="window.labelOpenInvite()"><span class="ic ic-plus" aria-hidden="true"></span> Inviter artist</button>
+            <button class="ghost-btn" onclick="window.labelShowFeed()"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitet</button>
+          </div>
         </div>
-        <div class="lov-card">
-          <div class="lov-n">${totalAlbums}</div>
-          <div class="lov-l">Albumer totalt</div>
-        </div>
-        <div class="lov-card">
-          <div class="lov-n" style="color:#f4a443">${avgDone}%</div>
-          <div class="lov-l">Snitt ferdig</div>
-        </div>
-        <div class="lov-card">
-          <div class="lov-n" style="color:#34d399">${nearDone}</div>
-          <div class="lov-l">Nær ferdig (80%+)</div>
-        </div>
-      </div>
+      </section>
 
-      ${pending.length ? `<div style="background:rgba(244,164,67,.06);border:1px solid rgba(244,164,67,.15);padding:10px 14px;margin-bottom:20px;font-size:12px;color:rgba(244,164,67,.8)">
-        ${pending.length} invitasjon${pending.length>1?'er':''} venter på svar
-      </div>` : ''}
+      <div class="lbl-grid">
+        <section class="lbl-panel lbl-releases">
+          <div class="lbl-panel-hd">
+            <h3 class="lbl-panel-title">Utgivelser</h3>
+            <div class="lbl-filters">
+              <select id="lblStatusFilter" aria-label="Filtrer på status" onchange="window.labelRenderReleases()">
+                <option value="">Alle statuser</option>${LBL_STATUSES.map(s=>`<option value="${s}">${s}</option>`).join('')}
+              </select>
+              <select id="lblSort" aria-label="Sorter utgivelser" onchange="window.labelRenderReleases()">
+                <option value="new">Nyeste først</option><option value="release">Release-dato</option><option value="az">A–Å</option>
+              </select>
+            </div>
+          </div>
+          <div id="lblReleaseList" class="lbl-release-list"></div>
+        </section>
 
-      <div class="label-section-hd" style="margin-bottom:12px">Artister</div>
-      ${accepted.length ? `<div class="lov-artist-grid">${artistCards}</div>` :
-        `<div style="font-size:13px;color:rgba(255,255,255,.3);padding:20px 0">Ingen artister ennå — inviter din første artist.</div>`}
-    `;
+        <div class="lbl-side">
+          <section class="lbl-panel lbl-next">
+            <h3 class="lbl-panel-title">Kommende utgivelse</h3>
+            ${next ? `<div class="lbl-next-body">
+                <div class="lbl-next-cover">${lblCover(next)}</div>
+                <div class="lbl-next-info">
+                  <div class="lbl-next-top"><b class="lbl-next-title">${lblEsc(next.title)}</b><span class="badge-kommende">Kommende</span></div>
+                  <span class="lbl-next-artist">${lblEsc(next.artist)}</span>
+                  <span class="lbl-next-meta"><span class="ic ic-calendar" aria-hidden="true"></span> Planlagt: ${lblDate(next.release)}</span>
+                  <span class="lbl-next-meta"><span class="ic ic-disc" aria-hidden="true"></span> Album · ${next.tracks} spor</span>
+                  <button class="ghost-btn lbl-next-open" onclick="window.labelSelectArtist('${lblEsc(next.artistId)}')">Åpne artist</button>
+                </div>
+              </div>`
+            : `<p class="lbl-muted">Ingen planlagt utgivelse. Sett en release-dato på et album hos en artist.</p>`}
+          </section>
+
+          <section class="lbl-panel lbl-artists">
+            <div class="lbl-panel-hd"><h3 class="lbl-panel-title">Artister</h3><button class="lbl-icon-btn" onclick="window.labelOpenInvite()" title="Inviter artist" aria-label="Inviter artist"><span class="ic ic-plus" aria-hidden="true"></span></button></div>
+            ${accepted.length>4 ? `<label class="lbl-search"><span class="ic ic-search" aria-hidden="true"></span><input id="labelArtistSearch" type="search" placeholder="Søk artist" aria-label="Søk artist" oninput="window.labelFilterArtists(this.value)"></label>` : ''}
+            <div class="lbl-artist-list">${artistRows || '<p class="lbl-muted">Ingen artister ennå — inviter din første artist.</p>'}${pendingRows}${leftRows}</div>
+          </section>
+        </div>
+      </div>`;
+    window.labelRenderReleases();
   }
+
+  window.labelRenderReleases = function(){
+    const list = document.getElementById('lblReleaseList'); if(!list) return;
+    const st = document.getElementById('lblStatusFilter')?.value || '';
+    const sort = document.getElementById('lblSort')?.value || 'new';
+    let rows = (window._lblReleases||[]).filter(r=>!st || r.status===st);
+    rows = rows.slice().sort((a,b)=> sort==='az' ? a.title.localeCompare(b.title,'nb')
+      : sort==='release' ? ((a.release||'9999').localeCompare(b.release||'9999'))
+      : String(b.created).localeCompare(String(a.created)));
+    if(!rows.length){ list.innerHTML = `<p class="lbl-muted">${(window._lblReleases||[]).length ? 'Ingen utgivelser med denne statusen.' : 'Ingen utgivelser ennå. Album fra artistene dine dukker opp her.'}</p>`; return; }
+    list.innerHTML = rows.map(r=>`
+      <div class="lbl-release" onclick="window.labelSelectArtist('${lblEsc(r.artistId)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'){window.labelSelectArtist('${lblEsc(r.artistId)}')}">
+        <span class="lbl-rel-cover">${lblCover(r)}</span>
+        <span class="lbl-rel-main"><b>${lblEsc(r.title)}${r.priority?' <span class="lbl-prio" title="Prioritert"><span class="ic ic-flame" aria-hidden="true"></span></span>':''}</b><span>${lblEsc(r.artist)}</span></span>
+        <span class="lbl-status ${lblStatusClass(r.status)}">${lblEsc(r.status)}</span>
+        <span class="lbl-rel-type">Album · ${r.tracks} spor</span>
+        <span class="lbl-rel-date">${r.release ? lblDate(r.release) : '–'}</span>
+        <button class="lbl-icon-btn" onclick="event.stopPropagation();window.labelOpenComments('${lblEsc(r.id)}','${lblJs(r.title)}','${lblEsc(r.artistId)}')" title="Kommentarer" aria-label="Kommentarer til ${lblEsc(r.title)}"><span class="ic ic-chat" aria-hidden="true"></span></button>
+      </div>`).join('');
+  };
 
   // ── Søk/filter artister i sidebar ───────────────────────────────────────
   window.labelFilterArtists = function(val){
@@ -333,11 +361,11 @@
   }
 
   const AVATAR_COLORS = [
-    {bg:'rgba(244,164,67,.18)',color:'#f4a443'},
-    {bg:'rgba(96,165,250,.18)',color:'#60a5fa'},
-    {bg:'rgba(52,211,153,.18)',color:'#34d399'},
-    {bg:'rgba(168,85,247,.18)',color:'#a855f7'},
-    {bg:'rgba(249,115,22,.18)',color:'#f97316'},
+    {bg:'rgba(214,129,85,.18)',color:'#d68155'},
+    {bg:'rgba(191,178,166,.18)',color:'#bfb2a6'},
+    {bg:'rgba(166,190,139,.18)',color:'#a6be8b'},
+    {bg:'rgba(214,129,85,.18)',color:'#f0a579'},
+    {bg:'rgba(214,129,85,.18)',color:'#d68155'},
   ];
 
   function avatarColor(i){ return AVATAR_COLORS[i % AVATAR_COLORS.length]; }
@@ -357,18 +385,21 @@
     if(lpRes.ok){
       const lp = await lpRes.json();
       const nameEl = document.getElementById('labelName');
+      if(lp[0]?.name) window._labelDisplayName = lp[0].name;
       if(nameEl && lp[0]?.name) nameEl.textContent = lp[0].name;
       else if(nameEl){
         const profile = window._labelProfile;
         if(!profile){
           const pRes = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}&select=username`, {headers:sbH(token)});
-          if(pRes.ok){ const pd = await pRes.json(); if(nameEl && pd[0]) nameEl.textContent = pd[0].username; }
+          if(pRes.ok){ const pd = await pRes.json(); if(pd[0]) window._labelDisplayName = pd[0].username; if(nameEl && pd[0]) nameEl.textContent = pd[0].username; }
         }
       }
     }
 
     if(!artists.length){
       list.innerHTML = '<div class="label-empty">Ingen artister ennå.<br>Inviter din første artist.</div>';
+      renderOverview(artists);
+      window.labelShowOverview();
       return;
     }
 
@@ -411,10 +442,10 @@
         const name = a.profile?.username || 'Ukjent';
         const daysLeft = Math.ceil((new Date(a.access_expires_at) - new Date()) / (1000*60*60*24));
         html += `<div class="label-pending-row" style="opacity:.6">
-          <div class="label-avatar" style="background:rgba(251,113,133,.1);color:rgba(251,113,133,.5)">✕</div>
+          <div class="label-avatar" style="background:rgba(255,170,163,.1);color:rgba(255,170,163,.5)">✕</div>
           <div style="min-width:0">
             <div class="label-artist-name">${name}</div>
-            <div class="label-artist-sub" style="color:rgba(251,113,133,.5)">${daysLeft}d tilgang igjen</div>
+            <div class="label-artist-sub" style="color:rgba(255,170,163,.5)">${daysLeft}d tilgang igjen</div>
           </div>
         </div>`;
       });
@@ -567,41 +598,41 @@
         const hasAudio = !!(bm.audio_url||bm.url||b.audio_url);
         return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)">'
           + '<span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">'+String(i+1).padStart(2,'0')+'</span>'
-          + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f4ede4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+bTitle+'</div>'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11px;color:#f4a443">'+stars+'</span><span style="font-size:10px;color:rgba(255,255,255,.35)">'+bDone+'% ferdig</span>'+(dStr?'<span style="font-size:10px;color:rgba(255,255,255,.25)">'+dStr+'</span>':'')+'</div></div>'
-          + (hasAudio ? '<button onclick="window.labelPlayBeat(\''+b.id+'\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:26px"></div>')
+          + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f4eadc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+bTitle+'</div>'
+          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11px;color:#d68155">'+stars+'</span><span style="font-size:10px;color:rgba(255,255,255,.35)">'+bDone+'% ferdig</span>'+(dStr?'<span style="font-size:10px;color:rgba(255,255,255,.25)">'+dStr+'</span>':'')+'</div></div>'
+          + (hasAudio ? '<button onclick="window.labelPlayBeat(\''+b.id+'\')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:900;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:26px"></div>')
           + '</div>';
       }).join('');
 
       const statusOpts = STATUSES.map(s => '<option value="'+s+'"'+(s===status?' selected':'')+'>'+s+'</option>').join('');
-      const borderCol  = isPriority ? 'rgba(244,164,67,.35)' : 'rgba(255,255,255,.06)';
-      const bgStr      = isPriority ? ';background:rgba(244,164,67,.02)' : '';
-      const priBtnBg   = isPriority ? 'rgba(244,164,67,.2)' : 'rgba(255,255,255,.06)';
-      const priBtnBd   = isPriority ? 'rgba(244,164,67,.4)' : 'rgba(255,255,255,.1)';
-      const priBtnCol  = isPriority ? '#f4a443' : 'rgba(255,255,255,.4)';
+      const borderCol  = isPriority ? 'rgba(214,129,85,.35)' : 'rgba(255,255,255,.06)';
+      const bgStr      = isPriority ? ';background:rgba(214,129,85,.02)' : '';
+      const priBtnBg   = isPriority ? 'rgba(214,129,85,.2)' : 'rgba(255,255,255,.06)';
+      const priBtnBd   = isPriority ? 'rgba(214,129,85,.4)' : 'rgba(255,255,255,.1)';
+      const priBtnCol  = isPriority ? '#d68155' : 'rgba(255,255,255,.4)';
       const priLabel   = isPriority ? 'Prioritert' : 'Prioriter';
-      const datCol     = releaseDate ? '#60a5fa' : 'rgba(255,255,255,.35)';
-      const ratCol     = Number(avgRating)>=4 ? '#f4a443' : Number(avgRating)>=3 ? '#f4ede4' : 'rgba(255,255,255,.5)';
+      const datCol     = releaseDate ? '#bfb2a6' : 'rgba(255,255,255,.35)';
+      const ratCol     = Number(avgRating)>=4 ? '#d68155' : Number(avgRating)>=3 ? '#f4eadc' : 'rgba(255,255,255,.5)';
 
       return '<div style="border:1px solid '+borderCol+';margin-bottom:10px'+bgStr+'">'
         + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer" onclick="var t=document.getElementById(\'at'+safeId+'\');var ar=document.getElementById(\'arr'+safeId+'\');if(t.style.display===\'none\'){t.style.display=\'block\';ar.textContent=\'▲\';}else{t.style.display=\'none\';ar.textContent=\'▼\';}">'
           + '<div class="label-album-cover">'+(cover?'<img src="'+cover+'" style="width:100%;height:100%;object-fit:cover">':'<span class="ic ic-music" aria-hidden="true"></span>')+'</div>'
           + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px">'+(isPriority?'<span style="font-size:12px"><span class="ic ic-flame" aria-hidden="true"></span></span>':'')+'<div class="label-album-name">'+albumName+'</div></div>'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span class="label-album-meta">'+beatCount+' sanger'+(durStr?' · '+durStr:'')+'</span>'+(releaseDate?'<span style="font-size:10px;color:#60a5fa"><span class="ic ic-calendar" aria-hidden="true"></span> '+relDateStr+'</span>':'')+'</div></div>'
+          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span class="label-album-meta">'+beatCount+' sanger'+(durStr?' · '+durStr:'')+'</span>'+(releaseDate?'<span style="font-size:10px;color:#bfb2a6"><span class="ic ic-calendar" aria-hidden="true"></span> '+relDateStr+'</span>':'')+'</div></div>'
           + '<div style="min-width:60px"><div class="label-progress"><div class="label-progress-fill" style="width:'+avgBeatDone+'%"></div></div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;text-align:right">'+avgBeatDone+'%</div></div>'
           + '<span id="arr'+safeId+'" style="color:rgba(255,255,255,.3);font-size:11px">▼</span>'
         + '</div>'
         + '<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15);flex-wrap:wrap" onclick="event.stopPropagation()">'
-          + '<select onchange="window.labelSetAlbumStatus(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#1a1612;border:1px solid rgba(255,255,255,.12);color:#f4ede4;padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer">'+statusOpts+'</select>'
+          + '<select onchange="window.labelSetAlbumStatus(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#211d1a;border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer">'+statusOpts+'</select>'
           + '<button onclick="window.labelTogglePriority(\''+a.id+'\',\''+artistId+'\','+(!isPriority)+')" style="background:'+priBtnBg+';border:1px solid '+priBtnBd+';color:'+priBtnCol+';font-size:11px;padding:4px 10px;cursor:pointer;font-family:system-ui"><span class="ic ic-flame" aria-hidden="true"></span> '+priLabel+'</button>'
-          + '<input type="date" value="'+releaseDate+'" onchange="window.labelSetRelease(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#1a1612;border:1px solid rgba(255,255,255,.12);color:'+datCol+';padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer" title="Release-dato">'
+          + '<input type="date" value="'+releaseDate+'" onchange="window.labelSetRelease(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#211d1a;border:1px solid rgba(255,255,255,.12);color:'+datCol+';padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer" title="Release-dato">'
           + '<button onclick="event.stopPropagation();window.labelOpenComments(\''+a.id+'\',\''+albumName+'\',\''+artistId+'\')" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:11px;padding:4px 8px;cursor:pointer;font-family:system-ui"><span class="ic ic-chat" aria-hidden="true"></span></button>'
         + '</div>'
         + '<div id="at'+safeId+'" style="display:none">'
           + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)">'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4ede4">'+beatsDone+'/'+beatCount+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Ferdig</div></div>'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4ede4">'+beatsWithAudio.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har lyd</div></div>'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4ede4">'+beatsWithLyrics.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har tekst</div></div>'
+            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsDone+'/'+beatCount+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Ferdig</div></div>'
+            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsWithAudio.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har lyd</div></div>'
+            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsWithLyrics.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har tekst</div></div>'
             + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:'+ratCol+'">'+( avgRating||'—')+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Snitt ★</div></div>'
           + '</div>'
           + (trackRows || '<div style="padding:12px;font-size:12px;color:rgba(255,255,255,.3)">Ingen sanger ennå</div>')
@@ -630,7 +661,7 @@
       <div style="margin-bottom:20px">
         <div style="display:flex;justify-content:space-between;margin-bottom:5px">
           <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em">Snitt ferdigstillelse</span>
-          <span style="font-size:11px;color:#f4a443;font-weight:800">${avgDone}%</span>
+          <span style="font-size:11px;color:#d68155;font-weight:800">${avgDone}%</span>
         </div>
         <div class="label-progress" style="height:5px"><div class="label-progress-fill" style="width:${avgDone}%"></div></div>
       </div>` : ''}
@@ -651,8 +682,8 @@
           const hasAudio = !!(bm.audio_url||bm.url||b.audio_url);
           return `<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)">
             <span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">${String(i+1).padStart(2,'0')}</span>
-            <div style="font-size:13px;font-weight:700;color:#f4ede4;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${bTitle}</div>
-            ${hasAudio ? '<button onclick="window.labelPlayBeat(\'' + b.id + '\')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:900;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:24px"></div>'}
+            <div style="font-size:13px;font-weight:700;color:#f4eadc;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${bTitle}</div>
+            ${hasAudio ? '<button onclick="window.labelPlayBeat(\'' + b.id + '\')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:900;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:24px"></div>'}
           </div>`;
         }).join('');
         return `<div style="border:1px solid rgba(255,255,255,.06);margin-bottom:8px">
@@ -671,10 +702,10 @@
       <!-- Interne notater (kun label ser dette) -->
       <div class="label-section-hd" style="margin-top:20px"><span class="ic ic-lock" aria-hidden="true"></span> Interne notater</div>
       <textarea id="labelNotesArea" placeholder="Private merknader om artisten — artisten ser ikke dette..." rows="4"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#f4ede4;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:6px"
+        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#f4eadc;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:6px"
         oninput="window.labelNoteDirty=true">${artistNotes.replace(/</g,'&lt;')}</textarea>
       <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="window.labelSaveNotes('${artistId}')" style="background:#f4a443;border:none;color:#000;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Lagre notater</button>
+        <button onclick="window.labelSaveNotes('${artistId}')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Lagre notater</button>
         <span id="labelNoteStatus" style="font-size:11px;color:rgba(255,255,255,.35)"></span>
       </div>
 
@@ -746,7 +777,7 @@
       headers:{...sbH(token),'Prefer':'resolution=merge-duplicates'},
       body: JSON.stringify({label_id:uid, artist_id:artistId, notes:text, updated_at:new Date().toISOString()})
     });
-    if(status){ status.style.color='#34d399'; status.textContent='✓ Lagret'; setTimeout(()=>status.textContent='',2000); }
+    if(status){ status.style.color='#a6be8b'; status.textContent='✓ Lagret'; setTimeout(()=>status.textContent='',2000); }
     window.labelNoteDirty = false;
   };
 
@@ -764,15 +795,15 @@
       document.body.appendChild(modal);
     }
     modal.style.display='flex';
-    modal.innerHTML='<div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(800px,96vw);padding:0 0 24px">'
+    modal.innerHTML='<div style="background:#211d1a;border:1px solid rgba(255,255,255,.12);width:min(800px,96vw);padding:0 0 24px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">'
         +'<h2 style="font-size:16px;font-weight:800;margin:0">Sammenlign artist</h2>'
         +'<button onclick="document.getElementById(\'labelCompareModal\').style.display=\'none\'" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:20px;cursor:pointer">×</button>'
       +'</div>'
       +'<div style="padding:20px 24px">'
-        +'<p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px">Velg artist å sammenligne med <strong style="color:#f4a443">'+name+'</strong>:</p>'
+        +'<p style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px">Velg artist å sammenligne med <strong style="color:#d68155">'+name+'</strong>:</p>'
         +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
-        +artists.map(a=>'<button onclick="window.labelDoCompare(\''+artistId+'\',\''+a.artist_id+'\')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f4ede4;padding:8px 16px;cursor:pointer;font-family:system-ui;font-size:13px">'+(a.profile?.username||a.artist_id.slice(0,8))+'</button>').join('')
+        +artists.map(a=>'<button onclick="window.labelDoCompare(\''+artistId+'\',\''+a.artist_id+'\')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:8px 16px;cursor:pointer;font-family:system-ui;font-size:13px">'+(a.profile?.username||a.artist_id.slice(0,8))+'</button>').join('')
         +'</div>'
         +'<div id="labelCompareContent" style="margin-top:20px"></div>'
       +'</div>'
@@ -809,16 +840,16 @@
       const aWins = higherIsBetter ? Number(vA)>Number(vB) : Number(vA)<Number(vB);
       const bWins = higherIsBetter ? Number(vB)>Number(vA) : Number(vB)<Number(vA);
       return '<div style="display:grid;grid-template-columns:1fr 120px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:center">'
-        +'<div style="text-align:right;font-size:14px;font-weight:'+(aWins?'900':'400')+';color:'+(aWins?'#f4a443':'#f4ede4')+'">'+vA+'</div>'
+        +'<div style="text-align:right;font-size:14px;font-weight:'+(aWins?'900':'400')+';color:'+(aWins?'#d68155':'#f4eadc')+'">'+vA+'</div>'
         +'<div style="text-align:center;font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em">'+label+'</div>'
-        +'<div style="font-size:14px;font-weight:'+(bWins?'900':'400')+';color:'+(bWins?'#f4a443':'#f4ede4')+'">'+vB+'</div>'
+        +'<div style="font-size:14px;font-weight:'+(bWins?'900':'400')+';color:'+(bWins?'#d68155':'#f4eadc')+'">'+vB+'</div>'
       +'</div>';
     };
 
     if(el) el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 120px 1fr;gap:8px;margin-bottom:12px">'
-      +'<div style="font-size:13px;font-weight:800;color:#f4a443;text-align:right">'+nameA+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:#d68155;text-align:right">'+nameA+'</div>'
       +'<div></div>'
-      +'<div style="font-size:13px;font-weight:800;color:#60a5fa">'+nameB+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:#bfb2a6">'+nameB+'</div>'
     +'</div>'
     + row('Sanger',beatsA.length,beatsB.length)
     + row('Albumer',albumsA.length,albumsB.length)
@@ -883,9 +914,9 @@
       {method:'POST', headers: sbH(token), body: JSON.stringify({p_username: username})}
     );
     const profiles = pr.ok ? await pr.json() : [];
-    if(!profiles.length){ if(status){ status.style.color='#fb7185'; status.textContent=`Finner ingen bruker med brukernavn "${username}".`; } return; }
+    if(!profiles.length){ if(status){ status.style.color='#ffaaa3'; status.textContent=`Finner ingen bruker med brukernavn "${username}".`; } return; }
     const artistId = profiles[0].id;
-    if(artistId === uid){ if(status){ status.style.color='#fb7185'; status.textContent='Du kan ikke invitere deg selv.'; } return; }
+    if(artistId === uid){ if(status){ status.style.color='#ffaaa3'; status.textContent='Du kan ikke invitere deg selv.'; } return; }
 
     // Hent label-navn
     const lnRes = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}&select=username`, {headers:sbH(token)});
@@ -905,7 +936,7 @@
         invited_at: new Date().toISOString()
       })
     });
-    if(!ir.ok){ if(status){ status.style.color='#fb7185'; status.textContent='Noe gikk galt. Prøv igjen.'; } return; }
+    if(!ir.ok){ if(status){ status.style.color='#ffaaa3'; status.textContent='Noe gikk galt. Prøv igjen.'; } return; }
 
     // Send varsel til artisten
     await fetch(`${SB_URL}/rest/v1/notifications`, {
@@ -922,7 +953,7 @@
       })
     });
 
-    if(status){ status.style.color='#34d399'; status.textContent=`✓ Invitasjon sendt til ${username}.`; }
+    if(status){ status.style.color='#a6be8b'; status.textContent=`✓ Invitasjon sendt til ${username}.`; }
     document.getElementById('labelInviteUsername').value = '';
     setTimeout(()=>{ window.labelCloseInvite(); renderArtistList(); }, 1500);
   };
@@ -971,8 +1002,8 @@
         const actDiv = document.createElement('div');
         actDiv.style.cssText = 'display:flex;gap:8px;margin-top:8px';
         actDiv.innerHTML = `
-          <button onclick="window.labelRespondInvite('${n.content_id}','${n.id}',true)" style="background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:#34d399;font-size:11px;font-weight:800;padding:4px 12px;cursor:pointer;font-family:system-ui">✓ Aksepter</button>
-          <button onclick="window.labelRespondInvite('${n.content_id}','${n.id}',false)" style="background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.3);color:#fb7185;font-size:11px;font-weight:800;padding:4px 12px;cursor:pointer;font-family:system-ui">✕ Avslå</button>
+          <button onclick="window.labelRespondInvite('${n.content_id}','${n.id}',true)" style="background:rgba(166,190,139,.15);border:1px solid rgba(166,190,139,.3);color:#a6be8b;font-size:11px;font-weight:800;padding:4px 12px;cursor:pointer;font-family:system-ui">✓ Aksepter</button>
+          <button onclick="window.labelRespondInvite('${n.content_id}','${n.id}',false)" style="background:rgba(255,170,163,.1);border:1px solid rgba(255,170,163,.3);color:#ffaaa3;font-size:11px;font-weight:800;padding:4px 12px;cursor:pointer;font-family:system-ui">✕ Avslå</button>
         `;
         card.appendChild(actDiv);
       }
@@ -1091,7 +1122,7 @@
       return `<div style="padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:12px;align-items:flex-start">
         <div style="font-size:18px;flex-shrink:0;margin-top:2px">${label.split(' ')[0]}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:700;color:#f4ede4">${label.slice(2)} — ${n.content_name||''}</div>
+          <div style="font-size:13px;font-weight:700;color:#f4eadc">${label.slice(2)} — ${n.content_name||''}</div>
           <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">${who} · ${when}</div>
         </div>
       </div>`;
@@ -1115,7 +1146,7 @@
       document.body.appendChild(modal);
     }
     modal.style.display = 'flex';
-    modal.innerHTML = `<div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(560px,92vw);padding:0 0 24px">
+    modal.innerHTML = `<div style="background:#211d1a;border:1px solid rgba(255,255,255,.12);width:min(560px,92vw);padding:0 0 24px">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08)">
         <div>
           <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer</h2>
@@ -1128,8 +1159,8 @@
       </div>
       <div style="padding:0 24px">
         <textarea id="labelCommentText" placeholder="Skriv en tilbakemelding..." rows="3"
-          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4ede4;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:8px"></textarea>
-        <button onclick="window.labelSubmitComment('${albumId}','${artistId}')" style="background:#f4a443;border:none;color:#000;font-size:12px;font-weight:800;padding:9px 20px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send</button>
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:8px"></textarea>
+        <button onclick="window.labelSubmitComment('${albumId}','${artistId}')" style="background:#d68155;border:none;color:#000;font-size:12px;font-weight:800;padding:9px 20px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send</button>
         <div id="labelCommentStatus" style="font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;min-height:14px"></div>
       </div>
     </div>`;
@@ -1146,7 +1177,7 @@
     el.innerHTML = comments.map(c=>`
       <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06)">
         <div style="display:flex;gap:8px;margin-bottom:4px">
-          <span style="font-size:12px;font-weight:800;color:#f4a443">${c.author||'Anonym'}</span>
+          <span style="font-size:12px;font-weight:800;color:#d68155">${c.author||'Anonym'}</span>
           <span style="font-size:10px;color:rgba(255,255,255,.3)">${new Date(c.created_at).toLocaleDateString('no-NO')}</span>
         </div>
         <div style="font-size:13px;color:rgba(255,255,255,.7);line-height:1.5;white-space:pre-wrap">${c.comment||''}</div>
@@ -1172,7 +1203,7 @@
       body: JSON.stringify({recipient_id:artistId, sender_id:uid, type:'label_comment', content_id:albumId, content_name:author, role:'label', read:false})
     });
     document.getElementById('labelCommentText').value = '';
-    if(status){ status.style.color='#34d399'; status.textContent='✓ Sendt'; setTimeout(()=>status.textContent='',2000); }
+    if(status){ status.style.color='#a6be8b'; status.textContent='✓ Sendt'; setTimeout(()=>status.textContent='',2000); }
     loadLabelComments(albumId);
   };
 

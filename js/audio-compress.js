@@ -155,18 +155,18 @@
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
     modal.innerHTML = `
-      <div style="background:#1a1612;border:1px solid rgba(255,255,255,.12);width:min(460px,92vw);padding:28px;font-family:system-ui">
-        <h2 style="font-size:16px;font-weight:800;margin:0 0 8px;color:#f4ede4"><span class="ic ic-refresh" aria-hidden="true"></span> Konverter WAV til MP3</h2>
-        <p style="font-size:13px;color:rgba(255,255,255,.5);margin:0 0 16px">Fant <strong style="color:#f4a443">${toConvert.length}</strong> WAV-beat${toConvert.length>1?'s':''}</p>
+      <div style="background:#211d1a;border:1px solid rgba(255,255,255,.12);width:min(460px,92vw);padding:28px;font-family:system-ui">
+        <h2 style="font-size:16px;font-weight:800;margin:0 0 8px;color:#f4eadc"><span class="ic ic-refresh" aria-hidden="true"></span> Konverter WAV til MP3</h2>
+        <p style="font-size:13px;color:rgba(255,255,255,.5);margin:0 0 16px">Fant <strong style="color:#d68155">${toConvert.length}</strong> WAV-beat${toConvert.length>1?'s':''}</p>
         <div style="max-height:200px;overflow-y:auto;margin-bottom:16px">
           ${toConvert.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)">
-            <span style="font-size:13px;color:#f4ede4;flex:1">${b.name||b.title||b.id.slice(0,8)}</span>
+            <span style="font-size:13px;color:#f4eadc;flex:1">${b.name||b.title||b.id.slice(0,8)}</span>
             <span id="wcS_${b.id}" style="font-size:11px;color:rgba(255,255,255,.35)">Venter</span>
           </div>`).join('')}
         </div>
-        <div style="background:rgba(255,255,255,.06);height:6px;margin-bottom:16px"><div id="wcBar" style="height:100%;background:#f4a443;width:0;transition:width .3s"></div></div>
+        <div style="background:rgba(255,255,255,.06);height:6px;margin-bottom:16px"><div id="wcBar" style="height:100%;background:#d68155;width:0;transition:width .3s"></div></div>
         <div style="display:flex;gap:10px">
-          <button id="wcBtn" onclick="window._runWavConvert()" style="flex:1;background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;color:#000;font-size:13px;font-weight:800;padding:11px;cursor:pointer">Start</button>
+          <button id="wcBtn" onclick="window._runWavConvert()" style="flex:1;background:linear-gradient(135deg,#d68155,#b9683f);border:none;color:#000;font-size:13px;font-weight:800;padding:11px;cursor:pointer">Start</button>
           <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:13px;padding:11px 16px;cursor:pointer">Avbryt</button>
         </div>
       </div>`;
@@ -179,23 +179,23 @@
       for(const beat of toConvert){
         const st = document.getElementById('wcS_'+beat.id);
         try{
-          if(st){ st.style.color='#60a5fa'; st.textContent='Henter...'; }
+          if(st){ st.style.color='#bfb2a6'; st.textContent='Henter...'; }
           const res = await fetch(beat.audio_url);
           if(!res.ok) throw new Error('HTTP '+res.status);
           const blob = await res.blob();
           const wavFile = new File([blob], (beat.name||beat.id)+'.wav', {type:blob.type||'audio/wav'});
 
-          if(st){ st.style.color='#a855f7'; st.textContent='Konverterer...'; }
+          if(st){ st.style.color='#f0a579'; st.textContent='Konverterer...'; }
           const mp3File = await compress(wavFile);
 
-          if(st){ st.style.color='#f4a443'; st.textContent='Laster opp...'; }
+          if(st){ st.style.color='#d68155'; st.textContent='Laster opp...'; }
           const url = await window.r2Storage.upload(beat.id, mp3File, !!beat.archived);
           beat.audio_url = url;
           if(typeof saveState==='function') saveState();
 
-          if(st){ st.style.color='#34d399'; st.textContent='✓ Ferdig'; }
+          if(st){ st.style.color='#a6be8b'; st.textContent='✓ Ferdig'; }
         } catch(e){
-          if(st){ st.style.color='#fb7185'; st.textContent='✕ Feilet'; }
+          if(st){ st.style.color='#ffaaa3'; st.textContent='✕ Feilet'; }
           console.error('[WAV Convert]', beat.id, e);
         }
         done++;

@@ -143,7 +143,7 @@ button.ghost-btn:hover,.ghost-btn:hover,
 button.small-btn:hover,.small-btn:hover{ background:var(--surface-3) !important; }
 
 button.danger,.danger{
-  background:rgba(251,113,133,.12) !important;
+  background:rgba(255,170,163,.12) !important;
   border:0 !important;
   color:var(--danger) !important;
 }

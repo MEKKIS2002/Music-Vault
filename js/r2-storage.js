@@ -172,10 +172,10 @@
   }
 
   function barColor(p) {
-    if (p >= 90) return '#fb7185';   // rød
-    if (p >= 70) return '#f97316';   // oransje
-    if (p >= 50) return '#ffba5e';   // gul
-    return '#34d399';                // grønn
+    if (p >= 90) return '#ffaaa3';   // rød
+    if (p >= 70) return '#d68155';   // oransje
+    if (p >= 50) return '#f0a579';   // gul
+    return '#a6be8b';                // grønn
   }
 
   // Henter statistikk fra Worker: GET /stats → { totalBytes, activeBytes, archivedBytes, fileCount }
@@ -247,8 +247,8 @@
 
       <div class="r2-bar-wrap">
         <div class="r2-bar-bg">
-          <div class="r2-bar-fill r2-bar-active"  style="width:${activePct}%;background:#34d399"></div>
-          <div class="r2-bar-fill r2-bar-archive" style="width:${archivePct}%;background:#a855f7;margin-left:${activePct}%"></div>
+          <div class="r2-bar-fill r2-bar-active"  style="width:${activePct}%;background:#a6be8b"></div>
+          <div class="r2-bar-fill r2-bar-archive" style="width:${archivePct}%;background:#f0a579;margin-left:${activePct}%"></div>
         </div>
         <div class="r2-bar-label">
           <span style="color:${color};font-weight:900;font-size:18px">${fmt(data.totalBytes)}</span>
@@ -259,9 +259,9 @@
       <div class="r2-bar-pct" style="color:${color}">${usedPct}% brukt</div>
 
       <div class="r2-legend">
-        <span class="r2-dot" style="background:#34d399"></span>
+        <span class="r2-dot" style="background:#a6be8b"></span>
         <span>Aktive: ${fmt(data.activeBytes || 0)}</span>
-        <span class="r2-dot" style="background:#a855f7;margin-left:12px"></span>
+        <span class="r2-dot" style="background:#f0a579;margin-left:12px"></span>
         <span>Arkivert: ${fmt(data.archivedBytes || 0)}</span>
         <span style="margin-left:auto;color:var(--muted)">${data.fileCount || 0} filer</span>
       </div>`;
@@ -332,7 +332,7 @@
       font-weight: 900;
       font-size: 15px;
       letter-spacing: -.02em;
-      color: #f4ede4;
+      color: #f4eadc;
       flex: 1;
     }
     .r2-widget-status {
@@ -342,8 +342,8 @@
       padding: 3px 10px;
       border-radius: 999px;
     }
-    .r2-status-ok   { background: rgba(52,211,153,.15); color: #34d399; }
-    .r2-status-warn { background: rgba(251,113,133,.12); color: #fb7185; }
+    .r2-status-ok   { background: rgba(166,190,139,.15); color: #a6be8b; }
+    .r2-status-warn { background: rgba(255,170,163,.12); color: #ffaaa3; }
     .r2-refresh-btn {
       font-size: 14px !important;
       padding: 4px 10px !important;

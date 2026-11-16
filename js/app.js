@@ -59,7 +59,7 @@
 
   window.showToast=function(msg, actionLabel, actionFn){
     let t=document.getElementById('_toast');
-    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgba(18,18,27,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
+    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgba(33,29,26,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
     t.innerHTML=`<span>${esc(String(msg||''))}</span>${actionLabel?`<button class="toast-action" id="toastActionBtn">${esc(actionLabel)}</button>`:''}`;
     if(actionLabel&&actionFn){const b=document.getElementById('toastActionBtn'); if(b)b.onclick=()=>{actionFn();t.style.opacity='0';};}
     t.style.transform='translateY(0)';t.style.opacity='1';
@@ -298,8 +298,8 @@
     const beats = beatsFromIds(album.beatIds);
     const totalSec = beats.reduce((s,b)=>s+Number(b.duration||0),0);
     const dur = totalSec>0 ? Math.floor(totalSec/60)+':'+String(Math.floor(totalSec%60)).padStart(2,'0') : null;
-    const STATUS_COLORS = {'Idé':'#a855f7','Skriving':'#60a5fa','Innspilling':'#f97316','Mixing':'#f4a443','Ferdig':'#34d399'};
-    const stCol = STATUS_COLORS[album.status||'Idé'] || '#f4a443';
+    const STATUS_COLORS = {'Idé':'#f0a579','Skriving':'#bfb2a6','Innspilling':'#d68155','Mixing':'#d68155','Ferdig':'#a6be8b'};
+    const stCol = STATUS_COLORS[album.status||'Idé'] || '#d68155';
     const mid = Math.ceil(beats.length/2);
     const coverUrl = album.cover || '';
     const PREVIEW_SEC = 17;
@@ -328,7 +328,7 @@
 <title>${album.name} — Pitch</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px}
+body{background:#0d0b09;color:#f4eadc;font-family:Georgia,serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:60px 20px}
 .page{max-width:680px;width:100%}
 .hero{display:flex;align-items:flex-start;gap:48px;margin-bottom:56px}
 .sleeve-wrap{position:relative;width:200px;height:200px;flex-shrink:0}
@@ -336,7 +336,7 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
 .sleeve img{width:100%;height:100%;object-fit:cover;display:block}
 .sleeve-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:56px;background:rgba(255,255,255,.06)}
 .vinyl-wrap{position:absolute;right:-60px;top:10px;z-index:1}
-.vinyl-disc{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#1c1c1c 0%,#111 45%,#0a0a0a 100%);box-shadow:0 8px 32px rgba(0,0,0,.8);animation:vinylSpin 4s linear infinite;position:relative}
+.vinyl-disc{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,#1c1c1c 0%,#111 45%,#181615 100%);box-shadow:0 8px 32px rgba(0,0,0,.8);animation:vinylSpin 4s linear infinite;position:relative}
 .vinyl-grooves{position:absolute;inset:8px;border-radius:50%;background:repeating-radial-gradient(circle at center,transparent 0,transparent 4px,rgba(255,255,255,.025) 4px,rgba(255,255,255,.025) 5px)}
 .vinyl-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:${stCol};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#000;font-family:system-ui}
 .vinyl-hole{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#0d0b09}
@@ -347,7 +347,7 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
 .hero-title{font-size:40px;font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:14px}
 .hero-meta{display:flex;gap:16px;font-size:12px;color:rgba(255,255,255,.4);font-family:system-ui;font-weight:700}
 .controls{display:flex;align-items:center;gap:10px;margin-top:20px;flex-wrap:wrap}
-.ctrl-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f4ede4;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:system-ui;letter-spacing:.04em;transition:all .15s}
+.ctrl-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#f4eadc;font-size:12px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:system-ui;letter-spacing:.04em;transition:all .15s}
 .ctrl-btn:hover{background:rgba(255,255,255,.13)}
 .ctrl-btn.active-play{background:${stCol};color:#000;border-color:${stCol}}
 .preview-label{font-size:11px;color:rgba(255,255,255,.3);font-family:system-ui;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -360,7 +360,7 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
 .track-name{font-size:15px;font-weight:700;flex:1}
 .track-dur{font-size:11px;color:rgba(255,255,255,.28);font-family:system-ui;font-variant-numeric:tabular-nums}
 .track-row.active{background:rgba(255,255,255,.04)}
-.track-row.active .track-name{background:linear-gradient(90deg,#f4ede4 0%,${stCol} 40%,#fff 55%,${stCol} 70%,#f4ede4 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shineText 2.5s linear infinite;font-weight:900}
+.track-row.active .track-name{background:linear-gradient(90deg,#f4eadc 0%,${stCol} 40%,#fff 55%,${stCol} 70%,#f4eadc 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shineText 2.5s linear infinite;font-weight:900}
 .track-row.active .track-play-icon{color:${stCol}}
 .track-row.active .track-num{color:${stCol};opacity:.7}
 @keyframes shineText{0%{background-position:0% center}100%{background-position:200% center}}
@@ -368,11 +368,11 @@ body{background:#0d0b09;color:#f4ede4;font-family:Georgia,serif;min-height:100vh
 .comments-section{margin-top:40px;padding-top:24px;border-top:1px solid rgba(255,255,255,.07)}
 .comments-label{font-size:10px;font-weight:800;letter-spacing:.18em;color:rgba(255,255,255,.28);text-transform:uppercase;font-family:system-ui;margin-bottom:16px}
 .comment-form{display:grid;gap:10px;margin-bottom:24px}
-.comment-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4ede4;padding:10px 14px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
-.comment-input:focus{border-color:rgba(244,164,67,.4)}
+.comment-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:10px 14px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;min-height:80px;transition:border-color .15s}
+.comment-input:focus{border-color:rgba(214,129,85,.4)}
 .comment-name-row{display:flex;gap:8px}
-.comment-name{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4ede4;padding:8px 12px;font-size:13px;font-family:system-ui;outline:none;transition:border-color .15s}
-.comment-name:focus{border-color:rgba(244,164,67,.4)}
+.comment-name{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#f4eadc;padding:8px 12px;font-size:13px;font-family:system-ui;outline:none;transition:border-color .15s}
+.comment-name:focus{border-color:rgba(214,129,85,.4)}
 .comment-submit{background:${stCol};border:none;color:#000;font-size:12px;font-weight:800;padding:8px 20px;cursor:pointer;font-family:system-ui}
 .comment-card{padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);margin-bottom:10px}
 .comment-author{font-size:12px;font-weight:800;color:${stCol};font-family:system-ui}
@@ -624,7 +624,7 @@ loadComments();
   // ingen "✓ Lagret"-tilbakemelding i det hele tatt.
   window.mvEnsureFullData = ensureFullData;
   window.mvShowSaved = showSavedIndicator;
-  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgba(18,18,27,.92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
+  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgba(33,29,26,.92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
 
   function installGlobalSearch(){
     const app=$('.app')||document.body; if($('#globalSearchWrap'))return;
@@ -659,7 +659,7 @@ loadComments();
   async function drawWaveformForBeat(id,holder){
     if(!holder||holder.dataset.drawn)return; holder.dataset.drawn='1'; holder.classList.add('loading');
     try{let blob=await audioDB.load(id); if(!blob){holder.textContent='Waveform kun for lokale lydfiler'; holder.classList.remove('loading'); return;}
-      const buf=await blob.arrayBuffer(); const ctx=new (window.AudioContext||window.webkitAudioContext)(); const audio=await ctx.decodeAudioData(buf.slice(0)); const data=audio.getChannelData(0); const canvas=document.createElement('canvas'); canvas.width=900; canvas.height=110; const c=canvas.getContext('2d'); c.clearRect(0,0,900,110); c.globalAlpha=.95; c.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent')||'#f59e0b'; c.lineWidth=2; const step=Math.ceil(data.length/450); c.beginPath(); for(let i=0;i<450;i++){let min=1,max=-1; for(let j=0;j<step;j++){const v=data[(i*step)+j]||0;if(v<min)min=v;if(v>max)max=v;} const x=i*2; c.moveTo(x,55+min*48); c.lineTo(x,55+max*48);} c.stroke(); holder.innerHTML=''; holder.appendChild(canvas); const b=state.beats.find(x=>x.id===id); if(b){b.duration=Math.round(audio.duration); if(!b.fileSize)b.fileSize=blob.size; if(!b.fileType)b.fileType=blob.type; if(oldSave)oldSave();} ctx.close?.();
+      const buf=await blob.arrayBuffer(); const ctx=new (window.AudioContext||window.webkitAudioContext)(); const audio=await ctx.decodeAudioData(buf.slice(0)); const data=audio.getChannelData(0); const canvas=document.createElement('canvas'); canvas.width=900; canvas.height=110; const c=canvas.getContext('2d'); c.clearRect(0,0,900,110); c.globalAlpha=.95; c.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent')||'#d68155'; c.lineWidth=2; const step=Math.ceil(data.length/450); c.beginPath(); for(let i=0;i<450;i++){let min=1,max=-1; for(let j=0;j<step;j++){const v=data[(i*step)+j]||0;if(v<min)min=v;if(v>max)max=v;} const x=i*2; c.moveTo(x,55+min*48); c.lineTo(x,55+max*48);} c.stroke(); holder.innerHTML=''; holder.appendChild(canvas); const b=state.beats.find(x=>x.id===id); if(b){b.duration=Math.round(audio.duration); if(!b.fileSize)b.fileSize=blob.size; if(!b.fileType)b.fileType=blob.type; if(oldSave)oldSave();} ctx.close?.();
     }catch(e){console.warn(e); holder.textContent='Kunne ikke tegne waveform';} finally{holder.classList.remove('loading');}
   }
   function enhanceWaveforms(){ $$('.album-beat-card').forEach(card=>{const id=card.dataset.beatId; const w=$('.waveform',card); if(id&&w&&!w.dataset.hasClick){w.dataset.hasClick='1'; w.textContent='Klikk for waveform'; w.onclick=(e)=>{e.stopPropagation();drawWaveformForBeat(id,w)}; drawWaveformForBeat(id,w);}}); }

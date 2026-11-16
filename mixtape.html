@@ -16,9 +16,9 @@
   -->
   <style>
     :root{
-      --bg:#090806; --surface:rgba(255,255,255,.035); --line:rgba(255,255,255,.08);
-      --txt:#f4ede4; --muted:rgba(244,237,228,.62); --faint:rgba(244,237,228,.42);
-      --amber:#f4a443; --amber2:#cb6e1a; --like:#fb7185;
+      --bg:#181615; --surface:rgba(255,255,255,.035); --line:rgba(255,255,255,.08);
+      --txt:#f4eadc; --muted:rgba(244,234,220,.62); --faint:rgba(244,234,220,.42);
+      --amber:#d68155; --amber2:#b9683f; --like:#ffaaa3;
       --player-h:0px;
     }
     *{ box-sizing:border-box; }
@@ -47,7 +47,7 @@
     .play-all{ margin-top:18px; display:inline-flex; align-items:center; gap:10px; height:44px; padding:0 22px;
       border:none; border-radius:999px; cursor:pointer; font:inherit; font-size:14px; font-weight:800;
       background:linear-gradient(135deg,var(--amber),var(--amber2)); color:#1a1206;
-      box-shadow:0 8px 22px rgba(244,164,67,.3); }
+      box-shadow:0 8px 22px rgba(214,129,85,.3); }
     .play-all:hover{ filter:brightness(1.05); }
 
     /* ── Tracklist ────────────────────────────────────────────────── */
@@ -69,7 +69,7 @@
       width:var(--progress,0%); transition:width .25s linear; }
     .like{ flex-shrink:0; min-width:44px; height:32px; margin-right:4px; padding:0 10px; border-radius:999px;
       border:1px solid var(--line); background:none; color:var(--faint); font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
-    .like:hover, .like[aria-pressed="true"]{ color:var(--like); border-color:rgba(251,113,133,.45); background:rgba(251,113,133,.12); }
+    .like:hover, .like[aria-pressed="true"]{ color:var(--like); border-color:rgba(255,170,163,.45); background:rgba(255,170,163,.12); }
 
     :focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
 
@@ -185,7 +185,7 @@
       var img = safeImg(mt.cover);
       $('cover').innerHTML = img
         ? '<img src="'+esc(img)+'" alt="Cover for '+esc(mt.name||'mixtapen')+'">'
-        : '<div class="cover-ph" style="background:'+esc(/^#[0-9a-f]{3,8}$/i.test(mt.color||'')?mt.color+'33':'rgba(244,164,67,.15)')+'"><span class="ic ic-cassette" aria-hidden="true"></span></div>';
+        : '<div class="cover-ph" style="background:'+esc(/^#[0-9a-f]{3,8}$/i.test(mt.color||'')?mt.color+'33':'rgba(214,129,85,.15)')+'"><span class="ic ic-cassette" aria-hidden="true"></span></div>';
 
       var n = tracks.length;
       var total = tracks.reduce(function(s,b){ return s+(Number(b.duration)||0); },0);

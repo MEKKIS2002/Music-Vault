@@ -343,8 +343,8 @@
       .bl-cover-img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
       .bl-cover-ph {
         width: 36px; height: 36px; border-radius: 6px;
-        background: rgba(168,85,247,.15); display: flex; align-items: center;
-        justify-content: center; font-size: 14px; color: rgba(168,85,247,.6);
+        background: rgba(214,129,85,.15); display: flex; align-items: center;
+        justify-content: center; font-size: 14px; color: rgba(214,129,85,.6);
       }
 
       .bl-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -352,8 +352,8 @@
         font-size: 13px; font-weight: 800; letter-spacing: -.01em;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .bl-fav { color: #f4a443; font-size: 12px; flex-shrink: 0; }
-      .bl-rating { font-size: 10px; color: #f4a443; letter-spacing: -1px; flex-shrink: 0; }
+      .bl-fav { color: #d68155; font-size: 12px; flex-shrink: 0; }
+      .bl-rating { font-size: 10px; color: #d68155; letter-spacing: -1px; flex-shrink: 0; }
 
       .bl-collections { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
       .bl-chip {
@@ -361,11 +361,11 @@
         padding: 2px 8px; border-radius: 999px; white-space: nowrap;
         max-width: 120px; overflow: hidden; text-overflow: ellipsis;
       }
-      .bl-chip.mixtape { background: rgba(168,85,247,.15); color: #c084fc; }
-      .bl-chip.album   { background: rgba(34,211,238,.12); color: #67e8f9; }
+      .bl-chip.mixtape { background: rgba(214,129,85,.15); color: #f0a579; }
+      .bl-chip.album   { background: rgba(191,178,166,.12); color: #67e8f9; }
 
       .bl-uploader-tag {
-        font-size: 11px; font-weight: 700; color: var(--mv-amber, #ff8a1f);
+        font-size: 11px; font-weight: 700; color: var(--mv-amber, #d68155);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
 
@@ -374,12 +374,12 @@
 
       .bl-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
       .bl-play {
-        background: rgba(244,164,67,.15); border: none; border-radius: 50%;
-        width: 28px; height: 28px; color: #f4a443; font-size: 11px;
+        background: rgba(214,129,85,.15); border: none; border-radius: 50%;
+        width: 28px; height: 28px; color: #d68155; font-size: 11px;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity .12s, background .12s;
       }
-      .bl-play:hover { background: rgba(244,164,67,.3); }
+      .bl-play:hover { background: rgba(214,129,85,.3); }
       .bl-menu {
         background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
         border-radius: 8px; width: 28px; height: 28px; color: var(--text);
@@ -406,8 +406,8 @@
         transition: background .1s;
       }
       .bt-dropdown button:hover { background: rgba(255,255,255,.08); }
-      .bt-dropdown button.danger { color: #fb7185; }
-      .bt-dropdown button.danger:hover { background: rgba(251,113,133,.12); }
+      .bt-dropdown button.danger { color: #ffaaa3; }
+      .bt-dropdown button.danger:hover { background: rgba(255,170,163,.12); }
 
       /* Now-playing equalizer keyframes (self-contained for the injected sheet) */
       @keyframes mvEqBl {
@@ -448,13 +448,13 @@
           content: ""; position: absolute; inset: 0;
           border-radius: 6px; pointer-events: none;
           background:
-            linear-gradient(#f4a443,#f4a443) 25% 100% / 3px 40% no-repeat,
-            linear-gradient(#f4a443,#f4a443) 50% 100% / 3px 65% no-repeat,
-            linear-gradient(#f4a443,#f4a443) 75% 100% / 3px 50% no-repeat,
+            linear-gradient(#d68155,#d68155) 25% 100% / 3px 40% no-repeat,
+            linear-gradient(#d68155,#d68155) 50% 100% / 3px 65% no-repeat,
+            linear-gradient(#d68155,#d68155) 75% 100% / 3px 50% no-repeat,
             rgba(0,0,0,.5);
           animation: mvEqBl .9s ease-in-out infinite;
         }
-        .bl-row.now-playing-glow .bl-title { color: #f4a443; }
+        .bl-row.now-playing-glow .bl-title { color: #d68155; }
       }
     `;
     document.head.appendChild(style);

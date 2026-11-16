@@ -70,7 +70,7 @@
   .album-beat-card .ab-cover-wrap{
     position:relative!important;
     overflow:hidden!important;
-    background:linear-gradient(135deg,rgba(255,168,78,.18),rgba(255,255,255,.035))!important;
+    background:linear-gradient(135deg,rgba(214,129,85,.18),rgba(255,255,255,.035))!important;
   }
   .album-beat-card .ab-cover,
   .album-beat-card .ab-cover-ph{
@@ -375,7 +375,7 @@
   cursor:pointer!important;
 }
 #mixtapeDetailView .marcus-mixtape-local-search button:hover{
-  background:rgba(245,154,42,.12)!important;
+  background:rgba(214,129,85,.12)!important;
   color:#ffd49a!important;
 }
 #mixtapeDetailView .marcus-mixtape-search-empty{
@@ -454,8 +454,8 @@
   outline:none!important;
 }
 #mixtapeDetailView .marcus-fast-mixtape-search:focus{
-  border-color:rgba(255,186,94,.48)!important;
-  box-shadow:0 0 0 3px rgba(255,186,94,.10)!important;
+  border-color:rgba(240,165,121,.48)!important;
+  box-shadow:0 0 0 3px rgba(240,165,121,.10)!important;
 }
 #mixtapeDetailView .marcus-fast-mixtape-search::placeholder{
   color:rgba(216,200,180,.58)!important;

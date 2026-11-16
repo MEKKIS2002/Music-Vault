@@ -213,6 +213,29 @@
     </div>`;
   }
 
+  // ── Toneart + metadata i låthodet ─────────────────────────────────────────
+  function llKeyLabel(k){ if(!k) return ''; const m=/^([A-G][#b]?)(m|min|moll)?$/i.exec(String(k).trim()); if(!m) return String(k); return m[1].charAt(0).toUpperCase()+m[1].slice(1)+(m[2]?'-moll':'-dur'); }
+  window.llSetKey = function(beatId, val){
+    const beat = getBeat(beatId); if(!beat) return;
+    beat.key = val || '';
+    if(typeof saveState==='function') saveState();
+    llRefreshMeta();
+  };
+  window.llRefreshMeta = function(){
+    const beat = getBeat(window.currentLyricLabBeatId); const el = document.getElementById('llSongMeta');
+    if(!beat || !el) return;
+    const bits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', fmtDur(beat.duration), beat.mood ? esc(beat.mood) : ''].filter(Boolean);
+    el.innerHTML = bits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>');
+  };
+  // Spill/pause en take eller memo (én om gangen)
+  window.llTakeToggle = function(btn){
+    const row = btn.closest('.ll-take-row'); const a = row && row.querySelector('audio'); if(!a) return;
+    document.querySelectorAll('.ll-take-row audio').forEach(o=>{ if(o!==a && !o.paused){ o.pause(); } });
+    const sync = ()=>document.querySelectorAll('.ll-take-row').forEach(r=>{ const au=r.querySelector('audio'); const on=au&&!au.paused; r.classList.toggle('playing',on); const b=r.querySelector('.ll-take-play'); if(b) b.innerHTML = on?'<span class="ic ic-pause" aria-hidden="true"></span>':'<span class="ic ic-play" aria-hidden="true"></span>'; });
+    if(!a._llBound){ a._llBound=true; a.addEventListener('play',sync); a.addEventListener('pause',sync); a.addEventListener('ended',sync); }
+    if(a.paused) a.play().catch(()=>{}); else a.pause();
+  };
+
   // ── Main render ───────────────────────────────────────────────────────────
   function renderLyricLab() {
     const container = document.getElementById('lyricLabContent');
@@ -239,97 +262,101 @@
       ? `<img class="ll-cover-img" src="${esc(beat.cover)}" alt="${esc(beat.name)}">`
       : `<div class="ll-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
 
+    const keyOpts = (()=>{ const notes=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B']; const list=[]; notes.forEach(n=>{ list.push([n+'m', n+'-moll']); list.push([n, n+'-dur']); }); if(beat.key && !list.some(o=>o[0]===beat.key)) list.unshift([beat.key, beat.key]); return list; })();
+    const metaBits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', dur, beat.mood ? esc(beat.mood) : ''].filter(Boolean);
     container.innerHTML = `
-<div class="ll-wrap">
-<div class="ll-header">\n  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>\n  <span class="ll-header-title"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</span>\n  <span class="ll-header-beat-name">${esc(beat.name)}</span>\n  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>\n  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>\n</div>
+<div class="ll-wrap ll-v2">
+<div class="ll-header">
+  <h1 class="ll-page-title">Lyric Lab</h1>
+  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>
+  <span class="ll-header-spacer"></span>
+  <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>
+  <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>
+</div>
 <div class="ll-layout">
 
-  <!-- LEFT: Beat -->
-  <div class="ll-left">
-    <div class="ll-beat-card">
-      <div class="ll-beat-head">
-        <div class="ll-cover-wrap">
-          ${coverEl}
-          <div class="ll-play-overlay" onclick="llWavePlay()">
-            <button class="ll-play-overlay-btn" id="llPlayBtn"><span class="ic ic-play" aria-hidden="true"></span></button>
-          </div>
-        </div>
-        <div class="ll-beat-head-info">
-          <div class="ll-beat-title">${esc(beat.name)}</div>
-          ${beat.source ? `<div class="ll-beat-source">prod. ${esc(beat.source)}</div>` : ''}
-          <div class="ll-chip-row">
-            <label class="ll-chip ll-chip-bpm" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span class="ll-chip-k">BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}"></label>
-            <span class="ll-chip"><span class="ll-chip-k">Key</span><span class="ll-chip-v">${beat.key?esc(beat.key):'–'}</span></span>
-            <span class="ll-chip"><span class="ll-chip-k">Tid</span><span class="ll-chip-v">${dur}</span></span>
-            ${beat.mood?`<span class="ll-chip"><span class="ll-chip-k">Mood</span><span class="ll-chip-v">${esc(beat.mood)}</span></span>`:''}
-          </div>
+  <!-- HOVEDKOLONNE: låt, bølgeform, tekst -->
+  <div class="ll-main">
+    <div class="ll-song-head">
+      <div class="ll-cover-wrap">
+        ${coverEl}
+        <div class="ll-play-overlay" onclick="llWavePlay()">
+          <button class="ll-play-overlay-btn" id="llPlayBtn" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
         </div>
       </div>
+      <div class="ll-song-info">
+        <h2 class="ll-beat-title">${esc(beat.name)}</h2>
+        <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
+        <div class="ll-song-controls">
+          <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
+          <button class="ll-ctrl-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på"><span class="ic ic-refresh" aria-hidden="true"></span> Loop</button>
+          <label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label>
+          <label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label>
+          <details class="mv-proj-menu ll-more-menu">
+            <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
+            <div class="mv-proj-menu-panel">
+              <label class="ll-menu-field">Status
+                <select class="ll-status-select" onchange="llSetStatus(this.value)">
+                  ${STATUS_OPTIONS.map(s=>`<option value="${s}"${s===status?' selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+                </select>
+              </label>
+              <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
+              <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
+              <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
+              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>
+              <button class="ghost-btn" onclick="llShowBeatPicker()">⇄ Bytt låt</button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
 
-      <div class="ll-player">
+    <div class="ll-player ll-wave-panel">
+      <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
+      <div class="ll-wave-col">
         <div id="llWaveSurfer" class="ll-wave"></div>
         <div class="ll-player-row">
-          <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()"><span class="ic ic-play" aria-hidden="true"></span></button>
           <span class="ll-time"><span id="llWaveCur">0:00</span><span class="ll-time-sep">/</span><span id="llWaveTot">${dur}</span></span>
+          <div class="ll-loop-bar" id="llLoopBar" style="display:none">
+            <span class="ll-loop-tag">LOOP</span>
+            <span class="ll-loop-times"><b id="llLoopStart">0:00</b><span class="ll-loop-arrow">→</span><b id="llLoopEnd">0:00</b></span>
+            <span class="ll-loop-dur" id="llLoopDur">0s</span>
+            <button class="ll-loop-clear" onclick="llClearLoop()" title="Fjern loop" aria-label="Fjern loop">✕</button>
+          </div>
+          <span class="ll-player-hint" id="llPlayerHint">Dra over bølgeformen for å markere et loopområde</span>
           <span class="ll-player-spacer"></span>
-          <button class="ll-icon-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på">↺</button>
+          <span class="ll-zoom-row">
+            <span class="ll-zoom-ico"><span class="ic ic-search" aria-hidden="true"></span></span>
+            <input type="range" id="llWaveZoom" class="ll-zoom-slider" min="0" max="100" value="0" oninput="llZoomWave(this.value)" aria-label="Zoom i bølgeformen">
+            <span class="ll-zoom-val" id="llWaveZoomVal">1×</span>
+          </span>
         </div>
-        <div class="ll-zoom-row">
-          <span class="ll-zoom-ico"><span class="ic ic-search" aria-hidden="true"></span></span>
-          <input type="range" id="llWaveZoom" class="ll-zoom-slider" min="0" max="100" value="0" oninput="llZoomWave(this.value)">
-          <span class="ll-zoom-val" id="llWaveZoomVal">1×</span>
-        </div>
-        <div class="ll-loop-bar" id="llLoopBar" style="display:none">
-          <span class="ll-loop-tag">LOOP</span>
-          <span class="ll-loop-times"><b id="llLoopStart">0:00</b><span class="ll-loop-arrow">→</span><b id="llLoopEnd">0:00</b></span>
-          <span class="ll-loop-dur" id="llLoopDur">0s</span>
-          <button class="ll-loop-clear" onclick="llClearLoop()" title="Fjern loop">✕</button>
-        </div>
-        <div class="ll-player-hint" id="llPlayerHint">Dra over bølgeformen for å markere et loopområde</div>
-      </div>
-
-      <div class="ll-status-block">
-        <label class="ll-mini-label">Status</label>
-        <select class="ll-status-select" onchange="llSetStatus(this.value)">
-          ${STATUS_OPTIONS.map(s=>`<option value="${s}"${s===status?' selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
-        </select>
       </div>
     </div>
 
-    <div class="ll-rec-card">
-      <div class="ll-rec-btns">
-        <button class="ll-rec-btn rec" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-mic" aria-hidden="true"></span> Take</button>
-        <button class="ll-rec-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo">⬤ Memo</button>
-        <button class="ll-rec-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del lenke</button>
-      </div>
-      <details class="ll-rec-details">
-        <summary>Takes <span class="ll-count-badge" id="llTakeCount"></span></summary>
-        <div id="llTakeList"></div>
-      </details>
-      <details class="ll-rec-details">
-        <summary>Memoer <span class="ll-count-badge" id="llMemoCount"></span></summary>
-        <div id="llMemoList"></div>
-      </details>
-    </div>
-  </div>
-
-  <!-- CENTER: Editor -->
-  <div class="ll-center">
     <div class="ll-editor-header">
       <div class="ll-editor-progress" title="Hvor ferdig teksten er: seksjoner merket ferdig teller fullt, påbegynte delvis. Ikke det samme som «Ferdig %» på låten.">
         <span class="ll-prog-lbl">Tekst</span>
         <div class="ll-progbar"><div class="ll-progbar-fill" id="llProgFill" style="width:${prog}%"></div></div>
         <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
       </div>
-      <div class="ll-editor-actions">
-        <button class="ll-tool-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow</button>
-        <button class="ll-tool-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirer</button>
-        <button class="ll-tool-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
-        <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
+      <div class="ll-color-tools" role="group" aria-label="Fargemarkering av tekst">
+        <span class="ll-color-lbl">Farge</span>
+        <div class="ll-color-row">
+          <button class="ll-color-dot" style="background:#d68155" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" title="Kobber" aria-label="Farge: Kobber"></button>
+          <button class="ll-color-dot" style="background:#a6be8b" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" title="Grønn" aria-label="Farge: Grønn"></button>
+          <button class="ll-color-dot" style="background:#bfb2a6" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" title="Grå" aria-label="Farge: Grå"></button>
+          <button class="ll-color-dot" style="background:#ec4899" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" title="Rosa" aria-label="Farge: Rosa"></button>
+          <button class="ll-color-dot" style="background:#ffaaa3" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
+          <button class="ll-color-dot" style="background:#f0a579" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
+          <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge" aria-label="Farge: Fjern farge">✕</button>
+        </div>
+        <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
       </div>
+      <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
     </div>
-    <div id="llInspirasjonBox" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px 14px;margin-bottom:8px"></div>
-    <div id="llFlowLegend" style="display:none;font-size:11px;font-weight:700;color:rgba(255,255,255,.35);padding:4px 0 8px;text-align:right"></div>
+    <div id="llInspirasjonBox" style="display:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px"></div>
+    <div id="llFlowLegend" style="display:none;font-size:11px;font-weight:700;color:var(--muted);padding:4px 0 8px;text-align:right"></div>
 
     <div id="llSections">
       ${sections.sort((a,b)=>a.order-b.order).map(s=>sectionHTML(s,beat)).join('')}
@@ -345,8 +372,23 @@
     </div>
   </div>
 
-  <!-- RIGHT: Analysis -->
+  <!-- HØYRE: notater, takes, memoer, verktøy -->
   <div class="ll-right">
+    <div class="ll-card ll-side-card">
+      <div class="ll-side-hd"><h3 class="ll-side-title">Notater</h3><button class="ll-side-icon" onclick="document.getElementById('llNotes').focus()" title="Skriv notat" aria-label="Skriv notat"><span class="ic ic-pen" aria-hidden="true"></span></button></div>
+      <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva sangen handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
+    </div>
+
+    <div class="ll-card ll-side-card">
+      <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
+      <div id="llTakeList" class="ll-take-list"></div>
+    </div>
+
+    <div class="ll-card ll-side-card">
+      <div class="ll-side-hd"><h3 class="ll-side-title">Memoer <span class="ll-count-badge" id="llMemoCount"></span></h3><button class="ll-side-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo"><span class="ic ic-mic" aria-hidden="true"></span> Memo</button></div>
+      <div id="llMemoList" class="ll-take-list"></div>
+    </div>
+
     <div class="ll-card ll-progress-card">
       <div class="ll-ring-wrap">
         <div class="ll-ring" id="llRing" style="--pct:${prog}"></div>
@@ -374,11 +416,6 @@
     </div>
 
     <div class="ll-card ll-stat-card">
-      <div class="ll-stat-title">Notater</div>
-      <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva sangen handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
-    </div>
-
-    <div class="ll-card ll-stat-card">
       <div class="ll-stat-title">Tags</div>
       <div class="ll-tags" id="llTagList"></div>
       <input id="llTagInput" class="ll-tag-input" placeholder="+ legg til tag (Enter)" onkeydown="if(event.key==='Enter'){llAddTag(this.value);this.value='';}">
@@ -392,19 +429,6 @@
       </div>
     </div>` : ''}
 
-    <div class="ll-card ll-stat-card">
-      <div class="ll-stat-title">Fargemark</div>
-      <div class="ll-color-row">
-        <button class="ll-color-dot" style="background:#f59e0b" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f59e0b')" title="Gul"></button>
-        <button class="ll-color-dot" style="background:#10b981" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#10b981')" title="Grønn"></button>
-        <button class="ll-color-dot" style="background:#3b82f6" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#3b82f6')" title="Blå"></button>
-        <button class="ll-color-dot" style="background:#ec4899" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" title="Rosa"></button>
-        <button class="ll-color-dot" style="background:#ef4444" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ef4444')" title="Rød"></button>
-        <button class="ll-color-dot" style="background:#a855f7" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a855f7')" title="Lilla"></button>
-        <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge">✕</button>
-      </div>
-      <div id="llColorHint" class="ll-color-hint">Marker tekst i editoren, klikk så farge</div>
-    </div>
   </div>
 
 </div>
@@ -457,7 +481,7 @@
         const beat  = getBeat(window.currentLyricLabBeatId);
         const sec   = (getSections(beat||{})||[]).find(s=>s.id===secId);
         hint.textContent = sec ? '✓ ' + sec.title + ' — klikk farge' : '✓ Klikk farge';
-        hint.style.color = '#f4a443';
+        hint.style.color = '#d68155';
       }
     }
   });
@@ -709,7 +733,7 @@
         _memoRecorder.ondataavailable = e => { if(e.data.size>0) _memoChunks.push(e.data); };
         _memoRecorder.onstart = () => {
           const btn = document.getElementById('llMemoBtn');
-          if(btn){ btn.textContent='Stopp memo'; btn.style.background='rgba(251,113,133,.2)'; btn.style.borderColor='rgba(251,113,133,.4)'; }
+          if(btn){ btn.textContent='Stopp memo'; btn.style.background='rgba(255,170,163,.2)'; btn.style.borderColor='rgba(255,170,163,.4)'; }
           let secs = 0;
           _memoInterval = setInterval(()=>{ secs++; const b=document.getElementById('llMemoBtn'); if(b) b.textContent=`Stopp (${secs}s)`; if(secs>=60) _memoRecorder?.stop(); }, 1000);
           if(typeof showToast==='function') showToast('⬤ Tar opp memo... (maks 60s)');
@@ -749,8 +773,10 @@
     if (badge) badge.textContent = memos.length || '';
     el.innerHTML = memos.length
       ? memos.map((m,i) => `
-          <div class="ll-memo-row">
-            <audio controls src="${m.url}" style="height:28px;flex:1;min-width:0"></audio>
+          <div class="ll-memo-row ll-take-row">
+            <button class="ll-take-play" onclick="llTakeToggle(this)" aria-label="Spill memo ${i+1}"><span class="ic ic-play" aria-hidden="true"></span></button>
+            <span class="ll-take-name">Memo ${i+1}</span>
+            <audio preload="none" src="${m.url}" hidden></audio>
             <span class="ll-memo-ts">${new Date(m.ts).toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'})}</span>
             <button class="ll-memo-del" onclick="llDeleteMemo('${esc(beat.id)}',${i})" title="Slett">✕</button>
           </div>`).join('')
@@ -858,7 +884,7 @@
             <div class="ll-picker-name">${esc(b.name)}</div>
             <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
           </div>
-          ${b.favorite ? '<span style="color:#f4a443;font-size:14px">★</span>' : ''}
+          ${b.favorite ? '<span style="color:#d68155;font-size:14px">★</span>' : ''}
         </div>`).join('');
     }
 
@@ -932,7 +958,7 @@
               <div class="ll-picker-name">${esc(b.name)}</div>
               <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
             </div>
-            ${b.favorite ? '<span style="color:#f4a443;font-size:14px">★</span>' : ''}
+            ${b.favorite ? '<span style="color:#d68155;font-size:14px">★</span>' : ''}
           </div>`).join('')
       : `<div class="ll-picker-empty">Ingen treff for "${esc(query)}"</div>`;
   };
@@ -1221,12 +1247,14 @@
     const badge = document.getElementById('llTakeCount');
     if (badge) badge.textContent = takes.length || '';
     el.innerHTML = takes.length
-      ? takes.map((t,i) => {
+      ? takes.map((t,i) => ({t,i})).reverse().map(({t,i}) => {
           const m = Math.floor((t.dur||0)/60), s = String((t.dur||0)%60).padStart(2,'0');
-          return `<div class="ll-memo-row">
-            <audio controls src="${t.url}" style="height:28px;flex:1;min-width:0"></audio>
+          return `<div class="ll-memo-row ll-take-row">
+            <button class="ll-take-play" onclick="llTakeToggle(this)" aria-label="Spill Take ${i+1}"><span class="ic ic-play" aria-hidden="true"></span></button>
+            <span class="ll-take-name">Take ${i+1} (vokal)</span>
+            <audio preload="none" src="${t.url}" hidden></audio>
             <span class="ll-memo-ts">${m}:${s}</span>
-            <button class="ll-memo-del" onclick="llDeleteTake('${esc(beat.id)}',${i})" title="Slett">✕</button>
+            <button class="ll-memo-del" onclick="llDeleteTake('${esc(beat.id)}',${i})" title="Slett take" aria-label="Slett Take ${i+1}">✕</button>
           </div>`;
         }).join('')
       : '<p style="font-size:11px;color:var(--muted);margin:0">Ingen takes ennå</p>';
@@ -1286,7 +1314,7 @@
           </div>` : ''}
       `;
     } catch(e) {
-      results.innerHTML = `<p style="font-size:11px;color:#fb7185;margin:0">Feil: ${e.message}</p>`;
+      results.innerHTML = `<p style="font-size:11px;color:#ffaaa3;margin:0">Feil: ${e.message}</p>`;
     }
   };
 
@@ -1395,8 +1423,8 @@
     try {
       _ws = WaveSurfer.create({
         container,
-        waveColor:      'rgba(244,164,67,.4)',
-        progressColor:  'rgba(244,164,67,.95)',
+        waveColor:      'rgba(214,129,85,.4)',
+        progressColor:  'rgba(214,129,85,.95)',
         cursorColor:    '#fff',
         cursorWidth:    2,
         height: 72, barWidth: 2, barGap: 1, barRadius: 3,
@@ -1420,6 +1448,13 @@
       const setTot = () => { const t=document.getElementById('llWaveTot'); if(t) t.textContent = fmtT(_ws.getDuration()); };
       _ws.on('decode', setTot);
       _ws.on('ready',  setTot);
+      // Lydfila kan spilles, men ikke leses for bølgeform (typisk CORS: R2-workeren
+      // tillater bare github.io, så lokalt blir boksen tom). Si det i stedet for en tom flate.
+      _ws.on('error', () => {
+        const hint = document.getElementById('llPlayerHint');
+        if (hint) hint.textContent = 'Bølgeformen kan ikke vises fra denne adressen — avspilling virker. Den vises på mekkis2002.github.io.';
+        container.classList.add('ll-wave-unavailable');
+      });
 
       _ws.on('timeupdate', t => {
         const cur = document.getElementById('llWaveCur'); if (cur) cur.textContent = fmtT(t);
@@ -1431,11 +1466,11 @@
 
       if (regions) {
         _ws.on('ready', () => {
-          if (regions.enableDragSelection) regions.enableDragSelection({ color: 'rgba(244,164,67,.18)' });
+          if (regions.enableDragSelection) regions.enableDragSelection({ color: 'rgba(214,129,85,.18)' });
         });
         regions.on('region-created', reg => {
           try { regions.getRegions().forEach(r => { if (r !== reg) r.remove(); }); } catch(e) {}
-          try { reg.setOptions({ color: 'rgba(244,164,67,.18)', resize: true, drag: true }); } catch(e) {}
+          try { reg.setOptions({ color: 'rgba(214,129,85,.18)', resize: true, drag: true }); } catch(e) {}
           _wsRegion  = reg;
           _wsLooping = true;
           _setLoopBtn(true);
@@ -1488,7 +1523,7 @@
     if(!d){d=document.createElement('div');d.id='llWaveRegion';d.style.cssText='position:absolute;top:0;bottom:0;pointer-events:none;z-index:5;';c.appendChild(d);}
     const dur=_ws.getDuration()||1;
     d.style.left=(s/dur*100)+'%';d.style.width=((en-s)/dur*100)+'%';
-    d.style.background='rgba(244,164,67,.15)';d.style.borderLeft='2px solid #f4a443';d.style.borderRight='2px solid #f4a443';
+    d.style.background='rgba(214,129,85,.15)';d.style.borderLeft='2px solid #d68155';d.style.borderRight='2px solid #d68155';
   }
 
   window.llWavePlay = function() {
@@ -1596,7 +1631,7 @@
         if (!r) return;
         if (!perfekte.length && !nesten.length) { r.textContent = 'Ingen rimord funnet'; return; }
         r.innerHTML = [
-          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgba(244,164,67,.12);border:1px solid rgba(244,164,67,.28);border-radius:999px;color:#f4a443;font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
+          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgba(214,129,85,.12);border:1px solid rgba(214,129,85,.28);border-radius:999px;color:#d68155;font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
           nesten.length ? `<div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:4px">Nesten</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nesten.slice(0,6).map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:999px;color:rgba(255,255,255,.6);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : ''
         ].join('');
       } catch(e) {
@@ -1620,11 +1655,11 @@
   // 2. FLOW ANALYSIS — color-code rhyming lines
   // ══════════════════════════════════════════════════════════════════════════
   const FLOW_COLORS = [
-    'rgba(244,164,67,.35)',  // amber
-    'rgba(168,85,247,.35)',  // purple
-    'rgba(52,211,153,.35)',  // green
-    'rgba(96,165,250,.35)',  // blue
-    'rgba(251,113,133,.35)', // pink
+    'rgba(214,129,85,.35)',  // amber
+    'rgba(214,129,85,.35)',  // purple
+    'rgba(166,190,139,.35)',  // green
+    'rgba(191,178,166,.35)',  // blue
+    'rgba(255,170,163,.35)', // pink
     'rgba(251,191,36,.35)',  // yellow
   ];
 
@@ -1745,7 +1780,7 @@
             return `<div style="padding:12px;border-bottom:1px solid rgba(255,255,255,.05)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
                 <span style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700">${label}</span>
-                <button onclick="llRestoreVersion('${secId}',${hist.length-1-i})" style="background:rgba(244,164,67,.12);border:1px solid rgba(244,164,67,.3);border-radius:7px;color:#f4a443;font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:inherit">Gjenopprett</button>
+                <button onclick="llRestoreVersion('${secId}',${hist.length-1-i})" style="background:rgba(214,129,85,.12);border:1px solid rgba(214,129,85,.3);border-radius:7px;color:#d68155;font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:inherit">Gjenopprett</button>
               </div>
               <pre style="font-size:12px;color:rgba(255,255,255,.55);font-family:Georgia,serif;margin:0;white-space:pre-wrap;max-height:80px;overflow:hidden">${preview}${v.text.length>120?'…':''}</pre>
             </div>`;
@@ -1768,14 +1803,18 @@
   };
 
   // Auto-snapshot on every save (after debounce)
+  // NB: MÅ være en tilordning, ikke «function saveSections(){}». En deklarasjon
+  // løftes (hoistes) over den opprinnelige på linje ~116 i samme scope, slik at
+  // _origSaveSections pekte på seg selv → uendelig rekursjon og teksten ble
+  // aldri lagret.
   const _origSaveSections = saveSections;
-  function saveSections(beat) {
+  saveSections = function (beat) {
     // Snapshot each dirty section before saving
     if (beat?.lyricSections) {
       beat.lyricSections.forEach(s => { if(s.text?.trim()) addVersionSnapshot(beat, s.id); });
     }
     _origSaveSections(beat);
-  }
+  };
 
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -1875,10 +1914,10 @@
 <title>${esc(beat.name)}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:#0d0c0b;color:#f4ede4;font-family:'Georgia',serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+  body{background:#0d0c0b;color:#f4eadc;font-family:'Georgia',serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px}
   .card{max-width:640px;width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden}
   .header{padding:28px 32px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
-  .label{font-size:10px;font-weight:800;letter-spacing:.15em;color:#f4a443;text-transform:uppercase;margin-bottom:8px;font-family:system-ui}
+  .label{font-size:10px;font-weight:800;letter-spacing:.15em;color:#d68155;text-transform:uppercase;margin-bottom:8px;font-family:system-ui}
   h1{font-size:26px;font-weight:900;letter-spacing:-.04em;line-height:1.15}
   .meta{font-size:13px;color:rgba(255,255,255,.4);margin-top:6px;font-family:system-ui}
   audio{width:100%;height:44px;margin:16px 0 4px;filter:invert(1) sepia(1) saturate(2) hue-rotate(0deg)}
