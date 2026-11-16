@@ -82,6 +82,8 @@
     const albums   = (typeof state !== 'undefined' ? state.albums   : window.state?.albums   || []).filter(a=>!a.archived);
     menu.innerHTML = `
       <button onclick="beatsTab.playBeat('${beatId}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
+      <button onclick="window.mvQueuePlayNext&&mvQueuePlayNext('${beatId}')"><span class="ic ic-list" aria-hidden="true"></span> Spill neste</button>
+      <button onclick="window.mvQueueAdd&&mvQueueAdd('${beatId}')"><span class="ic ic-plus" aria-hidden="true"></span> Legg i kø</button>
       <button onclick="beatsTab.openLyricLab('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
       ${admin ? `<button onclick="downloadBeat('${beatId}')"><span class="ic ic-download" aria-hidden="true"></span> Last ned</button>` : ''}
       ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}

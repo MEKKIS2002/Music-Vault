@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.1',
+      date: '16. november 2026',
+      label: 'Kø og mediekontroller',
+      color: '#d68155',
+      changes: [
+        'Nytt kø-panel: se hva som spilles nå og neste, endre rekkefølge (dra eller ▲▼), fjern sanger og tøm køen',
+        '«Spill neste» og «Legg i kø» i ⋯-menyen på sanger i Beats, album og mixtapes',
+        'Kontroller på låseskjerm, medietaster og Bluetooth-hodetelefoner med tittel og cover',
+        '«Nylig spilt» registreres igjen',
+      ]
+    },
+    {
       version: 'v5.0',
       date: '16. november 2026',
       label: 'Studio × Platebutikken: ny design i hele appen',
