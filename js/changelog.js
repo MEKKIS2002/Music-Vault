@@ -6,10 +6,28 @@
 
   const VERSIONS = [
     {
+      version: 'v5.0',
+      date: '16. november 2026',
+      label: 'Studio × Platebutikken: ny design i hele appen',
+      color: '#d68155',
+      changes: [
+        'Ny designretning: varme mørke flater, kobber for handlinger, DM Serif Text og DM Sans',
+        'Fast venstremeny på desktop med to grupper; «Meny»-skuff på mobil med alle sider',
+        'Innholdet bruker hele skjermbredden, og spilleren går over hele bredden nederst',
+        'Felles knapper, felt, merker, dialoger og menyer på alle sider',
+        'Hjem: «Fortsett der du slapp» som stort panel med cover og rund spill-knapp',
+        'Lyric Lab: nytt oppsett med låthode, bølgeform i full bredde, Notater og Takes til høyre, toneart-velger og fargemarkering over teksten',
+        'Tekstskriving som ett dokument med seksjonsoverskrifter i Lyric Lab, album og mixtapes',
+        'Åpnet sang i album/mixtape: kompakt toppdel, teksten først, verktøy og RAW-vokaler i sidekolonne',
+        'Docs, Arkivert og Label er redesignet med færre rammer og ryddigere verktøylinjer',
+        'Rettet: tekst i Lyric Lab ble ikke lagret (feil i lagringsfunksjonen)',
+      ]
+    },
+    {
       version: 'v4.1',
       date: '15. november 2026',
       label: 'Egne ikoner i stedet for emojier',
-      color: '#df7f22',
+      color: '#d68155',
       changes: [
         'Alle emojier er byttet ut med et eget sett strek-ikoner som følger tekstfargen — i faner, knapper, menyer og tomme visninger',
         'Fanene i headeren har dempede ikoner som lyser opp på aktiv fane',
@@ -21,7 +39,7 @@
       version: 'v4.0',
       date: '15. november 2026',
       label: 'Stor opprydding: design, deling, avspilling og sikkerhet',
-      color: '#df7f22',
+      color: '#d68155',
       changes: [
         // Design og lesbarhet
         'Én flat, svart bakgrunn på alle sider — paneler, fargeskyer og korntekstur fjernet',
@@ -68,7 +86,7 @@
       version: 'v3.1',
       date: '21. juni 2026',
       label: 'Docs, offentlig deling og avspillingsfikser',
-      color: '#34d399',
+      color: '#a6be8b',
       changes: [
         'Ny Docs-fane: frittstående skrive-/notatfunksjon (Apple Notes-stil) uavhengig av beats',
         'Docs: sidebar med alle notater sortert etter sist endret + editor til høyre',
@@ -90,7 +108,7 @@
       version: 'v3.0',
       date: '14. juni 2026',
       label: 'Hjem-dashboard og topbar-redesign',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Ny Hjem-fane som standard startside — alltid første tab i rekken',
         'Topbar redesignet: logo til venstre, tabs i midten, brukerkontroller integrert til høyre',
@@ -116,7 +134,7 @@
       version: 'v2.9',
       date: '14. juni 2026',
       label: 'Album- og mixtape-forbedringer',
-      color: '#60a5fa',
+      color: '#bfb2a6',
       changes: [
         'Album-detaljside fullstendig redesignet — samme layout og ramme som mixtape-siden',
         'Album-header: lite coverbilde til venstre, kicker + tittel + antall beats + nå-spilles i midten, knapper til høyre',
@@ -140,7 +158,7 @@
       version: 'v2.8',
       date: '25. mai 2026',
       label: 'Label-dashboard',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Label-dashboard: sidebar + detaljvisning (Versjon C) for label-pakke-brukere',
         'Label kan invitere artister via brukernavn — artist får varsel med Aksepter/Avslå',
@@ -159,7 +177,7 @@
       version: 'v2.7',
       date: '24. mai 2026',
       label: 'Onboarding og multi-tenant',
-      color: '#34d399',
+      color: '#a6be8b',
       changes: [
         'Selvbetjent registrering direkte fra lock screen — "Opprett ny konto"',
         '3 pakker å velge mellom: Artist, PRO og Label',
@@ -187,7 +205,7 @@
       version: 'v2.6',
       date: '22. mai 2026',
       label: 'Multi-tenant og deling',
-      color: '#34d399',
+      color: '#a6be8b',
       changes: [
         'Multi-tenant arkitektur: hver bruker ser kun sitt eget innhold via owner_id og Supabase RLS',
         'Bruker-spesifikk localStorage-nøkkel (musicVault.v4.{userId}) — ingen datalekkasje mellom brukere',
@@ -205,7 +223,7 @@
       version: 'v2.5',
       date: '22. mai 2026',
       label: 'Pakke-system og brukerroller',
-      color: '#a855f7',
+      color: '#f0a579',
       changes: [
         'packages.js: definerer hvilke tabs og funksjoner hver pakke har tilgang til',
         'Pakker: admin / artist / producer / lyricist / label / viewer',
@@ -224,7 +242,7 @@
       version: 'v2.4',
       date: '21. mai 2026',
       label: 'Mixtape pitch, liker og forbedringer',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Mixtape pitch-side via Cloudflare Worker — fungerer på alle enheter (ikke bare blob-URL)',
         'Pitch-URL er unik per deling — ny token ved ny deling, gammel token deaktiveres',
@@ -245,7 +263,7 @@
       version: 'v2.35',
       date: '21. mai 2026',
       label: 'Listevisning og beat-gjenoppretting',
-      color: '#60a5fa',
+      color: '#bfb2a6',
       changes: [
         'Listevisning i album og mixtapes fullstendig omskrevet fra bunnen — ny HTML med egne klasser (abi-list-row)',
         'track-cards.js sin enhanceCards() hopper over abi-list-row — ingen CSS-konflikter lenger',
@@ -263,7 +281,7 @@
       version: 'v2.3',
       date: '16. mai 2026',
       label: 'Album & Pipeline',
-      color: '#60a5fa',
+      color: '#bfb2a6',
       changes: [
         'Album-kortene viser nå status-badge med fargekoding (Idé/Skriving/Innspilling/Mixing/Ferdig) og total spilletid',
         'Tracklist-nummer (01. 02. 03.) vises foran hvert sangnavn i albumvisningen',
@@ -288,7 +306,7 @@
       version: 'v2.2',
       date: '15. mai 2026',
       label: 'Lyric Lab',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Ny Lyric Lab-fane — fullskjerm teksteditor med tre kolonner: beat-info, seksjonseditor og skriveanalyse',
         'Seksjonseditor med Hook, Vers 1, Bro, Vers 2, Outro — linjenummer, collapse/expand, ⋯-meny per seksjon',
@@ -310,7 +328,7 @@
       version: 'v2.1',
       date: '14. mai 2026',
       label: 'PNG-kassetter, arkiv-fix og view modes',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Kassettdesign byttet fra CSS til realistiske PNG-bilder — 4 varianter (velges deterministisk per mixtape)',
         '"Ny mixtape"-kortet bruker kassett-PNG med + NY MIXTAPE-tekst på labelen',
@@ -330,7 +348,7 @@
       version: 'v2.0',
       date: '13. mai 2026',
       label: 'Tab-rekkefølge, visningsmoduser og viewer-forbedringer',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         'Tab-rekkefølge endret til: Beats → Mixtapes → Albumer → Pipeline → Integrasjoner',
         'Mixtapes er nå standard startside',
@@ -346,7 +364,7 @@
       version: 'v1.9',
       date: '13. mai 2026',
       label: 'Lydkomprimering',
-      color: '#34d399',
+      color: '#a6be8b',
       changes: [
         'WAV, FLAC og andre ukomprimerte lydfiler komprimeres automatisk til WebM/Opus (128kbps) før opplasting til R2',
         'Typisk besparelse: WAV ~50MB → ~5MB (−90%), FLAC ~25MB → ~5MB (−80%)',
@@ -358,7 +376,7 @@
       version: 'v1.8',
       date: '13. mai 2026',
       label: 'Beats-tab + listvisning',
-      color: '#a855f7',
+      color: '#f0a579',
       changes: [
         'Ny "Beats"-tab som første tab — total oversikt over alle sanger med søk og sortering',
         'Beats-tabellen viser: navn, samlinger (mixtape/album), hvem som lastet opp, dato og varighet',
@@ -373,7 +391,7 @@
       version: 'v1.7',
       date: '13. mai 2026',
       label: 'Sletting + opplasternavn',
-      color: '#fb7185',
+      color: '#ffaaa3',
       changes: [
         '"Slett sang"-knapp lagt til i alle visninger — kun synlig for admin',
         'Sletting fjerner sangen fra R2, Supabase og lokal state i én operasjon',
@@ -385,7 +403,7 @@
       version: 'v1.6',
       date: '13. mai 2026',
       label: 'Nytt innloggingssystem',
-      color: '#f97316',
+      color: '#d68155',
       changes: [
         'Passordlåsskjermen erstattet med brukernavn/passord-innlogging via Supabase',
         'To moduser på innloggingsskjermen: Admin og Visningsmodus',
@@ -400,7 +418,7 @@
       version: 'v1.5',
       date: '13. mai 2026',
       label: 'Cloudflare R2 + Supabase-synk',
-      color: '#22d3ee',
+      color: '#bfb2a6',
       changes: [
         'Cloudflare R2 integrert for lagring av lydfiler (10GB gratis, ingen egress-kostnad)',
         'Lydfiler organiseres i active/ og archived/ mapper i R2',
@@ -430,7 +448,7 @@
       version: 'v1.3',
       date: '13. mai 2026',
       label: 'Stor kode-opprydding (runde 2)',
-      color: '#f4a443',
+      color: '#d68155',
       changes: [
         '3 konkurrerende mixtape-søk-scripts (hotfix, single, visibility) slettet — erstattet av performance-versjon',
         'Duplikat @keyframes vinylSpin fjernet',

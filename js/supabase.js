@@ -226,14 +226,14 @@ function installAdminLoginPanel() {
 
   const style = document.createElement("style");
   style.textContent = `
-    .supabase-admin-card{margin-bottom:14px;border:1px solid rgba(52,211,153,.18)!important;background:rgba(52,211,153,.055)!important}
+    .supabase-admin-card{margin-bottom:14px;border:1px solid rgba(166,190,139,.18)!important;background:rgba(166,190,139,.055)!important}
     .admin-status-row{display:flex;gap:8px;align-items:center;margin:10px 0 14px;font-size:13px;color:var(--muted)}
     .admin-status-row strong{color:var(--text)}
     .admin-login-box{display:grid;gap:10px;margin-top:10px}
     .admin-login-message{margin-top:10px;min-height:18px}
-    .admin-login-message[data-type="success"]{color:#34d399}
-    .admin-login-message[data-type="warning"]{color:#fbbf24}
-    .admin-login-message[data-type="error"]{color:#fb7185}
+    .admin-login-message[data-type="success"]{color:#a6be8b}
+    .admin-login-message[data-type="warning"]{color:#f0a579}
+    .admin-login-message[data-type="error"]{color:#ffaaa3}
     #adminLoginBtn:disabled{opacity:.65;cursor:not-allowed}
   `;
   document.head.appendChild(style);
@@ -726,10 +726,10 @@ setTimeout(updateAdminUi, 50);
       const style = document.createElement('style');
       style.id = 'supabaseDataSyncStyle';
       style.textContent = `
-        .supabase-sync-card{margin-bottom:14px;border:1px solid rgba(96,165,250,.18)!important;background:rgba(96,165,250,.055)!important}
+        .supabase-sync-card{margin-bottom:14px;border:1px solid rgba(191,178,166,.18)!important;background:rgba(191,178,166,.055)!important}
         .sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
         .sync-status{min-height:18px;margin-top:10px}
-        .sync-status[data-type="success"]{color:#34d399}.sync-status[data-type="warning"]{color:#fbbf24}.sync-status[data-type="error"]{color:#fb7185}
+        .sync-status[data-type="success"]{color:#a6be8b}.sync-status[data-type="warning"]{color:#f0a579}.sync-status[data-type="error"]{color:#ffaaa3}
       `;
       document.head.appendChild(style);
     }
@@ -741,11 +741,11 @@ setTimeout(updateAdminUi, 50);
   // Prikken skal fortelle SANNHETEN. Før lyste den grønt også når pushen
   // stille ble nektet, fordi den bare ble oppdatert inne i push-funksjonen.
   const SYNC_STATES = {
-    saved:   { color:'#34d399', text:()=>'Lagret i skyen ' + new Date(lastPushAt||Date.now()).toLocaleTimeString() },
-    saving:  { color:'#60a5fa', text:()=>'Lagrer…' },
-    pending: { color:'#fbbf24', text:()=>'Ulagrede endringer — lagrer straks' },
-    blocked: { color:'#fb7185', text:()=>'IKKE lagret i skyen — mangler skrivetilgang. Klikk for å prøve igjen.' },
-    error:   { color:'#fb7185', text:()=>'Lagring feilet — klikk for å prøve igjen' },
+    saved:   { color:'#a6be8b', text:()=>'Lagret i skyen ' + new Date(lastPushAt||Date.now()).toLocaleTimeString() },
+    saving:  { color:'#bfb2a6', text:()=>'Lagrer…' },
+    pending: { color:'#f0a579', text:()=>'Ulagrede endringer — lagrer straks' },
+    blocked: { color:'#ffaaa3', text:()=>'IKKE lagret i skyen — mangler skrivetilgang. Klikk for å prøve igjen.' },
+    error:   { color:'#ffaaa3', text:()=>'Lagring feilet — klikk for å prøve igjen' },
   };
   let _syncState = 'saved';
   function _updateSyncIndicator(stateOrOk) {
@@ -824,7 +824,7 @@ setTimeout(updateAdminUi, 50);
     const dot = document.createElement('span');
     dot.id = 'mvSyncDot';
     dot.title = 'Supabase sync';
-    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
+    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#a6be8b;display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
     dot.addEventListener('click', () => {
       if (_syncState === 'error' || _syncState === 'blocked') { _staleWarned = false; pushToSupabase({manual:true}); }
     });

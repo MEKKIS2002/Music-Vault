@@ -114,7 +114,7 @@ function mvShowRestoring(on){
     if(!el){
       el = document.createElement('div');
       el.id = 'mvRestoreMsg';
-      el.style.cssText = 'position:relative;z-index:2;color:rgba(244,164,67,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
+      el.style.cssText = 'position:relative;z-index:2;color:rgba(214,129,85,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
       el.textContent = 'Logger inn…';
       document.getElementById('lockScreen')?.appendChild(el);
     }
@@ -364,7 +364,7 @@ function switchLockTab(tab){
   const viewerCard  = document.getElementById('lockCardViewer');
   const adminBtn    = document.getElementById('lockTabAdmin');
   const viewerBtn   = document.getElementById('lockTabViewer');
-  const active = 'background:linear-gradient(135deg,#f4a443,#cb6e1a);color:#fff;';
+  const active = 'background:linear-gradient(135deg,#d68155,#b9683f);color:#fff;';
   const inactive = 'background:transparent;color:#aaa4bd;';
   if(tab==='admin'){
     adminCard.style.display='grid';
@@ -538,11 +538,11 @@ window.selectPkg = function(el) {
   document.querySelectorAll('.pkg-card').forEach(c => {
     c.style.border = '1px solid rgba(255,255,255,.1)';
     c.style.background = 'rgba(255,255,255,.03)';
-    c.querySelector('div').style.color = '#f4ede4';
+    c.querySelector('div').style.color = '#f4eadc';
   });
-  el.style.border = '1px solid rgba(244,164,67,.5)';
-  el.style.background = 'rgba(244,164,67,.08)';
-  el.querySelector('div').style.color = '#f4a443';
+  el.style.border = '1px solid rgba(214,129,85,.5)';
+  el.style.background = 'rgba(214,129,85,.08)';
+  el.querySelector('div').style.color = '#d68155';
   _selectedPkg = el.dataset.pkg;
   // Vis invitasjonskode-felt for label
   const inviteWrap = document.getElementById('regInviteWrap');
@@ -663,7 +663,7 @@ window.registerUser = async function() {
     window._mvCurrentUserId = data.user?.id;
     sessionStorage.setItem('mv_user_id', data.user?.id || '');
 
-    if(errEl){ errEl.style.color='#34d399'; errEl.textContent='✓ Konto opprettet! Logger inn...'; errEl.style.display='block'; }
+    if(errEl){ errEl.style.color='#a6be8b'; errEl.textContent='✓ Konto opprettet! Logger inn...'; errEl.style.display='block'; }
 
     setTimeout(async () => {
       const { data: loginData, error: loginErr } = await window.supabaseClient.auth.signInWithPassword({ email, password });
@@ -671,7 +671,7 @@ window.registerUser = async function() {
       if(loginErr){
         // Sannsynligvis e-postbekreftelse påkrevd
         if(errEl){
-          errEl.style.color='#60a5fa';
+          errEl.style.color='#bfb2a6';
           errEl.textContent='✓ Konto opprettet! Sjekk e-posten din for å bekrefte kontoen, logg deretter inn.';
           errEl.style.display='block';
         }
@@ -716,7 +716,7 @@ window.registerUser = async function() {
     }, 800);
 
   } catch(e) {
-    if(errEl){ errEl.style.color='#fb7185'; errEl.textContent = e.message || 'Registrering feilet.'; errEl.style.display='block'; }
+    if(errEl){ errEl.style.color='#ffaaa3'; errEl.textContent = e.message || 'Registrering feilet.'; errEl.style.display='block'; }
     if(btn){ btn.disabled=false; btn.textContent='Opprett konto'; }
   }
 };

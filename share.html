@@ -12,7 +12,7 @@
     albums, mixtapes or admin data. Audio streams from the public R2 /file endpoint.
   -->
   <style>
-    :root{ --bg:#14120f; --card:#1c1a17; --line:rgba(255,255,255,.12); --txt:#f4ede4; --muted:rgba(255,255,255,.45); --amber:#f4a443; --amber2:#cb6e1a; }
+    :root{ --bg:#14120f; --card:#1c1a17; --line:rgba(255,255,255,.12); --txt:#f4eadc; --muted:rgba(255,255,255,.45); --amber:#d68155; --amber2:#b9683f; }
     *{ box-sizing:border-box; }
     html,body{ margin:0; height:100%; }
     body{
@@ -44,9 +44,9 @@
       width:54px; height:54px; flex-shrink:0; border-radius:50%; border:none; cursor:pointer;
       background:linear-gradient(135deg, var(--amber), var(--amber2)); color:#1a1206;
       font-size:20px; display:flex; align-items:center; justify-content:center;
-      box-shadow:0 8px 22px rgba(244,164,67,.35); transition:transform .12s, box-shadow .12s;
+      box-shadow:0 8px 22px rgba(214,129,85,.35); transition:transform .12s, box-shadow .12s;
     }
-    .play-btn:hover{ transform:scale(1.05); box-shadow:0 10px 28px rgba(244,164,67,.45); }
+    .play-btn:hover{ transform:scale(1.05); box-shadow:0 10px 28px rgba(214,129,85,.45); }
     .play-btn:active{ transform:scale(.97); }
     .seek-wrap{ flex:1; min-width:0; }
     .times{ display:flex; justify-content:space-between; font-size:11px; color:var(--muted);
@@ -74,7 +74,7 @@
       font-size:13px; font-weight:700; padding:9px 16px; border-radius:10px; cursor:pointer;
       font-family:inherit; transition:background .12s, border-color .12s; white-space:nowrap;
     }
-    .dl-btn:hover{ background:rgba(244,164,67,.14); border-color:rgba(244,164,67,.4); color:var(--amber); }
+    .dl-btn:hover{ background:rgba(214,129,85,.14); border-color:rgba(214,129,85,.4); color:var(--amber); }
     .dl-btn:disabled{ opacity:.6; cursor:default; }
 
     .foot{ margin-top:24px; font-size:11px; color:rgba(255,255,255,.28); text-align:center; }

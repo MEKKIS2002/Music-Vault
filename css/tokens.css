@@ -13,41 +13,41 @@
 
 :root{
   /* ── Grunnflater ────────────────────────────────────────────────────── */
-  --bg:              #090806;   /* appens bunn */
-  --surface-1:       rgba(255,255,255,.028);  /* panel / kort */
-  --surface-2:       rgba(255,255,255,.055);  /* hevet: input, hover */
-  --surface-3:       rgba(255,255,255,.085);  /* aktiv / trykket */
-  --surface-sunken:  rgba(0,0,0,.22);         /* innfelt: kodefelt, spor */
+  --bg:              #181615;   /* appens bunn (Studio × Platebutikken) */
+  --surface-1:       #211d1a;   /* panel / kort  (= --panel) */
+  --surface-2:       #2a231e;   /* hevet: hover  (= --raised) */
+  --surface-3:       #33291f;   /* aktiv / trykket */
+  --surface-sunken:  #141210;   /* innfelt: felt, bølgeform */
 
   /* ── Linjer ─────────────────────────────────────────────────────────── */
   /* Én hårstrek til alt. --line-strong kun der noe MÅ avgrenses tydelig. */
-  --line:            rgba(255,255,255,.07);
-  --line-strong:     rgba(255,255,255,.13);
+  --line:            #40362f;
+  --line-strong:     #897567;   /* = --border-control */
   --border:          var(--line);   /* bakoverkompat. med eksisterende CSS */
 
   /* ── Tekst ──────────────────────────────────────────────────────────── */
-  --text:            #f4ede4;
-  --muted:           #b9aa97;
-  --faint:           rgba(244,237,228,.6);   /* 6.4:1 mot --bg (var .42 = 3.6:1, under WCAG AA) */
+  --text:            #f4eadc;
+  --muted:           #bfb2a6;
+  --faint:           #a89a8d;   /* 6.4:1 mot --bg (var .42 = 3.6:1, under WCAG AA) */
 
   /* ── Aksent (vinyl/amber-temaet) ────────────────────────────────────── */
-  --accent:          #df7f22;
-  --accent2:         #ffba5e;
-  --accent-soft:     rgba(223,127,34,.14);
-  --accent-line:     rgba(255,186,94,.34);
-  --gold:            #f3c56a;
+  --accent:          #d68155;
+  --accent2:         #f0a579;   /* = --accent-text */
+  --accent-soft:     #39271e;
+  --accent-line:     rgba(214,129,85,.55);
+  --gold:            #f0a579;
 
   /* ── Status ─────────────────────────────────────────────────────────── */
-  --ok:              #34d399;
-  --warn:            #fbbf24;
-  --danger:          #fb7185;
-  --info:            #60a5fa;
+  --ok:              #a6be8b;
+  --warn:            #f0a579;
+  --danger:          #ffaaa3;
+  --info:            #bfb2a6;
 
   /* ── Radius: tre trinn, ikke atten ──────────────────────────────────── */
-  --r-flat:          0;       /* store flater: paneler, kort, cover */
+  --r-flat:          12px;    /* store flater: paneler, kort, cover */
   --r-sm:            8px;     /* kontroller: knapper, input, små felt */
   --r-pill:          999px;   /* chips, merker, runde knapper */
-  --radius:          var(--r-flat);   /* bakoverkompat. */
+  --radius:          8px;     /* kontroller (som ny stil) */
 
   /* ── Skygge: kun på det som svever ──────────────────────────────────── */
   --shadow-none:     none;
@@ -74,16 +74,34 @@
   --fs-xl:   28px;   /* seksjonstittel */
   --fs-2xl:  40px;   /* sidetittel */
 
-  --fw-normal: 500;
+  --fw-normal: 400;
   --fw-medium: 600;
-  --fw-bold:   800;
+  --fw-bold:   700;
 
   --lh-tight: 1.15;
   --lh-base:  1.55;
 
-  --font-ui:   system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --font-mono: ui-monospace,SFMono-Regular,Menlo,monospace;
-  --font-display: Georgia,"Times New Roman",serif;
+  --font-ui:   "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono: var(--font-ui);   /* ny stil: metadata i DM Sans */
+  --font-display: "DM Serif Text",Georgia,"Times New Roman",serif;
+
+  /* ── Studio × Platebutikken (ny stil/music-vault.css) ──────────────── */
+  --sidebar:        #141210;
+  --panel:          #211d1a;
+  --raised:         #2a231e;
+  --border-control: #897567;
+  --accent-text:    #f0a579;
+  --on-accent:      #21130e;
+  --done:           #a6be8b;
+  --error:          #ffaaa3;
+  --display:        var(--font-display);
+  --body:           var(--font-ui);
+  --radius-panel:   12px;
+  --space-1: .5rem;  --space-2: .75rem;  --space-3: 1rem;  --space-4: 1.5rem;  --space-5: 2rem;
+  --sidebar-width:  13.75rem;
+  --player-height:  4.75rem;
+  --page-pad:       clamp(1rem, 2.6vw, 2.75rem);
+  --focus-ring:     0 0 0 2px var(--bg), 0 0 0 4px var(--accent-text);
 
   /* ── Bevegelse ──────────────────────────────────────────────────────── */
   --ease:      cubic-bezier(.22,.68,0,1);

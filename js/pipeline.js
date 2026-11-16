@@ -19,17 +19,17 @@
   const FLOW = [
     { key: 'idea',    label: 'Idé',          color: '#8b8794' },
     { key: 'writing', label: 'Skriving',     color: '#a78bfa' },
-    { key: 'record',  label: 'Innspilling',  color: '#60a5fa' },
-    { key: 'mix',     label: 'Mixing',       color: '#f4a443' },
-    { key: 'master',  label: 'Mastering',    color: '#fbbf24' },
-    { key: 'done',    label: 'Ferdig',       color: '#34d399' },
+    { key: 'record',  label: 'Innspilling',  color: '#bfb2a6' },
+    { key: 'mix',     label: 'Mixing',       color: '#d68155' },
+    { key: 'master',  label: 'Mastering',    color: '#f0a579' },
+    { key: 'done',    label: 'Ferdig',       color: '#a6be8b' },
   ];
 
   // Board buckets (coarse, drag & drop)
   const BOARD = [
     { id: 'todo',       label: 'Ikke startet', color: 'rgba(255,255,255,.05)' },
-    { id: 'inprogress', label: 'I arbeid',     color: 'rgba(244,164,67,.10)'  },
-    { id: 'done',       label: 'Ferdig',       color: 'rgba(52,211,153,.10)'  },
+    { id: 'inprogress', label: 'I arbeid',     color: 'rgba(214,129,85,.10)'  },
+    { id: 'done',       label: 'Ferdig',       color: 'rgba(166,190,139,.10)'  },
   ];
 
   const ALBUM_STATUS = ['Idé', 'Skriving', 'Innspilling', 'Mixing', 'Mastering', 'Klar for release'];
@@ -41,7 +41,7 @@
   function clamp(n) { return Math.max(0, Math.min(100, Number(n) || 0)); }
   // Felles statusfarger: ikke startet = nøytral, i arbeid = oransje, ferdig = grønn.
   // Rødt er forbeholdt feil og destruktive handlinger (ikke «lav prosent»).
-  function pctColor(p){ return p >= 100 ? '#34d399' : p > 0 ? '#f4a443' : 'rgba(244,237,228,.6)'; }
+  function pctColor(p){ return p >= 100 ? '#a6be8b' : p > 0 ? '#d68155' : 'rgba(244,234,220,.6)'; }
 
   function hasAudio(b)  { return !!(b.audio_url || b.url); }
   function hasLyrics(b) { return (b.lyricSections||[]).some(s => s && s.text && s.text.trim()) || !!(b.lyrics||'').trim(); }

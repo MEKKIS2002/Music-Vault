@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Text:ital@0;1&display=swap">
   <link rel="icon" type="image/png" sizes="256x256" href="assets/favicon.png">
   <!-- Hjem-skjerm / PWA. Gjør lagringen mye mer stabil på iOS (Safaris
        7-dagers sletting av localStorage treffer ikke installerte web-apper
@@ -68,27 +71,28 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202611150001">
-  <link rel="stylesheet" href="css/icons.css?v=202611150030">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202611150004">
-  <link rel="stylesheet" href="css/pipeline.css?v=202611150001">
-  <link rel="stylesheet" href="css/main.css?v=202611150001">
-  <link rel="stylesheet" href="css/ui.css?v=202611150001">
-  <link rel="stylesheet" href="css/track-cards.css?v=202611150001">
-  <link rel="stylesheet" href="css/archive.css?v=202611150001">
-  <link rel="stylesheet" href="css/mixtape.css?v=202611150001">
-  <link rel="stylesheet" href="css/docs.css?v=202611150001">
-  <link rel="stylesheet" href="css/player.css?v=202611150001">
+  <link rel="stylesheet" href="css/tokens.css?v=202611160002">
+  <link rel="stylesheet" href="css/icons.css?v=202611160002">
+  <link rel="stylesheet" href="css/lyriclab.css?v=202611160002">
+  <link rel="stylesheet" href="css/pipeline.css?v=202611160002">
+  <link rel="stylesheet" href="css/main.css?v=202611160002">
+  <link rel="stylesheet" href="css/ui.css?v=202611160002">
+  <link rel="stylesheet" href="css/track-cards.css?v=202611160002">
+  <link rel="stylesheet" href="css/archive.css?v=202611160002">
+  <link rel="stylesheet" href="css/mixtape.css?v=202611160002">
+  <link rel="stylesheet" href="css/docs.css?v=202611160002">
+  <link rel="stylesheet" href="css/player.css?v=202611160002">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202611150003">
+  <link rel="stylesheet" href="css/refine.css?v=202611160002">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611150001">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=202611150030">
-  <link rel="stylesheet" href="css/mobile.css?v=202611150010">
+  <link rel="stylesheet" href="css/system.css?v=202611160002">
+  <link rel="stylesheet" href="css/mobile.css?v=202611160002">
+  <link rel="stylesheet" href="css/studio.css?v=202611160020">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -116,7 +120,7 @@ AKTIVE BRUKERE:
 <div id="lockScreen" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0c0b">
 
   <!-- Ambient gradient - subtle -->
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(244,164,67,.07),transparent 70%),radial-gradient(ellipse 40% 50% at 80% 100%,rgba(124,58,237,.04),transparent 70%);pointer-events:none"></div>
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(214,129,85,.07),transparent 70%),radial-gradient(ellipse 40% 50% at 80% 100%,rgba(214,129,85,.04),transparent 70%);pointer-events:none"></div>
 
   <!-- Spinning vinyl background — real PNG -->
   <div id="lockVinyl" style="position:absolute;width:min(780px,140vw);height:min(780px,140vw);top:50%;left:50%;pointer-events:none;border-radius:50%;overflow:hidden">
@@ -126,33 +130,33 @@ AKTIVE BRUKERE:
   <!-- Login card -->
   <div id="lockCard" style="position:relative;z-index:2;width:min(360px,90vw);display:grid;gap:0;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
     <div style="text-align:center;margin-bottom:40px">
-      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,164,67,.7);font-family:system-ui;margin-bottom:12px">Music Vault</div>
-      <div style="font-size:38px;font-weight:900;letter-spacing:-.06em;color:#f4ede4;line-height:1;font-family:Georgia,serif">Din musikk.<br>Din vault.</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(214,129,85,.7);font-family:system-ui;margin-bottom:12px">Music Vault</div>
+      <div style="font-size:38px;font-weight:900;letter-spacing:-.06em;color:#f4eadc;line-height:1;font-family:Georgia,serif">Din musikk.<br>Din vault.</div>
     </div>
 
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);padding:28px;display:grid;gap:12px;backdrop-filter:blur(24px)">
       <input id="adminUsername" type="text" placeholder="Brukernavn eller e-post" autocomplete="username"
         onkeydown="if(event.key==='Enter')document.getElementById('adminPassword').focus()"
-        style="background:rgba(20,16,12,.8);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.8) inset;-webkit-text-fill-color:#f4ede4"
-        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        style="background:rgba(33,29,26,.8);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.8) inset;-webkit-text-fill-color:#f4eadc"
+        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
       />
       <input id="adminPassword" type="password" placeholder="Passord" autocomplete="current-password"
         onkeydown="if(event.key==='Enter')loginWithUsername()"
-        style="background:rgba(20,16,12,.8);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.8) inset;-webkit-text-fill-color:#f4ede4"
-        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        style="background:rgba(33,29,26,.8);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.8) inset;-webkit-text-fill-color:#f4eadc"
+        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
       />
       <button id="lockLoginBtn" onclick="loginWithUsername()"
         onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
-        style="background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:14px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
+        style="background:linear-gradient(135deg,#d68155,#b9683f);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:14px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
       >Logg inn</button>
-      <div id="lockError" style="color:#fb7185;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px;letter-spacing:.01em"></div>
+      <div id="lockError" style="color:#ffaaa3;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px;letter-spacing:.01em"></div>
     </div>
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
       <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
-      <div style="font-size:10px;color:rgba(244,164,67,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v4.1</div>
+      <div style="font-size:10px;color:rgba(214,129,85,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v5.0</div>
     </div>
     <div style="text-align:center;margin-top:16px">
       <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
@@ -162,54 +166,54 @@ AKTIVE BRUKERE:
   <!-- REGISTER CARD -->
   <div id="registerCard" style="position:relative;z-index:2;width:min(380px,90vw);display:none;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
     <div style="text-align:center;margin-bottom:28px">
-      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,164,67,.7);font-family:system-ui;margin-bottom:10px">Music Vault</div>
-      <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:#f4ede4;line-height:1.1;font-family:Georgia,serif">Opprett konto</div>
+      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(214,129,85,.7);font-family:system-ui;margin-bottom:10px">Music Vault</div>
+      <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:#f4eadc;line-height:1.1;font-family:Georgia,serif">Opprett konto</div>
     </div>
 
     <!-- Package picker -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-      <div class="pkg-card" data-pkg="artist" onclick="selectPkg(this)" style="border:1px solid rgba(244,164,67,.5);background:rgba(244,164,67,.08);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4a443;margin-bottom:4px"><span class="ic ic-mic" aria-hidden="true"></span> Artist</div>
+      <div class="pkg-card" data-pkg="artist" onclick="selectPkg(this)" style="border:1px solid rgba(214,129,85,.5);background:rgba(214,129,85,.08);cursor:pointer;padding:12px;transition:all .15s">
+        <div style="font-size:13px;font-weight:800;color:#d68155;margin-bottom:4px"><span class="ic ic-mic" aria-hidden="true"></span> Artist</div>
         <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Beats · Mixtapes<br>Albumer · Lyric Lab</div>
       </div>
       <div class="pkg-card" data-pkg="pro" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px"><span class="ic ic-bolt" aria-hidden="true"></span> PRO</div>
+        <div style="font-size:13px;font-weight:800;color:#f4eadc;margin-bottom:4px"><span class="ic ic-bolt" aria-hidden="true"></span> PRO</div>
         <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i Artist<br>+ Pipeline · AI · Stats</div>
       </div>
       <div class="pkg-card" data-pkg="label" onclick="selectPkg(this)" style="border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:#f4ede4;margin-bottom:4px"><span class="ic ic-tag" aria-hidden="true"></span> Label</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i PRO<br><span style="color:rgba(244,164,67,.6)">Krever invitasjonskode</span></div>
+        <div style="font-size:13px;font-weight:800;color:#f4eadc;margin-bottom:4px"><span class="ic ic-tag" aria-hidden="true"></span> Label</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.45);font-family:system-ui;line-height:1.4">Alt i PRO<br><span style="color:rgba(214,129,85,.6)">Krever invitasjonskode</span></div>
       </div>
     </div>
 
     <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);padding:24px;display:grid;gap:10px">
       <input id="regUsername" type="text" placeholder="Brukernavn"
-        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
-        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        style="background:rgba(33,29,26,.85);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.85) inset;-webkit-text-fill-color:#f4eadc"
+        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
       />
       <input id="regEmail" type="email" placeholder="E-post"
-        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
-        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        style="background:rgba(33,29,26,.85);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.85) inset;-webkit-text-fill-color:#f4eadc"
+        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
       />
       <input id="regPassword" type="password" placeholder="Passord (min. 6 tegn)"
-        style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
-        onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-        onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+        style="background:rgba(33,29,26,.85);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.85) inset;-webkit-text-fill-color:#f4eadc"
+        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
       />
       <div id="regInviteWrap" style="display:none">
         <input id="regInvite" type="text" placeholder="Invitasjonskode (LABEL-XXXXXXXX)"
-          style="background:rgba(20,16,12,.85);border:none;border-bottom:2px solid rgba(244,164,67,.3);color:#f4ede4;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(20,16,12,.85) inset;-webkit-text-fill-color:#f4ede4"
-          onfocus="this.style.borderBottomColor='rgba(244,164,67,.8)'"
-          onblur="this.style.borderBottomColor='rgba(244,164,67,.3)'"
+          style="background:rgba(33,29,26,.85);border:none;border-bottom:2px solid rgba(214,129,85,.3);color:#f4eadc;font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgba(33,29,26,.85) inset;-webkit-text-fill-color:#f4eadc"
+          onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
+          onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
         />
       </div>
       <button id="regBtn" onclick="registerUser()"
         onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
-        style="background:linear-gradient(135deg,#f4a443,#cb6e1a);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:13px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
+        style="background:linear-gradient(135deg,#d68155,#b9683f);border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:13px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
       >Opprett konto</button>
-      <div id="regError" style="color:#fb7185;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px"></div>
+      <div id="regError" style="color:#ffaaa3;font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px"></div>
     </div>
 
     <div style="text-align:center;margin-top:14px">
@@ -245,10 +249,10 @@ AKTIVE BRUKERE:
 #lockScreen input:focus,
 #lockScreen input:hover {
   border-radius: 0 !important;
-  background: rgba(20,16,12,.85) !important;
-  -webkit-box-shadow: 0 0 0 100px rgba(20,16,12,.85) inset !important;
-  -webkit-text-fill-color: #f4ede4 !important;
-  color: #f4ede4 !important;
+  background: rgba(33,29,26,.85) !important;
+  -webkit-box-shadow: 0 0 0 100px rgba(33,29,26,.85) inset !important;
+  -webkit-text-fill-color: #f4eadc !important;
+  color: #f4eadc !important;
 }
 #lockLoginBtn {
   border-radius: 0 !important;
@@ -276,7 +280,7 @@ AKTIVE BRUKERE:
 <header class="mv-header" id="mainTabs">
   <!-- Logo / brand -->
   <div class="mv-header-brand">
-    <span class="mv-logo">Music Vault</span>
+    <span class="mv-logo" role="link" tabindex="0" aria-label="Music Vault – gå til Hjem"><span class="ic ic-wave" aria-hidden="true"></span><span class="mv-logo-txt">Music Vault</span></span>
     <div id="mvSyncDot" class="mv-sync-dot" title="Synket"></div>
   </div>
 
@@ -286,18 +290,14 @@ AKTIVE BRUKERE:
     <button class="tab-btn" data-tab="beats"><span class="ic ic-music" aria-hidden="true"></span> Beats</button>
     <button class="tab-btn" data-tab="docs"><span class="ic ic-file" aria-hidden="true"></span> Docs</button>
     <button class="tab-btn" data-tab="mixtapes"><span class="ic ic-cassette" aria-hidden="true"></span> Mixtapes</button>
-    <button class="tab-btn" data-tab="albums"><span class="ic ic-folder" aria-hidden="true"></span> Albumer</button>
-    <button class="tab-btn" data-tab="pipeline"><span class="ic ic-chart" aria-hidden="true"></span> Pipeline</button>
+    <button class="tab-btn" data-tab="albums"><span class="ic ic-disc" aria-hidden="true"></span> Albumer</button>
+    <button class="tab-btn" data-tab="pipeline"><span class="ic ic-board" aria-hidden="true"></span> Pipeline</button>
     <button class="tab-btn" data-tab="lyriclab"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
-    <div class="mv-more-wrap">
-      <button type="button" class="mv-more-btn" id="mvMoreBtn" aria-haspopup="true" aria-expanded="false">⋯ Mer ▾</button>
-      <div class="mv-more-menu" id="mvMoreMenu" role="menu">
-        <button class="tab-btn" data-tab="archive"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>
-        <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none"><span class="ic ic-tag" aria-hidden="true"></span> Label</button>
-        <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none"><span class="ic ic-sliders" aria-hidden="true"></span> Admin</button>
-        <button class="tab-btn" data-tab="integrations"><span class="ic ic-plug" aria-hidden="true"></span> Integrasjoner</button>
-      </div>
-    </div>
+    <div class="mv-nav-sep" role="separator" aria-hidden="true"></div>
+    <button class="tab-btn" data-tab="archive"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>
+    <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none"><span class="ic ic-tag" aria-hidden="true"></span> Label</button>
+    <button class="tab-btn admin-tab-hidden" data-tab="adminpanel" style="display:none"><span class="ic ic-user" aria-hidden="true"></span> Admin</button>
+    <button class="tab-btn" data-tab="integrations"><span class="ic ic-plug" aria-hidden="true"></span> Integrasjoner</button>
   </nav>
 
   <!-- User controls (filled by lock.js) -->
@@ -574,12 +574,30 @@ AKTIVE BRUKERE:
     <span class="mv-mob-lbl">Mixtapes</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
-    <span class="mv-mob-icon"><span class="ic ic-folder" aria-hidden="true"></span></span>
+    <span class="mv-mob-icon"><span class="ic ic-disc" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Album</span>
+  </button>
+  <button class="mv-mob-btn" id="mvMobMenuBtn" type="button" aria-controls="mainTabs" aria-expanded="false" onclick="mvToggleNavDrawer()">
+    <span class="mv-mob-icon"><span class="ic ic-menu" aria-hidden="true"></span></span>
+    <span class="mv-mob-lbl">Meny</span>
   </button>
 </nav>
 
 <script>
+// Mobil: «Meny» åpner venstremenyens faner som en skuff. Samme .tab-btn-knapper,
+// så tilgang (Label/Admin) og navigasjon er nøyaktig som på desktop.
+window.mvToggleNavDrawer = function(force) {
+  const open = typeof force === "boolean" ? force : !document.body.classList.contains("mv-nav-open");
+  document.body.classList.toggle("mv-nav-open", open);
+  document.getElementById("mvMobMenuBtn")?.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) document.querySelector(".mv-tabs .tab-btn.active, .mv-tabs .tab-btn")?.focus();
+};
+document.addEventListener("click", e => {
+  if (!document.body.classList.contains("mv-nav-open")) return;
+  if (e.target.closest(".mv-tabs .tab-btn")) { mvToggleNavDrawer(false); return; }
+  if (!e.target.closest(".mv-tabs, #mvMobMenuBtn")) mvToggleNavDrawer(false);
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.body.classList.contains("mv-nav-open")) { mvToggleNavDrawer(false); document.getElementById("mvMobMenuBtn")?.focus(); } });
 window.mvMobileTab = function(tab) {
   const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
   if (btn) btn.click();
@@ -816,14 +834,14 @@ window.addEventListener('load', () => {
 <div id="deleteConfirmModal" class="modal">
   <div class="modal-card modal-sm" style="max-width:400px">
     <div class="modal-hd">
-      <div class="modal-hd-left"><h2 id="deleteConfirmTitle" style="font-size:16px;color:#fb7185">Bekreft sletting</h2></div>
+      <div class="modal-hd-left"><h2 id="deleteConfirmTitle" style="font-size:16px;color:#ffaaa3">Bekreft sletting</h2></div>
       <div class="modal-hd-right"><button class="close-btn" aria-label="Lukk" onclick="closeModal('deleteConfirmModal')">×</button></div>
     </div>
     <div style="padding:20px 28px 26px;display:grid;gap:14px">
       <p class="hint" id="deleteConfirmMsg" style="font-size:14px;line-height:1.6"></p>
       <p class="hint">Skriv <strong style="color:var(--text)">slett</strong> for å bekrefte:</p>
       <input id="deleteConfirmInput" type="text" placeholder="slett" style="text-align:center;font-size:15px;letter-spacing:2px" oninput="document.getElementById('deleteConfirmBtn').disabled=this.value.toLowerCase()!=='slett'"/>
-      <button class="primary-btn" id="deleteConfirmBtn" disabled onclick="executeDelete()" style="background:linear-gradient(135deg,#ef4444,#b91c1c);opacity:.5;transition:opacity .2s">Slett permanent</button>
+      <button class="primary-btn" id="deleteConfirmBtn" disabled onclick="executeDelete()" style="background:linear-gradient(135deg,#ffaaa3,#b91c1c);opacity:.5;transition:opacity .2s">Slett permanent</button>
     </div>
   </div>
 </div>
@@ -938,24 +956,24 @@ window.addEventListener('load', () => {
   <script>window.R2_WORKER_URL = 'https://beat-vault.marcus-aas-mekiassen.workers.dev';</script>
 
   <!-- App scripts (load order matters) -->
-  <script src="js/audio-compress.js?v=202611150030"></script>
-  <script src="js/lock.js?v=202611150031"></script>
-  <script src="js/pipeline.js?v=202611150030"></script>
-  <script src="js/lyriclab.js?v=202611150030"></script>
-  <script src="js/audio-compress.js?v=202611150030"></script>
-  <script src="js/audio-compress.js?v=202611150030"></script>
-  <script src="js/app.js?v=202611150030"></script>
+  <script src="js/audio-compress.js?v=202611160002"></script>
+  <script src="js/lock.js?v=202611160002"></script>
+  <script src="js/pipeline.js?v=202611160002"></script>
+  <script src="js/lyriclab.js?v=202611160014"></script>
+  <script src="js/audio-compress.js?v=202611160002"></script>
+  <script src="js/audio-compress.js?v=202611160002"></script>
+  <script src="js/app.js?v=202611160002"></script>
   <script src="js/track-cards.js?v=202611150030"></script>
-  <script src="js/r2-storage.js?v=202611150030"></script>
-  <script src="js/archive.js?v=202611150030"></script>
+  <script src="js/r2-storage.js?v=202611160002"></script>
+  <script src="js/archive.js?v=202611160016"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202611150030"></script>
-  <script src="js/beats-tab.js?v=202611150030"></script>
-  <script src="js/supabase.js?v=202611150030"></script>
+  <script src="js/changelog.js?v=202611160021"></script>
+  <script src="js/beats-tab.js?v=202611160002"></script>
+  <script src="js/supabase.js?v=202611160002"></script>
   <script src="js/bpm.js?v=202611150004"></script>
-  <script src="js/db.js?v=202611150030"></script>
-  <script src="js/mixtape-share.js?v=202611150030"></script>
-  <script src="js/notifications.js?v=202611150030"></script>
+  <script src="js/db.js?v=202611160002"></script>
+  <script src="js/mixtape-share.js?v=202611160002"></script>
+  <script src="js/notifications.js?v=202611160002"></script>
   <script src="js/mini-player.js?v=202611150010"></script>
 
     <!-- LYRIC LAB TAB -->
@@ -967,10 +985,10 @@ window.addEventListener('load', () => {
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
   <script src="js/packages.js?v=202605251400"></script>
-  <script src="js/label.js?v=202611150030"></script>
-  <script src="js/admin-panel.js?v=202611150030"></script>
-  <script src="js/share-song.js?v=202611150030"></script>
-  <script src="js/docs.js?v=202611150030"></script>
+  <script src="js/label.js?v=202611160019"></script>
+  <script src="js/admin-panel.js?v=202611160002"></script>
+  <script src="js/share-song.js?v=202611160002"></script>
+  <script src="js/docs.js?v=202611160018"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>
