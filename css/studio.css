@@ -1424,3 +1424,115 @@ html body .tab-view .lbl-panel-title{ font: 400 1.7rem/1.1 var(--display) !impor
   html body .lbl-hero-info > .mv-eyebrow{ align-self: end; margin: 0; }
   html body .tab-view .lbl-panel-title{ font-size: 1.45rem !important; }
 }
+
+/* ── 29. Label: profil (navn/bilde/beskrivelse) og ny artistside ─────────── */
+html body .lbl-v2 .label-topbar{ min-height: 0 !important; }
+html body .lbl-v2 .label-topbar:not(:has(#labelOverviewBtn:not([style*="none"]))){ display: none !important; }
+html body .lbl-v2 .label-topbar{ justify-content: flex-start !important; }
+
+/* Bildet i hodet er en knapp som åpner redigering */
+html body button.lbl-hero-cover{ border: 0; padding: 1rem; cursor: pointer; text-align: left; color: inherit; font: inherit; }
+html body .lbl-cover-edit{
+  position: absolute; left: .6rem; bottom: .6rem; display: inline-flex; align-items: center; gap: .35rem;
+  padding: .3rem .6rem; border-radius: var(--radius); background: rgba(20,16,13,.78); color: var(--text);
+  font: 600 .8rem var(--body); opacity: 0; transition: opacity var(--dur-fast);
+}
+html body button.lbl-hero-cover:hover .lbl-cover-edit, html body button.lbl-hero-cover:focus-visible .lbl-cover-edit{ opacity: 1; }
+
+/* Redigeringsdialog */
+html body .lbl-modal{ position: fixed; inset: 0; z-index: 9200; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(14,11,9,.72); backdrop-filter: blur(4px); }
+html body .lbl-modal.open{ display: flex; }
+html body .lbl-modal-card{ width: min(34rem, 100%); max-height: 90vh; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-modal); padding: var(--space-4); }
+html body .lbl-modal-hd{ display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+html body .lbl-modal-hd h2{ font: 400 1.8rem/1.1 var(--display) !important; margin: 0 !important; }
+html body .lbl-profile-form{ display: flex; flex-direction: column; gap: var(--space-3); }
+html body .lbl-profile-pic{ display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+html body .lbl-profile-preview{ width: 6.5rem; height: 6.5rem; border-radius: var(--radius); overflow: hidden; background: var(--raised); display: grid; place-items: center; box-shadow: inset 0 0 0 1px rgba(244,234,220,.15); font: 400 2rem var(--display); color: var(--muted); flex: none; }
+html body .lbl-profile-preview img{ width: 100%; height: 100%; object-fit: cover; }
+html body .lbl-link-btn{ background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: 500 .88rem var(--body); padding: .3rem; }
+html body .lbl-link-btn:hover{ color: var(--text); }
+html body .lbl-field{ display: grid; gap: .4rem; font: 600 .9rem var(--body); color: var(--text); }
+html body .lbl-field input, html body .lbl-field textarea{ font: 400 1rem var(--body) !important; padding: .6rem .75rem !important; }
+html body .lbl-modal-actions{ display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+html body .lbl-modal-actions .lbl-muted{ margin-right: auto; }
+
+/* Artistside: hode */
+html body .lbl-artist-hero{ display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: var(--space-4); align-items: center; margin-bottom: var(--space-4); }
+html body .lbl-artist-avatar{ width: clamp(5rem, 8vw, 7rem); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font: 400 clamp(1.8rem, 3vw, 2.6rem) var(--display); box-shadow: inset 0 0 0 1px rgba(244,234,220,.15); }
+html body .lbl-artist-head .lbl-hero-name{ margin: .15rem 0 .2rem !important; }
+html body .lbl-artist-head .lbl-muted{ margin: 0; }
+html body .lbl-artist-actions{ display: flex; flex-wrap: wrap; gap: var(--space-1); justify-content: flex-end; }
+html body .lbl-artist-stats{ margin-bottom: var(--space-4) !important; }
+html body .lbl-stat-prog > div{ min-width: 9rem; }
+html body .lbl-bar{ display: block; height: 4px; border-radius: 2px; background: var(--raised); overflow: hidden; margin-top: .35rem; }
+html body .lbl-bar > span{ display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+html body .lbl-main-col{ display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+
+/* Albumkort */
+html body .lbl-album-list{ display: flex; flex-direction: column; gap: var(--space-3); }
+html body .lbl-album{ border: 1px solid var(--line); border-radius: var(--radius); padding: var(--space-3); background: transparent; }
+html body .lbl-album.is-priority{ border-color: #5a3a2a; box-shadow: inset 3px 0 var(--accent); }
+html body .lbl-album-top{ display: grid; grid-template-columns: 4.5rem minmax(0,1fr) auto; gap: var(--space-3); align-items: center; }
+html body .lbl-album-cover{ display: block; width: 4.5rem; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--raised); box-shadow: inset 0 0 0 1px rgba(244,234,220,.15); }
+html body .lbl-album-cover.is-small{ width: 2.6rem; flex: none; }
+html body .lbl-album-cover img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+html body .lbl-album-info{ min-width: 0; display: flex; flex-direction: column; gap: .2rem; }
+html body .lbl-album-title{ display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+html body .lbl-album-title b{ font: 600 1.1rem/1.25 var(--body); color: var(--text); }
+html body .lbl-prio-badge{ display: inline-flex; align-items: center; gap: .3rem; padding: .1rem .5rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font: 600 .75rem var(--body); }
+html body .lbl-album-meta{ color: var(--muted); font-size: .88rem; }
+html body .lbl-album-prog{ display: flex; align-items: center; gap: .6rem; color: var(--muted); font-size: .82rem; max-width: 20rem; }
+html body .lbl-album-prog .lbl-bar{ flex: 1; margin: 0; }
+html body .lbl-album-controls{ display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+html body .lbl-ctl{ display: grid; gap: .25rem; font: 600 .72rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+html body .lbl-ctl select, html body .lbl-ctl input{ width: auto !important; min-width: 9rem; height: 2.4rem !important; padding: 0 .7rem !important; font: 500 .9rem var(--body) !important; letter-spacing: 0; text-transform: none; color-scheme: dark; }
+html body .lbl-ctl select{ padding-right: 2rem !important; }
+html body .lbl-ctl-btn{ min-height: 2.4rem !important; height: 2.4rem !important; padding: 0 .8rem !important; font-size: .88rem !important; }
+html body .lbl-ctl-btn.active{ background: var(--accent-soft) !important; color: var(--accent-text) !important; border-color: var(--accent) !important; }
+
+/* Spor (utfoldbart) */
+html body .lbl-tracks, html body .lbl-mixtape{ margin-top: var(--space-2); }
+html body .lbl-tracks > summary, html body .lbl-mixtape > summary{
+  display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; cursor: pointer; list-style: none;
+  padding: .45rem .2rem; font: 600 .92rem var(--body); color: var(--text); border-radius: var(--radius);
+}
+html body .lbl-tracks > summary::-webkit-details-marker, html body .lbl-mixtape > summary::-webkit-details-marker{ display: none; }
+html body .lbl-tracks > summary::before, html body .lbl-mixtape > summary::before{ content: "›"; color: var(--muted); font-size: 1.1rem; transition: transform var(--dur-fast); display: inline-block; width: .8rem; }
+html body .lbl-tracks[open] > summary::before, html body .lbl-mixtape[open] > summary::before{ transform: rotate(90deg); }
+html body .lbl-tracks > summary .lbl-muted{ font-weight: 400; font-size: .84rem; margin: 0; }
+html body .lbl-mixtape{ border-bottom: 1px solid var(--line); margin: 0; padding: .2rem 0; }
+html body .lbl-mixtape:last-child{ border-bottom: 0; }
+html body .lbl-mixtape > summary b{ flex: 1; font-weight: 600; }
+html body .lbl-mixtape > summary .lbl-muted{ margin: 0; font-size: .85rem; }
+html body .lbl-track-list{ display: flex; flex-direction: column; padding: .2rem 0 .4rem; }
+html body .lbl-track{ display: grid; grid-template-columns: 2rem minmax(0,1fr) auto; align-items: center; gap: .6rem; padding: .45rem .3rem; border-bottom: 1px solid var(--line); }
+html body .lbl-track:last-child{ border-bottom: 0; }
+html body .lbl-track-n{ color: var(--faint); font-size: .82rem; text-align: right; }
+html body .lbl-track-main{ min-width: 0; display: flex; flex-direction: column; }
+html body .lbl-track-main b{ font: 600 .95rem var(--body); color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .lbl-track-main > span{ color: var(--muted); font-size: .8rem; }
+html body .lbl-stars{ color: var(--accent-text); letter-spacing: .05em; }
+html body .lbl-play{ width: 2.1rem; height: 2.1rem; border-radius: 50%; display: grid; place-items: center; border: 0; background: var(--raised); color: var(--text); cursor: pointer; }
+html body .lbl-play:hover{ background: var(--accent); color: var(--on-accent); }
+html body .lbl-play.is-empty{ background: transparent; color: var(--faint); cursor: default; }
+
+/* Notater */
+html body .lbl-private{ display: inline-flex; align-items: center; gap: .3rem; color: var(--muted); font-size: .8rem; }
+html body .lbl-notes{ width: 100%; min-height: 10rem; font: 400 .95rem/1.6 var(--body) !important; margin-bottom: var(--space-2); }
+html body .lbl-notes-actions{ display: flex; align-items: center; justify-content: flex-end; gap: var(--space-2); }
+html body .lbl-notes-actions .lbl-muted{ margin-right: auto; }
+
+@media (max-width: 768px){
+  html body .lbl-artist-hero{ grid-template-columns: auto minmax(0,1fr); gap: var(--space-3); }
+  html body .lbl-artist-actions{ grid-column: 1 / -1; justify-content: stretch; }
+  html body .lbl-artist-actions > *{ flex: 1 1 auto; justify-content: center; }
+  html body .lbl-album-top{ grid-template-columns: 3.4rem minmax(0,1fr); }
+  html body .lbl-album-cover{ width: 3.4rem; }
+  html body .lbl-album-top .lbl-status{ grid-column: 2; justify-self: start; }
+  html body .lbl-ctl{ flex: 1 1 45%; }
+  html body .lbl-ctl select, html body .lbl-ctl input{ width: 100% !important; min-width: 0; }
+  html body .lbl-ctl-btn{ flex: 1 1 auto; justify-content: center; }
+  html body .lbl-stat-prog{ flex-basis: 100%; margin-top: var(--space-2); border: 0; }
+}
+
+html body button.lbl-hero-cover{ border-radius: var(--radius) !important; width: auto !important; height: auto !important; min-height: 0 !important; aspect-ratio: 1 !important; box-shadow: inset 0 0 0 1px rgba(244,234,220,.15), 0 18px 40px rgba(0,0,0,.35) !important; background-color: transparent; }

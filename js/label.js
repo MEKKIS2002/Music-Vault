@@ -44,7 +44,6 @@
   function buildDashboardShell(){
     return `<div class="app"><div class="label-dashboard lbl-v2">
       <div class="label-topbar">
-        <h1 class="lbl-page-title">Label</h1>
         <div class="lbl-top-actions">
           <button class="ghost-btn label-invite-btn" onclick="window.labelShowOverview()" id="labelOverviewBtn">← Oversikt</button>
         </div>
@@ -212,8 +211,9 @@
     const upcoming = releases.filter(r=>r.release && r.release>=today).sort((x,y)=>x.release.localeCompare(y.release));
     const next = upcoming[0] || null;
 
-    const labelName = window._labelDisplayName || 'Label';
-    const heroCover = (releases.find(r=>r.priority&&r.cover)||releases.find(r=>r.cover)||{}).cover || '';
+    const prof = window._labelProfileData || {};
+    const labelName = window._labelDisplayName || 'Ditt label';
+    const heroCover = prof.cover || '';
 
     const artistRows = accepted.map((a,i)=>{
       const nm = a.profile?.username || a.artist_id?.slice(0,8) || '?';
@@ -232,11 +232,11 @@
 
     el.innerHTML = `
       <section class="lbl-hero">
-        <div class="lbl-hero-cover">${heroCover ? `<img src="${lblEsc(heroCover)}" alt="">` : ''}<span class="lbl-hero-mark">${lblEsc(labelName)}</span></div>
+        <button class="lbl-hero-cover" onclick="window.labelOpenProfileEdit()" title="Endre bilde og navn" aria-label="Endre labelbilde">${heroCover ? `<img src="${lblEsc(heroCover)}" alt="">` : ''}<span class="lbl-hero-mark">${lblEsc(labelName)}</span><span class="lbl-cover-edit"><span class="ic ic-image" aria-hidden="true"></span> Endre bilde</span></button>
         <div class="lbl-hero-info">
           <p class="mv-eyebrow">Label</p>
           <h2 class="lbl-hero-name">${lblEsc(labelName)}</h2>
-          <p class="lbl-hero-sub">${accepted.length ? 'Utgivelser og status for artistene på labelen.' : 'Inviter artister for å følge utgivelsene deres her.'}</p>
+          <p class="lbl-hero-sub">${prof.bio ? lblEsc(prof.bio) : (accepted.length ? 'Utgivelser og status for artistene på labelen.' : 'Inviter artister for å følge utgivelsene deres her.')}</p>
           <div class="lbl-stats">
             <div class="lbl-stat"><span class="ic ic-disc" aria-hidden="true"></span><div><b>${releases.length}</b><span>Utgivelser</span></div></div>
             <div class="lbl-stat"><span class="ic ic-user" aria-hidden="true"></span><div><b>${accepted.length}</b><span>Artister</span></div></div>
@@ -245,6 +245,7 @@
           <div class="lbl-hero-actions">
             <button class="primary-btn" onclick="window.labelOpenInvite()"><span class="ic ic-plus" aria-hidden="true"></span> Inviter artist</button>
             <button class="ghost-btn" onclick="window.labelShowFeed()"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitet</button>
+            <button class="ghost-btn" onclick="window.labelOpenProfileEdit()"><span class="ic ic-pen" aria-hidden="true"></span> Rediger profil</button>
           </div>
         </div>
       </section>
@@ -309,6 +310,73 @@
         <span class="lbl-rel-date">${r.release ? lblDate(r.release) : '–'}</span>
         <button class="lbl-icon-btn" onclick="event.stopPropagation();window.labelOpenComments('${lblEsc(r.id)}','${lblJs(r.title)}','${lblEsc(r.artistId)}')" title="Kommentarer" aria-label="Kommentarer til ${lblEsc(r.title)}"><span class="ic ic-chat" aria-hidden="true"></span></button>
       </div>`).join('');
+  };
+
+  // ── Rediger labelprofil (navn, beskrivelse, bilde) ─────────────────────────
+  // Lagres i label_profiles (id = label-brukerens id). Bildet skaleres ned til
+  // maks 600 px JPEG i nettleseren og lagres som data-URL i «cover».
+  function lblResizeImage(file, max){
+    return new Promise((res, rej)=>{
+      const r = new FileReader();
+      r.onerror = ()=>rej(new Error('Kunne ikke lese bildet'));
+      r.onload = ()=>{ const img = new Image(); img.onerror = ()=>rej(new Error('Ugyldig bilde'));
+        img.onload = ()=>{ const s = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement('canvas');
+          c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          res(c.toDataURL('image/jpeg', .85)); };
+        img.src = r.result; };
+      r.readAsDataURL(file);
+    });
+  }
+  window.labelOpenProfileEdit = function(){
+    const p = window._labelProfileData || {name:'',bio:'',cover:''};
+    let m = document.getElementById('lblProfileModal');
+    if(!m){ m = document.createElement('div'); m.id = 'lblProfileModal'; m.className = 'lbl-modal'; document.body.appendChild(m);
+      m.addEventListener('click', e=>{ if(e.target===m) window.labelCloseProfileEdit(); });
+      document.addEventListener('keydown', e=>{ if(e.key==='Escape' && m.classList.contains('open')) window.labelCloseProfileEdit(); }); }
+    m.dataset.cover = p.cover || '';
+    m.innerHTML = `<div class="lbl-modal-card" role="dialog" aria-modal="true" aria-labelledby="lblProfileTitle">
+        <div class="lbl-modal-hd"><h2 id="lblProfileTitle">Rediger label</h2><button class="lbl-icon-btn" onclick="window.labelCloseProfileEdit()" aria-label="Lukk">✕</button></div>
+        <div class="lbl-profile-form">
+          <div class="lbl-profile-pic">
+            <div class="lbl-profile-preview" id="lblProfilePreview">${p.cover?`<img src="${lblEsc(p.cover)}" alt="">`:`<span>${lblEsc((window._labelDisplayName||'?').slice(0,2).toUpperCase())}</span>`}</div>
+            <label class="ghost-btn lbl-pic-btn"><span class="ic ic-image" aria-hidden="true"></span> Velg bilde<input type="file" accept="image/*" hidden onchange="window.labelPickProfileImage(this)"></label>
+            <button class="lbl-link-btn" type="button" onclick="window.labelPickProfileImage(null)">Fjern bilde</button>
+          </div>
+          <label class="lbl-field">Navn på labelet<input id="lblProfileName" type="text" maxlength="60" value="${lblEsc(p.name||window._labelDisplayName||'')}" placeholder="F.eks. Soul Peak Records"></label>
+          <label class="lbl-field">Beskrivelse<textarea id="lblProfileBio" rows="3" maxlength="240" placeholder="Kort om labelet — sjanger, lyd og retning">${lblEsc(p.bio||'')}</textarea></label>
+          <div class="lbl-modal-actions"><span id="lblProfileStatus" class="lbl-muted"></span><button class="ghost-btn" onclick="window.labelCloseProfileEdit()">Avbryt</button><button class="primary-btn" onclick="window.labelSaveProfile()">Lagre</button></div>
+        </div>
+      </div>`;
+    m.classList.add('open');
+    setTimeout(()=>document.getElementById('lblProfileName')?.focus(), 30);
+  };
+  window.labelCloseProfileEdit = function(){ document.getElementById('lblProfileModal')?.classList.remove('open'); };
+  window.labelPickProfileImage = async function(input){
+    const m = document.getElementById('lblProfileModal'); const prev = document.getElementById('lblProfilePreview'); if(!m||!prev) return;
+    if(!input){ m.dataset.cover=''; prev.innerHTML = `<span>${lblEsc((window._labelDisplayName||'?').slice(0,2).toUpperCase())}</span>`; return; }
+    const f = input.files && input.files[0]; if(!f) return;
+    try{ const url = await lblResizeImage(f, 600); m.dataset.cover = url; prev.innerHTML = `<img src="${url}" alt="">`; }
+    catch(e){ const s=document.getElementById('lblProfileStatus'); if(s) s.textContent = e.message; }
+  };
+  window.labelSaveProfile = async function(){
+    const m = document.getElementById('lblProfileModal'); const st = document.getElementById('lblProfileStatus');
+    const name = (document.getElementById('lblProfileName')?.value||'').trim();
+    const bio  = (document.getElementById('lblProfileBio')?.value||'').trim();
+    const cover = m?.dataset.cover || null;
+    if(!name){ if(st) st.textContent = 'Labelet trenger et navn.'; return; }
+    if(st) st.textContent = 'Lagrer…';
+    try{
+      const token = await getToken(); const uid = await getUid();
+      const r = await fetch(`${SB_URL}/rest/v1/label_profiles?on_conflict=id`, { method:'POST',
+        headers:{...sbH(token),'Prefer':'resolution=merge-duplicates,return=minimal'},
+        body: JSON.stringify({ id:uid, name, bio:bio||null, cover }) });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      window._labelProfileData = { name, bio, cover:cover||'' }; window._labelDisplayName = name;
+      window._mvCurrentLabelName = name;
+      window.labelCloseProfileEdit();
+      if(typeof window.showToast==='function') window.showToast('Labelprofilen er lagret');
+      renderOverview(window._labelArtists||[]);
+    }catch(e){ if(st) st.textContent = 'Kunne ikke lagre ('+e.message+').'; }
   };
 
   // ── Søk/filter artister i sidebar ───────────────────────────────────────
@@ -378,22 +446,22 @@
     const artists = await loadArtists();
     window._labelArtists = artists;
 
-    // Hent label-navn
+    // Hent labelprofil (navn, beskrivelse, bilde). Uten eget navn: bruk brukernavnet.
     const uid = await getUid();
     const token = await getToken();
-    const lpRes = await fetch(`${SB_URL}/rest/v1/label_profiles?id=eq.${uid}&select=name`, {headers:sbH(token)});
-    if(lpRes.ok){
-      const lp = await lpRes.json();
-      const nameEl = document.getElementById('labelName');
-      if(lp[0]?.name) window._labelDisplayName = lp[0].name;
-      if(nameEl && lp[0]?.name) nameEl.textContent = lp[0].name;
-      else if(nameEl){
-        const profile = window._labelProfile;
-        if(!profile){
-          const pRes = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}&select=username`, {headers:sbH(token)});
-          if(pRes.ok){ const pd = await pRes.json(); if(pd[0]) window._labelDisplayName = pd[0].username; if(nameEl && pd[0]) nameEl.textContent = pd[0].username; }
-        }
-      }
+    window._labelProfileData = { name:'', bio:'', cover:'' };
+    try{
+      const lpRes = await fetch(`${SB_URL}/rest/v1/label_profiles?id=eq.${uid}&select=name,bio,cover`, {headers:sbH(token)});
+      const lp = lpRes.ok ? await lpRes.json() : [];
+      if(lp[0]) window._labelProfileData = { name:lp[0].name||'', bio:lp[0].bio||'', cover:lp[0].cover||'' };
+    }catch(e){}
+    window._labelDisplayName = window._labelProfileData.name;
+    if(!window._labelDisplayName){
+      try{
+        const pRes = await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${uid}&select=username`, {headers:sbH(token)});
+        const pd = pRes.ok ? await pRes.json() : [];
+        if(pd[0]?.username) window._labelDisplayName = pd[0].username;
+      }catch(e){}
     }
 
     if(!artists.length){
@@ -558,161 +626,108 @@
     const doneVals = beats.map(b => Number((b.metadata||{}).done || 0));
     const avgDone = doneVals.length ? Math.round(doneVals.reduce((a,b)=>a+b,0)/doneVals.length) : 0;
 
-    const statusBadge = (status) => {
-      const map = {'Master':'badge-master','Ferdig':'badge-ferdig','Mixing':'badge-mixing','Innspilling':'badge-mixing','Skriving':'badge-skriving','Idé':'badge-ide'};
-      return `<span class="label-badge ${map[status]||'badge-ide'}">${status||'Idé'}</span>`;
+    const STATUSES = ['Idé','Skriving','Innspilling','Mixing','Master','Ferdig'];
+    const fmtDur = sec => sec>0 ? Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0') : '';
+    const trackRow = (b, i) => {
+      const bm = b.metadata || {};
+      const bTitle = b.title || bm.name || 'Uten tittel';
+      const bDone = Number(bm.done || 0), bRating = Number(bm.rating || 0);
+      const dStr = fmtDur(Number(bm.duration||b.duration||0));
+      const hasAudio = !!(bm.audio_url||bm.url||b.audio_url);
+      return `<div class="lbl-track">
+        <span class="lbl-track-n">${String(i+1).padStart(2,'0')}</span>
+        <span class="lbl-track-main"><b>${lblEsc(bTitle)}</b><span>${bRating?'<span class="lbl-stars">'+'★'.repeat(Math.min(bRating,10))+'</span> · ':''}${bDone}% ferdig${dStr?' · '+dStr:''}</span></span>
+        ${hasAudio ? `<button class="lbl-play" onclick="window.labelPlayBeat('${lblEsc(b.id)}')" aria-label="Spill ${lblEsc(bTitle)}"><span class="ic ic-play" aria-hidden="true"></span></button>` : '<span class="lbl-play is-empty" title="Ingen lydfil">–</span>'}
+      </div>`;
     };
 
-    const STATUSES = ['Idé','Skriving','Innspilling','Mixing','Master','Ferdig'];
-
-    const albumRows = albums.map(a => {
+    const albumCards = albums.map(a => {
       const meta = a.metadata || {};
       const status = meta.status || a.status || 'Idé';
       const cover = meta.cover || '';
-      const albumBeatIds = albumBeatMap[a.id] || [];
-      const albumBeats = albumBeatIds.map(id => beatMap[id] || beats.find(b=>b.id===id)).filter(Boolean);
-      const beatCount = albumBeats.length;
-      const safeId = a.id.replace(/-/g,'');
-      const albumName = (a.title || meta.name || 'Untitled').replace(/'/g,"\'");
-      const labData    = labAlbumMap[a.id] || {};
+      const albumBeats = (albumBeatMap[a.id] || []).map(id => beatMap[id] || beats.find(b=>b.id===id)).filter(Boolean);
+      const labData = labAlbumMap[a.id] || {};
       const isPriority = !!labData.priority;
-      const releaseDate= labData.release_date || '';
-
-      const beatsWithAudio  = albumBeats.filter(b => (b.metadata?.audio_url||b.metadata?.url||b.audio_url));
-      const beatsWithLyrics = albumBeats.filter(b => (b.metadata?.lyrics||(b.metadata?.lyricSections||[]).length > 0));
+      const releaseDate = labData.release_date || '';
+      const albumName = a.title || meta.name || 'Uten tittel';
       const avgBeatDone = albumBeats.length ? Math.round(albumBeats.reduce((s,b)=>s+Number((b.metadata||{}).done||0),0)/albumBeats.length) : 0;
-      const totalDur    = albumBeats.reduce((s,b)=>s+Number((b.metadata||{}).duration||b.duration||0),0);
-      const durStr      = totalDur > 0 ? Math.floor(totalDur/60)+':'+String(Math.floor(totalDur%60)).padStart(2,'0') : null;
-      const avgRating   = albumBeats.length ? (albumBeats.reduce((s,b)=>s+Number((b.metadata||{}).rating||0),0)/albumBeats.length).toFixed(1) : null;
-      const beatsDone   = albumBeats.filter(b=>Number((b.metadata||{}).done||0)>=100).length;
-      const relDateStr  = releaseDate ? new Date(releaseDate+'T00:00:00').toLocaleDateString('no-NO',{day:'numeric',month:'short',year:'numeric'}) : '';
-
-      const trackRows = albumBeats.map((b,i) => {
-        const bm = b.metadata || {};
-        const bTitle = (b.title || bm.name || 'Untitled').replace(/`/g,'');
-        const bDone = Number(bm.done || 0);
-        const bRating = Number(bm.rating || 0);
-        const stars = '★'.repeat(bRating) + '☆'.repeat(Math.max(0,5-bRating));
-        const dur = Number(bm.duration||b.duration||0);
-        const dStr = dur>0 ? Math.floor(dur/60)+':'+String(Math.floor(dur%60)).padStart(2,'0') : '';
-        const hasAudio = !!(bm.audio_url||bm.url||b.audio_url);
-        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)">'
-          + '<span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">'+String(i+1).padStart(2,'0')+'</span>'
-          + '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:#f4eadc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+bTitle+'</div>'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11px;color:#d68155">'+stars+'</span><span style="font-size:10px;color:rgba(255,255,255,.35)">'+bDone+'% ferdig</span>'+(dStr?'<span style="font-size:10px;color:rgba(255,255,255,.25)">'+dStr+'</span>':'')+'</div></div>'
-          + (hasAudio ? '<button onclick="window.labelPlayBeat(\''+b.id+'\')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:900;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:26px"></div>')
-          + '</div>';
-      }).join('');
-
-      const statusOpts = STATUSES.map(s => '<option value="'+s+'"'+(s===status?' selected':'')+'>'+s+'</option>').join('');
-      const borderCol  = isPriority ? 'rgba(214,129,85,.35)' : 'rgba(255,255,255,.06)';
-      const bgStr      = isPriority ? ';background:rgba(214,129,85,.02)' : '';
-      const priBtnBg   = isPriority ? 'rgba(214,129,85,.2)' : 'rgba(255,255,255,.06)';
-      const priBtnBd   = isPriority ? 'rgba(214,129,85,.4)' : 'rgba(255,255,255,.1)';
-      const priBtnCol  = isPriority ? '#d68155' : 'rgba(255,255,255,.4)';
-      const priLabel   = isPriority ? 'Prioritert' : 'Prioriter';
-      const datCol     = releaseDate ? '#bfb2a6' : 'rgba(255,255,255,.35)';
-      const ratCol     = Number(avgRating)>=4 ? '#d68155' : Number(avgRating)>=3 ? '#f4eadc' : 'rgba(255,255,255,.5)';
-
-      return '<div style="border:1px solid '+borderCol+';margin-bottom:10px'+bgStr+'">'
-        + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer" onclick="var t=document.getElementById(\'at'+safeId+'\');var ar=document.getElementById(\'arr'+safeId+'\');if(t.style.display===\'none\'){t.style.display=\'block\';ar.textContent=\'▲\';}else{t.style.display=\'none\';ar.textContent=\'▼\';}">'
-          + '<div class="label-album-cover">'+(cover?'<img src="'+cover+'" style="width:100%;height:100%;object-fit:cover">':'<span class="ic ic-music" aria-hidden="true"></span>')+'</div>'
-          + '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px">'+(isPriority?'<span style="font-size:12px"><span class="ic ic-flame" aria-hidden="true"></span></span>':'')+'<div class="label-album-name">'+albumName+'</div></div>'
-          + '<div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span class="label-album-meta">'+beatCount+' sanger'+(durStr?' · '+durStr:'')+'</span>'+(releaseDate?'<span style="font-size:10px;color:#bfb2a6"><span class="ic ic-calendar" aria-hidden="true"></span> '+relDateStr+'</span>':'')+'</div></div>'
-          + '<div style="min-width:60px"><div class="label-progress"><div class="label-progress-fill" style="width:'+avgBeatDone+'%"></div></div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px;text-align:right">'+avgBeatDone+'%</div></div>'
-          + '<span id="arr'+safeId+'" style="color:rgba(255,255,255,.3);font-size:11px">▼</span>'
-        + '</div>'
-        + '<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-top:1px solid rgba(255,255,255,.05);background:rgba(0,0,0,.15);flex-wrap:wrap" onclick="event.stopPropagation()">'
-          + '<select onchange="window.labelSetAlbumStatus(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#211d1a;border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer">'+statusOpts+'</select>'
-          + '<button onclick="window.labelTogglePriority(\''+a.id+'\',\''+artistId+'\','+(!isPriority)+')" style="background:'+priBtnBg+';border:1px solid '+priBtnBd+';color:'+priBtnCol+';font-size:11px;padding:4px 10px;cursor:pointer;font-family:system-ui"><span class="ic ic-flame" aria-hidden="true"></span> '+priLabel+'</button>'
-          + '<input type="date" value="'+releaseDate+'" onchange="window.labelSetRelease(\''+a.id+'\',\''+artistId+'\',this.value)" style="background:#211d1a;border:1px solid rgba(255,255,255,.12);color:'+datCol+';padding:4px 6px;font-size:11px;font-family:system-ui;outline:none;cursor:pointer" title="Release-dato">'
-          + '<button onclick="event.stopPropagation();window.labelOpenComments(\''+a.id+'\',\''+albumName+'\',\''+artistId+'\')" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:11px;padding:4px 8px;cursor:pointer;font-family:system-ui"><span class="ic ic-chat" aria-hidden="true"></span></button>'
-        + '</div>'
-        + '<div id="at'+safeId+'" style="display:none">'
-          + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.06)">'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsDone+'/'+beatCount+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Ferdig</div></div>'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsWithAudio.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har lyd</div></div>'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:#f4eadc">'+beatsWithLyrics.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Har tekst</div></div>'
-            + '<div style="text-align:center"><div style="font-size:16px;font-weight:900;color:'+ratCol+'">'+( avgRating||'—')+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Snitt ★</div></div>'
-          + '</div>'
-          + (trackRows || '<div style="padding:12px;font-size:12px;color:rgba(255,255,255,.3)">Ingen sanger ennå</div>')
-        + '</div>'
-      + '</div>';
+      const durStr = fmtDur(albumBeats.reduce((s,b)=>s+Number((b.metadata||{}).duration||b.duration||0),0));
+      const withAudio = albumBeats.filter(b => (b.metadata?.audio_url||b.metadata?.url||b.audio_url)).length;
+      const withLyrics = albumBeats.filter(b => (b.metadata?.lyrics||(b.metadata?.lyricSections||[]).length > 0)).length;
+      const done100 = albumBeats.filter(b=>Number((b.metadata||{}).done||0)>=100).length;
+      const avgRating = albumBeats.length ? (albumBeats.reduce((s,b)=>s+Number((b.metadata||{}).rating||0),0)/albumBeats.length).toFixed(1) : '–';
+      return `<article class="lbl-album${isPriority?' is-priority':''}">
+        <div class="lbl-album-top">
+          <span class="lbl-album-cover">${cover?`<img src="${lblEsc(cover)}" alt="">`:'<span class="lbl-cover-ph"><span class="ic ic-disc" aria-hidden="true"></span></span>'}</span>
+          <div class="lbl-album-info">
+            <div class="lbl-album-title"><b>${lblEsc(albumName)}</b>${isPriority?'<span class="lbl-prio-badge"><span class="ic ic-flame" aria-hidden="true"></span> Prioritert</span>':''}</div>
+            <span class="lbl-album-meta">${albumBeats.length} spor${durStr?' · '+durStr:''}${releaseDate?' · Release '+lblDate(releaseDate):''}</span>
+            <div class="lbl-album-prog"><span class="lbl-bar"><span style="width:${avgBeatDone}%"></span></span><span>${avgBeatDone}%</span></div>
+          </div>
+          <span class="lbl-status ${lblStatusClass(status)}">${lblEsc(status)}</span>
+        </div>
+        <div class="lbl-album-controls">
+          <label class="lbl-ctl">Status<select onchange="window.labelSetAlbumStatus('${lblEsc(a.id)}','${lblEsc(artistId)}',this.value)">${STATUSES.map(s=>`<option value="${s}"${s===status?' selected':''}>${s}</option>`).join('')}</select></label>
+          <label class="lbl-ctl">Release<input type="date" value="${lblEsc(releaseDate)}" onchange="window.labelSetRelease('${lblEsc(a.id)}','${lblEsc(artistId)}',this.value)"></label>
+          <button class="ghost-btn lbl-ctl-btn${isPriority?' active':''}" aria-pressed="${isPriority}" onclick="window.labelTogglePriority('${lblEsc(a.id)}','${lblEsc(artistId)}',${!isPriority})"><span class="ic ic-flame" aria-hidden="true"></span> ${isPriority?'Prioritert':'Prioriter'}</button>
+          <button class="ghost-btn lbl-ctl-btn" onclick="window.labelOpenComments('${lblEsc(a.id)}','${lblJs(albumName)}','${lblEsc(artistId)}')"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer</button>
+        </div>
+        <details class="lbl-tracks">
+          <summary>Spor og status <span class="lbl-muted">${done100}/${albumBeats.length} ferdig · ${withAudio} har lyd · ${withLyrics} har tekst · snitt ★ ${avgRating}</span></summary>
+          <div class="lbl-track-list">${albumBeats.length ? albumBeats.map(trackRow).join('') : '<p class="lbl-muted">Ingen sanger ennå.</p>'}</div>
+        </details>
+      </article>`;
     }).join('');
 
+    const mixtapeRows = mixtapes.map(m => {
+      const meta = m.metadata || {};
+      const mBeats = (mixtapeBeatMap[m.id]||[]).map(id=>beatMap[id]).filter(Boolean);
+      return `<details class="lbl-mixtape">
+        <summary><span class="lbl-album-cover is-small"><span class="lbl-cover-ph"><span class="ic ic-cassette" aria-hidden="true"></span></span></span><b>${lblEsc(m.title||meta.name||'Uten tittel')}</b><span class="lbl-muted">${mBeats.length} spor</span></summary>
+        <div class="lbl-track-list">${mBeats.length ? mBeats.map(trackRow).join('') : '<p class="lbl-muted">Ingen sanger.</p>'}</div>
+      </details>`;
+    }).join('');
 
     detail.innerHTML = `
-      <div class="label-detail-header">
-        <div class="label-detail-avatar" style="background:${col.bg};color:${col.color}">${initials}</div>
-        <div style="flex:1;min-width:0">
-          <div class="label-detail-name">${name}</div>
-          <div class="label-detail-meta">${profile.email || ''}</div>
+      <section class="lbl-artist-hero">
+        <span class="lbl-artist-avatar" style="background:${col.bg};color:${col.color}">${lblEsc(initials)}</span>
+        <div class="lbl-artist-head">
+          <p class="mv-eyebrow">Artist</p>
+          <h2 class="lbl-hero-name">${lblEsc(name)}</h2>
+          ${profile.email ? `<p class="lbl-muted">${lblEsc(profile.email)}</p>` : ''}
         </div>
-        <button class="ghost-btn" style="font-size:12px" onclick="window.labelPitchArtist('${artistId}')"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>
-      </div>
-
-      <div class="label-stats">
-        <div class="label-stat"><div class="label-stat-n">${albums.length}</div><div class="label-stat-l">Albumer</div></div>
-        <div class="label-stat"><div class="label-stat-n">${mixtapes.length}</div><div class="label-stat-l">Mixtapes</div></div>
-        <div class="label-stat"><div class="label-stat-n">${beats.length}</div><div class="label-stat-l">Sanger</div></div>
-      </div>
-
-      ${avgDone > 0 ? `
-      <div style="margin-bottom:20px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-          <span style="font-size:11px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em">Snitt ferdigstillelse</span>
-          <span style="font-size:11px;color:#d68155;font-weight:800">${avgDone}%</span>
+        <div class="lbl-artist-actions">
+          <button class="ghost-btn" onclick="window.labelPitchArtist('${lblEsc(artistId)}')"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>
+          <button class="ghost-btn" onclick="window.labelCompareArtist('${lblEsc(artistId)}','${lblJs(name)}')">Sammenlign</button>
+          <button class="ghost-btn" onclick="window.labelExportArtist('${lblEsc(artistId)}','${lblJs(name)}')"><span class="ic ic-download" aria-hidden="true"></span> Eksporter CSV</button>
         </div>
-        <div class="label-progress" style="height:5px"><div class="label-progress-fill" style="width:${avgDone}%"></div></div>
-      </div>` : ''}
+      </section>
 
-      ${albums.length ? `
-      <div class="label-section-hd">Albumer</div>
-      <div style="margin-bottom:20px">${albumRows}</div>` : '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px">Ingen albumer ennå.</div>'}
-
-      ${mixtapes.length ? `
-      <div class="label-section-hd">Mixtapes</div>
-      <div style="margin-bottom:8px">${mixtapes.map(m => {
-        const meta = m.metadata || {};
-        const mBeats = (mixtapeBeatMap[m.id]||[]).map(id=>beatMap[id]).filter(Boolean);
-        const safeId = m.id.replace(/-/g,'');
-        const trackRows = mBeats.map((b,i) => {
-          const bm = b.metadata || {};
-          const bTitle = (b.title || bm.name || 'Untitled').replace(/`/g,'');
-          const hasAudio = !!(bm.audio_url||bm.url||b.audio_url);
-          return `<div style="display:flex;align-items:center;gap:10px;padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)">
-            <span style="font-size:11px;color:rgba(255,255,255,.25);min-width:20px;font-family:system-ui">${String(i+1).padStart(2,'0')}</span>
-            <div style="font-size:13px;font-weight:700;color:#f4eadc;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${bTitle}</div>
-            ${hasAudio ? '<button onclick="window.labelPlayBeat(\'' + b.id + '\')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:900;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%"><span class="ic ic-play" aria-hidden="true"></span></button>' : '<div style="width:24px"></div>'}
-          </div>`;
-        }).join('');
-        return `<div style="border:1px solid rgba(255,255,255,.06);margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer" onclick="var t=document.getElementById('mt${safeId}');var ar=document.getElementById('mrr${safeId}');if(t.style.display==='none'){t.style.display='block';ar.textContent='▲';}else{t.style.display='none';ar.textContent='▼';}">
-            <div class="label-album-cover"><span class="ic ic-cassette" aria-hidden="true"></span></div>
-            <div class="label-album-name" style="flex:1">${m.title||meta.name||'Untitled'}</div>
-            <span style="font-size:11px;color:rgba(255,255,255,.35)">${mBeats.length} sanger</span>
-            <span id="mrr${safeId}" style="color:rgba(255,255,255,.3);font-size:11px;margin-left:6px">▼</span>
-          </div>
-          <div id="mt${safeId}" style="display:none">
-            ${trackRows || '<div style="padding:12px;font-size:12px;color:rgba(255,255,255,.3)">Ingen sanger</div>'}
-          </div>
-        </div>`;
-      }).join('')}</div>` : ''}
-
-      <!-- Interne notater (kun label ser dette) -->
-      <div class="label-section-hd" style="margin-top:20px"><span class="ic ic-lock" aria-hidden="true"></span> Interne notater</div>
-      <textarea id="labelNotesArea" placeholder="Private merknader om artisten — artisten ser ikke dette..." rows="4"
-        style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#f4eadc;padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:6px"
-        oninput="window.labelNoteDirty=true">${artistNotes.replace(/</g,'&lt;')}</textarea>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="window.labelSaveNotes('${artistId}')" style="background:#d68155;border:none;color:#000;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Lagre notater</button>
-        <span id="labelNoteStatus" style="font-size:11px;color:rgba(255,255,255,.35)"></span>
+      <div class="lbl-stats lbl-artist-stats">
+        <div class="lbl-stat"><span class="ic ic-disc" aria-hidden="true"></span><div><b>${albums.length}</b><span>Albumer</span></div></div>
+        <div class="lbl-stat"><span class="ic ic-cassette" aria-hidden="true"></span><div><b>${mixtapes.length}</b><span>Mixtapes</span></div></div>
+        <div class="lbl-stat"><span class="ic ic-music" aria-hidden="true"></span><div><b>${beats.length}</b><span>Sanger</span></div></div>
+        <div class="lbl-stat lbl-stat-prog"><div><b>${avgDone}%</b><span>Snitt ferdig</span><span class="lbl-bar"><span style="width:${avgDone}%"></span></span></div></div>
       </div>
 
-      <!-- Verktøylinje -->
-      <div style="display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07)">
-        <button onclick="window.labelCompareArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui">Sammenlign</button>
-        <button onclick="window.labelExportArtist('${artistId}','${name}')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);font-size:12px;padding:7px 14px;cursor:pointer;font-family:system-ui"><span class="ic ic-chart" aria-hidden="true"></span> Eksporter CSV</button>
+      <div class="lbl-grid">
+        <div class="lbl-main-col">
+          <section class="lbl-panel">
+            <h3 class="lbl-panel-title">Albumer</h3>
+            ${albums.length ? `<div class="lbl-album-list">${albumCards}</div>` : '<p class="lbl-muted">Ingen albumer ennå.</p>'}
+          </section>
+          ${mixtapes.length ? `<section class="lbl-panel">
+            <h3 class="lbl-panel-title">Mixtapes</h3>
+            <div class="lbl-mixtape-list">${mixtapeRows}</div>
+          </section>` : ''}
+        </div>
+        <div class="lbl-side">
+          <section class="lbl-panel">
+            <div class="lbl-panel-hd"><h3 class="lbl-panel-title">Interne notater</h3><span class="lbl-private" title="Bare labelet ser dette"><span class="ic ic-lock" aria-hidden="true"></span> Privat</span></div>
+            <textarea id="labelNotesArea" class="lbl-notes" placeholder="Private merknader om artisten — artisten ser ikke dette…" rows="7" oninput="window.labelNoteDirty=true">${artistNotes.replace(/</g,'&lt;')}</textarea>
+            <div class="lbl-notes-actions"><span id="labelNoteStatus" class="lbl-muted"></span><button class="primary-btn" onclick="window.labelSaveNotes('${lblEsc(artistId)}')">Lagre notater</button></div>
+          </section>
+        </div>
       </div>
     `;
   };
