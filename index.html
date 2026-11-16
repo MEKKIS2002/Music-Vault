@@ -92,7 +92,7 @@ AKTIVE BRUKERE:
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
   <link rel="stylesheet" href="css/system.css?v=202611160002">
   <link rel="stylesheet" href="css/mobile.css?v=202611160002">
-  <link rel="stylesheet" href="css/studio.css?v=202611160045">
+  <link rel="stylesheet" href="css/studio.css?v=202611160110">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -156,7 +156,7 @@ AKTIVE BRUKERE:
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
       <div style="font-size:10px;color:rgba(255,255,255,.18);font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
-      <div style="font-size:10px;color:rgba(214,129,85,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v5.4</div>
+      <div style="font-size:10px;color:rgba(214,129,85,.3);font-family:system-ui;font-weight:700;letter-spacing:.08em">v5.5</div>
     </div>
     <div style="text-align:center;margin-top:16px">
       <button onclick="showRegister()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
@@ -950,6 +950,7 @@ window.addEventListener('load', () => {
 <!-- === ARCHIVE DEMO CRATES OVERRIDE === -->
 
   <!-- Supabase CDN -->
+  <script src="js/impersonate.js?v=202611160100"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
   <!-- R2 config — set this to your deployed Cloudflare Worker URL -->
@@ -957,7 +958,7 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202611160002"></script>
-  <script src="js/lock.js?v=202611160045"></script>
+  <script src="js/lock.js?v=202611160100"></script>
   <script src="js/pipeline.js?v=202611160002"></script>
   <script src="js/lyriclab.js?v=202611160029"></script>
   <script src="js/audio-compress.js?v=202611160002"></script>
@@ -967,7 +968,7 @@ window.addEventListener('load', () => {
   <script src="js/r2-storage.js?v=202611160002"></script>
   <script src="js/archive.js?v=202611160016"></script>
   <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202611160045"></script>
+  <script src="js/changelog.js?v=202611160100"></script>
   <script src="js/beats-tab.js?v=202611160027"></script>
   <script src="js/supabase.js?v=202611160045"></script>
   <script src="js/bpm.js?v=202611150004"></script>
@@ -990,7 +991,7 @@ window.addEventListener('load', () => {
 
   <script src="js/packages.js?v=202605251400"></script>
   <script src="js/label.js?v=202611160022"></script>
-  <script src="js/admin-panel.js?v=202611160002"></script>
+  <script src="js/admin-panel.js?v=202611160110"></script>
   <script src="js/share-song.js?v=202611160002"></script>
   <script src="js/docs.js?v=202611160018"></script>
 

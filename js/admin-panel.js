@@ -335,6 +335,11 @@
           </div>
           <span class="adm-pkg-badge ${PKG_COLORS[pkgKey]||'pkg-user'}" id="admDcBadge">${esc(pkgKey)}</span>
         </div>
+        ${user.id !== (sessionStorage.getItem('mv_user_id')||localStorage.getItem('mv_user_id')) && window.mvSwitchUser ? `
+        <div class="adm-viewas">
+          <button type="button" class="adm-viewas-btn" onclick="window.adminViewAs('${esc(user.id)}', this)"><span class="ic ic-eye" aria-hidden="true"></span><span class="adm-viewas-l">Se appen som ${esc(user.username || 'denne brukeren')}</span></button>
+          <span class="adm-viewas-note">Skrivebeskyttet · byttet logges</span>
+        </div>` : ''}
 
         <div class="adm-dc-meta">
           <div class="adm-meta-cell">
@@ -521,6 +526,20 @@
     window._adminCodes = (window._adminCodes||[]).filter(c=>c.code!==code);
     renderCodes(window._adminCodes);
     renderStats(window._adminUsers, window._adminCodes);
+  };
+
+  // «Se som» — bytt til brukeren via js/impersonate.js (skrivebeskyttet)
+  window.adminViewAs = async function(userId, btn){
+    if(!window.mvSwitchUser) return;
+    const l = btn && btn.querySelector('.adm-viewas-l');
+    if(btn) btn.disabled = true;
+    if(l) l.textContent = 'Bytter…';
+    try{ await window.mvSwitchUser.switchTo({ id: userId }); }
+    catch(e){
+      if(btn) btn.disabled = false;
+      if(l) l.textContent = 'Prøv igjen';
+      if(typeof showToast === 'function') showToast('Kunne ikke bytte: ' + (e.message || e));
+    }
   };
 
   window.adminSearch = function(val){

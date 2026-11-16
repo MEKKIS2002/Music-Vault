@@ -76,6 +76,7 @@ function mvClearPersistentSession(){
   try{
     MV_PERSIST_KEYS.forEach(k=>localStorage.removeItem(k));
     localStorage.removeItem('mv_session_expires');
+    localStorage.removeItem('mv_impersonator');   // utlogging avslutter også «Bytt bruker»
   }catch(e){}
 }
 
