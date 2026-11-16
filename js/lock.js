@@ -115,15 +115,52 @@ function mvShowRestoring(on){
       el = document.createElement('div');
       el.id = 'mvRestoreMsg';
       el.style.cssText = 'position:relative;z-index:2;color:rgba(214,129,85,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
-      el.textContent = 'Logger inn…';
+      el.innerHTML = '<div class="mv-restore-txt">Logger inn…</div>'
+        + '<div class="mv-restore-slow" hidden>'
+        +   '<p>Det tar lengre tid enn vanlig.</p>'
+        +   '<div class="mv-restore-btns">'
+        +     '<button type="button" data-act="retry">Prøv igjen</button>'
+        +     '<button type="button" data-act="logout">Logg ut</button>'
+        +   '</div>'
+        + '</div>';
+      el.addEventListener('click', e=>{
+        const b = e.target.closest('[data-act]'); if(!b) return;
+        if(b.dataset.act === 'retry') location.reload();
+        else mvHardLogout();
+      });
       document.getElementById('lockScreen')?.appendChild(el);
     }
     el.style.display = 'block';
+    clearTimeout(window._mvSlowTimer);
+    // Etter 6 s: vis «Prøv igjen» / «Logg ut» så man aldri sitter fast
+    window._mvSlowTimer = setTimeout(()=>{ const s = el.querySelector('.mv-restore-slow'); if(s) s.hidden = false; }, 6000);
   } else {
+    clearTimeout(window._mvSlowTimer);
     if(el) el.remove();
     if(card) card.style.display = 'grid';
   }
 }
+
+// Promise med tidsfrist: gir `fallback` hvis kallet ikke svarer i tide.
+function mvWithTimeout(p, ms, fallback){
+  return Promise.race([
+    Promise.resolve(p).catch(()=>fallback),
+    new Promise(r=>setTimeout(()=>r(fallback), ms))
+  ]);
+}
+
+// Nødutgang: rydd ALL lokal innlogging (også Supabase-tokenet) uten å vente
+// på nettet, og last siden på nytt med innloggingsskjemaet.
+function mvHardLogout(){
+  try{
+    mvClearPersistentSession();
+    Object.keys(localStorage).filter(k=>/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k));
+    ['mv_unlocked','mv_role','mv_package','mv_username','mv_user_id'].forEach(k=>sessionStorage.removeItem(k));
+  }catch(e){}
+  try{ window.supabaseClient?.auth.signOut({ scope:'local' }).catch(()=>{}); }catch(e){}
+  setTimeout(()=>location.reload(), 150);
+}
+window.mvHardLogout = mvHardLogout;
 
 // Bruker-spesifikk state fra localStorage (delt av innlogging + gjenoppretting)
 function mvLoadUserState(uid){
@@ -167,7 +204,14 @@ async function mvRestoreSession(){
   // getSession() fornyer access-tokenet selv hvis det er utløpt; returnerer
   // null hvis refresh-tokenet er ugyldig/trukket tilbake.
   let session = null;
-  try{ session = (await client.auth.getSession())?.data?.session || null; }
+  // Tidsfrist: getSession kan henge hvis token-fornyelsen henger. Da beholder
+  // vi den lagrede innloggingen (ikke slett) og viser skjemaet/nødutgangen.
+  const TIMEOUT = {};
+  try{
+    const r = await mvWithTimeout(client.auth.getSession(), 10000, TIMEOUT);
+    if(r === TIMEOUT){ console.warn('[Lock] getSession svarte ikke innen 10 s'); return false; }
+    session = r?.data?.session || null;
+  }
   catch(e){ console.warn('[Lock] getSession feilet:', e); }
   if(!session){ mvClearPersistentSession(); return false; }
 
@@ -182,8 +226,9 @@ async function mvRestoreSession(){
   let role = localStorage.getItem('mv_role') || 'user';
   let pkg  = localStorage.getItem('mv_package') || (role === 'admin' ? 'admin' : 'artist');
   try{
-    const {data: profile} = await client
-      .from('profiles').select('role, package').eq('id', uid).maybeSingle();
+    // Maks 4 s — ellers brukes hurtiglageret, og rollen friskes opp ved neste lasting
+    const {data: profile} = await mvWithTimeout(
+      client.from('profiles').select('role, package').eq('id', uid).maybeSingle(), 4000, {data:null});
     if(profile){
       role = profile.role === 'admin' ? 'admin' : 'user';
       pkg  = profile.package || (role === 'admin' ? 'admin' : 'artist');
