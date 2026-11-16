@@ -365,7 +365,7 @@
     <div class="ll-statusbar" id="llStatusBar">
       <div class="ll-statusbar-dot"></div>
       <span>Autosave aktiv</span>
-      <span id="llLastSaved" style="color:var(--muted)">Ikke lagret ennå</span>
+      <span id="llLastSaved" style="color:var(--muted)">Alt er lagret</span>
       <span style="margin-left:auto">Ord: <strong id="llStatWords">${words}</strong></span>
       <span>Linjer: <strong id="llStatLines">${lines}</strong></span>
       <span>Est.: <strong id="llStatDur">${estimateDuration(words)}</strong></span>

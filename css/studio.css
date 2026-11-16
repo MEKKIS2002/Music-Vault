@@ -1633,3 +1633,84 @@ html body .mv-cm-label{ padding: .35rem .6rem .15rem; color: var(--accent-text);
   html body .mv-cm{ min-width: 13rem; }
   html body .mv-cm-item{ min-height: 2.75rem; }
 }
+
+/* ── 32. Skriveverktøy (js/writing-tools.js) ──────────────────────────────── */
+/* Docs: sjekkliste */
+html body .docs-ed-body ul.docs-checklist{ list-style: none !important; padding-left: .2rem !important; }
+html body .docs-ed-body ul.docs-checklist > li{ position: relative; padding-left: 1.9rem; margin: .2rem 0; }
+html body .docs-ed-body ul.docs-checklist > li::before{
+  content: ""; position: absolute; left: 0; top: .32em; width: 1.05rem; height: 1.05rem;
+  border: 1.5px solid var(--border-control); border-radius: 4px; background: var(--bg); cursor: pointer;
+}
+html body .docs-ed-body ul.docs-checklist > li.is-done{ color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(191,178,166,.6); }
+html body .docs-ed-body ul.docs-checklist > li.is-done::before{
+  background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2321130e' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center/80% no-repeat;
+  border-color: var(--accent);
+}
+/* Docs: ordtelling, hurtigtast-knapp */
+html body .docs-count{ color: var(--muted); font-size: .82rem; white-space: nowrap; margin-left: auto; }
+html body .docs-ed-bar .docs-bar-spacer{ display: none; }
+html body .docs-help-btn{ width: 2.1rem; height: 2.1rem; border-radius: var(--radius); border: 1px solid var(--line); background: transparent; color: var(--muted); font: 700 .9rem var(--body); cursor: pointer; }
+html body .docs-help-btn:hover{ background: var(--raised); color: var(--text); }
+/* Docs: oversikt ved siden av arket (bred skjerm) */
+html body .docs-editor.has-outline{ display: grid !important; grid-template-columns: minmax(0,1fr) 13rem; grid-template-rows: auto 1fr; }
+html body .docs-editor.has-outline > .docs-ed-bar{ grid-column: 1 / -1; }
+html body .docs-editor.has-outline > .docs-sheet{ grid-column: 1; min-width: 0; }
+html body .docs-outline{ grid-column: 2; grid-row: 2; padding: var(--space-4) var(--space-3); border-left: 1px solid var(--line); position: sticky; top: 0; align-self: start; max-height: 80vh; overflow: auto; }
+html body .docs-outline-title{ color: var(--accent-text); font: 700 .7rem var(--body); letter-spacing: .14em; text-transform: uppercase; margin: 0 0 .6rem; }
+html body .docs-outline ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
+html body .docs-outline li.lvl-2{ padding-left: .85rem; }
+html body .docs-outline button{ width: 100%; text-align: left; background: none; border: 0; color: var(--muted); font: 500 .86rem/1.35 var(--body); padding: .3rem .45rem; border-radius: var(--radius); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .docs-outline li.lvl-1 button{ color: var(--text); font-weight: 600; }
+html body .docs-outline button:hover{ background: var(--raised); color: var(--text); }
+html body .docs-outline-empty{ color: var(--faint); font-size: .82rem; line-height: 1.45; margin: 0; }
+@media (max-width: 1180px){
+  html body .docs-editor.has-outline{ display: flex !important; }
+  html body .docs-outline{ display: none; }
+}
+
+/* Felles: hurtigtast-dialog */
+html body .mv-keys{ position: fixed; inset: 0; z-index: 9900; display: none; align-items: center; justify-content: center; padding: 1rem; background: rgba(14,11,9,.72); backdrop-filter: blur(4px); }
+html body .mv-keys.open{ display: flex; }
+html body .mv-keys-card{ width: min(30rem, 100%); max-height: 85vh; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-modal); padding: var(--space-4); color: var(--text); font-family: var(--body); }
+html body .mv-keys-hd{ display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+html body .mv-keys-hd h2{ font: 400 1.7rem/1.1 var(--display) !important; margin: 0 !important; }
+html body .mv-keys-hd button{ width: 2.2rem; height: 2.2rem; border-radius: var(--radius); border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+html body .mv-keys-hd button:hover{ background: var(--raised); color: var(--text); }
+html body .mv-keys dl{ margin: 0; }
+html body .mv-keys dl > div{ display: flex; justify-content: space-between; gap: 1rem; padding: .45rem 0; border-bottom: 1px solid var(--line); }
+html body .mv-keys dt{ color: var(--text); white-space: nowrap; }
+html body .mv-keys dd{ margin: 0; color: var(--muted); text-align: right; }
+html body .mv-keys-sec{ color: var(--accent-text); font: 700 .7rem var(--body); letter-spacing: .14em; text-transform: uppercase; margin: .9rem 0 .2rem; }
+html body .mv-keys kbd{ display: inline-block; padding: .1rem .4rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--raised); font: 600 .78rem var(--body); color: var(--text); }
+
+/* Lyric Lab: visningsknapper i verktøylinja */
+html body .ll-view-tools{ display: inline-flex; gap: .25rem; align-items: center; }
+html body .ll-view-btn{
+  min-height: 2.2rem; padding: 0 .65rem; border-radius: var(--radius); border: 1px solid var(--line);
+  background: transparent; color: var(--muted); font: 600 .82rem var(--body); cursor: pointer; white-space: nowrap;
+}
+html body .ll-view-btn:hover{ background: var(--raised); color: var(--text); }
+html body .ll-view-btn.is-on{ background: var(--accent-soft); color: var(--accent-text); border-color: var(--accent); }
+html body .ll-view-btn.ll-view-help{ width: 2.2rem; padding: 0; }
+/* Lyric Lab: stavelser i høyre marg av hver seksjon */
+html body #lyriclabTab .ll-section-body{ position: relative !important; }
+html body .ll-syl{ position: absolute; inset: 0 0 0 auto; width: 2.2rem; pointer-events: none; }
+html body .ll-syl span{ position: absolute; right: 0; display: flex; align-items: center; justify-content: flex-end; font: 600 .74rem var(--body); color: var(--faint); font-variant-numeric: tabular-nums; }
+html body #lyriclabTab .ll-section-body:has(.ll-syl) .ll-textarea{ padding-right: 2.6rem !important; }
+/* Lyric Lab: fokusmodus */
+html body.ll-focus #lyriclabTab .ll-right,
+html body.ll-focus #lyriclabTab .ll-song-head,
+html body.ll-focus #lyriclabTab .ll-wave-panel,
+html body.ll-focus #lyriclabTab .ll-header .ll-status-pill,
+html body.ll-focus #lyriclabTab .ll-color-tools .ll-color-hint{ display: none !important; }
+html body.ll-focus #lyriclabTab .ll-layout{ grid-template-columns: minmax(0, 48rem) !important; justify-content: center !important; }
+html body.ll-focus #lyriclabTab .ll-page-title{ font-size: 1.6rem !important; }
+@media (min-width: 769px){
+  html body.ll-focus .mv-header{ opacity: .35; transition: opacity .2s; }
+  html body.ll-focus .mv-header:hover, html body.ll-focus .mv-header:focus-within{ opacity: 1; }
+}
+@media (max-width: 768px){
+  html body .ll-view-tools{ width: 100%; overflow-x: auto; scrollbar-width: none; }
+  html body .ll-view-btn{ flex: none; }
+}
