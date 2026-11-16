@@ -1786,3 +1786,9 @@ html body.mv-impersonating::after{ content: ""; position: fixed; inset: 0; borde
   html body .mv-switch-txt{ flex: 1 1 100%; }
   html body .mv-switch-btn{ flex: 1; }
 }
+/* «Se appen som» i Admin-panelet */
+html body .adm-viewas{ display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .75rem 1rem; border-bottom: 1px solid var(--line); background: var(--accent-soft); }
+html body .adm-viewas-btn{ display: inline-flex; align-items: center; gap: .45rem; height: 2.3rem; padding: 0 .9rem; border-radius: var(--radius); border: 1px solid var(--accent); background: var(--accent); color: #21130e; font: 700 .85rem var(--body); cursor: pointer; }
+html body .adm-viewas-btn:hover{ filter: brightness(1.08); }
+html body .adm-viewas-btn:disabled{ opacity: .65; cursor: progress; }
+html body .adm-viewas-note{ color: var(--muted); font-size: .78rem; }
