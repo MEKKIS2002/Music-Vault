@@ -198,7 +198,9 @@
   async function fetchStats() {
     const workerUrl = window.R2_WORKER_URL || '';
     if (!workerUrl) throw new Error('R2_WORKER_URL ikke konfigurert');
-    const res = await fetch(`${workerUrl}/stats`, { method: 'GET' });
+    let tok = '';
+    try { tok = (await window.supabaseClient.auth.getSession()).data?.session?.access_token || ''; } catch (e) {}
+    const res = await fetch(`${workerUrl}/stats`, { method: 'GET', headers: tok ? { Authorization: `Bearer ${tok}` } : {} });
     if (!res.ok) throw new Error(`Worker svarte med HTTP ${res.status}`);
     return res.json();
   }
