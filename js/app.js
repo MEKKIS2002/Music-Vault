@@ -179,14 +179,14 @@
     hd.classList.toggle('is-playing-album',!!isPlaying);
     hd.innerHTML=`
       <div class="album-detail-premium">
-        <div class="album-detail-art" aria-hidden="true">
-          <div class="album-detail-vinyl">
+        <div class="album-detail-art">
+          <div class="album-detail-vinyl" aria-hidden="true">
             <div class="album-detail-vinyl-disc">
               <div class="album-detail-vinyl-label">${label}</div>
               <div class="album-detail-vinyl-hole"></div>
             </div>
           </div>
-          <div class="album-detail-cover-card">${cover}</div>
+          <div class="album-detail-cover-card"${album.cover?` role="button" tabindex="0" aria-label="Vis cover stort" data-cover-viewer`:''}>${cover}</div>
         </div>
 
         <div class="album-detail-main">
