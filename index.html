@@ -90,7 +90,7 @@ AKTIVE BRUKERE:
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=202611150001">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=202611160002">
+  <link rel="stylesheet" href="css/system.css?v=202611190300">
   <link rel="stylesheet" href="css/mobile.css?v=202611160002">
   <link rel="stylesheet" href="css/studio.css?v=202611180200">
   <style>html,body{background:#090705 !important}
@@ -128,7 +128,7 @@ AKTIVE BRUKERE:
   </div>
 
   <!-- Login card -->
-  <div id="lockCard" style="position:relative;z-index:2;width:min(360px,90vw);display:grid;gap:0;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
+  <div id="lockCard" style="position:relative;z-index:2;width:min(360px,90vw);display:grid;gap:0;animation:lockCardEnter .6s cubic-bezier(.22,1,.36,1) both">
     <div style="text-align:center;margin-bottom:40px">
       <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(214,129,85,.7);font-family:system-ui;margin-bottom:12px">Music Vault</div>
       <div style="font-size:38px;font-weight:900;letter-spacing:-.06em;color:#f4eadc;line-height:1;font-family:Georgia,serif">Din musikk.<br>Din vault.</div>
@@ -164,7 +164,7 @@ AKTIVE BRUKERE:
   </div>
 
   <!-- REGISTER CARD -->
-  <div id="registerCard" style="position:relative;z-index:2;width:min(380px,90vw);display:none;animation:lockCardEnter .6s cubic-bezier(.22,.68,0,1.2) both">
+  <div id="registerCard" style="position:relative;z-index:2;width:min(380px,90vw);display:none;animation:lockCardEnter .6s cubic-bezier(.22,1,.36,1) both">
     <div style="text-align:center;margin-bottom:28px">
       <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgba(214,129,85,.7);font-family:system-ui;margin-bottom:10px">Music Vault</div>
       <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:#f4eadc;line-height:1.1;font-family:Georgia,serif">Opprett konto</div>
@@ -958,10 +958,10 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=202611160002"></script>
-  <script src="js/lock.js?v=202611182200"></script>
+  <script src="js/lock.js?v=202611190400"></script>
   <script src="js/pipeline.js?v=202611160002"></script>
   <script src="js/lyriclab.js?v=202611182200"></script>
-  <script src="js/app.js?v=202611182200"></script>
+  <script src="js/app.js?v=202611190400"></script>
   <script src="js/track-cards.js?v=202611182200"></script>
   <script src="js/r2-storage.js?v=202611181900"></script>
   <script src="js/archive.js?v=202611160016"></script>
@@ -970,7 +970,8 @@ window.addEventListener('load', () => {
   <script src="js/beats-tab.js?v=202611180040"></script>
   <script src="js/supabase.js?v=202611180040"></script>
   <script src="js/bpm.js?v=202611150004"></script>
-  <script src="js/db.js?v=202611182200"></script>
+  <script src="js/db.js?v=202611190300"></script>
+  <script src="js/cover-viewer.js?v=202611190310"></script>
   <script src="js/mixtape-share.js?v=202611160002"></script>
   <script src="js/notifications.js?v=202611160002"></script>
   <script src="js/mini-player.js?v=202611150010"></script>

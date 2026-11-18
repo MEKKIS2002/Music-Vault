@@ -179,14 +179,14 @@
     hd.classList.toggle('is-playing-album',!!isPlaying);
     hd.innerHTML=`
       <div class="album-detail-premium">
-        <div class="album-detail-art" aria-hidden="true">
-          <div class="album-detail-vinyl">
+        <div class="album-detail-art">
+          <div class="album-detail-vinyl" aria-hidden="true">
             <div class="album-detail-vinyl-disc">
               <div class="album-detail-vinyl-label">${label}</div>
               <div class="album-detail-vinyl-hole"></div>
             </div>
           </div>
-          <div class="album-detail-cover-card">${cover}</div>
+          <div class="album-detail-cover-card"${album.cover?` role="button" tabindex="0" aria-label="Vis cover stort" data-cover-viewer`:''}>${cover}</div>
         </div>
 
         <div class="album-detail-main">
@@ -379,7 +379,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .track-row.active{background:var(--accent-soft);border-radius:var(--r);border-bottom-color:transparent}
 .track-row.active .track-name{color:var(--accent-text)}
 .track-row.active .track-play-icon{background:var(--accent);color:var(--on-accent)}
-.track-row.active::after{content:'';position:absolute;left:0;bottom:0;height:2px;background:var(--accent);width:var(--progress,0%);transition:width .3s linear}
+.track-row.active::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--accent);transform:scaleX(var(--progress,0));transform-origin:left;transition:transform .3s linear}
 .comments-section{margin-top:clamp(20px,4vw,32px)}
 .comment-form{display:grid;gap:.6rem;margin-bottom:1.2rem}
 .comment-input,.comment-name{width:100%;background:var(--bg);border:1px solid var(--ctl);border-radius:var(--r);color:var(--text);font:400 1rem "DM Sans";padding:.65rem .8rem;outline:none}
@@ -491,7 +491,7 @@ async function playPreview(idx){
     const elapsed=(Date.now()-startTime)/1000;
     const pct=Math.min(100,(elapsed/PREVIEW_SEC)*100);
     const row=document.querySelectorAll('.track-row')[idx];
-    if(row)row.style.setProperty('--progress',pct+'%');
+    if(row)row.style.setProperty('--progress',(pct/100).toFixed(4));
     if(elapsed>=PREVIEW_SEC-CROSSFADE_SEC){
       if(audio)audio.volume=Math.max(0,VOL*((PREVIEW_SEC-elapsed)/CROSSFADE_SEC));
       if(!nextAudio&&idx+1<BEATS.length){const nb=BEATS[idx+1];if(nb?.audio_url){nextAudio=new Audio();nextAudio.volume=0;nextAudio.src=nb.audio_url;nextAudio.load();}}
