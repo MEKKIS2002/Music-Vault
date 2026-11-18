@@ -22,4 +22,5 @@ revoke execute on function public.tg_docs_updated_at()                from publi
 
 -- 3) KJØRES ETTER at lock.js med login-username er publisert (migration: revoke_lookup_login_email):
 --    lookup_login_email ga e-posten bak et brukernavn til hvem som helst.
+--    Utført 2026-11-18 i security_fixes_2026_11_18.sql:
 -- revoke execute on function public.lookup_login_email(text) from public, anon, authenticated;

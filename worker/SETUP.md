@@ -96,28 +96,39 @@ create table if not exists public.mixtape_beats (
   primary key (mixtape_id, beat_id)
 );
 
--- Row Level Security (alle kan lese, kun autentiserte kan skrive)
+-- Row Level Security: slå på for alle tabeller
 alter table public.beats enable row level security;
 alter table public.albums enable row level security;
 alter table public.mixtapes enable row level security;
 alter table public.album_beats enable row level security;
 alter table public.mixtape_beats enable row level security;
-
-create policy "Alle kan lese" on public.beats for select using (true);
-create policy "Alle kan lese" on public.albums for select using (true);
-create policy "Alle kan lese" on public.mixtapes for select using (true);
-create policy "Alle kan lese" on public.album_beats for select using (true);
-create policy "Alle kan lese" on public.mixtape_beats for select using (true);
-
-create policy "Kun autentiserte kan skrive" on public.beats for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.albums for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.mixtapes for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.album_beats for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.mixtape_beats for all using (auth.role() = 'authenticated');
 ```
+
+> ⚠️ **Ikke** bruk `for all using (auth.role() = 'authenticated')` — det lar ALLE innloggede
+> endre ALLES data. Bruk eier-policyer (`owner_id = auth.uid()`), se
+> `sql/security_fixes_2026_11_18.sql` for album_beats/mixtape_beats.
 
 ## Ferdig! Flyten er nå:
 - **Ny lydfil** → lastes opp til R2 `active/beat-id` → URL lagres i Supabase
 - **Arkiver beat** → flyttes til R2 `archived/beat-id` → oppdateres i Supabase
 - **Gjenopprett beat** → flyttes tilbake til R2 `active/beat-id` → oppdateres i Supabase
 - **Data (tekst/metadata)** → synkes alltid via Supabase på tvers av maskiner
+
+## Sikkerhet (2026-11-18) — Workeren krever innlogging for skriving
+`r2-worker.js` krever nå et gyldig Supabase-token for `PUT /upload`, `DELETE /delete`
+og `POST /move`, og sjekker at brukeren eier filen. `GET /file` er fortsatt offentlig.
+
+Legg til disse under **Settings → Variables** (service-nøkkelen som **Encrypt/Secret**):
+- `SUPABASE_URL` = `https://ylvqkfdvijqnecuqznyr.supabase.co`
+- `SUPABASE_ANON_KEY` = anon-nøkkelen (samme som i appen)
+- `SUPABASE_SERVICE_ROLE_KEY` = service_role-nøkkelen (Supabase → Settings → API)
+
+Den deployede Workeren har også `/rhyme` (Anthropic) og `/stats`, som ikke ligger i repoet.
+Ikke lim inn denne filen over dem — flytt i stedet `requireUser()`, `cleanKey()`,
+`mayWrite()` og de nye `/upload`/`/delete`/`/move`-grenene inn i den deployede koden,
+og kall `requireUser()` først i `/rhyme` og `/stats` også (ellers kan hvem som helst
+bruke Anthropic-nøkkelen din).
+
+**Rekkefølge:** deploy Workeren FØRST, merge appendringen (`js/r2-storage.js`) etterpå.
+Den gamle Workeren tillater ikke `Authorization`-headeren i CORS, så ny klient + gammel
+Worker = opplasting feiler.
