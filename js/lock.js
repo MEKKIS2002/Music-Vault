@@ -6,7 +6,6 @@ if(history.scrollRestoration) history.scrollRestoration = 'manual';
 
 function getUserRole(){return sessionStorage.getItem('mv_role')||'';}
 function isProducerUser(){return getUserRole()==='producer';}
-function isViewerUser(){return getUserRole()==='viewer';}
 
 function applyRoleMode(){
   const role = getUserRole();
@@ -430,30 +429,7 @@ window.mvLogout = async function(){
   returnToPasswordScreen();
 };
 
-function loginViewer(){
-  unlockAs('viewer');
-}
 
-function switchLockTab(tab){
-  const adminCard   = document.getElementById('lockCardAdmin');
-  const viewerCard  = document.getElementById('lockCardViewer');
-  const adminBtn    = document.getElementById('lockTabAdmin');
-  const viewerBtn   = document.getElementById('lockTabViewer');
-  const active = 'background:linear-gradient(135deg,#d68155,#b9683f);color:#fff;';
-  const inactive = 'background:transparent;color:#aaa4bd;';
-  if(tab==='admin'){
-    adminCard.style.display='grid';
-    viewerCard.style.display='none';
-    if(adminBtn) adminBtn.style.cssText += active;
-    if(viewerBtn) viewerBtn.style.cssText += inactive;
-    document.getElementById('adminUsername')?.focus();
-  } else {
-    adminCard.style.display='none';
-    viewerCard.style.display='grid';
-    if(viewerBtn) viewerBtn.style.cssText += active;
-    if(adminBtn) adminBtn.style.cssText += inactive;
-  }
-}
 
 // ── Innlogging med brukernavn ─────────────────────────────────────────────
 async function loginWithUsername(){
@@ -566,8 +542,6 @@ async function loginWithUsername(){
   }
 }
 
-function loginProducer(){unlockAs('producer');}
-async function checkPw(){}
 
 function initLock(){
   // 1) Samme fane, vanlig reload — sessionStorage lever fortsatt.

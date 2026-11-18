@@ -558,12 +558,6 @@ loadComments();
   function primaryMixtapeName(id){const m=(state.mixtapes||[]).find(mt=>(mt.beatIds||[]).includes(id));return m?.name||'';}
   function extraBeatFields(b,mode){return ``;}
   window.updateBeatMeta=function(id,key,val){const b=state.beats.find(x=>x.id===id);if(!b)return;b[key]=val;saveState();showToast('✓ Oppdatert');};
-  // Masseredigering er fjernet fra tracklisten.
-  window.toggleBeatSelect=function(){};
-  window.batchFavorite=function(){};
-  window.batchRemove=function(){};
-  window.batchMoveToAlbum=function(){};
-  window.moveBeatToAlbumPrompt=function(id){const a=state.albums[0]; if(!a){showToast('Lag et album først');return;} if(!a.beatIds.includes(id))a.beatIds.push(id);saveState();renderMixtapeDetail();showToast(`✓ Kopiert til ${a.name}`,'Angre',()=>{a.beatIds=a.beatIds.filter(x=>x!==id);saveState();renderMixtapeDetail();});};
 
   const _oldRemoveFromCollection=window.removeFromCollection;
   window.removeFromCollection=function(beatId,mode){const col=activeCollectionForMode(mode||'album'); if(!col)return; const before=col.beatIds.slice(); if(typeof _oldRemoveFromCollection==='function')_oldRemoveFromCollection(beatId,mode); showToast('✓ Beat fjernet','Angre',()=>{col.beatIds=before;saveState();mode==='mixtape'?renderMixtapeDetail():renderAlbumDetail();});};
@@ -733,7 +727,6 @@ loadComments();
     document.querySelectorAll('.mv-archive-detail-toolbar').forEach(el=>el.remove());
     if(!state.settings.showArchived){(state.albums||[]).forEach((al,i)=>{if(al.archived) $$('.album-card')[i]?.classList.add('archive-hidden')}); (state.mixtapes||[]).forEach((mt,i)=>{if(mt.archived) $$('.cassette-card')[i]?.classList.add('archive-hidden')});}
   }
-  window.toggleShowArchived=function(){state.settings.showArchived=!state.settings.showArchived;saveState();renderAll();};
   window.toggleArchiveItem=function(type,id){const arr=type==='album'?state.albums:state.mixtapes; const item=arr.find(x=>x.id===id); if(!item)return; item.archived=!item.archived; saveState(); renderAll(); updateArchiveToolbarButtons?.(); showToast(item.archived?'✓ Arkivert':'✓ Gjenopprettet','Angre',()=>{item.archived=!item.archived;saveState();renderAll();updateArchiveToolbarButtons?.();});};
 
   function createModal(id,title,body){let m=$('#'+id); if(!m){m=document.createElement('div');m.id=id;m.className='modal';m.innerHTML=`<div class="modal-card modal-sm"><div class="modal-hd"><div class="modal-hd-left"><h2>${title}</h2></div><div class="modal-hd-right"><button class="close-btn" onclick="closeModal('${id}')">×</button></div></div><div class="modal-body" style="padding:22px 28px 28px;display:grid;gap:14px"></div></div>`;document.body.appendChild(m);} $('.modal-body',m).innerHTML=body; return m;}
@@ -874,7 +867,6 @@ loadComments();
     show(item.archived?'✓ Arkivert':'✓ Gjenopprettet fra arkiv');
   };
 
-  window.toggleShowArchived=function(){openArchiveTab();};
 
   function installArchiveTab(){
     const tabs=document.querySelector('.tabs');
