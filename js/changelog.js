@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.9',
+      date: '18. november 2026',
+      label: 'Akkorder, metronom og dra-og-slipp',
+      color: '#d68155',
+      changes: [
+        'Lyric Lab: akkordene i låtens toneart og vanlige progresjoner — klikk for å høre, «+» setter akkorden inn i teksten',
+        'Lyric Lab: metronom i låtens BPM, og opptelling på én takt før en take',
+        'Album og mixtapes: dra coverbildet for å endre rekkefølgen — virker nå også på mobil (hold et øyeblikk)',
+        'Bygget med Tonal, Tone.js og SortableJS (open source, MIT)',
+      ]
+    },
+    {
       version: 'v5.8',
       date: '18. november 2026',
       label: 'Automatisk toneart, BPM og cover',

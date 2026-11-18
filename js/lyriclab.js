@@ -1238,7 +1238,13 @@
       }
     }
 
-    startCountdown();
+    // Opptelling i låtens tempo (music-tools.js): én takt med klikk, så starter opptaket på «1»
+    if (window.mvMetronome && window.mvMetronome.countInEnabled() && Number(beat.bpm) > 0) {
+      if (btn) btn.textContent = 'Teller opp …';
+      window.mvMetronome.countIn(beat.bpm, n => {
+        if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.ll-take-count').textContent = n; }
+      }, startRecording);
+    } else startCountdown();
   };
   function renderTakeList() {
     const beat = getBeat(window.currentLyricLabBeatId);
