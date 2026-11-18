@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v5.6',
+      date: '18. november 2026',
+      label: 'Hurtigtaster og cover-farger i spilleren',
+      color: '#d68155',
+      changes: [
+        'Hurtigtaster for spilleren: mellomrom, J/K, piltaster, 0–9, M, L, Q og H — trykk ? for oversikten',
+        'Spilleren får fargen fra coverbildet til låten som spilles',
+        '«Bytt bruker»-knappen ligger nå i sidemenyen og dekker ikke lenger innhold',
+        'Ideene er lånt fra open source-spilleren Koel (MIT-lisens)',
+      ]
+    },
+    {
       version: 'v5.5',
       date: '16. november 2026',
       label: 'Bytt bruker (for admin)',

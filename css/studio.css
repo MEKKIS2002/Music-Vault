@@ -1792,3 +1792,13 @@ html body .adm-viewas-btn{ display: inline-flex; align-items: center; gap: .45re
 html body .adm-viewas-btn:hover{ filter: brightness(1.08); }
 html body .adm-viewas-btn:disabled{ opacity: .65; cursor: progress; }
 html body .adm-viewas-note{ color: var(--muted); font-size: .78rem; }
+
+/* ── 35. Spiller: farge fra coverbildet (js/player-extras.js, idé fra Koel) ── */
+html body #bottomPlayer.bp-tinted{ background-image: linear-gradient(90deg, var(--bp-tint) 0%, transparent 60%) !important; }
+html body #bottomPlayer.bp-tinted .bp-play{ background: var(--bp-hl) !important; border-color: var(--bp-hl) !important; }
+html body #bottomPlayer.bp-tinted .bp-cover{ box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 6px 22px var(--bp-tint); }
+/* «Bytt bruker»-knappen (ikke-aktiv) ligger i sidemenyen over brukerikonene, så den ikke dekker innhold */
+@media (min-width: 769px){
+  html body .mv-switch:not(:has(.mv-switch-bar)){ left: 1rem; bottom: calc(var(--mv-player-space, 0px) + 8.4rem); }
+  html body .mv-switch-fab{ box-shadow: none; opacity: .7; }
+}
