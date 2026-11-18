@@ -696,17 +696,19 @@ window.registerUser = async function() {
 
     if(error) throw error;
 
-    // Opprett profil-rad manuelt (trigger er fjernet)
-    if(data.user) {
+    // Profilen lages server-side av triggeren on_auth_user_created (også uten sesjon,
+    // f.eks. med e-postbekreftelse). Dette er bare en reserve hvis triggeren feilet;
+    // ignore-duplicates = ON CONFLICT DO NOTHING, så den rører aldri en eksisterende rad.
+    if(data.user && data.session) {
       const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
       const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
       await fetch(`${SB_URL}/rest/v1/profiles`, {
         method: 'POST',
         headers: {
           'apikey': SB_KEY,
-          'Authorization': `Bearer ${data.session?.access_token || SB_KEY}`,
+          'Authorization': `Bearer ${data.session.access_token}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
+          'Prefer': 'resolution=ignore-duplicates,return=minimal'
         },
         body: JSON.stringify({
           id: data.user.id,
@@ -720,6 +722,14 @@ window.registerUser = async function() {
     }
 
     if(error) throw error;
+
+    // Uten sesjon (e-postbekreftelse påkrevd) kan koden ikke løses inn nå — ikke lat som
+    // kontoen er label; koden forblir ubrukt og kan løses inn senere.
+    if(_selectedPkg === 'label' && data.user && !data.session) {
+      console.warn('[Lock] Ingen sesjon etter registrering — invitasjonskoden er ikke løst inn.');
+      if(errEl){ errEl.textContent='Kontoen er opprettet. Bekreft e-posten og logg inn — label-tilgang må aktiveres med koden etterpå.'; errEl.style.display='block'; }
+      _selectedPkg = 'artist';
+    }
 
     // Løs inn invitasjonskoden (merker den brukt + setter package='label' atomisk)
     if(_selectedPkg === 'label' && data.user && data.session) {

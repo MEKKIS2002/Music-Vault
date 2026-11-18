@@ -35,6 +35,8 @@
     const t = await authToken();
     return t ? { ...extra, Authorization: `Bearer ${t}` } : extra;
   }
+  // Felles for alle Worker-kall (lyriclab.js /rhyme /inspire, fetchStats nedenfor)
+  window.mvAuthHeaders = authHeaders;
 
   // r2Key(beat, archived) → "active/beat-id.mp3" or "archived/beat-id.mp3"
   function r2Key(beatId, archived) {
@@ -198,9 +200,7 @@
   async function fetchStats() {
     const workerUrl = window.R2_WORKER_URL || '';
     if (!workerUrl) throw new Error('R2_WORKER_URL ikke konfigurert');
-    let tok = '';
-    try { tok = (await window.supabaseClient.auth.getSession()).data?.session?.access_token || ''; } catch (e) {}
-    const res = await fetch(`${workerUrl}/stats`, { method: 'GET', headers: tok ? { Authorization: `Bearer ${tok}` } : {} });
+    const res = await fetch(`${workerUrl}/stats`, { method: 'GET', headers: await window.mvAuthHeaders() });
     if (!res.ok) throw new Error(`Worker svarte med HTTP ${res.status}`);
     return res.json();
   }

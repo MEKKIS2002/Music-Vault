@@ -15,11 +15,13 @@
 //   Innlogget:  PUT /upload, DELETE /delete, POST /move  (+ må eie filen)
 //               GET /stats, POST /rhyme, POST /inspire
 //   Admin:      GET /list
-//   Eierskap: beats.owner_id (lest med brukerens eget token, så RLS gjelder);
-//   for filer uten synlig beat-rad brukes customMetadata.owner på R2-objektet.
+//   Eierskap: RPC beat_file_access (admin / owner / other / none). Admin og eier får
+//   skrive; «other» nektes; for beats som ikke finnes (ennå) brukes
+//   customMetadata.owner på R2-objektet.
 // ════════════════════════════════════════════════════════════════
 
-const MAX_UPLOAD_BYTES = 300 * 1024 * 1024;   // 300 MB
+// Workers-grensen for request body er 100 MB (Free/Pro). Body streames rett til R2.
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;   // 100 MB
 const SAFE_TYPE = /^(audio|image)\/[a-z0-9.+-]+$/i;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SHARE_PAGE = 'https://mekkis2002.github.io/Music-Vault/mixtape.html?t=';
@@ -57,8 +59,14 @@ export default {
           if (!headObj) return err('Ikke funnet', 404, allowed);
           const size = headObj.size;
           const match = rangeHeader.match(/bytes=(\d*)-(\d*)/) || [];
-          const from = match[1] ? parseInt(match[1]) : 0;
-          const to   = match[2] ? Math.min(parseInt(match[2]), size - 1) : size - 1;
+          let from, to;
+          if (!match[1] && match[2]) {               // suffix-range: bytes=-N = siste N bytes
+            from = Math.max(0, size - parseInt(match[2]));
+            to   = size - 1;
+          } else {
+            from = match[1] ? parseInt(match[1]) : 0;
+            to   = match[2] ? Math.min(parseInt(match[2]), size - 1) : size - 1;
+          }
           if (from > to) return err('Ugyldig range', 416, allowed);
           const obj = await env.BUCKET.get(key, { range: { offset: from, length: to - from + 1 } });
           if (!obj) return err('Ikke funnet', 404, allowed);
@@ -98,13 +106,13 @@ export default {
         const key = cleanKey(decodeURIComponent(path.slice('/upload/'.length)));
         if (!key) return err('Ugyldig key', 400, allowed);
         const len = Number(request.headers.get('Content-Length') || 0);
-        if (len > MAX_UPLOAD_BYTES) return err('Filen er for stor', 413, allowed);
+        if (!len || !request.body) return err('Mangler Content-Length', 411, allowed);
+        if (len > MAX_UPLOAD_BYTES) return err('Filen er for stor (maks 100 MB)', 413, allowed);
         if (!(await mayWrite(env, key, user))) return err('Ingen tilgang til denne filen', 403, allowed);
-        const body = await request.arrayBuffer();
-        if (body.byteLength > MAX_UPLOAD_BYTES) return err('Filen er for stor', 413, allowed);
         const reqType = request.headers.get('Content-Type') || 'audio/mpeg';
         const contentType = SAFE_TYPE.test(reqType) ? reqType : 'application/octet-stream';
-        await env.BUCKET.put(key, body, { httpMetadata: { contentType }, customMetadata: { owner: user.id } });
+        // Strøm rett til R2 (ingen buffering i Worker-minnet)
+        await env.BUCKET.put(key, request.body, { httpMetadata: { contentType }, customMetadata: { owner: user.id } });
         return json({ ok: true, url: `${url.origin}/file/${encodeURIComponent(key)}` }, allowed);
       }
 
@@ -122,13 +130,15 @@ export default {
         const b = await request.json();
         const from = cleanKey(b?.from), to = cleanKey(b?.to);
         if (!from || !to) return err('Mangler/ugyldig from/to', 400, allowed);
-        if (!(await mayWrite(env, from, user)) || !(await mayWrite(env, to, user))) {
+        const access = new Map();                    // én tilgangssjekk per beat-id
+        if (!(await mayWrite(env, from, user, access)) || !(await mayWrite(env, to, user, access))) {
           return err('Ingen tilgang til denne filen', 403, allowed);
         }
         const src = await env.BUCKET.get(from);
         if (!src) return err('Kildefil ikke funnet', 404, allowed);
-        const body = await src.arrayBuffer();
-        await env.BUCKET.put(to, body, { httpMetadata: src.httpMetadata, customMetadata: { owner: user.id } });
+        // Behold opprinnelig eier-merke (admin som arkiverer skal ikke ta over filen)
+        const owner = src.customMetadata?.owner || user.id;
+        await env.BUCKET.put(to, src.body, { httpMetadata: src.httpMetadata, customMetadata: { owner } });
         await env.BUCKET.delete(from);
         return json({ ok: true, url: `${url.origin}/file/${encodeURIComponent(to)}` }, allowed);
       }
@@ -266,16 +276,32 @@ function cleanKey(key) {
   return /^(active|archived|raw)\/[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)?$/.test(key) ? key : null;
 }
 
+// Spør Supabase (som brukeren) om tilgang til en beat-id:
+//   'admin' | 'owner' | 'other' (finnes, eies av en annen) | 'none' (finnes ikke) | null (feil)
+async function beatAccess(env, user, beatId) {
+  const r = await fetch(`${sbUrl(env)}/rest/v1/rpc/beat_file_access`, {
+    method: 'POST',
+    headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: user.auth, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_beat_id: beatId }),
+  });
+  return r.ok ? r.json() : null;
+}
+
 // Kan brukeren skrive til nøkkelen?
-//  1) Ser brukeren beat-raden (RLS)? Da avgjør beats.owner_id.
-//  2) Ellers (ny beat, ikke synket ennå / ikke synlig): bare hvis filen ikke finnes,
-//     eller hvis R2-objektet er merket med brukeren som eier.
-async function mayWrite(env, key, user) {
+//  - admin eller eier av beaten: ja
+//  - beaten finnes og eies av en annen: nei (også når filen ikke finnes ennå — hindrer
+//    at noen «tar» archived/{id} eller active/{id} for andres beats)
+//  - beaten finnes ikke (ny, ikke synket ennå): bare ny fil, eller fil merket med brukeren
+async function mayWrite(env, key, user, cache) {
   const beatId = key.split('/')[1];
   if (!beatId) return false;
-  const rows = await sbAsUser(env, user, `beats?select=owner_id&id=eq.${encodeURIComponent(beatId)}`);
-  if (rows === null) return false;            // Supabase-feil → nekt
-  if (rows.length) return rows[0].owner_id === user.id;
+  let access = cache?.get(beatId);
+  if (access === undefined) {
+    access = await beatAccess(env, user, beatId);
+    cache?.set(beatId, access);
+  }
+  if (access === 'admin' || access === 'owner') return true;
+  if (access !== 'none') return false;        // 'other' eller Supabase-feil → nekt
   const head = await env.BUCKET.head(key);
   if (!head) return true;
   return head.customMetadata?.owner === user.id;
