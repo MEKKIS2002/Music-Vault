@@ -1271,7 +1271,7 @@
     const word = input.value.trim();
     if(!word) return;
 
-    results.innerHTML = '<p style="font-size:11px;color:rgb(var(--ink-rgb) / .4);margin:0">Søker...</p>';
+    results.innerHTML = '<p style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin:0">Søker...</p>';
 
     try {
       // Route through Cloudflare Worker (has ANTHROPIC_API_KEY as secret)
@@ -1290,7 +1290,7 @@
       results.innerHTML = `
         ${perfekte.length ? `
           <div style="margin-bottom:8px">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / .3);text-transform:uppercase;margin-bottom:5px">Perfekte rim</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase;margin-bottom:5px">Perfekte rim</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
               ${perfekte.map(w => `<button class="ll-rhyme-chip" onclick="llInsertRhyme('${w.replace(/'/g,"\'")}')">
                 ${w}
@@ -1299,7 +1299,7 @@
           </div>` : ''}
         ${nesten.length ? `
           <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / .3);text-transform:uppercase;margin-bottom:5px">Nesten-rim</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase;margin-bottom:5px">Nesten-rim</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
               ${nesten.map(w => `<button class="ll-rhyme-chip muted" onclick="llInsertRhyme('${w.replace(/'/g,"\'")}')">
                 ${w}
@@ -1371,7 +1371,7 @@
 
     const audioUrl = beat.audio_url || beat.url || null;
     if (!audioUrl) {
-      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:64px;color:rgb(var(--ink-rgb) / .25);font-size:12px">Ingen lydfil</div>';
+      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:64px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-size:12px">Ingen lydfil</div>';
       return;
     }
 
@@ -1623,11 +1623,11 @@
       pop.id = 'llRhymePopover';
       pop.style.cssText = `position:fixed;z-index:9000;background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .15);`
         + `border-radius:12px;padding:10px 12px;min-width:220px;max-width:300px;`
-        + `box-shadow:0 12px 40px rgba(0,0,0,.7);font-family:inherit;`;
+        + `box-shadow:0 12px 40px rgb(var(--shadow-rgb) / calc(.7 * var(--shadow-k)));font-family:inherit;`;
       pop.style.left = Math.min(e.clientX, window.innerWidth - 320) + 'px';
       pop.style.top  = (e.clientY + 8) + 'px';
-      pop.innerHTML = `<div style="font-size:11px;font-weight:900;letter-spacing:.08em;color:rgb(var(--ink-rgb) / .35);text-transform:uppercase;margin-bottom:8px">Rim for "${word}"</div>
-        <div id="llPopoverResults" style="font-size:12px;color:rgb(var(--ink-rgb) / .4)">Laster...</div>`;
+      pop.innerHTML = `<div style="font-size:11px;font-weight:900;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">Rim for "${word}"</div>
+        <div id="llPopoverResults" style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)))">Laster...</div>`;
       document.body.appendChild(pop);
       _popover = pop;
 
@@ -1648,8 +1648,8 @@
         if (!r) return;
         if (!perfekte.length && !nesten.length) { r.textContent = 'Ingen rimord funnet'; return; }
         r.innerHTML = [
-          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / .25);text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .28);border-radius:999px;color:var(--accent-ink);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
-          nesten.length ? `<div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / .25);text-transform:uppercase;margin-bottom:4px">Nesten</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nesten.slice(0,6).map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:999px;color:rgb(var(--ink-rgb) / .6);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : ''
+          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .28);border-radius:999px;color:var(--accent-ink);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
+          nesten.length ? `<div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:4px">Nesten</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nesten.slice(0,6).map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:999px;color:rgb(var(--ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost)));font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : ''
         ].join('');
       } catch(e) {
         const r = document.getElementById('llPopoverResults');
@@ -1783,23 +1783,23 @@
     const modal = document.createElement('div');
     modal.id = 'llHistoryModal';
     modal.style.cssText = `position:fixed;inset:0;z-index:3000;background:rgb(var(--shade-rgb) / .75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px`;
-    modal.innerHTML = `<div style="background:var(--surface-sunken);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:18px;width:100%;max-width:580px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7)">
+    modal.innerHTML = `<div style="background:var(--surface-sunken);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:18px;width:100%;max-width:580px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgb(var(--shadow-rgb) / calc(.7 * var(--shadow-k)))">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgb(var(--ink-rgb) / .07)">
         <span style="font-size:15px;font-weight:900">Versjonshistorikk — ${esc(sec.title)}</span>
-        <button onclick="document.getElementById('llHistoryModal').remove()" style="background:none;border:none;color:rgb(var(--ink-rgb) / .5);font-size:18px;cursor:pointer">✕</button>
+        <button onclick="document.getElementById('llHistoryModal').remove()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:18px;cursor:pointer">✕</button>
       </div>
       <div style="overflow-y:auto;padding:8px">
-        ${hist.length === 0 ? '<p style="padding:16px;color:rgb(var(--ink-rgb) / .3);font-size:13px">Ingen lagrede versjoner ennå. Klikk <span class="ic ic-clock" aria-hidden="true"></span> i seksjonmenyen for å lagre.</p>'
+        ${hist.length === 0 ? '<p style="padding:16px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:13px">Ingen lagrede versjoner ennå. Klikk <span class="ic ic-clock" aria-hidden="true"></span> i seksjonmenyen for å lagre.</p>'
           : [...hist].reverse().map((v, i) => {
             const d = new Date(v.ts);
             const label = d.toLocaleString('no-NO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
             const preview = v.text.slice(0,120).replace(/&/g,'&amp;').replace(/</g,'&lt;');
             return `<div style="padding:12px;border-bottom:1px solid rgb(var(--ink-rgb) / .05)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-                <span style="font-size:11px;color:rgb(var(--ink-rgb) / .4);font-weight:700">${label}</span>
+                <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));font-weight:700">${label}</span>
                 <button onclick="llRestoreVersion('${secId}',${hist.length-1-i})" style="background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .3);border-radius:7px;color:var(--accent-ink);font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:inherit">Gjenopprett</button>
               </div>
-              <pre style="font-size:12px;color:rgb(var(--ink-rgb) / .55);font-family:Georgia,serif;margin:0;white-space:pre-wrap;max-height:80px;overflow:hidden">${preview}${v.text.length>120?'…':''}</pre>
+              <pre style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.55 + (1 - .55) * var(--ink-boost)));font-family:Georgia,serif;margin:0;white-space:pre-wrap;max-height:80px;overflow:hidden">${preview}${v.text.length>120?'…':''}</pre>
             </div>`;
           }).join('')}
       </div>
@@ -1851,7 +1851,7 @@
     if (!el) return;
 
     if (beats.length === 0) {
-      el.innerHTML = '<p style="font-size:12px;color:rgb(var(--ink-rgb) / .3);margin:0">Skriv tekst på andre sanger for å få inspirasjon her</p>';
+      el.innerHTML = '<p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin:0">Skriv tekst på andre sanger for å få inspirasjon her</p>';
       el.style.display = 'block';
       return;
     }
@@ -1866,10 +1866,10 @@
     // Show loading state
     el.style.display = 'block';
     el.innerHTML = `
-      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / .25);text-transform:uppercase;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">
         Genererer fra "${esc(beat.name)}"…
       </div>
-      <div style="display:flex;align-items:center;gap:8px;color:rgb(var(--ink-rgb) / .3);font-size:13px">
+      <div style="display:flex;align-items:center;gap:8px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:13px">
         <span style="animation:llSpin 1s linear infinite;display:inline-block">⟳</span>
         Spør Claude om inspirasjon…
       </div>`;
@@ -1896,20 +1896,20 @@
       if (!generated) throw new Error('Tom respons');
 
       el.innerHTML = `
-        <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / .25);text-transform:uppercase;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">
           Inspirert av "${esc(beat.name)}"
         </div>
-        <div style="font-size:15px;font-family:Georgia,serif;color:rgb(var(--ink-rgb) / .82);font-style:italic;line-height:1.7;white-space:pre-wrap">${esc(generated)}</div>
+        <div style="font-size:15px;font-family:Georgia,serif;color:rgb(var(--ink-rgb) / calc(.82 + (1 - .82) * var(--ink-boost)));font-style:italic;line-height:1.7;white-space:pre-wrap">${esc(generated)}</div>
         <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / .35);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">↻ Ny inspirasjon</button>
-          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" style="background:none;border:none;color:rgb(var(--ink-rgb) / .25);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Kopier</button>
+          <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">↻ Ny inspirasjon</button>
+          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Kopier</button>
         </div>`;
 
     } catch(err) {
       console.error('[llInspirasjon] Feil:', err);
       el.innerHTML = `
         <div style="font-size:12px;color:rgba(255,113,113,.6);margin-bottom:6px">Kunne ikke generere inspirasjon — prøv igjen</div>
-        <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / .3);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800">↻ Prøv igjen</button>`;
+        <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800">↻ Prøv igjen</button>`;
     }
   };
 

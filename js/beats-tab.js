@@ -101,18 +101,18 @@
       ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
       ${admin ? `<button onclick="beatsTab.toggleFav('${beatId}')">${beat.favorite ? '★ Fjern favoritt' : '☆ Legg til favoritt'}</button>` : ''}
       ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / .3);text-transform:uppercase">Legg i mixtape</div>
+        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i mixtape</div>
         ${mixtapes.map(m=>{
           const inIt=(m.beatIds||[]).includes(beatId);
-          return `<button onclick="beatsTab.addToCollection('${beatId}','mixtape','${m.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / .3);':''}">
+          return `<button onclick="beatsTab.addToCollection('${beatId}','mixtape','${m.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${m.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
       ${admin && albums.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / .3);text-transform:uppercase">Legg i album</div>
+        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i album</div>
         ${albums.map(a=>{
           const inIt=(a.beatIds||[]).includes(beatId);
-          return `<button onclick="beatsTab.addToCollection('${beatId}','album','${a.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / .3);':''}">
+          return `<button onclick="beatsTab.addToCollection('${beatId}','album','${a.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${a.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
@@ -358,7 +358,7 @@
       .bl-cover-ph {
         width: 36px; height: 36px; border-radius: 6px;
         background: rgb(var(--accent-rgb) / .15); display: flex; align-items: center;
-        justify-content: center; font-size: 14px; color: rgb(var(--accent-rgb) / .6);
+        justify-content: center; font-size: 14px; color: rgb(var(--accent-ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost)));
       }
 
       .bl-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -379,7 +379,7 @@
       .bl-chip.album   { background: rgb(var(--muted-rgb) / .12); color: #67e8f9; }
 
       .bl-uploader-tag {
-        font-size: 11px; font-weight: 700; color: var(--mv-amber, var(--accent));
+        font-size: 11px; font-weight: 700; color: var(--accent-ink);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
 
@@ -410,7 +410,7 @@
       /* Dropdown */
       .bt-dropdown {
         background: var(--surface-1); border: 1px solid rgb(var(--ink-rgb) / .12);
-        border-radius: 12px; padding: 6px; box-shadow: 0 16px 48px rgba(0,0,0,.6);
+        border-radius: 12px; padding: 6px; box-shadow: 0 16px 48px rgb(var(--shadow-rgb) / calc(.6 * var(--shadow-k)));
         display: flex; flex-direction: column; gap: 2px;
       }
       .bt-dropdown button {

@@ -566,7 +566,7 @@ let newAlbumCoverFile=null;   // originalen, for HD-cover etter opprettelse
 
 // Felles statusfarger (samme regel som pipeline.js): 0 = ikke startet (nøytral),
 // 1–99 = i arbeid (oransje), 100 = ferdig (grønn). Rødt brukes bare for feil.
-function mvPctColor(p){p=Number(p)||0;return p>=100?"#a6be8b":p>0?"#d68155":"rgba(244,234,220,.6)";}
+function mvPctColor(p){p=Number(p)||0;return p>=100?"var(--ok)":p>0?"var(--accent-ink)":"var(--muted)";}
 window.mvPctColor=mvPctColor;
 function uid(){return crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;}
 function clamp(v){return Math.max(0,Math.min(100,Number(v||0)));}
@@ -1126,10 +1126,10 @@ function renderAlbumBeats(beats,mode,customEl){
           <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlbumBeat('${b.id}')}" aria-label="Vis detaljer: ${esc(b.name)}">${coverHtml}</div>
           <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-              <span style="font-size:11px;color:rgb(var(--ink-rgb) / .25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
+              <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" style="min-width:0">${esc(b.name)}</div>
             </div>
-            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,var(--accent));font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
+            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--accent-ink);font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
           </div>
         </div>
         <div class="ab-expand">
@@ -1153,10 +1153,10 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
-              <span style="font-size:11px;color:rgb(var(--ink-rgb) / .25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
+              <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
               <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
-              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,var(--accent));opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
+              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:block;margin-right:2px"></span>'; return ''; })()}
@@ -1241,7 +1241,7 @@ window.mvShare = async function(btn) {
   const typeLabel={beat:'Beat',album:'Album',mixtape:'Mixtape'}[contentType]||contentType;
   const existHTML=existing.length
     ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .06)"><span style="font-size:13px;font-weight:700;color:var(--text);flex:1"><span class="ic ic-user" aria-hidden="true"></span> ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgb(var(--danger-rgb) / .3);color:var(--danger);font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
-    :'<p style="font-size:12px;color:rgb(var(--ink-rgb) / .3);margin:0">Ingen har tilgang</p>';
+    :'<p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin:0">Ingen har tilgang</p>';
   let modal=document.getElementById('_mvSM');
   if(!modal){modal=document.createElement('div');modal.id='_mvSM';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});document.body.appendChild(modal);}
   modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgb(var(--shade-rgb) / .82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
@@ -1249,7 +1249,7 @@ window.mvShare = async function(btn) {
     <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);max-width:440px;width:94%;padding:26px 28px;border-radius:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <h2 style="font-size:16px;font-weight:900;margin:0;color:var(--text)">Del ${typeLabel}</h2>
-        <button onclick="document.getElementById('_mvSM').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / .4);font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
+        <button onclick="document.getElementById('_mvSM').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
       </div>
       <p style="font-size:12px;color:var(--faint);margin:0 0 6px">${esc(contentName)}</p>
       <p style="font-size:12px;color:var(--faint);margin:0 0 18px;line-height:1.5">Gir en annen Music Vault-bruker tilgang i appen${contentType!=='beat'?' — til samlingen og låtene i den':''}. «Kan se» kan lytte; «Kan redigere» kan også endre. Mottakeren får et varsel.</p>
@@ -1263,8 +1263,8 @@ window.mvShare = async function(btn) {
           </select>
           <button onclick="window._mvSMdo()" style="background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;color:#000;font-size:13px;font-weight:900;padding:10px 22px;cursor:pointer;border-radius:8px;font-family:inherit">Del</button>
         </div>
-        <div id="_mvSM_s" style="font-size:12px;color:rgb(var(--ink-rgb) / .4);min-height:16px"></div>
-        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--ink-rgb) / .3);margin-top:4px">Har tilgang</div>
+        <div id="_mvSM_s" style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));min-height:16px"></div>
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin-top:4px">Har tilgang</div>
         <div id="_mvSM_l">${existHTML}</div>
       </div>
     </div>`;
@@ -1278,12 +1278,12 @@ window.mvShare = async function(btn) {
     try{
       const pr=await fetch(`${SBU}/rest/v1/rpc/get_user_id_by_username`,{method:'POST',headers:hdrs,body:JSON.stringify({p_username:username})});
       const profiles=pr.ok?await pr.json():[];
-      if(!profiles.length){if(statusEl){statusEl.style.color='#ffaaa3';statusEl.textContent='Finner ikke bruker: '+username;}return;}
+      if(!profiles.length){if(statusEl){statusEl.style.color='var(--danger)';statusEl.textContent='Finner ikke bruker: '+username;}return;}
       const granteeId=profiles[0].id;
-      if(granteeId===uid){if(statusEl){statusEl.style.color='#ffaaa3';statusEl.textContent='Kan ikke dele med deg selv';}return;}
+      if(granteeId===uid){if(statusEl){statusEl.style.color='var(--danger)';statusEl.textContent='Kan ikke dele med deg selv';}return;}
       const body=JSON.stringify({owner_id:uid,grantee_id:granteeId,content_type:contentType,content_id:contentId,role,content_name:contentName});
       const res=await fetch(`${SBU}/rest/v1/content_access`,{method:'POST',headers:{...hdrs,'Prefer':'resolution=merge-duplicates'},body});
-      if(!res.ok){const err=await res.text();if(statusEl){statusEl.style.color='#ffaaa3';statusEl.textContent='Feil: '+err;}return;}
+      if(!res.ok){const err=await res.text();if(statusEl){statusEl.style.color='var(--danger)';statusEl.textContent='Feil: '+err;}return;}
       // Album/mixtape: gi tilgang til l\u00e5tene som ALLEREDE ligger der. (Triggeren
       // auto_share_on_*_beat_add dekker bare l\u00e5ter som legges til senere.)
       const beatIds=_mvSMcollectionBeatIds(contentType,contentId);
@@ -1294,10 +1294,10 @@ window.mvShare = async function(btn) {
       // Varsel til mottakeren (notifications.js viser det i klokka hans)
       await fetch(`${SBU}/rest/v1/notifications`,{method:'POST',headers:{...hdrs,'Prefer':'return=minimal'},
         body:JSON.stringify({recipient_id:granteeId,sender_id:uid,type:{beat:'share_beat',album:'share_album',mixtape:'share_mixtape'}[contentType]||'share_beat',content_id:contentId,content_name:contentName,role,read:false})}).catch(()=>{});
-      if(statusEl){statusEl.style.color='#a6be8b';statusEl.textContent='\u2713 Delt med '+username;}
+      if(statusEl){statusEl.style.color='var(--ok)';statusEl.textContent='\u2713 Delt med '+username;}
       if(document.getElementById('_mvSM_u')) document.getElementById('_mvSM_u').value='';
       setTimeout(()=>window.mvShare(btn),800);
-    }catch(e){if(statusEl){statusEl.style.color='#ffaaa3';statusEl.textContent='Feil: '+e.message;}}
+    }catch(e){if(statusEl){statusEl.style.color='var(--danger)';statusEl.textContent='Feil: '+e.message;}}
   };
   // Fjern tilgang. For album/mixtape fjernes også tilgangen til låtene — bortsett
   // fra låter som mottakeren fortsatt har via en ANNEN delt samling.
@@ -1319,7 +1319,7 @@ window.mvShare = async function(btn) {
       }
       showToast('✓ Tilgang fjernet');
       window.mvShare(btn);
-    }catch(e){if(statusEl){statusEl.style.color='#ffaaa3';statusEl.textContent='Kunne ikke fjerne: '+e.message;}}
+    }catch(e){if(statusEl){statusEl.style.color='var(--danger)';statusEl.textContent='Kunne ikke fjerne: '+e.message;}}
   };
 };
 
@@ -1634,7 +1634,7 @@ function renderPipeline(){
       :`<div class="pipeline-album-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
     const beatRows=beats.map(b=>{
       const pct=clamp(b.done||0);
-      const col=pct>=70?"#a6be8b":pct>=40?"#d68155":"#ffaaa3";
+      const col=pct>=70?"var(--ok)":pct>=40?"var(--accent-ink)":"var(--danger)";
       return`<div class="pipeline-beat-row">
         <div class="pipeline-beat-name">${esc(b.name)}</div>
         <div class="pipeline-beat-bar"><div style="width:${pct}%;background:${col}"></div></div>
@@ -1816,7 +1816,7 @@ function renderAll(){
 
 function updateModalScore(d){
   const sc=releaseScore(d);const el=document.getElementById("editModalScore");
-  el.textContent=sc;el.style.color=sc>=70?"#a6be8b":sc>=40?"#d68155":"#ffaaa3";
+  el.textContent=sc;el.style.color=sc>=70?"var(--ok)":sc>=40?"var(--accent-ink)":"var(--danger)";
 }
 function switchMTab(t){
   document.querySelectorAll(".mtab").forEach(x=>x.classList.remove("active"));

@@ -1,0 +1,30 @@
+/* ============================================================================
+   light.css — målrettede rettelser for LYS MODUS (kremhvit).
+
+   Grunnfargene byttes i tokens.css ([data-theme="light"]). Denne fila tar
+   komponentene som har egne, hardkodede farger laget for mørk bakgrunn
+   (ofte med !important), og som derfor blir uleselige på krem.
+
+   Regel: ALLE regler her starter med :root[data-theme="light"], så mørk modus
+   er garantert uendret. Lastes sist (etter studio.css).
+   ========================================================================= */
+
+/* ── Arkivert: arkivkassen ───────────────────────────────────────────────── */
+/* Kassen og vinylen er objekter og står urørt; teksten rundt dem står på krem. */
+:root[data-theme="light"] #archiveTab .fa-info h3{ color: var(--text) !important; text-shadow: none !important; }
+:root[data-theme="light"] #archiveTab .fa-info p,
+:root[data-theme="light"] #archiveTab .fa-meta span{ color: var(--muted) !important; text-shadow: none !important; }
+:root[data-theme="light"] #archiveTab .fa-kicker{ color: var(--accent-ink) !important; }
+:root[data-theme="light"] #archiveTab .fa-demo-card-count{
+  color: var(--accent-ink) !important; background: rgb(var(--panel-rgb) / .9) !important;
+}
+:root[data-theme="light"] #archiveTab .fa-note,
+:root[data-theme="light"] #archiveTab .fa-footer,
+:root[data-theme="light"] #archiveTab .fa-footer span{ color: var(--muted) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini:not(.restore){ color: var(--text) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini:not(.restore):hover{ color: var(--text) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini.restore{ color: var(--on-accent) !important; }
+:root[data-theme="light"] #archiveTab .fa-hover{ background: rgb(var(--panel-rgb) / .96) !important; }
+
+/* ── Pipeline ────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .pl3-focus-hd{ color: var(--accent-ink) !important; }

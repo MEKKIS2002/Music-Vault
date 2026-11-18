@@ -355,7 +355,7 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
   position:absolute; top:calc(100% + 6px); left:0; z-index:60;
   min-width:220px; display:grid; gap:4px; padding:6px;
   background:var(--surface-1); border:1px solid var(--line-strong); border-radius:var(--r-sm);
-  box-shadow:0 16px 40px rgba(0,0,0,.55);
+  box-shadow:0 16px 40px rgb(var(--shadow-rgb) / calc(.55 * var(--shadow-k)));
 }
 .mv-proj-menu-panel > button{
   width:100%; margin:0 !important; justify-content:flex-start !important; text-align:left !important;

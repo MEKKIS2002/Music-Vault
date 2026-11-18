@@ -38,6 +38,7 @@
   --accent2-rgb:     240 165 121;
   --accent-deep:     #b9683f;   /* mørk ende i gradienter */
   --accent-ink:      var(--accent);   /* aksent brukt som TEKST (mørkere i lys modus) */
+  --accent-ink-rgb:  var(--accent-rgb);
   --accent-soft:     #39271e;
   --accent-line:     rgb(var(--accent-rgb) / .55);
   --gold:            var(--accent2);
@@ -47,11 +48,16 @@
   --warn:            #f0a579;
   --danger:          #ffaaa3;
   --info:            #bfb2a6;
+  --stage-idea:      #8b8794;   /* pipeline-stadier med egen farge */
+  --stage-writing:   #a78bfa;
 
   /* ── RGB-tripler for gjennomsiktighet: rgb(var(--ink-rgb) / .12) ───── */
   /* --ink-rgb = «forgrunn»: hvit i mørk modus, mørk brun i lys modus.    */
   --ink-rgb:         255 255 255;
   --shade-rgb:       0 0 0;          /* mørk tone for halvgjennomsiktige bakgrunner */
+  --shadow-rgb:      0 0 0;          /* skyggefarge: rgb(var(--shadow-rgb) / calc(a * var(--shadow-k))) */
+  --shadow-k:        1;              /* skyggestyrke (lys modus: svakere) */
+  --ink-boost:       0;              /* løfter dekningen på halvgjennomsiktig TEKST i lys modus */
   --text-rgb:        244 234 220;
   --muted-rgb:       191 178 166;
   --bg-rgb:          24 22 21;
@@ -147,27 +153,33 @@
   --line-strong:     #a8988a;
 
   --text:            #2b221c;
-  --muted:           #6b5d52;
-  --faint:           #7d6e62;   /* ≥4.5:1 mot --bg */
+  --muted:           #5e5148;
+  --faint:           #665950;   /* ≥4.9:1 mot alle lyse flater */
 
   --accent-soft:     #f6e3d6;
-  --accent2:         #a65430;   /* aksent som TEKST må være mørkere på krem */
+  --accent2:         #93472a;   /* aksent som TEKST må være mørkere på krem */
   --accent-ink:      var(--accent2);
-  --accent2-rgb:     166 84 48;
+  --accent2-rgb:     147 71 42;
+  --accent-ink-rgb:  var(--accent2-rgb);
 
-  --ok:              #5f7f45;
+  --ok:              #435e2f;
   --danger:          #b4443a;
-  --info:            #6b5d52;
+  --info:            #5e5148;
+  --stage-idea:      #625f6b;
+  --stage-writing:   #6247b8;
   --warn:            #a65a1e;
 
   --ink-rgb:         43 34 28;
   --shade-rgb:       120 92 66;
+  --shadow-rgb:      74 52 32;       /* varm brun i stedet for svart */
+  --shadow-k:        .32;
+  --ink-boost:       .45;
   --text-rgb:        43 34 28;
-  --muted-rgb:       107 93 82;
+  --muted-rgb:       94 81 72;
   --bg-rgb:          245 239 228;
   --panel-rgb:       251 248 242;
   --danger-rgb:      180 68 58;
-  --ok-rgb:          95 127 69;
+  --ok-rgb:          67 94 47;
 
   --shadow-float:    0 18px 48px rgba(74,52,32,.16);
   --shadow-modal:    0 32px 90px rgba(74,52,32,.24);
@@ -180,9 +192,9 @@
   --line:#40362f; --line-strong:#897567;
   --text:#f4eadc; --muted:#bfb2a6; --faint:#a89a8d;
   --accent2:#f0a579; --accent2-rgb:240 165 121; --accent-soft:#39271e;
-  --accent-ink:var(--accent);
+  --accent-ink:var(--accent); --accent-ink-rgb:var(--accent-rgb); --ink-boost:0;
   --ok:#a6be8b; --danger:#ffaaa3; --info:#bfb2a6; --warn:#f0a579;
-  --ink-rgb:255 255 255; --shade-rgb:0 0 0; --text-rgb:244 234 220; --muted-rgb:191 178 166;
+  --ink-rgb:255 255 255; --shade-rgb:0 0 0; --shadow-rgb:0 0 0; --shadow-k:1; --text-rgb:244 234 220; --muted-rgb:191 178 166;
   --bg-rgb:24 22 21; --panel-rgb:33 29 26; --danger-rgb:255 170 163; --ok-rgb:166 190 139;
   color: var(--text);
 }
@@ -198,11 +210,11 @@
 :root[data-accent="gul"]{   --accent:#d9b44a; --accent-rgb:217 180 74;  --accent2:#ecd287; --accent2-rgb:236 210 135; --accent-deep:#b8952f; --accent-soft:#352d18; }
 
 /* I lys modus må tekst-varianten være mørk nok for kontrast mot krem. */
-:root[data-theme="light"][data-accent="rosa"]{  --accent2:#b04a6c; --accent2-rgb:176 74 108;  --accent-soft:#f8e1e8; }
-:root[data-theme="light"][data-accent="bla"]{   --accent2:#3a6aa5; --accent2-rgb:58 106 165;  --accent-soft:#e1ebf7; }
-:root[data-theme="light"][data-accent="gronn"]{ --accent2:#4a7a35; --accent2-rgb:74 122 53;   --accent-soft:#e3efdc; }
-:root[data-theme="light"][data-accent="lilla"]{ --accent2:#6e4fa3; --accent2-rgb:110 79 163;  --accent-soft:#ece4f7; }
-:root[data-theme="light"][data-accent="gul"]{   --accent2:#8a6d12; --accent2-rgb:138 109 18;  --accent-soft:#f6eed3; }
+:root[data-theme="light"][data-accent="rosa"]{  --accent2:#9b3d5d; --accent2-rgb:155 61 93;  --accent-soft:#f8e1e8; }
+:root[data-theme="light"][data-accent="bla"]{   --accent2:#2f5b8f; --accent2-rgb:47 91 143;  --accent-soft:#e1ebf7; }
+:root[data-theme="light"][data-accent="gronn"]{ --accent2:#3e672c; --accent2-rgb:62 103 44;   --accent-soft:#e3efdc; }
+:root[data-theme="light"][data-accent="lilla"]{ --accent2:#5f4390; --accent2-rgb:95 67 144;  --accent-soft:#ece4f7; }
+:root[data-theme="light"][data-accent="gul"]{   --accent2:#755c0e; --accent2-rgb:117 92 14;  --accent-soft:#f6eed3; }
 
 /* Respekter systemets «reduser bevegelse». */
 @media (prefers-reduced-motion: reduce){
