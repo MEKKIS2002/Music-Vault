@@ -6,7 +6,19 @@
 
   const VERSIONS = [
     {
-      version: 'v5.9',
+      version: 'v2.10',
+      date: '18. november 2026',
+      label: 'Flytting av låter tilbake — nå også på mobil',
+      color: '#d68155',
+      changes: [
+        'Album og mixtapes: tilbake til den opprinnelige dra-og-slipp-flyttingen med de gamle animasjonene',
+        'På mobil: hold på coveret et øyeblikk, så løftes låten og følger fingeren — den oransje linjen viser hvor den havner',
+        'Skjermen ruller automatisk når du drar mot toppen eller bunnen',
+        'Versjonsnumrene i endringsloggen er ryddet: alt før redesignen er 1.x, redesignen og senere er 2.x',
+      ]
+    },
+    {
+      version: 'v2.9',
       date: '18. november 2026',
       label: 'Akkorder, metronom og dra-og-slipp',
       color: '#d68155',
@@ -18,7 +30,7 @@
       ]
     },
     {
-      version: 'v5.8',
+      version: 'v2.8',
       date: '18. november 2026',
       label: 'Automatisk toneart, BPM og cover',
       color: '#d68155',
@@ -31,7 +43,7 @@
       ]
     },
     {
-      version: 'v5.7',
+      version: 'v2.7',
       date: '18. november 2026',
       label: 'Søk, jevn lydstyrke og avspilling uten nett',
       color: '#d68155',
@@ -44,7 +56,7 @@
       ]
     },
     {
-      version: 'v5.6',
+      version: 'v2.6',
       date: '18. november 2026',
       label: 'Hurtigtaster og cover-farger i spilleren',
       color: '#d68155',
@@ -56,7 +68,7 @@
       ]
     },
     {
-      version: 'v5.5',
+      version: 'v2.5',
       date: '16. november 2026',
       label: 'Bytt bruker (for admin)',
       color: '#d68155',
@@ -68,7 +80,7 @@
       ]
     },
     {
-      version: 'v5.4',
+      version: 'v2.4',
       date: '16. november 2026',
       label: 'Stabil innlogging og egne adresser per side',
       color: '#d68155',
@@ -80,7 +92,7 @@
       ]
     },
     {
-      version: 'v5.3',
+      version: 'v2.3',
       date: '16. november 2026',
       label: 'Skriveverktøy i Docs og Lyric Lab',
       color: '#d68155',
@@ -93,7 +105,7 @@
       ]
     },
     {
-      version: 'v5.2',
+      version: 'v2.2',
       date: '16. november 2026',
       label: 'Høyreklikk og kortere menyer',
       color: '#d68155',
@@ -105,7 +117,7 @@
       ]
     },
     {
-      version: 'v5.1',
+      version: 'v2.1',
       date: '16. november 2026',
       label: 'Kø og mediekontroller',
       color: '#d68155',
@@ -117,7 +129,7 @@
       ]
     },
     {
-      version: 'v5.0',
+      version: 'v2.0',
       date: '16. november 2026',
       label: 'Studio × Platebutikken: ny design i hele appen',
       color: '#d68155',
@@ -135,7 +147,7 @@
       ]
     },
     {
-      version: 'v4.1',
+      version: 'v1.22',
       date: '15. november 2026',
       label: 'Egne ikoner i stedet for emojier',
       color: '#d68155',
@@ -147,7 +159,7 @@
       ]
     },
     {
-      version: 'v4.0',
+      version: 'v1.21',
       date: '15. november 2026',
       label: 'Stor opprydding: design, deling, avspilling og sikkerhet',
       color: '#d68155',
@@ -194,7 +206,7 @@
       ],
     },
     {
-      version: 'v3.1',
+      version: 'v1.20',
       date: '21. juni 2026',
       label: 'Docs, offentlig deling og avspillingsfikser',
       color: '#a6be8b',
@@ -216,7 +228,7 @@
       ],
     },
     {
-      version: 'v3.0',
+      version: 'v1.19',
       date: '14. juni 2026',
       label: 'Hjem-dashboard og topbar-redesign',
       color: '#d68155',
@@ -242,7 +254,7 @@
       ],
     },
     {
-      version: 'v2.9',
+      version: 'v1.18',
       date: '14. juni 2026',
       label: 'Album- og mixtape-forbedringer',
       color: '#bfb2a6',
@@ -266,7 +278,7 @@
       ],
     },
     {
-      version: 'v2.8',
+      version: 'v1.17',
       date: '25. mai 2026',
       label: 'Label-dashboard',
       color: '#d68155',
@@ -285,7 +297,7 @@
       ],
     },
     {
-      version: 'v2.7',
+      version: 'v1.16',
       date: '24. mai 2026',
       label: 'Onboarding og multi-tenant',
       color: '#a6be8b',
@@ -313,7 +325,7 @@
       ],
     },
     {
-      version: 'v2.6',
+      version: 'v1.15',
       date: '22. mai 2026',
       label: 'Multi-tenant og deling',
       color: '#a6be8b',
@@ -331,7 +343,7 @@
       ],
     },
     {
-      version: 'v2.5',
+      version: 'v1.14',
       date: '22. mai 2026',
       label: 'Pakke-system og brukerroller',
       color: '#f0a579',
@@ -350,7 +362,7 @@
       ],
     },
     {
-      version: 'v2.4',
+      version: 'v1.13',
       date: '21. mai 2026',
       label: 'Mixtape pitch, liker og forbedringer',
       color: '#d68155',
@@ -371,7 +383,7 @@
       ],
     },
     {
-      version: 'v2.35',
+      version: 'v1.12',
       date: '21. mai 2026',
       label: 'Listevisning og beat-gjenoppretting',
       color: '#bfb2a6',
@@ -389,7 +401,7 @@
       ],
     },
     {
-      version: 'v2.3',
+      version: 'v1.11',
       date: '16. mai 2026',
       label: 'Album & Pipeline',
       color: '#bfb2a6',
@@ -414,7 +426,7 @@
       ],
     },
     {
-      version: 'v2.2',
+      version: 'v1.10',
       date: '15. mai 2026',
       label: 'Lyric Lab',
       color: '#d68155',
@@ -436,7 +448,7 @@
       ],
     },
     {
-      version: 'v2.1',
+      version: 'v1.9',
       date: '14. mai 2026',
       label: 'PNG-kassetter, arkiv-fix og view modes',
       color: '#d68155',
@@ -456,7 +468,7 @@
       ],
     },
     {
-      version: 'v2.0',
+      version: 'v1.8',
       date: '13. mai 2026',
       label: 'Tab-rekkefølge, visningsmoduser og viewer-forbedringer',
       color: '#d68155',
@@ -472,7 +484,7 @@
       ],
     },
     {
-      version: 'v1.9',
+      version: 'v1.7',
       date: '13. mai 2026',
       label: 'Lydkomprimering',
       color: '#a6be8b',
@@ -484,7 +496,7 @@
       ],
     },
     {
-      version: 'v1.8',
+      version: 'v1.6',
       date: '13. mai 2026',
       label: 'Beats-tab + listvisning',
       color: '#f0a579',
@@ -499,7 +511,7 @@
       ],
     },
     {
-      version: 'v1.7',
+      version: 'v1.5',
       date: '13. mai 2026',
       label: 'Sletting + opplasternavn',
       color: '#ffaaa3',
@@ -511,7 +523,7 @@
       ],
     },
     {
-      version: 'v1.6',
+      version: 'v1.4',
       date: '13. mai 2026',
       label: 'Nytt innloggingssystem',
       color: '#d68155',
@@ -526,7 +538,7 @@
       ],
     },
     {
-      version: 'v1.5',
+      version: 'v1.3',
       date: '13. mai 2026',
       label: 'Cloudflare R2 + Supabase-synk',
       color: '#bfb2a6',
@@ -541,7 +553,7 @@
       ],
     },
     {
-      version: 'v1.4',
+      version: 'v1.2',
       date: '13. mai 2026',
       label: 'Prosjektstruktur splitt',
       color: '#818cf8',
@@ -556,7 +568,7 @@
       ],
     },
     {
-      version: 'v1.3',
+      version: 'v1.1',
       date: '13. mai 2026',
       label: 'Stor kode-opprydding (runde 2)',
       color: '#d68155',
