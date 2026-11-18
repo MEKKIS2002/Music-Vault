@@ -1802,3 +1802,53 @@ html body #bottomPlayer.bp-tinted .bp-cover{ box-shadow: 0 0 0 1px rgba(255,255,
   html body .mv-switch:not(:has(.mv-switch-bar)){ left: 1rem; bottom: calc(var(--mv-player-space, 0px) + 8.4rem); }
   html body .mv-switch-fab{ box-shadow: none; opacity: .7; }
 }
+
+/* ── 36. Søkevindu (js/search.js) ─────────────────────────────────────────── */
+html body .mv-search{ position: fixed; inset: 0; z-index: 9800; display: none; align-items: flex-start; justify-content: center; padding: 12vh 1rem 1rem; background: rgba(14,11,9,.66); backdrop-filter: blur(3px); }
+html body .mv-search.open{ display: flex; }
+html body .mv-search-card{ width: min(38rem, 100%); max-height: 72vh; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-panel); box-shadow: var(--shadow-modal); overflow: hidden; font-family: var(--body); color: var(--text); }
+html body .mv-search-field{ display: flex; align-items: center; gap: .6rem; padding: .3rem .9rem; border-bottom: 1px solid var(--line); }
+html body .mv-search-field > .ic{ color: var(--muted); }
+html body input.mv-search-input{ flex: 1; min-width: 0; height: 3.1rem; border: 0 !important; background: transparent !important; color: var(--text); font: 500 1.05rem var(--body); outline: none; box-shadow: none !important; padding: 0 !important; }
+html body .mv-search kbd{ display: inline-block; padding: .05rem .38rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; background: var(--raised); font: 600 .72rem var(--body); color: var(--muted); }
+html body .mv-search-list{ list-style: none; margin: 0; padding: .4rem; overflow: auto; flex: 1; }
+html body .mv-search-group{ padding: .6rem .6rem .25rem; color: var(--accent-text); font: 700 .68rem var(--body); letter-spacing: .14em; text-transform: uppercase; }
+html body .mv-search-list li[data-i]{ display: flex; align-items: center; gap: .75rem; padding: .45rem .6rem; border-radius: var(--radius); cursor: pointer; }
+html body .mv-search-list li[aria-selected="true"]{ background: var(--accent-soft); }
+html body .mv-search-ic{ width: 2.2rem; height: 2.2rem; flex: none; border-radius: 6px; background: var(--raised); display: grid; place-items: center; overflow: hidden; color: var(--muted); }
+html body .mv-search-ic img{ width: 100%; height: 100%; object-fit: cover; }
+html body .mv-search-txt{ flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html body .mv-search-txt b{ font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html body .mv-search-txt small{ color: var(--muted); font-size: .78rem; }
+html body .mv-search-act{ color: var(--faint); font: 600 .75rem var(--body); opacity: 0; }
+html body .mv-search-list li[aria-selected="true"] .mv-search-act{ opacity: 1; color: var(--accent-text); }
+html body .mv-search-empty{ padding: 1.2rem .6rem; color: var(--muted); }
+html body .mv-search-foot{ display: flex; gap: 1rem; flex-wrap: wrap; margin: 0; padding: .55rem .9rem; border-top: 1px solid var(--line); color: var(--faint); font-size: .76rem; }
+html body .mv-search-foot span{ display: inline-flex; gap: .25rem; align-items: center; }
+@media (max-width: 768px){ html body .mv-search{ padding-top: 4vh; } html body .mv-search-foot{ display: none; } }
+html body .mv-nav-search{
+  display: flex; align-items: center; gap: .6rem; width: 100%; height: 2.4rem; margin: 0 0 .6rem; padding: 0 .7rem;
+  border-radius: var(--radius); border: 1px solid var(--line); background: var(--bg); color: var(--muted);
+  font: 500 .88rem var(--body); cursor: pointer; text-align: left;
+}
+html body .mv-nav-search span:not(.ic){ flex: 1; }
+html body .mv-nav-search kbd{ padding: .05rem .35rem; border: 1px solid var(--line); border-radius: 5px; font: 600 .66rem var(--body); color: var(--faint); background: var(--panel); }
+html body .mv-nav-search:hover{ border-color: var(--border-control); color: var(--text); }
+@media (max-width: 768px){ html body .mv-nav-search kbd{ display: none; } }
+
+/* ── 37. Jevn lydstyrke + uten nett (js/audio-tools.js) ───────────────────── */
+html body #bottomPlayer .mv-norm-btn{ color: var(--faint); }
+html body #bottomPlayer .mv-norm-btn.is-on{ color: var(--accent-text); }
+html body .mv-offline-pill{
+  position: fixed; z-index: 960; top: .75rem; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: 999px;
+  background: var(--raised); border: 1px solid var(--border-control); color: var(--text); font: 600 .82rem var(--body);
+  box-shadow: 0 8px 24px rgba(0,0,0,.4); max-width: calc(100vw - 2rem);
+}
+html body.mv-offline .mv-unavailable{ opacity: .38; }
+html body.mv-offline .mv-unavailable *{ cursor: not-allowed; }
+html body .mv-search input.mv-search-input,
+html body .mv-search input.mv-search-input:focus,
+html body .mv-search input.mv-search-input:focus-visible{ outline: none !important; border: 0 !important; box-shadow: none !important; background: transparent !important; }
+html body .mv-search input.mv-search-input::-webkit-search-cancel-button{ -webkit-appearance: none; display: none; }
+html body .mv-search-field:focus-within{ box-shadow: inset 0 -2px 0 var(--accent); }

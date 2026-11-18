@@ -10,6 +10,7 @@
 
   // ── State ──────────────────────────────────────────────────────────────────
   let searchQ = '';
+  let fuzzyIds = null;   // id-er som bare matchet uskarpt (beholdes etter sortering)
   let sortMode = 'newest'; // newest | oldest | name | rating | duration
   let openDropdownId = null;
 
@@ -40,17 +41,27 @@
     const st = typeof state !== 'undefined' ? state : window.state;
     if (!st) return [];
     let beats = [...(st.beats || [])].filter(b => !b.archived);
+    fuzzyIds = null;
     if (searchQ) {
       const q = searchQ.toLowerCase();
-      beats = beats.filter(b =>
+      const all = beats;
+      const exact = beats.filter(b =>
         (b.name||'').toLowerCase().includes(q) ||
         (b.source||'').toLowerCase().includes(q) ||
         (b.uploadedBy||'').toLowerCase().includes(q) ||
         (Number(b.bpm)>0 && String(b.bpm)===q.replace(/\s*bpm$/,'').trim()) ||   // «140» eller «140 bpm»
         getCollections(b.id).some(c => c.name.toLowerCase().includes(q))
       );
+      // Uskarpe treff (search.js): tåler skrivefeil — legges etter de vanlige treffene
+      if (typeof window.mvFuzzyBeats === 'function') {
+        const have = new Set(exact.map(b => b.id));
+        const extra = window.mvFuzzyBeats(all.filter(b => !have.has(b.id)), searchQ, id => getCollections(id).map(c => c.name).join(' '));
+        beats = exact.concat(extra);
+        fuzzyIds = new Set(extra.map(b => b.id));
+      } else beats = exact;
     }
     beats.sort((a, b) => {
+      if (fuzzyIds) { const fa = fuzzyIds.has(a.id), fb = fuzzyIds.has(b.id); if (fa !== fb) return fa ? 1 : -1; if (fa) return 0; }
       if (sortMode === 'newest')   return (b.createdAt||0) - (a.createdAt||0);
       if (sortMode === 'oldest')   return (a.createdAt||0) - (b.createdAt||0);
       if (sortMode === 'name')     return (a.name||'').localeCompare(b.name||'');

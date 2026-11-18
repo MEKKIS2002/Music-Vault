@@ -6,6 +6,19 @@
 
   const VERSIONS = [
     {
+      version: 'v5.7',
+      date: '18. november 2026',
+      label: 'Søk, jevn lydstyrke og avspilling uten nett',
+      color: '#d68155',
+      changes: [
+        'Nytt søk (Ctrl+K, F eller «Søk» i menyen) som tåler skrivefeil — finner låter, album, mixtapes og sider',
+        'Beats-søket finner også låter når du staver litt feil',
+        'Jevn lydstyrke: høye låter dempes automatisk så du slipper å skru volumet mellom spor (av/på: knappen i spilleren eller N)',
+        'Lagre offline: høyreklikk på en låt, et album eller en mixtape. Appen åpner også uten nett',
+        'Tryggere lagring: to lagringer kan ikke lenger kjøre samtidig og slette nye låter',
+      ]
+    },
+    {
       version: 'v5.6',
       date: '18. november 2026',
       label: 'Hurtigtaster og cover-farger i spilleren',

@@ -186,6 +186,25 @@ function mvForceLabelTab(){
   }, delay));
 }
 
+// Uten nett: åpne med det som er husket lokalt (ingen skriving skjer før nettet er tilbake,
+// og synk/pull feiler stille). Laster siden på nytt når nettet kommer, så alt friskes opp.
+function mvRestoreOffline(){
+  const uid = localStorage.getItem('mv_user_id'), role = localStorage.getItem('mv_role');
+  if(!uid || !role) return false;
+  const pkg = localStorage.getItem('mv_package') || (role === 'admin' ? 'admin' : 'artist');
+  window._mvCurrentUserId = uid;
+  sessionStorage.setItem('mv_user_id', uid);
+  sessionStorage.setItem('mv_username', localStorage.getItem('mv_username') || '');
+  sessionStorage.setItem('mv_package', pkg);
+  mvLoadUserState(uid);
+  unlockAs(role);
+  if(typeof window.setPackage === 'function') window.setPackage(pkg);
+  if(pkg === 'label') mvForceLabelTab();
+  window.addEventListener('online', ()=>location.reload(), { once:true });
+  console.log('[Lock] Uten nett — åpnet med lokale data.');
+  return true;
+}
+
 // Returnerer true hvis sesjonen ble gjenopprettet.
 async function mvRestoreSession(){
   if(!mvPersistentSessionValid()){
@@ -204,17 +223,27 @@ async function mvRestoreSession(){
 
   // getSession() fornyer access-tokenet selv hvis det er utløpt; returnerer
   // null hvis refresh-tokenet er ugyldig/trukket tilbake.
-  let session = null;
+  let session = null, authErr = null;
   // Tidsfrist: getSession kan henge hvis token-fornyelsen henger. Da beholder
   // vi den lagrede innloggingen (ikke slett) og viser skjemaet/nødutgangen.
   const TIMEOUT = {};
   try{
-    const r = await mvWithTimeout(client.auth.getSession(), 10000, TIMEOUT);
-    if(r === TIMEOUT){ console.warn('[Lock] getSession svarte ikke innen 10 s'); return false; }
+    const r = await mvWithTimeout(client.auth.getSession(), navigator.onLine ? 10000 : 2500, TIMEOUT);
+    if(r === TIMEOUT){
+      if(!navigator.onLine && mvRestoreOffline()) return true;   // uten nett: åpne med lokale data
+      console.warn('[Lock] getSession svarte ikke i tide'); return false;
+    }
     session = r?.data?.session || null;
+    authErr = r?.error || null;
   }
-  catch(e){ console.warn('[Lock] getSession feilet:', e); }
-  if(!session){ mvClearPersistentSession(); return false; }
+  catch(e){ console.warn('[Lock] getSession feilet:', e); authErr = e; }
+  if(!session){
+    // Uten nett kan ikke tokenet fornyes — det er IKKE en utlogging. Åpne appen
+    // med lokale data (lyd lagret offline kan spilles), og prøv igjen når nettet kommer.
+    const netDown = !navigator.onLine || /fetch|network|Failed/i.test(String(authErr?.name || '') + ' ' + String(authErr?.message || ''));
+    if(netDown && mvRestoreOffline()) return true;
+    mvClearPersistentSession(); return false;
+  }
 
   const username = localStorage.getItem('mv_username') || '';
   const uid      = session.user?.id || localStorage.getItem('mv_user_id') || '';
