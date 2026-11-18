@@ -4,6 +4,7 @@ name = "beat-vault"
 main = "r2-worker.js"
 compatibility_date = "2026-05-12"
 workers_dev = true
+preview_urls = false
 
 [[r2_buckets]]
 binding = "BUCKET"
