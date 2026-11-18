@@ -1,4 +1,3 @@
-async function _mvWorkerHeaders(){try{const {data}=await window.supabaseClient.auth.getSession();const t=data?.session?.access_token;return t?{'Content-Type':'application/json',Authorization:'Bearer '+t}:{'Content-Type':'application/json'};}catch(e){return {'Content-Type':'application/json'};}}
 // === lyriclab.js ===
 // Lyric Lab — fullskjerm teksteditor med beat-info og skriveanalyse.
 //
@@ -1292,7 +1291,7 @@ async function _mvWorkerHeaders(){try{const {data}=await window.supabaseClient.a
       const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
       const res = await fetch(`${workerUrl}/rhyme`, {
         method: 'POST',
-        headers: await _mvWorkerHeaders(),
+        headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ word })
       });
       const data = await res.json();
@@ -1651,7 +1650,7 @@ async function _mvWorkerHeaders(){try{const {data}=await window.supabaseClient.a
       try {
         const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
         const res = await fetch(`${workerUrl}/rhyme`, {
-          method:'POST', headers: await _mvWorkerHeaders(),
+          method:'POST', headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
           body: JSON.stringify({word})
         });
         const data = await res.json();
@@ -1900,7 +1899,7 @@ async function _mvWorkerHeaders(){try{const {data}=await window.supabaseClient.a
 
       const res = await fetch(`${workerUrl}/inspire`, {
         method: 'POST',
-        headers: await _mvWorkerHeaders(),
+        headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ beatName: beat.name, lyrics: lyrics.slice(0, 800) })
       });
 
