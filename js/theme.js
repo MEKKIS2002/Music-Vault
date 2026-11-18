@@ -47,8 +47,78 @@
     if (meta) meta.setAttribute('content', getTheme() === 'light' ? '#f5efe4' : '#0d0c0b');
 
     renderControls();
+    updateFavicon();
     // Canvas-tegninger (bølgeformer) leser fargene ved tegning — be dem tegne på nytt.
     window.dispatchEvent(new CustomEvent('mv:themechange', { detail: { theme: getTheme(), accent } }));
+  }
+
+  // ── Favicon i aksentfargen ────────────────────────────────────────────────
+  // assets/favicon.png er en vinylplate i gråtoner med farget etikett. Vi tegner
+  // den i et canvas og gir de fargede pikslene (etiketten) aksentens fargetone og
+  // metning, men beholder lysstyrken — så skygge og glans blir med.
+  const FAVICON_SRC = 'assets/favicon.png';
+  let faviconImg = null, faviconFor = null;
+
+  function hexToRgb(hex){
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+    if (!m) return null;
+    const n = parseInt(m[1], 16);
+    return [n >> 16 & 255, n >> 8 & 255, n & 255];
+  }
+  function rgbToHsl(r, g, b){
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2;
+    if (max === min) return [0, 0, l];
+    const d = max - min, s = l > .5 ? d / (2 - max - min) : d / (max + min);
+    const h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [h / 6, s, l];
+  }
+  function hslToRgb(h, s, l){
+    if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
+    const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+    const f = t => { t = (t + 1) % 1; return t < 1/6 ? p + (q - p) * 6 * t : t < 1/2 ? q : t < 2/3 ? p + (q - p) * (2/3 - t) * 6 : p; };
+    return [f(h + 1/3), f(h), f(h - 1/3)].map(v => Math.round(v * 255));
+  }
+
+  function updateFavicon(){
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const rgb = hexToRgb(accent);
+    if (!rgb || accent === faviconFor) return;
+    const draw = () => {
+      try {
+        const size = 64, c = document.createElement('canvas');
+        c.width = c.height = size;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(faviconImg, 0, 0, size, size);
+        const img = ctx.getImageData(0, 0, size, size), px = img.data;
+        const [th, ts, tl] = rgbToHsl(...rgb);
+        // 1) finn etikettens gjennomsnittlige lysstyrke (fargede piksler)
+        let sumL = 0, count = 0;
+        for (let i = 0; i < px.length; i += 4) {
+          if (px[i + 3] === 0) continue;
+          const [, s, l] = rgbToHsl(px[i], px[i + 1], px[i + 2]);
+          if (s >= .15) { sumL += l; count++; }
+        }
+        const k = count ? tl / (sumL / count) : 1;   // skaler så snittet = aksentens lysstyrke
+        // 2) farg etiketten: aksentens tone/metning, original lysstyrke-variasjon
+        for (let i = 0; i < px.length; i += 4) {
+          if (px[i + 3] === 0) continue;
+          const [, s, l] = rgbToHsl(px[i], px[i + 1], px[i + 2]);
+          if (s < .15) continue;                          // gråtoner = selve platen
+          const [r, g, b] = hslToRgb(th, ts * Math.min(1, s / .5), Math.min(.96, l * k));
+          px[i] = r; px[i + 1] = g; px[i + 2] = b;
+        }
+        ctx.putImageData(img, 0, 0);
+        let link = document.querySelector('link[rel="icon"]');
+        if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+        link.type = 'image/png';
+        link.href = c.toDataURL('image/png');
+        faviconFor = accent;
+      } catch (e) { /* canvas utilgjengelig — behold original favicon */ }
+    };
+    if (faviconImg && faviconImg.complete && faviconImg.naturalWidth) return draw();
+    if (!faviconImg) { faviconImg = new Image(); faviconImg.src = FAVICON_SRC; }
+    faviconImg.addEventListener('load', draw, { once: true });
   }
 
   function setTheme(theme){ write('mv_theme', theme === 'light' ? 'light' : 'dark'); apply(); }
