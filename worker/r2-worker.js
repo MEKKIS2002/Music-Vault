@@ -269,11 +269,11 @@ async function isAdmin(env, user) {
   return rows?.[0]?.role === 'admin';
 }
 
-// Godtar bare kjente navnerom: active/{id}, archived/{id}, raw/{id}/{fil}
+// Godtar bare kjente navnerom: active/{id}, archived/{id}, raw/{id}/{fil}, covers/{albumId}
 function cleanKey(key) {
   if (typeof key !== 'string' || key.length > 300) return null;
   if (key.includes('..')) return null;
-  return /^(active|archived|raw)\/[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)?$/.test(key) ? key : null;
+  return /^(active|archived|raw|covers)\/[A-Za-z0-9._-]+(\/[A-Za-z0-9._-]+)?$/.test(key) ? key : null;
 }
 
 // Spør Supabase (som brukeren) om tilgang til en beat-id:

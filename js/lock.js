@@ -631,7 +631,7 @@ window.showRegister = function() {
   document.getElementById('lockCard').style.display = 'none';
   const rc = document.getElementById('registerCard');
   rc.style.display = 'grid';
-  rc.style.animation = 'lockCardEnter .4s cubic-bezier(.22,.68,0,1.2) both';
+  rc.style.animation = 'lockCardEnter .4s cubic-bezier(.22,1,.36,1) both';
 };
 
 window.showLogin = function() {

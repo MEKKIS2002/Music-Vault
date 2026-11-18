@@ -321,3 +321,81 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
   background: var(--accent-soft); color: var(--accent2);
 }
 .mv-gear-hint{ font-size: var(--fs-xs); color: var(--faint); }
+/* ── Cover-visning: stort albumcover med vinyl (js/cover-viewer.js) ────── */
+[data-cover-viewer]{ cursor: zoom-in; }
+[data-cover-viewer]:focus-visible{ outline: none; box-shadow: var(--focus-ring); }
+html.mv-cv-lock, html.mv-cv-lock body{ overflow: hidden; }
+
+.mv-cover-viewer{
+  /* Coverstørrelse: plass til platen som stikker ut til høyre (×1.32) */
+  --cv: min(72vmin, calc((100vw - 48px) / 1.32), 860px);
+  position: fixed; inset: 0; z-index: 10060;
+  display: grid; place-items: center;
+  background: rgba(10,8,6,0);                      /* alltid mørk, også i lys modus */
+  backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0);
+  cursor: zoom-out; outline: none;
+  transition: background var(--dur-base) var(--ease), backdrop-filter var(--dur-base) var(--ease);
+}
+.mv-cover-viewer.is-open{ background: rgba(10,8,6,.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+
+.mv-cv-stage{
+  perspective: 1400px;
+  transform: translateX(calc(var(--cv) * -0.16));   /* sentrer cover + plate sammen */
+}
+.mv-cv-tilt{
+  position: relative; width: var(--cv); height: var(--cv);
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .5s var(--ease);
+}
+.mv-cv-tilt.is-tilting{ transition: transform .12s ease-out; }
+
+.mv-cv-sleeve{
+  position: relative; z-index: 2; width: 100%; height: 100%;
+  border-radius: 4px; overflow: hidden;
+  box-shadow: var(--shadow-modal), 0 0 0 1px rgba(255,255,255,.06);
+  transform: translateZ(1px);
+}
+.mv-cv-sleeve img{ width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; -webkit-user-drag: none; }
+.mv-cv-glare{
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.28), rgba(255,255,255,0) 55%);
+  mix-blend-mode: soft-light; opacity: 0; transition: opacity .3s var(--ease);
+}
+.mv-cv-tilt.is-tilting .mv-cv-glare{ opacity: 1; }
+
+/* Vinylplaten bak coveret — glir ut til høyre når visningen åpnes */
+.mv-cv-disc{
+  position: absolute; z-index: 1; top: 2%; left: 0; width: 96%; height: 96%;
+  border-radius: 50%;
+  background:
+    conic-gradient(from 30deg, rgba(255,255,255,0) 0 10%, rgba(255,255,255,.10) 14%, rgba(255,255,255,0) 20% 60%, rgba(255,255,255,.08) 64%, rgba(255,255,255,0) 70%),
+    repeating-radial-gradient(circle, #121110 0 2px, #1c1a18 2px 3px),
+    #121110;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  transform: translateX(0) rotate(0deg);
+  transition: transform .7s var(--ease) .12s;
+}
+.mv-cover-viewer.is-open .mv-cv-disc{ transform: translateX(34%) rotate(40deg); }
+.mv-cover-viewer.is-closing .mv-cv-disc{ transition-delay: 0s; transition-duration: .25s; }
+.mv-cv-disc-label{
+  position: absolute; inset: 33%; border-radius: 50%;
+  background-size: cover; background-position: center;
+  box-shadow: 0 0 0 3px #0c0b0a;
+}
+.mv-cv-disc-label::after{
+  content: ""; position: absolute; left: 50%; top: 50%; width: 9%; height: 9%;
+  transform: translate(-50%, -50%); border-radius: 50%; background: #0c0b0a;
+}
+
+.mv-cv-hint{
+  position: absolute; left: 0; right: 0; bottom: max(20px, env(safe-area-inset-bottom));
+  text-align: center; font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(255,255,255,.45); opacity: 0; transition: opacity var(--dur-base) var(--ease) .3s;
+}
+.mv-cover-viewer.is-open .mv-cv-hint{ opacity: 1; }
+
+@media (prefers-reduced-motion: reduce){
+  .mv-cv-tilt, .mv-cv-disc, .mv-cover-viewer{ transition: none !important; }
+  .mv-cover-viewer.is-open .mv-cv-disc{ transform: translateX(34%); }
+}

@@ -562,6 +562,7 @@ window.state = state; // eksponér globalt for audio-compress.js og andre
 let currentAlbumId=null;
 let modalRating=0;
 let newAlbumCoverBase64=null;
+let newAlbumCoverFile=null;   // originalen, for HD-cover etter opprettelse
 
 // Felles statusfarger (samme regel som pipeline.js): 0 = ikke startet (nøytral),
 // 1–99 = i arbeid (oransje), 100 = ferdig (grønn). Rødt brukes bare for feil.
@@ -1488,6 +1489,7 @@ document.getElementById("newAlbumCoverInput").addEventListener("change",e=>{
   reader.onload=ev=>{
     const img=new Image();
     img.onload=()=>{
+      newAlbumCoverFile=f;
       newAlbumCoverBase64=mvSquareCoverDataURL(img,400,.85);   // V14: square crop (was Math.min letterbox)
       const prev=document.getElementById("albumCoverPreview");
       prev.src=newAlbumCoverBase64;
@@ -1509,6 +1511,33 @@ function makeAlbumCover(file,cb){
   reader.readAsDataURL(file);
 }
 
+// HD-cover for den store cover-visningen (js/cover-viewer.js): samme kvadratiske
+// utsnitt, opptil 2048 px, lastet opp til R2 (covers/{albumId}). Selve album.cover
+// forblir den lille data-URL-en så synk og lister holder seg lette.
+// cover_hd_for = fingeravtrykk av album.cover, så et cover byttet på annen måte
+// (f.eks. arvet) aldri viser en gammel HD-fil.
+function mvCoverFingerprint(s){s=String(s||"");let h=5381;for(let i=0;i<s.length;i+=Math.max(1,s.length>>10))h=((h<<5)+h+s.charCodeAt(i))|0;return s.length+"-"+(h>>>0).toString(36);}
+window.mvCoverFingerprint=mvCoverFingerprint;
+function mvUploadAlbumCoverHD(album,file){
+  if(!album||!file||!window.r2Storage||!window.r2Storage.ready())return;
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{
+    URL.revokeObjectURL(url);
+    const iw=img.naturalWidth,ih=img.naturalHeight,s=Math.min(iw,ih),size=Math.min(2048,s);
+    const c=document.createElement("canvas");c.width=c.height=size;
+    c.getContext("2d").drawImage(img,(iw-s)/2,(ih-s)/2,s,s,0,0,size,size);
+    c.toBlob(blob=>{
+      if(!blob)return;
+      window.r2Storage.uploadKey("covers/"+album.id,blob)
+        .then(u=>{album.cover_hd=u+(u.includes("?")?"&":"?")+"v="+Date.now();album.cover_hd_for=mvCoverFingerprint(album.cover);saveState();})
+        .catch(err=>console.warn("[Cover] HD-opplasting feilet — viser vanlig oppløsning:",err));
+    },"image/jpeg",.9);
+  };
+  img.onerror=()=>URL.revokeObjectURL(url);
+  img.src=url;
+}
+
 const albumCoverInput=document.getElementById("albumCoverInput");
 if(albumCoverInput){
   albumCoverInput.addEventListener("change",e=>{
@@ -1519,6 +1548,7 @@ if(albumCoverInput){
       saveState();
       renderAlbumDetail();
       showToast("✓ Albumbildet er oppdatert");
+      mvUploadAlbumCoverHD(album,f);
     });
     e.target.value="";
   });
@@ -1529,6 +1559,7 @@ document.getElementById("newAlbumBtn").addEventListener("click",()=>{
   document.getElementById("newAlbumCoverInput").value="";
   document.getElementById("albumCoverPreviewWrap").style.display="none";
   newAlbumCoverBase64=null;
+  newAlbumCoverFile=null;
   document.getElementById("newAlbumModal").classList.add("open");
 });
 
@@ -1536,6 +1567,7 @@ document.getElementById("saveNewAlbumBtn").addEventListener("click",()=>{
   const name=document.getElementById("newAlbumName").value.trim();
   if(!name){alert("Skriv inn et albumnavn.");return;}
   state.albums.unshift({id:uid(),name,cover:newAlbumCoverBase64||null,beatIds:[],createdAt:Date.now()});
+  if(newAlbumCoverBase64&&newAlbumCoverFile)mvUploadAlbumCoverHD(state.albums[0],newAlbumCoverFile);
   saveState();renderAlbums();closeModal("newAlbumModal");showToast(`✓ Album "${name}" opprettet`);
 });
 
