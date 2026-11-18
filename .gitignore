@@ -21,3 +21,6 @@ tmp/
 
 # Avhengigheter (om du senere legger til et byggesteg)
 node_modules/
+
+# Wrangler lokal cache (konto-info)
+.wrangler/
