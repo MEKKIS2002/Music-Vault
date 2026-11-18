@@ -167,11 +167,6 @@
     if (_lastSaved) document.getElementById('llLastSaved').textContent = 'Lagret ' + _lastSaved.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
   }
 
-  // ── Waveform bars HTML ────────────────────────────────────────────────────
-  function waveformHTML() {
-    const heights = [20,35,55,70,50,80,65,45,90,70,55,40,75,60,45,30,65,50,35,55,70,45,60,80,55];
-    return heights.map(h => `<div class="ll-waveform-bar" style="height:${h}%"></div>`).join('');
-  }
 
   // ── Section HTML ──────────────────────────────────────────────────────────
   function sectionHTML(sec, beat) {
@@ -867,14 +862,6 @@
     const mixtapes = (st.mixtapes || []).filter(m => !m.archived);
     const albums   = (st.albums   || []).filter(a => !a.archived);
 
-    function beatsByCollection(colId, colType) {
-      const col = colType === 'mixtape'
-        ? mixtapes.find(m => m.id === colId)
-        : albums.find(a => a.id === colId);
-      return (col?.beatIds || [])
-        .map(id => allBeats.find(b => b.id === id))
-        .filter(Boolean);
-    }
 
     function renderList(beats, emptyMsg) {
       if (!beats.length) return `<div class="ll-picker-empty">${emptyMsg}</div>`;

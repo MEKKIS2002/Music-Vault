@@ -415,10 +415,6 @@ document.documentElement.classList.add('mv-mixed-ui');
     reader.readAsDataURL(f);
   };
 
-  window.removeFromAlbum = function(beatId){
-    const mode = clickedMode();
-    if(typeof removeFromCollection==='function') removeFromCollection(beatId, mode);
-  };
 
   // Remove extra meta fields
   function removeMeta(){
