@@ -186,12 +186,12 @@
         <button data-cmd="insertUnorderedList" title="Punktliste" aria-label="Punktliste">•</button>
         <button data-cmd="insertOrderedList" title="Nummerert liste" aria-label="Nummerert liste">1.</button>
         <span class="docs-tb-sep"></span>
-        <button class="docs-hl-btn" data-hl="#d68155" style="background:#d68155" title="Uthev kobber" aria-label="Uthev kobber"></button>
-        <button class="docs-hl-btn" data-hl="#a6be8b" style="background:#a6be8b" title="Uthev grønn" aria-label="Uthev grønn"></button>
-        <button class="docs-hl-btn" data-hl="#bfb2a6" style="background:#bfb2a6" title="Uthev grå" aria-label="Uthev grå"></button>
+        <button class="docs-hl-btn" data-hl="#d68155" style="background:var(--accent)" title="Uthev kobber" aria-label="Uthev kobber"></button>
+        <button class="docs-hl-btn" data-hl="#a6be8b" style="background:var(--ok)" title="Uthev grønn" aria-label="Uthev grønn"></button>
+        <button class="docs-hl-btn" data-hl="#bfb2a6" style="background:var(--muted)" title="Uthev grå" aria-label="Uthev grå"></button>
         <button class="docs-hl-btn" data-hl="#ec4899" style="background:#ec4899" title="Uthev rosa" aria-label="Uthev rosa"></button>
-        <button class="docs-hl-btn" data-hl="#ffaaa3" style="background:#ffaaa3" title="Uthev rød" aria-label="Uthev rød"></button>
-        <button class="docs-hl-btn" data-hl="#f0a579" style="background:#f0a579" title="Uthev lys kobber" aria-label="Uthev lys kobber"></button>
+        <button class="docs-hl-btn" data-hl="#ffaaa3" style="background:var(--danger)" title="Uthev rød" aria-label="Uthev rød"></button>
+        <button class="docs-hl-btn" data-hl="#f0a579" style="background:var(--accent2)" title="Uthev lys kobber" aria-label="Uthev lys kobber"></button>
         <button class="docs-hl-btn docs-hl-clear" data-hl="" title="Fjern uthevning" aria-label="Fjern uthevning">✕</button>
       </div>
         <span class="docs-bar-spacer"></span>

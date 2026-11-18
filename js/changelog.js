@@ -661,7 +661,7 @@
     style.textContent = `
       .cl-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
       .cl-toggle { font-size:12px !important; padding:6px 12px !important; white-space:nowrap; }
-      .cl-version { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .cl-version { padding: 14px 0; border-bottom: 1px solid rgb(var(--ink-rgb) / .06); }
       .cl-version:last-child { border-bottom: none; padding-bottom: 0; }
       .cl-latest { padding-top: 0; }
       .cl-version-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }

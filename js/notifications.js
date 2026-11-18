@@ -64,7 +64,7 @@
     bell.setAttribute('aria-label', 'Varsler');
     bell.setAttribute('aria-haspopup', 'dialog');
     bell.style.cssText = 'position:relative;font-size:16px;';
-    bell.innerHTML = `<span class="ic ic-bell" aria-hidden="true"></span><span id="mvNotifCount" aria-hidden="true" style="display:none;position:absolute;top:3px;right:3px;background:#ffaaa3;color:#fff;font-size:9px;font-weight:900;border-radius:999px;padding:1px 4px;font-family:system-ui;min-width:14px;text-align:center;line-height:1.4;pointer-events:none"></span>`;
+    bell.innerHTML = `<span class="ic ic-bell" aria-hidden="true"></span><span id="mvNotifCount" aria-hidden="true" style="display:none;position:absolute;top:3px;right:3px;background:var(--danger);color:#fff;font-size:9px;font-weight:900;border-radius:999px;padding:1px 4px;font-family:system-ui;min-width:14px;text-align:center;line-height:1.4;pointer-events:none"></span>`;
     bell.onclick = (e) => { e.stopPropagation(); window.openNotifPanel(); };   // via window: label.js lapper den
 
     const slot = document.getElementById('mvNotifBellSlot');
@@ -82,7 +82,7 @@
       panel.setAttribute('aria-label', 'Varsler');
       // Under headeren, høyrejustert; på smale skjermer hele bredden minus kant.
       panel.style.cssText = `position:fixed;top:56px;right:12px;z-index:8200;width:min(340px,calc(100vw - 24px));
-        max-height:min(440px,70vh);overflow-y:auto;background:#15120e;border:1px solid rgba(255,255,255,.13);
+        max-height:min(440px,70vh);overflow-y:auto;background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .13);
         border-radius:12px;box-shadow:0 16px 48px rgba(0,0,0,.6);font-family:system-ui;`;
       document.body.appendChild(panel);
       document.addEventListener('click', e => {
@@ -94,25 +94,25 @@
     }
     const notifs = window._mvNotifications || [];
     panel.innerHTML = `
-      <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:13px;font-weight:800;color:#f4eadc">Varsler</span>
-        ${notifs.some(n => !n.read) ? `<button type="button" onclick="window.markAllNotifsRead()" style="background:none;border:none;color:rgba(244,234,220,.6);font-size:11px;cursor:pointer;font-family:system-ui">Merk alle som lest</button>` : ''}
+      <div style="padding:14px 16px;border-bottom:1px solid rgb(var(--ink-rgb) / .08);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:800;color:var(--text)">Varsler</span>
+        ${notifs.some(n => !n.read) ? `<button type="button" onclick="window.markAllNotifsRead()" style="background:none;border:none;color:rgb(var(--text-rgb) / .6);font-size:11px;cursor:pointer;font-family:system-ui">Merk alle som lest</button>` : ''}
       </div>
       ${notifs.length ? notifs.map(n => `
-        <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);background:${n.read ? 'transparent' : 'rgba(214,129,85,.06)'}">
+        <div style="padding:12px 16px;border-bottom:1px solid rgb(var(--ink-rgb) / .06);background:${n.read ? 'transparent' : 'rgba(214,129,85,.06)'}">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
             <div style="flex:1;min-width:0">
               <div style="font-size:12px;font-weight:700;color:${n.read ? 'rgba(244,234,220,.6)' : '#f4eadc'}">${esc(TYPE_LABELS[n.type] || n.type)}</div>
-              <div style="font-size:13px;color:#d68155;font-weight:800;margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(n.content_name || n.content_id)}</div>
-              <div style="font-size:11px;color:rgba(244,234,220,.6);margin-bottom:${n.type === 'label_invite' ? '8px' : '0'}">${n.type === 'label_invite' ? 'Label-invitasjon' : n.role === 'editor' ? 'Redaktørtilgang' : 'Visningsmodus'} · ${esc(new Date(n.created_at).toLocaleDateString('nb-NO'))}</div>
+              <div style="font-size:13px;color:var(--accent-ink);font-weight:800;margin:3px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(n.content_name || n.content_id)}</div>
+              <div style="font-size:11px;color:rgb(var(--text-rgb) / .6);margin-bottom:${n.type === 'label_invite' ? '8px' : '0'}">${n.type === 'label_invite' ? 'Label-invitasjon' : n.role === 'editor' ? 'Redaktørtilgang' : 'Visningsmodus'} · ${esc(new Date(n.created_at).toLocaleDateString('nb-NO'))}</div>
               ${n.type === 'label_invite' ? `<div style="display:flex;gap:8px">
-                <button type="button" onclick="window.labelRespondInvite('${esc(n.content_id)}','${esc(n.id)}',true)" style="background:rgba(166,190,139,.15);border:1px solid rgba(166,190,139,.3);color:#a6be8b;font-size:11px;font-weight:800;padding:5px 14px;cursor:pointer;font-family:system-ui">✓ Aksepter</button>
-                <button type="button" onclick="window.labelRespondInvite('${esc(n.content_id)}','${esc(n.id)}',false)" style="background:rgba(255,170,163,.1);border:1px solid rgba(255,170,163,.3);color:#ffaaa3;font-size:11px;font-weight:800;padding:5px 14px;cursor:pointer;font-family:system-ui">✕ Avslå</button>
+                <button type="button" onclick="window.labelRespondInvite('${esc(n.content_id)}','${esc(n.id)}',true)" style="background:rgb(var(--ok-rgb) / .15);border:1px solid rgb(var(--ok-rgb) / .3);color:var(--ok);font-size:11px;font-weight:800;padding:5px 14px;cursor:pointer;font-family:system-ui">✓ Aksepter</button>
+                <button type="button" onclick="window.labelRespondInvite('${esc(n.content_id)}','${esc(n.id)}',false)" style="background:rgb(var(--danger-rgb) / .1);border:1px solid rgb(var(--danger-rgb) / .3);color:var(--danger);font-size:11px;font-weight:800;padding:5px 14px;cursor:pointer;font-family:system-ui">✕ Avslå</button>
               </div>` : ''}
             </div>
-            <button type="button" onclick="window.deleteNotif('${esc(n.id)}')" title="Slett varsel" aria-label="Slett varsel: ${esc(TYPE_LABELS[n.type] || n.type)} ${esc(n.content_name || '')}" style="background:none;border:none;color:rgba(244,234,220,.45);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0;line-height:1">✕</button>
+            <button type="button" onclick="window.deleteNotif('${esc(n.id)}')" title="Slett varsel" aria-label="Slett varsel: ${esc(TYPE_LABELS[n.type] || n.type)} ${esc(n.content_name || '')}" style="background:none;border:none;color:rgb(var(--text-rgb) / .45);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0;line-height:1">✕</button>
           </div>
-        </div>`).join('') : `<div style="padding:24px 16px;text-align:center;color:rgba(244,234,220,.6);font-size:13px">Ingen varsler</div>`}`;
+        </div>`).join('') : `<div style="padding:24px 16px;text-align:center;color:rgb(var(--text-rgb) / .6);font-size:13px">Ingen varsler</div>`}`;
     panel.style.display = 'block';
     // Åpning = sett. Ubesvarte labelinvitasjoner holdes som uleste til de er besvart.
     if (!notifs.some(n => n.type === 'label_invite' && !n.read)) window.markAllNotifsRead();

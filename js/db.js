@@ -1126,10 +1126,10 @@ function renderAlbumBeats(beats,mode,customEl){
           <div class="ab-cover-wrap" onclick="toggleAlbumBeat('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleAlbumBeat('${b.id}')}" aria-label="Vis detaljer: ${esc(b.name)}">${coverHtml}</div>
           <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-              <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
+              <span style="font-size:11px;color:rgb(var(--ink-rgb) / .25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" style="min-width:0">${esc(b.name)}</div>
             </div>
-            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,#d68155);font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
+            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--mv-amber,var(--accent));font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
           </div>
         </div>
         <div class="ab-expand">
@@ -1153,14 +1153,14 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-body" onclick="mvTapPlay(event,'${b.id}','${listMode}')">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
-              <span style="font-size:11px;color:rgba(255,255,255,.25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
+              <span style="font-size:11px;color:rgb(var(--ink-rgb) / .25);font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
               <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
-              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,#d68155);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
+              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--mv-amber,var(--accent));opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
-              ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:#ffaaa3;display:block;margin-right:2px"></span>'; return ''; })()}
-              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgba(214,129,85,.18);border:1px solid rgba(214,129,85,.4);color:#d68155;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
+              ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:block;margin-right:2px"></span>'; return ''; })()}
+              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgb(var(--accent-rgb) / .18);border:1px solid rgb(var(--accent-rgb) / .4);color:var(--accent-ink);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
               <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" title="Favoritt" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)">${b.favorite?'★':'☆'}</button>
               <button class="ab-more-btn" type="button" onclick="event.stopPropagation();mvTrackMenu(this,'${b.id}','${listMode}')" title="Flere valg" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
             </div>
@@ -1177,7 +1177,7 @@ function renderAlbumBeats(beats,mode,customEl){
           <div id="au-wrap-${b.id}" style="display:flex;align-items:center;gap:8px;width:100%">
             <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
             <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#d68155':'rgba(255,255,255,.25)'}">${b.favorite?'★':'☆'}</button>
-            <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(255,170,163,.15);color:#ffaaa3;border:1px solid rgba(255,170,163,.3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(214,129,85,.12);color:#d68155;border:1px solid rgba(214,129,85,.3)">Ingen tekst</span>'; return ''; })()}</div>
+            <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgb(var(--danger-rgb) / .15);color:var(--danger);border:1px solid rgb(var(--danger-rgb) / .3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgb(var(--accent-rgb) / .12);color:var(--accent-ink);border:1px solid rgb(var(--accent-rgb) / .3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>
           <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
           <label class="ghost-btn" style="cursor:pointer;font-size:12px;padding:6px 12px"><span class="ic ic-image" aria-hidden="true"></span> Coverbilde<input type="file" accept="image/*" hidden onchange="setAlbumBeatCover('${b.id}',this)"></label>
@@ -1240,31 +1240,31 @@ window.mvShare = async function(btn) {
   }catch(e){}
   const typeLabel={beat:'Beat',album:'Album',mixtape:'Mixtape'}[contentType]||contentType;
   const existHTML=existing.length
-    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:13px;font-weight:700;color:#f4eadc;flex:1"><span class="ic ic-user" aria-hidden="true"></span> ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgba(255,170,163,.3);color:#ffaaa3;font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
-    :'<p style="font-size:12px;color:rgba(255,255,255,.3);margin:0">Ingen har tilgang</p>';
+    ?existing.map(r=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .06)"><span style="font-size:13px;font-weight:700;color:var(--text);flex:1"><span class="ic ic-user" aria-hidden="true"></span> ${esc(names[r.grantee_id]||r.grantee_id)}</span><span style="font-size:11px;color:var(--faint)">${r.role==='editor'?'Redakt\u00f8r':'Kan se'}</span><button type="button" onclick="window._mvSMrevoke('${esc(r.grantee_id)}','${esc(names[r.grantee_id]||'')}')" aria-label="Fjern tilgang for ${esc(names[r.grantee_id]||'bruker')}" style="background:none;border:1px solid rgb(var(--danger-rgb) / .3);color:var(--danger);font-size:11px;font-weight:800;padding:4px 10px;cursor:pointer;border-radius:999px;font-family:inherit">Fjern tilgang</button></div>`).join('')
+    :'<p style="font-size:12px;color:rgb(var(--ink-rgb) / .3);margin:0">Ingen har tilgang</p>';
   let modal=document.getElementById('_mvSM');
   if(!modal){modal=document.createElement('div');modal.id='_mvSM';modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});document.body.appendChild(modal);}
-  modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
+  modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgb(var(--shade-rgb) / .82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
   modal.innerHTML=`
-    <div style="background:#1c1a17;border:1px solid rgba(255,255,255,.12);max-width:440px;width:94%;padding:26px 28px;border-radius:14px">
+    <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);max-width:440px;width:94%;padding:26px 28px;border-radius:14px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4eadc">Del ${typeLabel}</h2>
-        <button onclick="document.getElementById('_mvSM').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
+        <h2 style="font-size:16px;font-weight:900;margin:0;color:var(--text)">Del ${typeLabel}</h2>
+        <button onclick="document.getElementById('_mvSM').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / .4);font-size:22px;cursor:pointer;padding:0;line-height:1">&#215;</button>
       </div>
       <p style="font-size:12px;color:var(--faint);margin:0 0 6px">${esc(contentName)}</p>
       <p style="font-size:12px;color:var(--faint);margin:0 0 18px;line-height:1.5">Gir en annen Music Vault-bruker tilgang i appen${contentType!=='beat'?' — til samlingen og låtene i den':''}. «Kan se» kan lytte; «Kan redigere» kan også endre. Mottakeren får et varsel.</p>
       <div style="display:grid;gap:10px">
         <input id="_mvSM_u" placeholder="Brukernavn"
-          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;border-radius:8px;width:100%;box-sizing:border-box"
+          style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:10px 12px;font-size:13px;font-family:inherit;outline:none;border-radius:8px;width:100%;box-sizing:border-box"
           onkeydown="if(event.key==='Enter') window._mvSMdo()">
         <div style="display:flex;gap:8px">
-          <select id="_mvSM_r" style="flex:1;background:#1c1a17;border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:10px;font-size:13px;font-family:inherit;outline:none;border-radius:8px">
+          <select id="_mvSM_r" style="flex:1;background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:10px;font-size:13px;font-family:inherit;outline:none;border-radius:8px">
             <option value="viewer">Kan se</option><option value="editor">Kan redigere</option>
           </select>
-          <button onclick="window._mvSMdo()" style="background:linear-gradient(135deg,#d68155,#b9683f);border:none;color:#000;font-size:13px;font-weight:900;padding:10px 22px;cursor:pointer;border-radius:8px;font-family:inherit">Del</button>
+          <button onclick="window._mvSMdo()" style="background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;color:#000;font-size:13px;font-weight:900;padding:10px 22px;cursor:pointer;border-radius:8px;font-family:inherit">Del</button>
         </div>
-        <div id="_mvSM_s" style="font-size:12px;color:rgba(255,255,255,.4);min-height:16px"></div>
-        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:4px">Har tilgang</div>
+        <div id="_mvSM_s" style="font-size:12px;color:rgb(var(--ink-rgb) / .4);min-height:16px"></div>
+        <div style="font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgb(var(--ink-rgb) / .3);margin-top:4px">Har tilgang</div>
         <div id="_mvSM_l">${existHTML}</div>
       </div>
     </div>`;
@@ -1346,7 +1346,7 @@ window.renameBeatInline = function(id) {
   const b=st.beats.find(x=>x.id===id);if(!b)return;
   const old=b.name||'';
   const inp=document.createElement('input');inp.type='text';inp.value=old;
-  inp.style.cssText='background:rgba(255,255,255,.08);border:1px solid rgba(214,129,85,.5);color:#f4eadc;font-size:inherit;font-weight:inherit;font-family:inherit;padding:2px 8px;border-radius:6px;outline:none;width:100%;box-sizing:border-box;min-width:60px';
+  inp.style.cssText='background:rgb(var(--ink-rgb) / .08);border:1px solid rgb(var(--accent-rgb) / .5);color:var(--text);font-size:inherit;font-weight:inherit;font-family:inherit;padding:2px 8px;border-radius:6px;outline:none;width:100%;box-sizing:border-box;min-width:60px';
   el.replaceWith(inp);inp.focus();inp.select();
   function commit(){
     const n=inp.value.trim();
@@ -1998,7 +1998,7 @@ const _lrt={};
 let _tt;
 function showToast(msg,ms){
   let t=document.getElementById("_toast");
-  if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgba(33,29,26,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
+  if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
   t.textContent=String(msg||'').replace(/^(?:[\u{1F000}-\u{1FAFF}☀-➿⏩-⏺⬆⬇▶]️?\s*)+/u,''); // ingen emojier i varslert.style.transform="translateY(0)";t.style.opacity="1";
   clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
 }
@@ -2217,7 +2217,7 @@ function showRenameModal(label, currentName, onSave) {
           <div class="modal-hd-right"><button class="close-btn" onclick="closeModal('mvRenameModal')" aria-label="Lukk">×</button></div>
         </div>
         <div class="modal-body" style="padding:22px 28px 28px;display:grid;gap:14px">
-          <input id="mvRenameInput" class="text-input" style="font-size:15px;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box" />
+          <input id="mvRenameInput" class="text-input" style="font-size:15px;padding:10px 14px;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);border-radius:8px;color:var(--text);width:100%;box-sizing:border-box" />
           <button id="mvRenameSaveBtn" class="primary-btn" style="width:100%">Lagre</button>
         </div>
       </div>`;

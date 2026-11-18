@@ -247,14 +247,14 @@ function installAdminLoginPanel() {
 
   const style = document.createElement("style");
   style.textContent = `
-    .supabase-admin-card{margin-bottom:14px;border:1px solid rgba(166,190,139,.18)!important;background:rgba(166,190,139,.055)!important}
+    .supabase-admin-card{margin-bottom:14px;border:1px solid rgb(var(--ok-rgb) / .18)!important;background:rgb(var(--ok-rgb) / .055)!important}
     .admin-status-row{display:flex;gap:8px;align-items:center;margin:10px 0 14px;font-size:13px;color:var(--muted)}
     .admin-status-row strong{color:var(--text)}
     .admin-login-box{display:grid;gap:10px;margin-top:10px}
     .admin-login-message{margin-top:10px;min-height:18px}
-    .admin-login-message[data-type="success"]{color:#a6be8b}
-    .admin-login-message[data-type="warning"]{color:#f0a579}
-    .admin-login-message[data-type="error"]{color:#ffaaa3}
+    .admin-login-message[data-type="success"]{color:var(--ok)}
+    .admin-login-message[data-type="warning"]{color:var(--accent2)}
+    .admin-login-message[data-type="error"]{color:var(--danger)}
     #adminLoginBtn:disabled{opacity:.65;cursor:not-allowed}
   `;
   document.head.appendChild(style);
@@ -780,10 +780,10 @@ setTimeout(updateAdminUi, 50);
       const style = document.createElement('style');
       style.id = 'supabaseDataSyncStyle';
       style.textContent = `
-        .supabase-sync-card{margin-bottom:14px;border:1px solid rgba(191,178,166,.18)!important;background:rgba(191,178,166,.055)!important}
+        .supabase-sync-card{margin-bottom:14px;border:1px solid rgb(var(--muted-rgb) / .18)!important;background:rgb(var(--muted-rgb) / .055)!important}
         .sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
         .sync-status{min-height:18px;margin-top:10px}
-        .sync-status[data-type="success"]{color:#a6be8b}.sync-status[data-type="warning"]{color:#f0a579}.sync-status[data-type="error"]{color:#ffaaa3}
+        .sync-status[data-type="success"]{color:var(--ok)}.sync-status[data-type="warning"]{color:var(--accent2)}.sync-status[data-type="error"]{color:var(--danger)}
       `;
       document.head.appendChild(style);
     }
@@ -878,7 +878,7 @@ setTimeout(updateAdminUi, 50);
     const dot = document.createElement('span');
     dot.id = 'mvSyncDot';
     dot.title = 'Supabase sync';
-    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#a6be8b;display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
+    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
     dot.addEventListener('click', () => {
       if (_syncState === 'error' || _syncState === 'blocked') { _staleWarned = false; pushToSupabase({manual:true}); }
     });

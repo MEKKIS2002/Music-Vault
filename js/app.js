@@ -59,7 +59,7 @@
 
   window.showToast=function(msg, actionLabel, actionFn){
     let t=document.getElementById('_toast');
-    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgba(33,29,26,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
+    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
     t.innerHTML=`<span>${esc(String(msg||''))}</span>${actionLabel?`<button class="toast-action" id="toastActionBtn">${esc(actionLabel)}</button>`:''}`;
     if(actionLabel&&actionFn){const b=document.getElementById('toastActionBtn'); if(b)b.onclick=()=>{actionFn();t.style.opacity='0';};}
     t.style.transform='translateY(0)';t.style.opacity='1';
@@ -644,7 +644,7 @@ loadComments();
   // ingen "✓ Lagret"-tilbakemelding i det hele tatt.
   window.mvEnsureFullData = ensureFullData;
   window.mvShowSaved = showSavedIndicator;
-  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgba(33,29,26,.92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
+  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgb(var(--panel-rgb) / .92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
 
   function installGlobalSearch(){
     const app=$('.app')||document.body; if($('#globalSearchWrap'))return;
