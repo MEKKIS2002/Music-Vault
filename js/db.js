@@ -367,6 +367,9 @@ async function uploadBeatAudio(beatId,file){
   b.url=beatId+":idb"; // sentinel so we know audio exists
   b.source="local";
   if(!(Number(b.bpm)>0))await mvApplyBpm(b,{file,name:file.name});   // ny fil kan ha tempo i metadata
+  b.audioUpdatedAt=Date.now();   // ny lyd → gammel bølgeform i Lyric Lab gjelder ikke lenger
+  if(b.keySource==='analyse'){b.key='';}   // ny fil → finn tonearten på nytt
+  if(window.mvAnalysis)setTimeout(()=>window.mvAnalysis.enrich(b,file).catch(()=>{}),400);
   saveState();
   const el=document.getElementById("au-"+beatId);
   if(el){
@@ -514,6 +517,8 @@ async function createBeatFromFileIDB(file){
   await audioDB.save(b.id,file);
   b.url=b.id+":idb";
   await mvApplyBpm(b,{file,name:file.name});
+  // Cover/toneart fra filen, ellers analyse av lyden (analysis.js) — i bakgrunnen
+  if(window.mvAnalysis)setTimeout(()=>window.mvAnalysis.enrich(b,file).catch(()=>{}),400);
   return b;
 }
 

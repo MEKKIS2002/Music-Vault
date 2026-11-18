@@ -117,6 +117,7 @@
             { text:'Del offentlig lenke', icon:'globe', run:sharePublic } ] }) } : null,
         (admin || inCollection) ? { text:'Mer', icon:'more', sub:()=>({ title:'Mer', items:[
             { text:'Gi nytt navn', icon:'pen', run:rename },
+            (admin && window.mvAnalysis) ? { text:'Finn toneart og BPM', icon:'wave', run:()=>mvAnalysis.reanalyse(beatId) } : null,
             admin ? { text:'Bytt lydfil', icon:'music', run:()=>window.beatsTab?.swapAudio ? beatsTab.swapAudio(beatId) : null } : null,
             admin ? { text:'Last ned', icon:'download', run:()=>window.downloadBeat && downloadBeat(beatId) } : null,
             admin ? { text: b.archived ? 'Gjenopprett' : 'Arkiver sang', icon: b.archived ? 'restore' : 'archive', run:()=>window.beatsTab?.archiveBeat && beatsTab.archiveBeat(beatId) } : null ] }) } : null,

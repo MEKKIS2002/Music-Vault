@@ -218,6 +218,7 @@
   window.llSetKey = function(beatId, val){
     const beat = getBeat(beatId); if(!beat) return;
     beat.key = val || '';
+    beat.keySource = 'manuell';          // analysen (analysis.js) overskriver aldri dette
     if(typeof saveState==='function') saveState();
     llRefreshMeta();
   };
@@ -1391,7 +1392,7 @@
         if (src) media = window.mvBottomAudio;
       }
       if (!document.body.contains(container)) return;      // view re-rendered meanwhile
-      _buildWS(container, src || audioUrl, media);
+      _buildWS(container, src || audioUrl, media, beat);
     }
     function load() {
       if (window.WaveSurfer && window.WaveSurfer.Regions) { build(); return; }
@@ -1412,7 +1413,28 @@
     load();
   }
 
-  function _buildWS(container, audioUrl, media) {
+  // Ferdig utregnet bølgeform (idé fra wavesurfer.js «peaks»): lagres første gang
+  // låten åpnes, så den tegnes med en gang neste gang uten å dekode hele lydfila.
+  const PEAKS_IDX = 'mv_peaks_idx';
+  function peaksKey(beat){ return 'mv_peaks:' + beat.id; }
+  function peaksSig(beat){ return String(beat.audio_url || beat.url || '') + '|' + (beat.audioUpdatedAt || ''); }
+  function loadPeaks(beat){
+    try{ const p = JSON.parse(localStorage.getItem(peaksKey(beat)) || 'null'); return p && p.sig === peaksSig(beat) && p.duration > 0 ? p : null; }catch(e){ return null; }
+  }
+  function savePeaks(beat, ws){
+    try{
+      const peaks = ws.exportPeaks({ maxLength: 1200, precision: 1000 }), duration = ws.getDuration();
+      if (!peaks || !peaks.length || !(duration > 0)) return;
+      localStorage.setItem(peaksKey(beat), JSON.stringify({ sig: peaksSig(beat), duration, peaks }));
+      let idx = []; try{ idx = JSON.parse(localStorage.getItem(PEAKS_IDX) || '[]'); }catch(e){}
+      idx = idx.filter(id => id !== beat.id); idx.push(beat.id);
+      while (idx.length > 80){ localStorage.removeItem('mv_peaks:' + idx.shift()); }          // maks 80 låter
+      localStorage.setItem(PEAKS_IDX, JSON.stringify(idx));
+    }catch(e){ /* fullt lager e.l. — ikke kritisk */ }
+  }
+
+  function _buildWS(container, audioUrl, media, beat) {
+    const cached = beat ? loadPeaks(beat) : null;
     // WaveSurfer v7 UMD: plugin exposed as WaveSurfer.Regions
     const RegionsCtor = window.WaveSurfer?.Regions;
     let regions = null;
@@ -1429,6 +1451,7 @@
         cursorWidth:    2,
         height: 72, barWidth: 2, barGap: 1, barRadius: 3,
         normalize: true, url: audioUrl,
+        ...(cached ? { peaks: cached.peaks, duration: cached.duration } : {}),
         ...(media ? { media } : {}),
         plugins,
       });
@@ -1447,6 +1470,7 @@
 
       const setTot = () => { const t=document.getElementById('llWaveTot'); if(t) t.textContent = fmtT(_ws.getDuration()); };
       _ws.on('decode', setTot);
+      if (beat && !cached) _ws.once('decode', () => savePeaks(beat, _ws));
       _ws.on('ready',  setTot);
       // Lydfila kan spilles, men ikke leses for bølgeform (typisk CORS: R2-workeren
       // tillater bare github.io, så lokalt blir boksen tom). Si det i stedet for en tom flate.
