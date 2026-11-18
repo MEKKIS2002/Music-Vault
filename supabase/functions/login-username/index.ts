@@ -31,10 +31,12 @@ Deno.serve(async (req) => {
     password = String(b?.password ?? "");
   } catch { return json({ error: "Ugyldig forespørsel." }, 400); }
   if (!username || !password || username.length > 64 || password.length > 256) return json(FAIL, 400);
+  // PostgREST tolker * som jokertegn i like/ilike — brukernavn har aldri *, så avvis.
+  if (username.includes("*")) return json(FAIL, 400);
 
   // 1) Slå opp e-post med service-nøkkelen (forlater aldri serveren).
   //    ilike med escapede jokertegn = eksakt treff uten hensyn til store/små bokstaver.
-  const pattern = username.replace(/[\%_]/g, (c) => "\\" + c);
+  const pattern = username.replace(/[\\%_]/g, (c) => "\\" + c);
   const r = await fetch(
     `${SB_URL}/rest/v1/profiles?select=email&username=ilike.${encodeURIComponent(pattern)}&limit=2`,
     { headers: { apikey: SERVICE, Authorization: `Bearer ${SERVICE}` } },

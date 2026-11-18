@@ -669,16 +669,15 @@ window.registerUser = async function() {
     // Valider koden mot Supabase
     const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
-    const r = await fetch(`${SB_URL}/rest/v1/invite_codes?code=eq.${invite}&select=code,used_by`, {
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    // invite_codes er admin-only (RLS) — sjekk via RPC som bare svarer ja/nei.
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/check_invite_code`, {
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({ p_code: invite })
     });
-    const codes = await r.json();
-    if(!codes.length) {
-      if(errEl){ errEl.textContent='Ugyldig invitasjonskode.'; errEl.style.display='block'; }
-      return;
-    }
-    if(codes[0].used_by) {
-      if(errEl){ errEl.textContent='Denne koden er allerede brukt.'; errEl.style.display='block'; }
+    const ok = r.ok ? await r.json() : false;
+    if(ok !== true) {
+      if(errEl){ errEl.textContent='Ugyldig eller allerede brukt invitasjonskode.'; errEl.style.display='block'; }
       return;
     }
   }
@@ -714,22 +713,28 @@ window.registerUser = async function() {
           username,
           email,
           role: 'user',
-          package: _selectedPkg
+          // Label settes server-side av redeem_invite_code (RLS tillater bare artist/pro her)
+          package: _selectedPkg === 'label' ? 'artist' : _selectedPkg
         })
       });
     }
 
     if(error) throw error;
 
-    // Merk invitasjonskode som brukt
-    if(_selectedPkg === 'label' && data.user) {
+    // Løs inn invitasjonskoden (merker den brukt + setter package='label' atomisk)
+    if(_selectedPkg === 'label' && data.user && data.session) {
       const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
       const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
-      await fetch(`${SB_URL}/rest/v1/invite_codes?code=eq.${invite}`, {
-        method:'PATCH',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body: JSON.stringify({ used_by: data.user.id, used_at: new Date().toISOString() })
+      const rr = await fetch(`${SB_URL}/rest/v1/rpc/redeem_invite_code`, {
+        method:'POST',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+data.session.access_token,'Content-Type':'application/json'},
+        body: JSON.stringify({ p_code: invite })
       });
+      const redeemed = rr.ok ? await rr.json() : false;
+      if(redeemed !== true) {
+        console.warn('[Lock] Invitasjonskoden kunne ikke løses inn — kontoen er opprettet som artist.');
+        _selectedPkg = 'artist';
+      }
     }
 
     // Logg inn automatisk
