@@ -107,6 +107,9 @@
         admin ? { text:'Legg til i mixtape', icon:'cassette', sub:addTo('mixtape', mixtapes) } : null,
         admin ? { text:'Legg til i album', icon:'disc', sub:addTo('album', albums) } : null,
         { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
+        window.mvAudioTools ? (mvAudioTools.isOffline(beatId)
+          ? (mvAudioTools.canRemove(beatId) ? { text:'Fjern fra enheten', icon:'cloud', run:()=>mvAudioTools.removeOffline(beatId) } : { text:'Lagret på enheten', icon:'check', disabled:true })
+          : { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
         '-',
         { text:'Åpne i Lyric Lab', icon:'pen', run:()=>window.openInLyricLab && openInLyricLab(beatId) },
         canShare ? { text:'Del', icon:'link', sub:()=>({ title:'Del', items:[
@@ -132,6 +135,8 @@
     return { aria:'Valg for '+(c.name||type), items:[
       { text:'Spill', icon:'play', run:()=> type==='album' ? (typeof playAlbumFromStart==='function' && playAlbumFromStart(id)) : (typeof playMixtapeFromStart==='function' && playMixtapeFromStart(id)) },
       { text:'Åpne', icon: type==='album' ? 'disc' : 'cassette', run:()=>{ document.querySelector(`.tab-btn[data-tab="${type==='album'?'albums':'mixtapes'}"]`)?.click(); setTimeout(()=> type==='album' ? window.openAlbum?.(id) : window.openMixtape?.(id), 60); } },
+      '-',
+      window.mvAudioTools ? { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveCollection(type, id) } : null,
       '-',
       type==='album' && admin ? { text:'Pitch-side', icon:'file', run:()=>window.albumPitchMode && albumPitchMode(id) } : null,
       type==='mixtape' ? { text:'Del lenke', icon:'globe', run:()=>window.mixtapeShareMode && mixtapeShareMode(id) } : null,

@@ -26,6 +26,8 @@
   const unlocked = () => { const ls = $('lockScreen'); return !ls || getComputedStyle(ls).display === 'none'; };
 
   let lastVol = 1;
+  // Brukerens eget volum (audio-tools.js demper høye låter oppå dette)
+  const uVol = () => window.mvAudioTools?.userVolume ? window.mvAudioTools.userVolume() : (audio()?.volume ?? 1);
   function setVol(v){
     const a = audio(); if (!a) return;
     v = Math.max(0, Math.min(1, Math.round(v * 100) / 100));
@@ -41,13 +43,15 @@
     { keys:['0','9'], range:true, needsTrack:true, label:'Hopp til 0–90 % av sporet', test:e=>/^\d$/.test(e.key) && !e.shiftKey,
       run:e=>{ const a = audio(); if (a && a.duration) a.currentTime = a.duration * Number(e.key) / 10; } },
     { keys:['↑','↓'], label:'Volum opp / ned', needsTrack:true, test:e=>e.key==='ArrowUp'||e.key==='ArrowDown',
-      run:e=>{ const a = audio(); if (a) setVol(a.volume + (e.key==='ArrowUp'?.1:-.1)); } },
+      run:e=>{ if (audio()) setVol(uVol() + (e.key==='ArrowUp'?.1:-.1)); } },
     { keys:['M'], label:'Lyd av / på', test:e=>e.key.toLowerCase()==='m' && !e.shiftKey,
-      run:()=>{ const a = audio(); if (!a) return; if (a.volume > 0){ lastVol = a.volume; setVol(0); toast('Lyd av'); } else { setVol(lastVol || 1); toast('Lyd på'); } } },
+      run:()=>{ if (!audio()) return; if (uVol() > 0){ lastVol = uVol(); setVol(0); toast('Lyd av'); } else { setVol(lastVol || 1); toast('Lyd på'); } } },
     { keys:['L'], label:'Favoritt på sporet som spilles', test:e=>e.key.toLowerCase()==='l' && !e.shiftKey,
       run:()=>{ const b = current(); if (!b || typeof window.toggleFav !== 'function') return; window.toggleFav(b.id); toast(b.favorite ? 'Lagt til i favoritter' : 'Fjernet fra favoritter'); } },
     { keys:['Q'], label:'Vis / skjul køen', test:e=>e.key.toLowerCase()==='q' && !e.shiftKey, run:()=>window.mvToggleQueue?.() },
     { keys:['H'], label:'Gå til Hjem', test:e=>e.key.toLowerCase()==='h' && !e.shiftKey, run:()=>document.querySelector('.tab-btn[data-tab="hjem"]')?.click() },
+    { keys:['F'], label:'Søk (også Ctrl+K)', test:e=>e.key.toLowerCase()==='f' && !e.shiftKey, run:()=>window.mvSearch?.open() },
+    { keys:['N'], label:'Jevn lydstyrke av / på', test:e=>e.key.toLowerCase()==='n' && !e.shiftKey, run:()=>window.mvAudioTools?.toggleNormalize() },
     { keys:['?'], label:'Vis hurtigtaster', test:e=>e.key==='?', run:()=>window.mvWritingTools?.showHelp?.('player') },
   ];
   document.addEventListener('keydown', e=>{

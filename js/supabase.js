@@ -667,7 +667,32 @@ setTimeout(updateAdminUi, 50);
     }
   }
 
-  async function pushToSupabase({manual=false}={}){
+  // «Siste endring vinner» (mønster fra Koel, lastWriteWins.ts, MIT):
+  // pusher kjører ALDRI samtidig. Kommer det nye kall mens én pågår, kjøres
+  // nøyaktig én ny runde etterpå med den nyeste tilstanden. Før kunne en eldre
+  // push (med eldre snapshot) kjøre deleteMissingRows ETTER en nyere push og
+  // slette en låt som nettopp var lagt til.
+  let _pushRunning = null, _pushAgain = false, _pushManual = false;
+  function pushToSupabase({manual=false}={}){
+    if(manual) _pushManual = true;
+    _pushAgain = true;
+    if(!_pushRunning){
+      _pushRunning = (async()=>{
+        let ok = false;
+        try{
+          while(_pushAgain){
+            _pushAgain = false;
+            const m = _pushManual; _pushManual = false;
+            ok = await _pushOnce({manual:m});
+          }
+        } finally { _pushRunning = null; }
+        return ok;
+      })();
+    }
+    return _pushRunning;
+  }
+
+  async function _pushOnce({manual=false}={}){
     const st = appState();
     if(!st || !client()) { say('Supabase er ikke konfigurert.', 'warning'); return false; }
     // Samme predikat som schedulePush()/heartbeat bruker. Før sjekket denne
