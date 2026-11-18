@@ -114,7 +114,7 @@ function mvShowRestoring(on){
     if(!el){
       el = document.createElement('div');
       el.id = 'mvRestoreMsg';
-      el.style.cssText = 'position:relative;z-index:2;color:rgba(214,129,85,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
+      el.style.cssText = 'position:relative;z-index:2;color:rgb(var(--accent-rgb) / .85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
       el.innerHTML = '<div class="mv-restore-txt">Logger inn…</div>'
         + '<div class="mv-restore-slow" hidden>'
         +   '<p>Det tar lengre tid enn vanlig.</p>'
@@ -352,7 +352,8 @@ function injectUserCorner(role){
   bellSlotDiv.style.cssText = 'display:flex;align-items:center;';
   slot.appendChild(bellSlotDiv);
 
-  // Gear/settings button with dropdown
+  // Gear/settings button with dropdown (en gammel meny kan ligge i <body> etter forrige åpning)
+  document.querySelectorAll('body > #mvGearMenu').forEach(m => m.remove());
   slot.insertAdjacentHTML('beforeend', `
     <div style="position:relative">
       <button id="mvGearBtn" class="mv-hdr-icon-btn" onclick="mvToggleGearMenu(event)" title="Innstillinger" aria-label="Innstillinger"><span class="ic ic-sliders" aria-hidden="true"></span></button>
@@ -362,12 +363,17 @@ function injectUserCorner(role){
           ${!isAdmin ? '<div class="mv-gear-pkg">'+pkgLabel+'</div>' : ''}
         </div>
         <div class="mv-gear-divider"></div>
+        <div id="mvGearAppearance" class="mv-gear-appearance"></div>
+        <div class="mv-gear-divider"></div>
         <div id="mvGearLabelItem" style="display:none">
           <button class="mv-gear-item mv-gear-danger" onclick="mvGearLeaveLabel()">Forlat label</button>
         </div>
         <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
       </div>
     </div>`);
+
+  // Tema/aksent: pakken (PRO?) er kjent nå — bruk valget og fyll Utseende-seksjonen.
+  if (window.mvTheme) window.mvTheme.apply();
 
   // Avatar — navnet ligger i tooltip, ikke som egen tekst ved siden av initialene
   slot.insertAdjacentHTML('beforeend', `
@@ -387,7 +393,9 @@ function injectUserCorner(role){
   document.addEventListener('click', e => {
     const menu = document.getElementById('mvGearMenu');
     const btn  = document.getElementById('mvGearBtn');
-    if(menu && !menu.contains(e.target) && e.target !== btn) menu.style.display='none';
+    // isConnected: klikk på Mørk/Lys tegner kontrollene på nytt, så målet er borte fra
+    // DOM-en — det er fortsatt et klikk INNE i menyen.
+    if(menu && e.target.isConnected && !menu.contains(e.target) && !(btn && btn.contains(e.target))) menu.style.display='none';
   });
 
   if(!isAdmin){
@@ -403,8 +411,29 @@ function injectUserCorner(role){
 window.mvToggleGearMenu = function(e){
   e.stopPropagation();
   const menu = document.getElementById('mvGearMenu');
+  const btn  = document.getElementById('mvGearBtn');
   if(!menu) return;
-  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  if(menu.style.display !== 'none'){ menu.style.display = 'none'; return; }
+  // Sidefeltet har overflow:hidden og spilleren ligger over bunnen — menyen ble
+  // klippet bort. Flytt den til <body> og plasser den fast rett over knappen.
+  if(menu.parentElement !== document.body) document.body.appendChild(menu);
+  menu.style.display = 'block';
+  const r = btn ? btn.getBoundingClientRect() : { left: 16, top: window.innerHeight - 16 };
+  const w = menu.offsetWidth || 240;
+  const set = (k, v) => menu.style.setProperty(k, v, 'important');
+  set('position', 'fixed');
+  set('z-index', '10050');
+  set('left', Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px');
+  set('right', 'auto');
+  const below = r.top < window.innerHeight / 2;          // knapp øverst (mobil): åpne nedover
+  if(below){
+    set('top', (r.bottom + 8) + 'px'); set('bottom', 'auto');
+    set('max-height', (window.innerHeight - r.bottom - 16) + 'px');
+  } else {
+    set('top', 'auto'); set('bottom', (window.innerHeight - r.top + 8) + 'px');
+    set('max-height', (r.top - 16) + 'px');
+  }
+  set('overflow-y', 'auto');
 };
 
 // Oppdater gear-menyen med "Forlat label" hvis artisten er i et label

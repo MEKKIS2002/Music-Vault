@@ -41,9 +41,9 @@
 .small-btn{ background:var(--surface-2) !important; color:var(--text) !important; }
 .small-btn.danger{
   background:transparent !important; color:var(--danger) !important;
-  border-color:rgba(255,170,163,.35) !important;
+  border-color:rgb(var(--danger-rgb) / .35) !important;
 }
-.small-btn.danger:hover{ background:rgba(255,170,163,.1) !important; }
+.small-btn.danger:hover{ background:rgb(var(--danger-rgb) / .1) !important; }
 .primary-btn:disabled, .ghost-btn:disabled, .small-btn:disabled{ opacity:.5; cursor:default; }
 
 /* Album-/mixtapehodet hadde egne piller på 46 px (ui.css, ID-selektor) */
@@ -92,7 +92,7 @@
 .bl-play, .ab-quick-play{
   background:var(--accent-soft) !important; color:var(--accent2) !important; font-size:12px !important;
 }
-.bl-play:hover, .ab-quick-play:hover{ background:rgba(214,129,85,.28) !important; }
+.bl-play:hover, .ab-quick-play:hover{ background:rgb(var(--accent-rgb) / .28) !important; }
 /* Favoritt: ☆ av, ★ på (tegnet byttes i JS; fargen bekrefter tilstanden) */
 .album-beat-listmode .album-beat-card:not(.expanded) .star-btn.active{ background:transparent !important; }
 .bl-star.active, .star-btn.active, .album-beat-listmode .album-beat-card:not(.expanded) .star-btn.active, .bl-star[aria-pressed="true"], .star-btn[aria-pressed="true"]{ color:var(--accent2) !important; }
@@ -102,7 +102,7 @@
 .mv-row-menu{
   position:fixed; z-index:9500; min-width:210px; padding:6px;
   display:flex; flex-direction:column; gap:2px;
-  background:#15120e; border:1px solid var(--line-strong); border-radius:var(--r-sm);
+  background:var(--surface-1); border:1px solid var(--line-strong); border-radius:var(--r-sm);
   box-shadow:var(--shadow-float);
 }
 .mv-row-menu button{
@@ -193,7 +193,7 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
   transform:none !important;
 }
 .pl3-focus-list > .pl3-focus-task + .pl3-focus-task{ box-shadow:-1px 0 0 0 var(--line); }
-.pl3-focus-task:hover{ background:rgba(0,0,0,.22) !important; }
+.pl3-focus-task:hover{ background:rgb(var(--shade-rgb) / .22) !important; }
 @media (max-width:760px){
   .pl3-focus-list > .pl3-focus-task + .pl3-focus-task{ box-shadow:0 -1px 0 0 var(--line); }
 }
@@ -244,7 +244,7 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
 .bp-close .bp-ico{ width:16px; height:16px; }
 .bp-vol-ico{ display:inline-flex; }
 .bp-vol-ico .bp-ico{ width:18px; height:18px; }
-.bp-cover .bp-ico-note{ width:22px; height:22px; color:rgba(255,255,255,.45); }
+.bp-cover .bp-ico-note{ width:22px; height:22px; color:rgb(var(--ink-rgb) / .45); }
 .bp-btn, .bp-play{ display:inline-flex !important; align-items:center; justify-content:center; }
 @media (max-width:768px){
   .bp-play .bp-ico{ width:26px; height:26px; }
@@ -285,3 +285,39 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
 /* Store plassholdere (cover uten bilde, tomtilstander) — dempet ikon */
 .record-sleeve-ph .ic, .sleeve-ph .ic, .ab-cover-ph .ic, .ll-cover-ph .ic, .pl3-card-thumb-ph .ic,
 .empty-icon .ic, .docs-state-ico .ic, .ll-empty-icon .ic, .pl3-empty-icn .ic, .adm-empty-ico .ic{ opacity:.55; }
+
+/* ── Utseende i tannhjulmenyen: tema + aksentfarge (js/theme.js) ──────── */
+.mv-gear-appearance{ padding: var(--sp-3) var(--sp-4); display: grid; gap: var(--sp-2); min-width: 232px; }
+.mv-gear-section-label{
+  font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: .06em; text-transform: uppercase;
+  color: var(--faint); display: flex; align-items: center; gap: var(--sp-2);
+}
+.mv-theme-toggle{
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 2px;
+  background: var(--surface-sunken); border-radius: var(--r-sm); margin-bottom: var(--sp-1);
+}
+.mv-theme-toggle button{
+  font: var(--fw-medium) var(--fs-sm)/1 var(--font-ui); color: var(--muted);
+  background: transparent; border: 0; border-radius: calc(var(--r-sm) - 2px);
+  padding: var(--sp-2) 0; cursor: pointer; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.mv-theme-toggle button:hover{ color: var(--text); }
+.mv-theme-toggle button.is-on{ background: var(--surface-1); color: var(--text); box-shadow: 0 1px 2px rgb(var(--shade-rgb) / .18); }
+.mv-theme-toggle button:focus-visible, .mv-accent-swatch:focus-visible{ outline: none; box-shadow: var(--focus-ring); }
+
+.mv-accent-row{ display: flex; gap: var(--sp-2); }
+.mv-accent-swatch{
+  width: 26px; height: 26px; border-radius: var(--r-pill); border: 0; padding: 0; cursor: pointer;
+  background: var(--swatch);
+  box-shadow: inset 0 0 0 1px rgb(var(--ink-rgb) / .12);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.mv-accent-swatch:hover{ transform: scale(1.08); }
+.mv-accent-swatch.is-on{ box-shadow: 0 0 0 2px var(--surface-1), 0 0 0 4px var(--swatch); }
+.mv-accent-row.is-locked .mv-accent-swatch{ cursor: not-allowed; opacity: .35; }
+.mv-accent-row.is-locked .mv-accent-swatch.is-on{ opacity: 1; }
+.mv-pro-chip{
+  font-size: 10px; letter-spacing: .04em; padding: 2px 6px; border-radius: var(--r-pill);
+  background: var(--accent-soft); color: var(--accent2);
+}
+.mv-gear-hint{ font-size: var(--fs-xs); color: var(--faint); }
