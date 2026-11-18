@@ -6,6 +6,15 @@
 
   const VERSIONS = [
     {
+      version: 'v2.11',
+      date: '18. november 2026',
+      label: 'Nye versjoner vises med en gang',
+      color: '#d68155',
+      changes: [
+        'Rettet: etter en oppdatering kunne appen vise den forrige versjonen i opptil 10 minutter',
+      ]
+    },
+    {
       version: 'v2.10',
       date: '18. november 2026',
       label: 'Flytting av låter tilbake — nå også på mobil',
