@@ -114,21 +114,16 @@ alter table public.mixtape_beats enable row level security;
 - **Gjenopprett beat** → flyttes tilbake til R2 `active/beat-id` → oppdateres i Supabase
 - **Data (tekst/metadata)** → synkes alltid via Supabase på tvers av maskiner
 
-## Sikkerhet (2026-11-18) — Workeren krever innlogging for skriving
-`r2-worker.js` krever nå et gyldig Supabase-token for `PUT /upload`, `DELETE /delete`
-og `POST /move`, og sjekker at brukeren eier filen. `GET /file` er fortsatt offentlig.
+## Sikkerhet (2026-11-18) — Workeren krever innlogging
+`r2-worker.js` er nå den faktiske koden for den deployede Workeren «beat-vault»
+(inkl. `/rhyme`, `/inspire`, `/stats`, `/list`). Deploy med `npx wrangler deploy` fra
+`worker/` — `wrangler.toml` har navn, R2-binding og variabler. `ANTHROPIC_API_KEY`
+er en secret og beholdes ved deploy.
 
-Legg til disse under **Settings → Variables** (service-nøkkelen som **Encrypt/Secret**):
-- `SUPABASE_URL` = `https://ylvqkfdvijqnecuqznyr.supabase.co`
-- `SUPABASE_ANON_KEY` = anon-nøkkelen (samme som i appen)
-- `SUPABASE_SERVICE_ROLE_KEY` = service_role-nøkkelen (Supabase → Settings → API)
+- Offentlig: `GET /file/:key`, `GET /share/:id` (videresender til `mixtape.html?t=`)
+- Innlogget (Supabase-token i `Authorization`): `/upload`, `/delete`, `/move`
+  (+ brukeren må eie beaten/filen), `/stats`, `/rhyme`, `/inspire`
+- Kun admin: `/list`
 
-Den deployede Workeren har også `/rhyme` (Anthropic) og `/stats`, som ikke ligger i repoet.
-Ikke lim inn denne filen over dem — flytt i stedet `requireUser()`, `cleanKey()`,
-`mayWrite()` og de nye `/upload`/`/delete`/`/move`-grenene inn i den deployede koden,
-og kall `requireUser()` først i `/rhyme` og `/stats` også (ellers kan hvem som helst
-bruke Anthropic-nøkkelen din).
-
-**Rekkefølge:** deploy Workeren FØRST, merge appendringen (`js/r2-storage.js`) etterpå.
-Den gamle Workeren tillater ikke `Authorization`-headeren i CORS, så ny klient + gammel
-Worker = opplasting feiler.
+Eierskap sjekkes med brukerens eget token mot `beats` (RLS), så Workeren trenger
+ingen service-nøkkel.

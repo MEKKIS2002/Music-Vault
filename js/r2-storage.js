@@ -24,6 +24,18 @@
 
   const ready = () => !!R2_WORKER_URL && !R2_WORKER_URL.includes('DIN_WORKER');
 
+  // Workeren krever innlogget bruker for opplasting/sletting/flytting.
+  async function authToken() {
+    try {
+      const { data } = await window.supabaseClient.auth.getSession();
+      return data?.session?.access_token || '';
+    } catch { return ''; }
+  }
+  async function authHeaders(extra = {}) {
+    const t = await authToken();
+    return t ? { ...extra, Authorization: `Bearer ${t}` } : extra;
+  }
+
   // r2Key(beat, archived) → "active/beat-id.mp3" or "archived/beat-id.mp3"
   function r2Key(beatId, archived) {
     const folder = archived ? 'archived' : 'active';
@@ -36,10 +48,12 @@
     if (!ready()) throw new Error('R2 Worker URL ikke konfigurert');
     const key = r2Key(beatId, archived);
     const url = `${R2_WORKER_URL}/upload/${encodeURIComponent(key)}`;
+    const token = await authToken();
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('PUT', url);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('Content-Type', file.type || 'audio/mpeg');
       if (onProgress) {
         xhr.upload.addEventListener('progress', e => {
@@ -67,7 +81,7 @@
   async function remove(beatId, archived = false) {
     if (!ready()) return;
     const key = r2Key(beatId, archived);
-    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE', headers: await authHeaders() });
     if (!res.ok) console.warn('R2 sletting feilet:', res.status);
   }
 
@@ -76,9 +90,11 @@
   async function uploadKey(key, file, onProgress = null) {
     if (!ready()) throw new Error('R2 Worker URL ikke konfigurert');
     const url = `${R2_WORKER_URL}/upload/${encodeURIComponent(key)}`;
+    const token = await authToken();
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('PUT', url);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
       if (onProgress) xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); });
       xhr.onload = () => {
@@ -93,7 +109,7 @@
   }
   async function removeKey(key) {
     if (!ready()) return;
-    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE', headers: await authHeaders() });
     if (!res.ok) console.warn('R2 sletting feilet:', res.status);
   }
   function fileUrl(key) { return ready() ? `${R2_WORKER_URL}/file/${encodeURIComponent(key)}` : null; }
@@ -106,7 +122,7 @@
     const to   = r2Key(beatId,  toArchived);
     const res = await fetch(`${R2_WORKER_URL}/move`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ from, to })
     });
     if (!res.ok) { console.warn('R2 move feilet:', res.status); return null; }
@@ -182,7 +198,9 @@
   async function fetchStats() {
     const workerUrl = window.R2_WORKER_URL || '';
     if (!workerUrl) throw new Error('R2_WORKER_URL ikke konfigurert');
-    const res = await fetch(`${workerUrl}/stats`, { method: 'GET' });
+    let tok = '';
+    try { tok = (await window.supabaseClient.auth.getSession()).data?.session?.access_token || ''; } catch (e) {}
+    const res = await fetch(`${workerUrl}/stats`, { method: 'GET', headers: tok ? { Authorization: `Bearer ${tok}` } : {} });
     if (!res.ok) throw new Error(`Worker svarte med HTTP ${res.status}`);
     return res.json();
   }
