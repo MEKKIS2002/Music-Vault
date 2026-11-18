@@ -6,6 +6,19 @@
 
   const VERSIONS = [
     {
+      version: 'v5.8',
+      date: '18. november 2026',
+      label: 'Automatisk toneart, BPM og cover',
+      color: '#d68155',
+      changes: [
+        'Nye opplastinger får cover og toneart fra filen hvis de ligger der',
+        'Mangler filen toneart eller BPM, finner appen et anslag ved å analysere lyden',
+        'Høyreklikk › Mer › «Finn toneart og BPM» analyserer en eldre låt',
+        'Toneart og BPM du har satt selv, blir aldri overskrevet',
+        'Bølgeformen i Lyric Lab vises med en gang etter første gang en låt er åpnet',
+      ]
+    },
+    {
       version: 'v5.7',
       date: '18. november 2026',
       label: 'Søk, jevn lydstyrke og avspilling uten nett',
