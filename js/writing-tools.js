@@ -286,5 +286,5 @@
     scan();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
-  window.mvWritingTools = { syllables, showHelp };
+  window.mvWritingTools = { syllables, showHelp, addHelp: (kind, rows) => { HELP[kind] = rows; } };
 })();
