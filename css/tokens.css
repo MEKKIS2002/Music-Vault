@@ -163,7 +163,7 @@
   --accent-ink-rgb:  var(--accent2-rgb);
 
   --ok:              #435e2f;
-  --danger:          #b4443a;
+  --danger:          #a1372e;
   --info:            #5e5148;
   --stage-idea:      #625f6b;
   --stage-writing:   #6247b8;
@@ -173,12 +173,12 @@
   --shade-rgb:       120 92 66;
   --shadow-rgb:      74 52 32;       /* varm brun i stedet for svart */
   --shadow-k:        .32;
-  --ink-boost:       .45;
+  --ink-boost:       .6;
   --text-rgb:        43 34 28;
   --muted-rgb:       94 81 72;
   --bg-rgb:          245 239 228;
   --panel-rgb:       251 248 242;
-  --danger-rgb:      180 68 58;
+  --danger-rgb:      161 55 46;
   --ok-rgb:          67 94 47;
 
   --shadow-float:    0 18px 48px rgba(74,52,32,.16);

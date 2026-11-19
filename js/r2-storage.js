@@ -407,7 +407,7 @@
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: var(--muted, #aaa);
+      color: var(--muted, var(--muted));
       flex-wrap: wrap;
     }
     .r2-dot {
@@ -418,7 +418,7 @@
     }
     .r2-widget-hint {
       font-size: 12px;
-      color: var(--muted, #aaa);
+      color: var(--muted, var(--muted));
       margin: 0;
     }
   `;

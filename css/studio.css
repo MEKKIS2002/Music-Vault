@@ -1892,3 +1892,48 @@ html body .mv-touch-ghost{ transition: transform .06s linear, box-shadow .18s ea
 html body .mv-touch-ghost.lifted{ box-shadow: 0 18px 44px rgb(var(--shadow-rgb) / calc(.55 * var(--shadow-k))), 0 0 0 2px var(--accent) !important; }
 html body .mv-touch-ghost.dropping{ opacity: 0; }
 html body.mv-touch-dragging, html body.mv-touch-dragging *{ -webkit-user-select: none !important; user-select: none !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   VINYL — felles design for alle plater (albumliste, albumside, hero).
+   En plate er et fysisk objekt: samme svarte plate i lys og mørk modus.
+   Derfor FASTE farger her, ikke tema-tokens (tidligere ga --bg/--ink-rgb i
+   rillene grove striper i lys modus). Skyggen bruker skygge-tokenet.
+   ════════════════════════════════════════════════════════════════════════ */
+html body .vinyl-groove,
+html body .album-detail-vinyl-disc,
+html body .hero-vinyl-surface{
+  background:
+    /* fine riller: nesten usynlige, ingen striper */
+    repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 .6px, rgba(255,255,255,0) .6px 2.4px),
+    /* matt område rundt etiketten + kant */
+    radial-gradient(circle at 50% 50%, #1c1b1a 0 33%, #0f0e0d 34.5% 95.5%, #23211f 96.5% 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 18px rgba(0,0,0,.55) !important;
+}
+html body .album-detail-vinyl-disc::before,
+html body .vinyl-groove::after{ display: none !important; }
+
+/* Lysrefleks på holderen som IKKE roterer — står stille mens platen spinner. */
+html body .album-detail-vinyl::after{
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: conic-gradient(from 200deg at 50% 50%,
+    rgba(255,255,255,0) 0deg, rgba(255,255,255,.09) 26deg, rgba(255,255,255,0) 58deg,
+    rgba(255,255,255,0) 180deg, rgba(255,255,255,.06) 206deg, rgba(255,255,255,0) 238deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 34%, #000 35% 96%, transparent 97%);
+          mask: radial-gradient(circle, transparent 0 34%, #000 35% 96%, transparent 97%);
+}
+
+/* Myk, liten skygge under plate og cover (ikke et stort dis) */
+html body #albumDetailHd .album-detail-vinyl,
+html body #albumDetailHd:hover .album-detail-vinyl{
+  filter: drop-shadow(0 10px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k)))) !important;
+}
+html body #albumDetailHd .album-detail-cover-card,
+html body #albumDetailHd:hover .album-detail-cover-card{
+  box-shadow: 0 14px 32px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))),
+              0 2px 6px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+html body .album-display .vinyl-disc{ filter: drop-shadow(0 8px 14px rgb(var(--shadow-rgb) / calc(.4 * var(--shadow-k)))); }
+html body .album-display .record-sleeve{
+  box-shadow: 0 8px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))),
+              0 1px 3px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}

@@ -28,3 +28,16 @@
 
 /* ── Pipeline ────────────────────────────────────────────────────────────── */
 :root[data-theme="light"] .pl3-focus-hd{ color: var(--accent-ink) !important; }
+:root[data-theme="light"] .pl3-card-next{ background: rgb(var(--ink-rgb) / .05) !important; }
+:root[data-theme="light"] .pl3-card-next span{ color: var(--muted) !important; }
+
+/* ── Albumside ───────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .album-detail-cover-card{ border-color: rgb(var(--ink-rgb) / .12) !important; }
+:root[data-theme="light"] .ab-uploader{ opacity: 1 !important; }
+:root[data-theme="light"] .drop-zone .drop-hint{ color: var(--muted) !important; opacity: 1 !important; }
+
+/* ── Docs ────────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .docs-item-snip{ color: var(--muted) !important; opacity: 1 !important; }
+
+/* ── Admin ───────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .adm-code{ color: var(--accent-ink) !important; }
