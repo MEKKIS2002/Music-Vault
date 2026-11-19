@@ -101,7 +101,7 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/mobile.css?v=68adbb6110">
   <link rel="stylesheet" href="css/studio.css?v=8fb740b27e">
   <link rel="stylesheet" href="css/artist-page.css?v=8d21e99ae0">
-  <link rel="stylesheet" href="css/explore.css?v=0807b25767">
+  <link rel="stylesheet" href="css/explore.css?v=c4313027c2">
   <link rel="stylesheet" href="css/light.css?v=b2215184fc">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
@@ -297,7 +297,6 @@ AKTIVE BRUKERE:
   <!-- Tab navigation -->
   <nav class="mv-tabs" role="navigation" aria-label="Hovednavigasjon">
     <button class="tab-btn active" data-tab="hjem"><span class="ic ic-home" aria-hidden="true"></span> Hjem</button>
-    <button class="tab-btn" data-tab="explore"><span class="ic ic-globe" aria-hidden="true"></span> Explore</button>
     <button class="tab-btn" data-tab="beats"><span class="ic ic-music" aria-hidden="true"></span> Beats</button>
     <button class="tab-btn" data-tab="docs"><span class="ic ic-file" aria-hidden="true"></span> Docs</button>
     <button class="tab-btn" data-tab="mixtapes"><span class="ic ic-cassette" aria-hidden="true"></span> Mixtapes</button>
@@ -359,6 +358,10 @@ AKTIVE BRUKERE:
         <div class="dash-sec-hd"><div class="dash-section-label">Fortsett der du slapp</div></div>
         <div id="dashLastBeat" class="last-beat-card"></div>
       </section>
+
+      <!-- Explore: nye offentlige låter og artister (fylles av js/explore.js).
+           Når en profil er åpen, skjules resten av Hjem (#hjemTab.is-ex-profile). -->
+      <section class="dash-explore" id="homeExplore" aria-label="Explore" hidden></section>
 
       <!-- Hovedkolonne -->
       <div class="dash-main">
@@ -500,7 +503,6 @@ AKTIVE BRUKERE:
 </section>
 
 <!-- INTEGRASJONER -->
-<section id="exploreTab" class="tab-view hidden" aria-label="Explore"></section>
 <section id="artistpageTab" class="tab-view hidden" aria-label="Artistside"></section>
 <section id="integrationsTab" class="tab-view hidden">
   <div class="layout">
@@ -993,7 +995,7 @@ window.addEventListener('load', () => {
   <script src="js/beats-tab.js?v=451f240261"></script>
   <script src="js/supabase.js?v=83dd6a3ad5"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=2d41f3e64e"></script>
+  <script src="js/db.js?v=87cd9843e1"></script>
   <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=fb6c0091ab"></script>
   <script src="js/mixtape-share.js?v=d6b5cb1b9c"></script>
@@ -1002,7 +1004,7 @@ window.addEventListener('load', () => {
   <script src="js/queue.js?v=05a190d025"></script>
   <script src="js/context-menu.js?v=76740b6015"></script>
   <script src="js/writing-tools.js?v=f6f7f4e118"></script>
-  <script src="js/router.js?v=f729ac6dfd"></script>
+  <script src="js/router.js?v=ff2ddabd20"></script>
   <script src="js/player-extras.js?v=9a8247056a"></script>
   <script src="js/search.js?v=80e399c4f2"></script>
   <script src="js/audio-tools.js?v=7a8509a1d2"></script>
@@ -1018,14 +1020,14 @@ window.addEventListener('load', () => {
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
-  <script src="js/packages.js?v=31c8be4ac6"></script>
+  <script src="js/packages.js?v=c3919db8cf"></script>
   <script src="js/theme.js?v=c86ccdf616"></script>
   <script src="js/label.js?v=69aeaf29dd"></script>
   <script src="js/admin-panel.js?v=55eb715b72"></script>
-  <script src="js/share-song.js?v=ab7a2edd76"></script>
+  <script src="js/share-song.js?v=b5b59f1f1e"></script>
   <script src="js/artist-render.js?v=69cbaa714e"></script>
   <script src="js/artist-studio.js?v=74382fc5ad"></script>
-  <script src="js/explore.js?v=cf0dae22d5"></script>
+  <script src="js/explore.js?v=53a88e2bc2"></script>
   <script src="js/docs.js?v=32506992ac"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>

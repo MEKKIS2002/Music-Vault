@@ -20,14 +20,14 @@ window.MV_PACKAGES = {
   // ── Artist — standardpakke ────────────────────────────────────
   artist: {
     label: 'Artist',
-    tabs: ['explore', 'beats', 'mixtapes', 'albums', 'lyriclab', 'artistpage'],
+    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab', 'artistpage'],
     features: ['upload', 'lyrics', 'share_mixtape', 'ai_inspire', 'rhymes', 'download']
   },
 
   // ── PRO Artist — utvidet pakke ────────────────────────────────
   pro: {
     label: 'PRO',
-    tabs: ['explore', 'beats', 'mixtapes', 'albums', 'lyriclab', 'pipeline', 'artistpage'],
+    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab', 'pipeline', 'artistpage'],
     features: ['upload', 'lyrics', 'share_mixtape', 'pitch', 'ai_inspire', 'rhymes',
                'download', 'r2_upload', 'stats', 'collab', 'release_planner']
   },
@@ -35,7 +35,7 @@ window.MV_PACKAGES = {
   // ── Label ─────────────────────────────────────────────────────
   label: {
     label: 'Label',
-    tabs: ['label', 'explore', 'mixtapes', 'albums', 'pipeline'],
+    tabs: ['label', 'mixtapes', 'albums', 'pipeline'],
     features: ['upload', 'share_mixtape', 'pitch', 'r2_upload', 'download',
                'multi_artist', 'label_dashboard', 'comments']
   },

@@ -15,11 +15,11 @@
   const SLUG = {
     hjem:'hjem', beats:'beats', docs:'docs', mixtapes:'mixtapes', albums:'album',
     pipeline:'pipeline', lyriclab:'lyric-lab', archive:'arkivert', label:'label',
-    adminpanel:'admin', integrations:'integrasjoner', artistpage:'artistside', explore:'explore'
+    adminpanel:'admin', integrations:'integrasjoner', artistpage:'artistside'
   };
   const TAB = {};
   Object.keys(SLUG).forEach(t => { TAB[SLUG[t]] = t; });
-  TAB.albums = 'albums'; TAB.lyriclab = 'lyriclab'; TAB.archive = 'archive'; TAB.home = 'hjem';
+  TAB.albums = 'albums'; TAB.lyriclab = 'lyriclab'; TAB.archive = 'archive'; TAB.home = 'hjem'; TAB.explore = 'hjem';
   const TITLE = 'Music Vault';
 
   let current = null;        // fanen adressen viser nå
