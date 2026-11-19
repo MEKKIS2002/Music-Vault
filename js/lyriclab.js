@@ -300,7 +300,8 @@
               <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
-              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>
+              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>
+              ${window.mvSetSongPublic && !beat._shared ? `<button class="ghost-btn" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beat.id) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
               <button class="ghost-btn" onclick="llShowBeatPicker()">⇄ Bytt låt</button>
             </div>
           </details>

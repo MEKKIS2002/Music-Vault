@@ -112,6 +112,9 @@
           : { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
         '-',
         { text:'Åpne i Lyric Lab', icon:'pen', run:()=>window.openInLyricLab && openInLyricLab(beatId) },
+        (canShare && !b._shared && window.mvSetSongPublic) ? (window.mvIsSongPublic(beatId)
+          ? { text:'Fjern fra Explore', icon:'globe', run:()=>mvSetSongPublic(beatId, false) }
+          : { text:'Gjør offentlig på Explore', icon:'globe', run:()=>mvSetSongPublic(beatId, true) }) : null,
         canShare ? { text:'Del', icon:'link', sub:()=>({ title:'Del', items:[
             (admin && !b._shared) ? { text:'Del med bruker', icon:'user', run:shareUser } : null,
             { text:'Del offentlig lenke', icon:'globe', run:sharePublic } ] }) } : null,
