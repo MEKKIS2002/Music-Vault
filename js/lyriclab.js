@@ -1281,6 +1281,7 @@
         headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ word })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
       const data = await res.json();
       const text = data.text || '';
       let parsed;
@@ -1640,6 +1641,7 @@
           method:'POST', headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
           body: JSON.stringify({word})
         });
+        if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
         const data = await res.json();
         let parsed;
         try { parsed = JSON.parse((data.text||'{}').replace(/```json|```/g,'')); } catch(e) { parsed = {}; }
@@ -1889,6 +1891,7 @@
         headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ beatName: beat.name, lyrics: lyrics.slice(0, 800) })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
 
       const data = await res.json();
       const generated = (data.text || '').trim();
