@@ -152,6 +152,7 @@ function mvWithTimeout(p, ms, fallback){
 // Nødutgang: rydd ALL lokal innlogging (også Supabase-tokenet) uten å vente
 // på nettet, og last siden på nytt med innloggingsskjemaet.
 function mvHardLogout(){
+  mvStopAllAudio();
   try{
     mvClearPersistentSession();
     Object.keys(localStorage).filter(k=>/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k));
@@ -289,7 +290,17 @@ async function mvRestoreSession(){
   return true;
 }
 
+// Utlogging: all avspilling stopper (appens spiller, Explore/profiler og
+// alle andre lydelementer) — musikk skal ikke fortsette bak låseskjermen.
+function mvStopAllAudio(){
+  try{ if(typeof bottomStop==='function') bottomStop(true); }catch(e){}
+  try{ window.mvExplore?.stopAll?.(); }catch(e){}
+  try{ document.querySelectorAll('audio,video').forEach(a=>{ try{ a.pause(); }catch(_){} }); }catch(e){}
+}
+window.mvStopAllAudio = mvStopAllAudio;
+
 function returnToPasswordScreen(){
+  mvStopAllAudio();
   // Tilbake på låseskjermen = logget ut. Uten dette ville neste lasting
   // gjenopprette sesjonen og kaste deg rett inn igjen.
   mvClearPersistentSession();
