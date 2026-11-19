@@ -152,6 +152,7 @@ function mvWithTimeout(p, ms, fallback){
 // Nødutgang: rydd ALL lokal innlogging (også Supabase-tokenet) uten å vente
 // på nettet, og last siden på nytt med innloggingsskjemaet.
 function mvHardLogout(){
+  mvStopAllAudio();
   try{
     mvClearPersistentSession();
     Object.keys(localStorage).filter(k=>/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k));
@@ -289,7 +290,17 @@ async function mvRestoreSession(){
   return true;
 }
 
+// Utlogging: all avspilling stopper (appens spiller, Explore/profiler og
+// alle andre lydelementer) — musikk skal ikke fortsette bak låseskjermen.
+function mvStopAllAudio(){
+  try{ if(typeof bottomStop==='function') bottomStop(true); }catch(e){}
+  try{ window.mvExplore?.stopAll?.(); }catch(e){}
+  try{ document.querySelectorAll('audio,video').forEach(a=>{ try{ a.pause(); }catch(_){} }); }catch(e){}
+}
+window.mvStopAllAudio = mvStopAllAudio;
+
 function returnToPasswordScreen(){
+  mvStopAllAudio();
   // Tilbake på låseskjermen = logget ut. Uten dette ville neste lasting
   // gjenopprette sesjonen og kaste deg rett inn igjen.
   mvClearPersistentSession();
@@ -614,19 +625,19 @@ initLock();
 let _selectedPkg = 'artist';
 
 window.selectPkg = function(el) {
-  document.querySelectorAll('.pkg-card').forEach(c => {
-    c.style.border = '1px solid rgba(255,255,255,.1)';
-    c.style.background = 'rgba(255,255,255,.03)';
-    c.querySelector('div').style.color = '#f4eadc';
-  });
-  el.style.border = '1px solid rgba(214,129,85,.5)';
-  el.style.background = 'rgba(214,129,85,.08)';
-  el.querySelector('div').style.color = '#d68155';
+  // Utseendet styres av klassen is-on (stilene ligger ved #lockScreen i index.html)
+  document.querySelectorAll('.pkg-card').forEach(c => { c.classList.remove('is-on'); c.setAttribute('aria-checked', 'false'); });
+  el.classList.add('is-on'); el.setAttribute('aria-checked', 'true');
   _selectedPkg = el.dataset.pkg;
   // Vis invitasjonskode-felt for label
   const inviteWrap = document.getElementById('regInviteWrap');
   if(inviteWrap) inviteWrap.style.display = _selectedPkg === 'label' ? 'block' : 'none';
 };
+
+document.addEventListener('keydown', e => {
+  const c = e.target && e.target.closest && e.target.closest('#lockScreen .pkg-card');
+  if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); window.selectPkg(c); }
+});
 
 window.showRegister = function() {
   document.getElementById('lockCard').style.display = 'none';

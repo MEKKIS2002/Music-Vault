@@ -210,6 +210,7 @@ async function loginAdmin(email, password) {
 
 async function logoutAdmin() {
   if (!supabaseClient) return;
+  if (typeof window.mvStopAllAudio === 'function') window.mvStopAllAudio();
   await supabaseClient.auth.signOut();
   window.currentAdminUser = null;
   window.isAdminMode = false;
