@@ -238,10 +238,10 @@
   /* Spill/pause: hvitt ikon uten sirkel, stor nok trykkflate */
   .bp-play, .bp-btn.bp-play {
     width: 44px !important; height: 44px !important; min-height: 0 !important;
-    background: transparent !important; color: #fff !important; box-shadow: none !important;
+    background: transparent !important; color: var(--accent) !important; box-shadow: none !important;
     font-size: 22px !important; border-radius: 50% !important;
   }
-  .bp-play:hover, .bp-btn.bp-play:hover { background: transparent !important; color: #fff !important; transform: none !important; }
+  .bp-play:hover, .bp-btn.bp-play:hover { background: transparent !important; color: var(--accent) !important; transform: none !important; }
 
   /* Fremdrift: 2 px strek helt nederst i kortet, kun visning (som Spotify) */
   .bp-progress {

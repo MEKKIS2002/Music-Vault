@@ -53,7 +53,7 @@
   box-shadow:0 2px 10px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))) !important;
 }
 .bp-play:hover,.bp-btn.bp-play:hover{
-  background:var(--accent2) !important; color:#000 !important; transform:scale(1.07) !important;
+  background:var(--accent) !important; color:var(--on-accent) !important; filter:brightness(1.08); transform:scale(1.07) !important;
 }
 
 /* progress row */

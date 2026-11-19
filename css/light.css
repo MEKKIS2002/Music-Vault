@@ -41,3 +41,20 @@
 
 /* ── Admin ───────────────────────────────────────────────────────────────── */
 :root[data-theme="light"] .adm-code{ color: var(--accent-ink) !important; }
+
+/* ── Spilleren ───────────────────────────────────────────────────────────── */
+/* Mørk modus: mørk tone fra coveret som toner ut. Lys modus: lys pastell-vask
+   fra coveret (--bp-tint-light, js/player-extras.js), tekst forblir mørk. */
+:root[data-theme="light"] #bottomPlayer.bp-tinted{
+  background-image: linear-gradient(90deg, var(--bp-tint-light, transparent) 0%, transparent 55%) !important;
+}
+:root[data-theme="light"] #bottomPlayer.bp-tinted .bp-cover{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .08), 0 4px 12px rgb(var(--shadow-rgb) / calc(.4 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] #bottomPlayer .bp-title{ color: var(--text) !important; }
+@media (max-width: 768px){
+  /* Mobil-minispilleren brukte coverfargen som hel (mørk) bakgrunn */
+  :root[data-theme="light"] .bottom-player.show{
+    background: color-mix(in srgb, var(--bp-tint, var(--surface-1)) 14%, var(--surface-1)) !important;
+  }
+}

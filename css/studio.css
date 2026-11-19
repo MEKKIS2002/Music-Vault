@@ -1795,7 +1795,7 @@ html body .adm-viewas-note{ color: var(--muted); font-size: .78rem; }
 
 /* ── 35. Spiller: farge fra coverbildet (js/player-extras.js, idé fra Koel) ── */
 html body #bottomPlayer.bp-tinted{ background-image: linear-gradient(90deg, var(--bp-tint) 0%, transparent 60%) !important; }
-html body #bottomPlayer.bp-tinted .bp-play{ background: var(--bp-hl) !important; border-color: var(--bp-hl) !important; }
+html body #bottomPlayer .bp-play, html body #bottomPlayer.bp-tinted .bp-play{ background: var(--accent) !important; border-color: var(--accent) !important; color: var(--on-accent) !important; }   /* alltid valgt aksent */
 html body #bottomPlayer.bp-tinted .bp-cover{ box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .06), 0 6px 22px var(--bp-tint); }
 /* «Bytt bruker»-knappen (ikke-aktiv) ligger i sidemenyen over brukerikonene, så den ikke dekker innhold */
 @media (min-width: 769px){
