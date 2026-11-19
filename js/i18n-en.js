@@ -341,6 +341,11 @@
   I.pat([
     ['Sang · {0} ·', 'Song · {0} ·'],
     // Hilsenen på Hjem: «God kveld, mekkis»
+    // Uten kjent brukernavn bruker appen «deg» — på engelsk droppes navnet
+    ['God morgen, deg', 'Good morning'],
+    ['God dag, deg', () => new Date().getHours() < 12 ? 'Good morning' : 'Good afternoon'],
+    ['God kveld, deg', 'Good evening'],
+    ['God natt, deg', 'Good night'],
     ['God morgen, {0}', 'Good morning, {0}'],
     ['God dag, {0}', n => `${new Date().getHours() < 12 ? 'Good morning' : 'Good afternoon'}, ${n}`],
     ['God kveld, {0}', 'Good evening, {0}'],
