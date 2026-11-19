@@ -1803,6 +1803,7 @@ function renderActiveTab(tab){
     else if(typeof window.openArchiveTab==='function') window.openArchiveTab();
   }
   if(t==='lyriclab' && typeof window.renderLyricLab==='function') window.renderLyricLab();
+  if(t==='artistpage' && window.mvArtistStudio) window.mvArtistStudio.open();
 }
 
 function renderAll(){

@@ -20,3 +20,11 @@
 --   RLS: artist_pages_own — bare egen rad.
 --   get_artist_page(p_slug) → jsonb — bare publiserte sider; låter kun fra eierens aktive song_shares.
 --     security definer, anon+authenticated.
+
+-- ── Artistside v2: visuell redigering (fanen «Artistside») ─────────────────
+-- Kjørt som migrering artist_pages_blocks.
+alter table public.artist_pages add column if not exists banner_url text not null default '';
+alter table public.artist_pages add column if not exists accent text not null default '#d68155' check (accent ~ '^#[0-9a-fA-F]{6}$');
+alter table public.artist_pages add column if not exists blocks jsonb not null default '[]'::jsonb;
+-- get_artist_page returnerer nå også banner_url, accent, blocks og
+-- tracks som objekt { <token>: data } for låter i tracks-seksjoner (+ featured).

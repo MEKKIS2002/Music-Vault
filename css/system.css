@@ -400,16 +400,3 @@ html.mv-cv-lock, html.mv-cv-lock body{ overflow: hidden; }
   .mv-cover-viewer.is-open .mv-cv-disc{ transform: translateX(34%); }
 }
 
-/* ── Artistside-redigering (js/artist-editor.js) ───────────────────────── */
-#artistPageCard .ap-grid{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-3); }
-#artistPageCard .ap-grid label{ display:grid; gap:var(--sp-1); font-size:var(--fs-sm); color:var(--muted); }
-#artistPageCard .ap-wide{ grid-column:1 / -1; }
-#artistPageCard input:not([type="checkbox"]), #artistPageCard textarea{
-  font:inherit; font-size:var(--fs-base); color:var(--text); background:var(--surface-sunken);
-  border:1px solid var(--line); border-radius:var(--r-sm); padding:var(--sp-2) var(--sp-3); }
-#artistPageCard .ap-sub{ margin:var(--sp-4) 0 var(--sp-2); font-size:var(--fs-xs); font-weight:var(--fw-bold); letter-spacing:.06em; text-transform:uppercase; color:var(--faint); }
-#artistPageCard .ap-tracks{ display:grid; gap:var(--sp-1); max-height:220px; overflow:auto; }
-#artistPageCard .ap-track, #artistPageCard .ap-pub{ display:flex; gap:var(--sp-2); align-items:center; font-size:var(--fs-base); color:var(--text); }
-#artistPageCard .ap-pub{ margin-top:var(--sp-3); }
-#artistPageCard .ap-actions{ display:flex; gap:var(--sp-2); align-items:center; flex-wrap:wrap; margin-top:var(--sp-3); }
-@media (max-width:640px){ #artistPageCard .ap-grid{ grid-template-columns:1fr; } }
