@@ -204,7 +204,8 @@
     });
   }
 
-  window.mvExplore = { open, openProfile, reset, refresh: () => { cache = null; return open(); } };
+  function stopAll(){ if (audio){ audio.pause(); } stopProfileAudio(); paintPlaying(); }
+  window.mvExplore = { open, openProfile, reset, stopAll, refresh: () => { cache = null; return open(); } };
   // Andre faner enn Hjem: lukk en åpen profil så Hjem er normal ved retur.
   document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.tab-btn[data-tab]'); if (b && b.dataset.tab !== 'hjem') reset(); });
   setTimeout(() => { if (!document.getElementById('hjemTab')?.classList.contains('hidden')) open(); }, 2500);
