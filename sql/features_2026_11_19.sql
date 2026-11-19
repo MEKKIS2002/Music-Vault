@@ -28,3 +28,11 @@ alter table public.artist_pages add column if not exists accent text not null de
 alter table public.artist_pages add column if not exists blocks jsonb not null default '[]'::jsonb;
 -- get_artist_page returnerer nå også banner_url, accent, blocks og
 -- tracks som objekt { <token>: data } for låter i tracks-seksjoner (+ featured).
+
+-- ── Explore: offentlige låter + profiler (migrering explore_public_songs) ───
+alter table public.song_shares add column if not exists is_public boolean not null default false;
+alter table public.song_shares add column if not exists published_at timestamptz;
+create index if not exists song_shares_public_idx on public.song_shares (published_at desc) where is_public and enabled;
+-- explore_feed(p_limit, p_slug) og explore_profiles(): SECURITY DEFINER,
+-- kun authenticated (anon får 42501). Returnerer bare is_public+enabled låter
+-- og publiserte artistsider.

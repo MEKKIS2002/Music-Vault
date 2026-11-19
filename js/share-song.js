@@ -80,11 +80,11 @@ window.mvLoadShareStats = async function(kind, token, el){
   }
 
   // Create-or-refresh a share link for a beat. Returns {token,url} or null.
-  async function upsertShare(b, kind){
+  async function upsertShare(b, kind, extra){
     const {token:authToken, uid} = await getAuth();
     if(!uid){ toast('Logg inn for å lage delingslenke'); return null; }
     const token = b.shareToken || newToken();
-    const row = { id:token, owner_id:uid, beat_id:b.id, kind, data:snapshot(b,kind), enabled:true };
+    const row = { id:token, owner_id:uid, beat_id:b.id, kind, data:snapshot(b,kind), enabled:true, ...(extra||{}) };
     const res = await fetch(`${SB_URL}/rest/v1/song_shares`, {
       method:'POST',
       headers:{...hdrs(authToken),'Prefer':'resolution=merge-duplicates,return=minimal'},
@@ -112,6 +112,37 @@ window.mvLoadShareStats = async function(kind, token, el){
     showModal(b, r.url, '');
   };
 
+  // ── Offentlig på Explore ──────────────────────────────────────────────────
+  // Gjør en låt synlig i Explore-fanen for alle innloggede (song_shares.is_public).
+  // Lager/oppdaterer delingslenken ved behov. Å skjule den igjen lar lenken leve.
+  window.mvIsSongPublic = function(beatId){
+    const b = getState()?.beats?.find(x=>x.id===beatId);
+    return !!(b && b.isPublic && b.shareEnabled !== false);
+  };
+  window.mvSetSongPublic = async function(beatId, makePublic){
+    const b = getState()?.beats?.find(x=>x.id===beatId);
+    if(!b){ toast('Fant ikke sangen'); return false; }
+    if(makePublic){
+      if(!publicAudioUrl(b)){ toast('Last opp lydfilen først — en offentlig låt trenger en publisert lydfil.'); return false; }
+      const extra = { is_public:true };
+      if(!b.isPublic) extra.published_at = new Date().toISOString();
+      const r = await upsertShare(b, isSong(b)?'song':'beat', extra);
+      if(!r) return false;
+    } else if(b.shareToken){
+      const {token:authToken} = await getAuth();
+      const res = await fetch(`${SB_URL}/rest/v1/song_shares?id=eq.${encodeURIComponent(b.shareToken)}`, {
+        method:'PATCH', headers:{...hdrs(authToken),'Prefer':'return=minimal'}, body: JSON.stringify({ is_public:false })
+      });
+      if(!res.ok){ toast('Kunne ikke endre synlighet'); return false; }
+    }
+    b.isPublic = !!makePublic;
+    if(typeof saveState==='function') saveState();
+    toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
+    const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
+    if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'explore') window.mvExplore.refresh();
+    return true;
+  };
+
   // ── Modal ─────────────────────────────────────────────────────────────────
   function closeModal(){ const m=document.getElementById('_mvSongShare'); if(m) m.style.display='none'; }
   function showModal(b, url, statusMsg){
@@ -124,6 +155,10 @@ window.mvLoadShareStats = async function(kind, token, el){
     modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgb(var(--shade-rgb) / .82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
     const kindLabel = isSong(b)?'sang':'beat';
     const linkBlock = url ? `
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:0 0 14px;border:1px solid rgb(var(--ink-rgb) / .12);border-radius:10px;cursor:pointer">
+        <input type="checkbox" id="_mvSS_public" ${b.isPublic?'checked':''} onchange="window.mvSetSongPublic('${esc(b.id)}', this.checked).then(ok=>{ if(!ok) this.checked=!this.checked; })" style="margin-top:2px;accent-color:var(--accent);width:16px;height:16px;flex:none">
+        <span style="font-size:13px;color:var(--text);line-height:1.4"><strong>Vis på Explore</strong><br><span style="color:var(--muted);font-size:12px">Alle med Music Vault-konto kan finne og høre ${kindLabel}en.</span></span>
+      </label>
       <div class="mv-share-stats" style="font-size:12px;color:var(--muted);margin:0 0 10px"></div>
       <p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));margin:0 0 10px">Offentlig lenke — alle med denne kan høre kun denne ${kindLabel}en:</p>
       <div style="display:flex;gap:8px;margin-bottom:14px">
@@ -165,7 +200,7 @@ window.mvLoadShareStats = async function(kind, token, el){
     const ok = await window.setSongShareEnabled(token, false);
     if(ok){
       const st=getState(); const b=st?.beats?.find(x=>x.shareToken===token);
-      if(b){ b.shareEnabled=false; if(typeof saveState==='function') saveState(); }
+      if(b){ b.shareEnabled=false; b.isPublic=false; if(typeof saveState==='function') saveState(); }
       toast('✓ Delingslenke deaktivert');
     }
     closeModal();

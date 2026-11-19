@@ -15,7 +15,7 @@
   const SLUG = {
     hjem:'hjem', beats:'beats', docs:'docs', mixtapes:'mixtapes', albums:'album',
     pipeline:'pipeline', lyriclab:'lyric-lab', archive:'arkivert', label:'label',
-    adminpanel:'admin', integrations:'integrasjoner', artistpage:'artistside'
+    adminpanel:'admin', integrations:'integrasjoner', artistpage:'artistside', explore:'explore'
   };
   const TAB = {};
   Object.keys(SLUG).forEach(t => { TAB[SLUG[t]] = t; });
