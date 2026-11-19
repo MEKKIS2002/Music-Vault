@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Artist · Music Vault</title>
+  <meta name="theme-color" content="#14120f">
+  <!-- Offentlig artistside (EPK): artist.html?u=<adresse>. Leser KUN publiserte
+       sider via RPC get_artist_page; låter er artistens egne aktive delingslenker. -->
+  <style>
+    :root{ --bg:#14120f; --card:#1c1a17; --line:rgba(255,255,255,.12); --txt:#f4eadc; --muted:rgba(244,234,220,.62); --acc:#d68155; }
+    *{ box-sizing:border-box; }
+    body{ margin:0; min-height:100vh; color:var(--txt); font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      background:radial-gradient(1200px 600px at 50% -10%, #221d16 0%, var(--bg) 60%); -webkit-font-smoothing:antialiased; }
+    .wrap{ max-width:760px; margin:0 auto; padding:clamp(24px,6vw,64px) 16px 64px; }
+    .brand{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--acc); font-weight:700; margin-bottom:24px; }
+    .hero{ display:flex; gap:24px; align-items:center; flex-wrap:wrap; margin-bottom:32px; }
+    .photo{ width:132px; height:132px; border-radius:50%; object-fit:cover; background:var(--card); border:1px solid var(--line); flex:none; }
+    h1{ font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:clamp(32px,6vw,48px); line-height:1.05; margin:0 0 8px; }
+    .bio{ color:var(--muted); line-height:1.6; white-space:pre-line; margin:0 0 16px; max-width:60ch; }
+    .links{ display:flex; gap:8px; flex-wrap:wrap; }
+    .links a, .contact a{ color:var(--txt); text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:7px 14px; font-size:13px; }
+    .links a:hover, .contact a:hover{ border-color:var(--acc); }
+    h2{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:36px 0 12px; font-weight:700; }
+    .track{ display:flex; align-items:center; gap:14px; padding:10px; border-radius:12px; background:var(--card); border:1px solid var(--line); margin-bottom:8px; }
+    .track img, .track .ph{ width:52px; height:52px; border-radius:6px; object-fit:cover; flex:none; background:#000; }
+    .track .meta{ flex:1; min-width:0; }
+    .track .t{ font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .track .s{ font-size:12px; color:var(--muted); }
+    .play{ width:40px; height:40px; border-radius:50%; border:0; background:var(--acc); color:#21130e; font-size:15px; cursor:pointer; flex:none; }
+    .play:focus-visible, .links a:focus-visible{ outline:2px solid var(--acc); outline-offset:2px; }
+    .contact{ margin-top:36px; color:var(--muted); font-size:14px; }
+    .empty{ color:var(--muted); text-align:center; padding:80px 0; }
+  </style>
+</head>
+<body>
+  <main class="wrap" id="app"><div class="empty">Laster…</div></main>
+  <audio id="audio" preload="none"></audio>
+  <script src="js/config.js?v=1"></script>
+  <script>
+  (function(){
+    var $ = function(id){ return document.getElementById(id); };
+    var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+    var safeUrl = function(u){ return /^https?:\/\//i.test(u || '') ? u : ''; };
+    var app = $('app'), audio = $('audio');
+    var slug = (new URLSearchParams(location.search).get('u') || '').toLowerCase();
+    function fail(msg){ app.innerHTML = '<div class="brand">Music Vault</div><div class="empty">' + esc(msg || 'Denne artistsiden finnes ikke.') + '</div>'; }
+    if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) { fail(); return; }
+
+    fetch(MV_CONFIG.SUPABASE_URL + '/rest/v1/rpc/get_artist_page', {
+      method: 'POST',
+      headers: { apikey: MV_CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + MV_CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_slug: slug })
+    }).then(function(r){ return r.ok ? r.json() : null; }).then(function(p){
+      if (!p) { fail(); return; }
+      document.title = (p.display_name || slug) + ' · Music Vault';
+      var photo = safeUrl(p.photo_url);
+      var links = (p.links || []).filter(function(l){ return l && safeUrl(l.url); });
+      var tracks = (p.tracks || []).filter(function(t){ return t.data && safeUrl(t.data.audio_url); });
+      app.innerHTML =
+        '<div class="brand">Music Vault</div>' +
+        '<section class="hero">' + (photo ? '<img class="photo" src="' + esc(photo) + '" alt="">' : '') +
+          '<div><h1>' + esc(p.display_name || slug) + '</h1>' + (p.bio ? '<p class="bio">' + esc(p.bio) + '</p>' : '') +
+          (links.length ? '<div class="links">' + links.map(function(l){ return '<a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label || l.url) + '</a>'; }).join('') + '</div>' : '') +
+        '</div></section>' +
+        (tracks.length ? '<h2>Låter</h2>' + tracks.map(function(t, i){
+          var d = t.data; var cover = safeUrl(d.cover) || (/^data:image\//.test(d.cover || '') ? d.cover : '');
+          return '<div class="track">' + (cover ? '<img src="' + esc(cover) + '" alt="">' : '<span class="ph" aria-hidden="true"></span>') +
+            '<div class="meta"><div class="t">' + esc(d.title || 'Uten tittel') + '</div><div class="s">' + esc([d.artist, d.bpm ? d.bpm + ' BPM' : ''].filter(Boolean).join(' · ')) + '</div></div>' +
+            '<button class="play" data-i="' + i + '" aria-label="Spill ' + esc(d.title || '') + '">▶</button></div>';
+        }).join('') : '') +
+        (p.contact ? '<div class="contact">Kontakt: ' + (/@/.test(p.contact) ? '<a href="mailto:' + esc(p.contact) + '">' + esc(p.contact) + '</a>' : esc(p.contact)) + '</div>' : '');
+      var current = -1;
+      app.addEventListener('click', function(e){
+        var b = e.target.closest('.play'); if (!b) return;
+        var i = Number(b.dataset.i);
+        if (current === i && !audio.paused){ audio.pause(); return; }
+        if (current !== i){ audio.src = tracks[i].data.audio_url; current = i; }
+        audio.play().catch(function(){});
+      });
+      var icons = function(){ document.querySelectorAll('.play').forEach(function(b){ b.textContent = (Number(b.dataset.i) === current && !audio.paused) ? '❚❚' : '▶'; }); };
+      audio.addEventListener('play', icons); audio.addEventListener('pause', icons); audio.addEventListener('ended', icons);
+    }).catch(function(){ fail('Kunne ikke laste siden. Prøv igjen senere.'); });
+  })();
+  </script>
+</body>
+</html>
