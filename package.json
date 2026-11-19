@@ -1,0 +1,14 @@
+{
+  "name": "music-vault",
+  "private": true,
+  "description": "Music Vault — statisk app (ingen byggesteg). Kun utviklerverktøy her.",
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "version-assets": "node scripts/version-assets.mjs",
+    "test": "node scripts/check.mjs && playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
+  }
+}
