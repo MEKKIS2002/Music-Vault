@@ -24,7 +24,7 @@
     return st && id ? (st.albums || []).find(a => a.id === id) : null;
   }
 
-  function show(source){
+  function show(source, viaKeyboard){
     if (open) return;
     const album = currentAlbum();
     if (!album || !album.cover) return;
@@ -90,7 +90,7 @@
       else if (e.key === 'Tab') { e.preventDefault(); }   // fokus blir i dialogen
     };
     document.addEventListener('keydown', onKey, true);
-    open = { root, source, onKey };
+    open = { root, source, onKey, viaKeyboard: !!viaKeyboard };
     root.focus({ preventScroll: true });
 
     // ── Fly opp fra coveret i headeren (FLIP) ──────────────────────────────
@@ -117,7 +117,7 @@
 
   function close(){
     if (!open) return;
-    const { root, onKey } = open; let { source } = open;
+    const { root, onKey, viaKeyboard } = open; let { source } = open;
     open = null;
     document.removeEventListener('keydown', onKey, true);
     root.classList.remove('is-open');
@@ -133,7 +133,8 @@
       if (finished) return; finished = true;
       root.remove();
       document.documentElement.classList.remove('mv-cv-lock');
-      if (sourceVisible) source.focus({ preventScroll: true });
+      // Fokus tilbake bare ved tastatur — med mus ga det en fokusring (boks) rundt coveret.
+      if (sourceVisible && viaKeyboard) source.focus({ preventScroll: true });
     };
     flip(sleeve, sourceVisible ? source : null, true).then(done);
     setTimeout(done, 400);                               // sikkerhetsnett
@@ -144,14 +145,14 @@
     const card = e.target.closest && e.target.closest('[data-cover-viewer]');
     if (!card) return;
     e.preventDefault(); e.stopPropagation();
-    show(card);
+    show(card, false);
   });
   document.addEventListener('keydown', e => {
     if (open || (e.key !== 'Enter' && e.key !== ' ')) return;
     const card = e.target.closest && e.target.closest('[data-cover-viewer]');
     if (!card) return;
     e.preventDefault();
-    show(card);
+    show(card, true);
   });
 
   window.mvCoverViewer = { show, close };
