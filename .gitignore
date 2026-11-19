@@ -24,3 +24,8 @@ node_modules/
 
 # Wrangler lokal cache (konto-info)
 .wrangler/
+
+# Testverktøy
+node_modules/
+test-results/
+playwright-report/
