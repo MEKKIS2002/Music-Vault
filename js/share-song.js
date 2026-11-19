@@ -139,7 +139,7 @@ window.mvLoadShareStats = async function(kind, token, el){
     if(typeof saveState==='function') saveState();
     toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
     const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
-    if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'explore') window.mvExplore.refresh();
+    if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'hjem') window.mvExplore.refresh();
     return true;
   };
 

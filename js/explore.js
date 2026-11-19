@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════════════════════
-// explore.js — fanen «Explore»: nye offentlige låter og artistsider fra andre
-// brukere. Profiler åpnes inne i appen (ikke i nytt vindu), tegnet av
+// explore.js — Explore-seksjonen på Hjem (#homeExplore): nye offentlige låter
+// og artistsider fra andre brukere. Profiler åpnes inne i appen (ikke i nytt vindu), tegnet av
 // js/artist-render.js — samme utseende som den offentlige artistsiden.
 //
 // Data (kun innloggede):
@@ -15,11 +15,13 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const img = u => /^https:\/\//i.test(u || '') || /^data:image\//.test(u || '') ? u : '';
   const client = () => window.supabaseClient;
-  const root = () => document.getElementById('exploreTab');
+  const root = () => document.getElementById('homeExplore');
+  const home = () => document.getElementById('hjemTab');
+  const FEED_PREVIEW = 12;          // låter som vises før «Vis flere»
 
   let cache = null;            // { profiles, feed, at }
   let view = { slug: null };   // null = oversikt
-  let audio = null, current = null, bound = false;
+  let audio = null, current = null, bound = false, showAll = false;
 
   function ago(iso){
     const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -37,15 +39,17 @@
   }
 
   async function open(){
-    const el = root(); if (!el || !client()) return;
+    const el = root(); if (!el) return;
+    if (!client() || !sessionStorage.getItem('mv_package')){ el.hidden = true; return; }
     bind(el);
     if (view.slug) return openProfile(view.slug, true);
     if (!cache || Date.now() - cache.at > 60000){
-      if (!cache) el.innerHTML = '<div class="ex-empty">Laster Explore …</div>';
+      el.hidden = false;
+      if (!cache) el.innerHTML = '<div class="dash-sec-hd"><div class="dash-section-label">Explore</div></div><div class="ex-empty">Laster …</div>';
       try {
         const [profiles, feed] = await Promise.all([rpc('explore_profiles'), rpc('explore_feed', { p_limit: 60 })]);
         cache = { profiles: profiles || [], feed: feed || [], at: Date.now() };
-      } catch(e){ el.innerHTML = `<div class="ex-empty">Kunne ikke laste Explore: ${esc(e.message)}</div>`; return; }
+      } catch(e){ el.hidden = true; console.warn('[Explore]', e.message); return; }
     }
     if (!view.slug) drawOverview(el);
   }
@@ -53,22 +57,24 @@
   // ── Oversikt ─────────────────────────────────────────────────────────────
   function drawOverview(el){
     const { profiles, feed } = cache;
+    home()?.classList.remove('is-ex-profile');
+    el.hidden = false;
+    const list = showAll ? feed : feed.slice(0, FEED_PREVIEW);
     el.innerHTML = `
-      <div class="ex-wrap">
-        <header class="ex-head">
-          <h1>Explore</h1>
-          <p>Nye offentlige låter og artister på Music Vault.</p>
-        </header>
-        <section class="ex-sec">
-          <div class="ex-sec-head"><h2 class="ex-h">Artister</h2><span class="ex-count">${profiles.length}</span></div>
-          ${profiles.length ? `<div class="ex-profiles">${profiles.map(profileCard).join('')}</div>`
-            : '<p class="ex-hint">Ingen har publisert en artistside ennå. Lag din egen under «Artistside».</p>'}
-        </section>
-        <section class="ex-sec">
-          <div class="ex-sec-head"><h2 class="ex-h">Nye låter</h2><span class="ex-count">${feed.length}</span></div>
-          ${feed.length ? `<div class="ex-tracks">${feed.map(trackCard).join('')}</div>`
-            : '<p class="ex-hint">Ingen offentlige låter ennå. Åpne menyen på en låt og velg «Gjør offentlig på Explore».</p>'}
-        </section>
+      <div class="dash-sec-hd ex-top">
+        <div class="dash-section-label">Explore</div>
+        <span class="ex-sub">Nye offentlige låter og artister på Music Vault</span>
+      </div>
+      <div class="ex-sec">
+        <div class="ex-sec-head"><h3 class="ex-h">Artister</h3><span class="ex-count">${profiles.length}</span></div>
+        ${profiles.length ? `<div class="ex-profiles">${profiles.map(profileCard).join('')}</div>`
+          : '<p class="ex-hint">Ingen har publisert en artistside ennå. Lag din egen under «Artistside».</p>'}
+      </div>
+      <div class="ex-sec">
+        <div class="ex-sec-head"><h3 class="ex-h">Nye låter</h3><span class="ex-count">${feed.length}</span></div>
+        ${feed.length ? `<div class="ex-tracks">${list.map(trackCard).join('')}</div>
+          ${feed.length > FEED_PREVIEW ? `<button class="ex-more" type="button" data-act="more">${showAll ? 'Vis færre' : 'Vis alle ' + feed.length}</button>` : ''}`
+          : '<p class="ex-hint">Ingen offentlige låter ennå. Åpne menyen på en låt og velg «Gjør offentlig på Explore».</p>'}
       </div>`;
     paintPlaying();
   }
@@ -104,7 +110,9 @@
   async function openProfile(slug){
     const el = root(); if (!el) return;
     view.slug = slug;
-    el.innerHTML = `<div class="ex-wrap"><button class="ex-back" type="button" data-act="back">← Explore</button><div class="ex-empty">Laster profil …</div></div>`;
+    el.hidden = false;
+    home()?.classList.add('is-ex-profile');
+    el.innerHTML = `<div class="ex-wrap"><button class="ex-back" type="button" data-act="back">← Hjem</button><div class="ex-empty">Laster profil …</div></div>`;
     window.scrollTo({ top: 0 });
     let page = null, pub = [];
     try { [page, pub] = await Promise.all([rpc('get_artist_page', { p_slug: slug }), rpc('explore_feed', { p_limit: 100, p_slug: slug })]); }
@@ -121,7 +129,7 @@
     el.innerHTML = `
       <div class="ex-wrap ex-profile-view">
         <div class="ex-profile-bar">
-          <button class="ex-back" type="button" data-act="back">← Explore</button>
+          <button class="ex-back" type="button" data-act="back">← Hjem</button>
           <button class="ex-chip" type="button" data-act="copy" data-copy="${esc(slug)}"><span class="ic ic-link" aria-hidden="true"></span> Kopier lenke</button>
         </div>
         <div class="ap-page ex-ap" id="exAp"><div id="exApBody"></div></div>
@@ -133,7 +141,12 @@
     R().bind(host, full);
   }
 
-  function back(){ view.slug = null; open(); }
+  function back(){
+    view.slug = null; home()?.classList.remove('is-ex-profile');
+    open().then(() => root()?.scrollIntoView({ block: 'start' }));
+  }
+  // Forlater man Hjem midt i en profil, starter Hjem på oversikten neste gang.
+  function reset(){ if (view.slug){ view.slug = null; home()?.classList.remove('is-ex-profile'); } }
 
   // ── Avspilling i oversikten ──────────────────────────────────────────────
   function play(token){
@@ -147,7 +160,7 @@
     audio.play().catch(() => {});
   }
   function paintPlaying(){
-    document.querySelectorAll('#exploreTab .ex-track').forEach(c => {
+    document.querySelectorAll('#homeExplore .ex-track').forEach(c => {
       const on = c.dataset.token === current && audio && !audio.paused;
       c.classList.toggle('is-playing', !!on);
       const ic = c.querySelector('.ex-play .ic'); if (ic) ic.className = 'ic ' + (on ? 'ic-pause' : 'ic-play');
@@ -155,7 +168,7 @@
   }
 
   // Bare én lyd om gangen mellom Explore og resten av appen.
-  const isMine = a => a === audio || !!(a.closest && a.closest('#exploreTab'));
+  const isMine = a => a === audio || !!(a.closest && a.closest('#homeExplore'));
   document.addEventListener('play', e => {
     const a = e.target; if (!a || a.tagName !== 'AUDIO') return;
     const mine = isMine(a);
@@ -170,6 +183,7 @@
       const t = e.target.closest('button'); if (!t) return;
       if (t.classList.contains('ex-play')) return play(t.dataset.token);
       if (t.dataset.act === 'back') return back();
+      if (t.dataset.act === 'more'){ showAll = !showAll; return drawOverview(root()); }
       if (t.dataset.act === 'copy'){
         const url = new URL('artist.html?u=' + encodeURIComponent(t.dataset.copy), document.baseURI).href;
         return navigator.clipboard.writeText(url).then(() => window.showToast && showToast('✓ Lenke kopiert'));
@@ -178,5 +192,8 @@
     });
   }
 
-  window.mvExplore = { open, openProfile, refresh: () => { cache = null; return open(); } };
+  window.mvExplore = { open, openProfile, reset, refresh: () => { cache = null; return open(); } };
+  // Andre faner enn Hjem: lukk en åpen profil så Hjem er normal ved retur.
+  document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('.tab-btn[data-tab]'); if (b && b.dataset.tab !== 'hjem') reset(); });
+  setTimeout(() => { if (!document.getElementById('hjemTab')?.classList.contains('hidden')) open(); }, 2500);
 })();

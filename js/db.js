@@ -1804,7 +1804,7 @@ function renderActiveTab(tab){
   }
   if(t==='lyriclab' && typeof window.renderLyricLab==='function') window.renderLyricLab();
   if(t==='artistpage' && window.mvArtistStudio) window.mvArtistStudio.open();
-  if(t==='explore' && window.mvExplore) window.mvExplore.open();
+  if((t==='hjem'||t==='') && window.mvExplore) window.mvExplore.open();
 }
 
 function renderAll(){
