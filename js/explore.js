@@ -116,18 +116,14 @@
     home()?.classList.add('is-ex-profile');
     el.innerHTML = `<div class="ex-wrap"><button class="ex-back" type="button" data-act="back">← Hjem</button><div class="ex-empty">Laster profil …</div></div>`;
     window.scrollTo({ top: 0 });
-    let page = null, pub = [];
-    try { [page, pub] = await Promise.all([rpc('get_artist_page', { p_slug: slug }), rpc('explore_feed', { p_limit: 100, p_slug: slug })]); }
+    let page = null;
+    try { page = await rpc('get_artist_page', { p_slug: slug }); }
     catch(e){ page = null; }
     if (view.slug !== slug) return;            // brukeren gikk videre
     if (!page){ const m = el.querySelector('.ex-empty'); if (m) m.textContent = 'Denne profilen finnes ikke lenger eller er ikke publisert.'; return; }
-    const tracks = { ...(page.tracks || {}) };
-    (pub || []).forEach(t => { if (!tracks[t.token]) tracks[t.token] = t.data; });
-    const base = Array.isArray(page.blocks) && page.blocks.length ? page.blocks : R().defaultBlocks(page);
-    const shown = new Set(base.filter(b => b.type === 'tracks' && !b.hidden).flatMap(b => b.tokens || []));
-    const extra = (pub || []).map(t => t.token).filter(t => !shown.has(t));
-    const blocks = extra.length ? [...base, { id: 'ex-public', type: 'tracks', title: 'Offentlige låter', tokens: extra }] : base;
-    const full = { ...page, blocks, tracks };
+    // Profilen viser artistens eget utvalg av offentlige låter (get_artist_page
+    // filtrerer bort alt som ikke er offentlig) — ingen ekstra låter legges til.
+    const full = page;
     el.innerHTML = `
       <div class="ex-wrap ex-profile-view">
         <div class="ex-profile-bar">

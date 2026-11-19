@@ -6,7 +6,7 @@
 // Data: én rad i artist_pages (bare egen, RLS). Seksjonene ligger i `blocks`
 // (rekkefølge = rekkefølgen på siden). Bilder lastes opp til R2 som
 // covers/<innholds-hash>.jpg (samme navnerom som cover-offload.js).
-// Låter = dine egne aktive delingslenker (song_shares).
+// Låter = et utvalg av dine OFFENTLIGE låter (song_shares.is_public).
 // Selve siden tegnes av js/artist-render.js (delt med artist.html).
 // ════════════════════════════════════════════════════════════════════════════
 (function(){
@@ -39,7 +39,7 @@
     const uid = (await c.auth.getSession()).data?.session?.user?.id; if (!uid) return null;
     const [pg, sh] = await Promise.all([
       c.from('artist_pages').select('*').eq('user_id', uid).maybeSingle(),
-      c.from('song_shares').select('id,data').eq('owner_id', uid).eq('enabled', true).order('created_at', { ascending: false }),
+      c.from('song_shares').select('id,data').eq('owner_id', uid).eq('enabled', true).eq('is_public', true).order('created_at', { ascending: false }),
     ]);
     if (pg.error) throw pg.error;
     const name = sessionStorage.getItem('mv_username') || '';
@@ -168,14 +168,14 @@
         const rest = S.shares.filter(s => !tokens.includes(s.id));
         const rows = tokens.map((t, j) => `
           <div class="as-list-row">
-            <span class="as-num">${j + 1}</span><span class="as-grow">${esc(byId[t]?.title || 'Lenken er slått av eller slettet')}</span>
+            <span class="as-num">${j + 1}</span><span class="as-grow">${esc(byId[t]?.title || 'Ikke offentlig lenger — fjernes ved lagring')}</span>
             <button class="as-icon-btn" type="button" data-act="t-up" data-i="${i}" data-j="${j}" aria-label="Flytt opp" ${j === 0 ? 'disabled' : ''}>↑</button>
             <button class="as-icon-btn" type="button" data-act="t-down" data-i="${i}" data-j="${j}" aria-label="Flytt ned" ${j === tokens.length - 1 ? 'disabled' : ''}>↓</button>
             <button class="as-icon-btn" type="button" data-act="t-del" data-i="${i}" data-j="${j}" aria-label="Fjern">×</button>
           </div>`).join('');
-        if (!S.shares.length) return '<p class="as-hint">Du har ingen delingslenker ennå. Åpne en låt og velg «Del lenke» — så kan den vises her.</p>';
+        if (!S.shares.length) return '<p class="as-hint">Du har ingen offentlige låter ennå. Åpne menyen på en låt og velg «Gjør offentlig på Explore» — så kan du velge den her.</p>';
         return `${rows || '<p class="as-hint">Ingen låter valgt.</p>'}
-          ${rest.length ? `<select data-act="t-add" data-i="${i}"><option value="">+ Legg til låt …</option>${rest.map(s => `<option value="${esc(s.id)}">${esc(s.data?.title || 'Uten tittel')}</option>`).join('')}</select>` : ''}`;
+          ${rest.length ? `<select data-act="t-add" data-i="${i}"><option value="">+ Legg til offentlig låt …</option>${rest.map(s => `<option value="${esc(s.id)}">${esc(s.data?.title || 'Uten tittel')}</option>`).join('')}</select>` : ''}`;
       }
       case 'gallery': {
         const ims = b.images || [];
