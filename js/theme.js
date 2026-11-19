@@ -121,10 +121,40 @@
     faviconImg.addEventListener('load', draw, { once: true });
   }
 
-  function setTheme(theme){ write('mv_theme', theme === 'light' ? 'light' : 'dark'); apply(); }
+  function setTheme(theme){ write('mv_theme', theme === 'light' ? 'light' : 'dark'); apply(); saveToAccount(); }
   function setAccent(id){
     if (!ACCENT_IDS.includes(id) || !canChooseAccent()) return;
-    write('mv_accent', id); apply();
+    write('mv_accent', id); apply(); saveToAccount();
+  }
+
+  // ── Lagret på kontoen (tabellen user_settings) — følger deg til alle enheter ──
+  // Lokalt (localStorage) brukes fortsatt for å sette tema før første maling;
+  // kontoen er fasiten etter innlogging.
+  async function uid(){
+    try { const { data } = await window.supabaseClient.auth.getSession(); return data?.session?.user?.id || null; }
+    catch(e){ return null; }
+  }
+  let _saveTimer = null;
+  function saveToAccount(){
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(async () => {
+      const id = await uid(); if (!id) return;
+      const { error } = await window.supabaseClient.from('user_settings')
+        .upsert({ user_id: id, theme: getTheme(), accent: getAccent(), updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      if (error) console.warn('[Tema] Kunne ikke lagre på kontoen:', error.message);
+    }, 400);
+  }
+  let _synced = false;
+  async function syncFromAccount(){
+    if (_synced || !window.supabaseClient) return;
+    const id = await uid(); if (!id) return;
+    _synced = true;
+    const { data, error } = await window.supabaseClient.from('user_settings').select('theme, accent').eq('user_id', id).maybeSingle();
+    if (error){ _synced = false; return; }
+    if (!data){ saveToAccount(); return; }                 // første gang: lagre det lokale valget
+    if (data.theme !== getTheme() || data.accent !== getAccent()){
+      write('mv_theme', data.theme); write('mv_accent', data.accent); apply();
+    }
   }
 
   // ── Kontrollene i tannhjulmenyen (#mvGearAppearance, lages av lock.js) ──
@@ -150,7 +180,7 @@
       ${pro ? '' : '<div class="mv-gear-hint">Velg egen aksentfarge med PRO.</div>'}`;
   }
 
-  window.mvTheme = { ACCENTS, getTheme, getAccent, canChooseAccent, setTheme, setAccent, apply, renderControls };
+  window.mvTheme = { ACCENTS, getTheme, getAccent, canChooseAccent, setTheme, setAccent, apply, renderControls, syncFromAccount };
 
   // Pakken (PRO?) blir kjent først etter innlogging — lock.js kaller apply() igjen da.
   apply();
