@@ -10,8 +10,8 @@
 (function(){
   'use strict';
 
-  const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+  const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
   const FN_URL = `${SB_URL}/functions/v1/admin-update-user`;
 
   async function getToken(){
