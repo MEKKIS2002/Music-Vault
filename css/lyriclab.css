@@ -883,3 +883,4 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-sync input{ flex:1; accent-color:var(--accent); }
 .ll-sync output{ min-width:56px; text-align:right; font-variant-numeric:tabular-nums; color:var(--text); }
 .ll-mic-hint{ margin:0; font-size:11px; line-height:1.4; color:var(--faint); }
+.ll-sync input[type="range"]{ background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; height:auto !important; min-height:0 !important; }

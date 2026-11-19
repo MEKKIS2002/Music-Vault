@@ -1891,4 +1891,19 @@
     'Tryggere synk: bare endringer lastes opp, så en gammel fane ikke kan overskrive nyere data': 'Safer sync: only changes are uploaded, so an old tab can’t overwrite newer data',
     'Raskere app: cover flyttet til skylagring (tilstanden gikk fra 5 MB til under 200 kB) og nye versjoner lastes alltid': 'A faster app: covers moved to cloud storage (your data went from 5 MB to under 200 kB), and new versions always load',
   });
+
+  // ── Innspilling: mikrofon og synk ──────────────────────────────────────────
+  I.add({
+    'Standardmikrofon': 'Default microphone',
+    'Vis mikrofonene mine': 'Show my microphones',
+    'Synk': 'Sync',
+    'Mikrofon': 'Microphone',
+    '✓ Mikrofon valgt': '✓ Microphone selected',
+    'Gjør klar …': 'Getting ready…',
+    'Ny take': 'New take',
+    'Bruk hodetelefoner. Havner vokalen litt sent, dra «Synk» mot høyre (Bluetooth trenger ofte +150–250 ms).': 'Use headphones. If your vocals land a little late, drag “Sync” to the right (Bluetooth often needs +150–250 ms).',
+    'Flytt vokalen i forhold til beaten. Høyere tall = vokalen trekkes tidligere.': 'Shift the vocals against the beat. A higher number pulls the vocals earlier.',
+  });
+  I.pat([['Mikrofon {#0}', 'Microphone {0}']]);
+  I.prefix({ 'Fikk ikke tilgang til mikrofonen:': 'Couldn’t access the microphone:' });
 })(window.mvI18n);
