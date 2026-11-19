@@ -82,10 +82,10 @@ AKTIVE BRUKERE:
   <link rel="stylesheet" href="css/icons.css?v=b67086befd">
   <link rel="stylesheet" href="css/lyriclab.css?v=b3075d21de">
   <link rel="stylesheet" href="css/pipeline.css?v=a5e716c10e">
-  <link rel="stylesheet" href="css/main.css?v=3a43b1b83b">
-  <link rel="stylesheet" href="css/ui.css?v=26a693092a">
+  <link rel="stylesheet" href="css/main.css?v=873643ccfb">
+  <link rel="stylesheet" href="css/ui.css?v=a980ce1190">
   <link rel="stylesheet" href="css/track-cards.css?v=9f496e04f1">
-  <link rel="stylesheet" href="css/archive.css?v=104e206521">
+  <link rel="stylesheet" href="css/archive.css?v=0f0efa6777">
   <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
   <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
   <link rel="stylesheet" href="css/player.css?v=eaa75d553a">
@@ -958,30 +958,31 @@ window.addEventListener('load', () => {
 <!-- === ARCHIVE DEMO CRATES OVERRIDE === -->
 
   <!-- Supabase CDN -->
-  <script src="js/impersonate.js?v=67140bf85e"></script>
+  <script src="js/config.js?v=a6abb28894"></script>
+  <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
   <!-- R2 config — set this to your deployed Cloudflare Worker URL -->
-  <script>window.R2_WORKER_URL = 'https://beat-vault.marcus-aas-mekiassen.workers.dev';</script>
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=e3a053c571"></script>
-  <script src="js/lock.js?v=399bf26f82"></script>
+  <script src="js/lock.js?v=e7bccc0a55"></script>
   <script src="js/pipeline.js?v=ce950b4f56"></script>
-  <script src="js/lyriclab.js?v=8411e8355c"></script>
-  <script src="js/app.js?v=4bdb806849"></script>
+  <script src="js/lyriclab.js?v=3a5085a42d"></script>
+  <script src="js/app.js?v=67b0e3628c"></script>
   <script src="js/track-cards.js?v=b09d140e79"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
   <script src="js/archive.js?v=f3caaed387"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
   <script src="js/changelog.js?v=f48ca25030"></script>
   <script src="js/beats-tab.js?v=650c08d85a"></script>
-  <script src="js/supabase.js?v=7dd680f443"></script>
+  <script src="js/supabase.js?v=83dd6a3ad5"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=dc0e952db9"></script>
+  <script src="js/db.js?v=9e5921134b"></script>
+  <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=fb6c0091ab"></script>
   <script src="js/mixtape-share.js?v=8083882853"></script>
-  <script src="js/notifications.js?v=69f4052763"></script>
+  <script src="js/notifications.js?v=f64a07780c"></script>
   <script src="js/mini-player.js?v=4027371703"></script>
   <script src="js/queue.js?v=05a190d025"></script>
   <script src="js/context-menu.js?v=a5a8b20bc4"></script>
@@ -1004,10 +1005,10 @@ window.addEventListener('load', () => {
 
   <script src="js/packages.js?v=90b669b154"></script>
   <script src="js/theme.js?v=f7e6bace95"></script>
-  <script src="js/label.js?v=ceccd7e68e"></script>
-  <script src="js/admin-panel.js?v=28ed88df02"></script>
-  <script src="js/share-song.js?v=eb9e1ca667"></script>
-  <script src="js/docs.js?v=35f2aee7c4"></script>
+  <script src="js/label.js?v=69aeaf29dd"></script>
+  <script src="js/admin-panel.js?v=55eb715b72"></script>
+  <script src="js/share-song.js?v=21998a65d5"></script>
+  <script src="js/docs.js?v=32506992ac"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>

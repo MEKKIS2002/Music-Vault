@@ -1219,8 +1219,8 @@ window.mvShare = async function(btn) {
   const contentId   = raw.slice(i1+1, i2);
   const contentName = raw.slice(i2+1) || contentId;
   if (!contentType || !contentId) { showToast('Mangler innholds-ID'); return; }
-  const SBU='https://ylvqkfdvijqnecuqznyr.supabase.co';
-  const SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SBU=window.MV_CONFIG.SUPABASE_URL;
+  const SBK=window.MV_CONFIG.SUPABASE_ANON_KEY;
   let token=SBK, uid=window._mvCurrentUserId||sessionStorage.getItem('mv_user_id');
   try {
     const {data:{session}}=await window.supabaseClient.auth.getSession();
@@ -1377,7 +1377,7 @@ window.renderCollectionComments = async function(type, id) {
   const elId = type==='album' ? 'albumComments' : 'mixtapeComments';
   const el = document.getElementById(elId);
   if(!el || !id) return;
-  const SBU='https://ylvqkfdvijqnecuqznyr.supabase.co', SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SBU=window.MV_CONFIG.SUPABASE_URL, SBK=window.MV_CONFIG.SUPABASE_ANON_KEY;
   let token=SBK, uid=window._mvCurrentUserId||sessionStorage.getItem('mv_user_id');
   try {const {data:{session}}=await window.supabaseClient.auth.getSession();if(session?.access_token)token=session.access_token;if(session?.user?.id)uid=session.user.id;}catch(e){}
   const hdrs={'apikey':SBK,'Authorization':'Bearer '+token,'Content-Type':'application/json'};
@@ -1392,7 +1392,7 @@ window.renderCollectionComments = async function(type, id) {
 };
 window.deleteCollectionComment = async function(source,commentId,type,collId) {
   if(!confirm('Slette denne kommentaren?'))return;
-  const SBU='https://ylvqkfdvijqnecuqznyr.supabase.co',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SBU=window.MV_CONFIG.SUPABASE_URL,SBK=window.MV_CONFIG.SUPABASE_ANON_KEY;
   let token=SBK;try{const {data:{session}}=await window.supabaseClient.auth.getSession();if(session?.access_token)token=session.access_token;}catch(e){}
   const hdrs={'apikey':SBK,'Authorization':'Bearer '+token};
   const table=source==='pitch'?'pitch_comments':'notifications';
