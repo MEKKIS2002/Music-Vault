@@ -379,6 +379,18 @@
 
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
+      <div class="ll-mic">
+        <label class="ll-mic-row"><span class="ic ic-mic" aria-hidden="true"></span>
+          <select id="llMicSelect" aria-label="Mikrofon" onchange="llMicChanged(this)"><option value="">Standardmikrofon</option></select>
+        </label>
+        <button type="button" class="ll-mic-access" id="llMicAccess" onclick="llMicGrant()">Vis mikrofonene mine</button>
+        <label class="ll-sync" title="Flytt vokalen i forhold til beaten. Høyere tall = vokalen trekkes tidligere.">
+          <span>Synk</span>
+          <input type="range" id="llSyncMs" min="-150" max="400" step="5" value="${Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0}" oninput="llSyncChanged(this)">
+          <output id="llSyncVal">${(()=>{const v=Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0;return (v>0?'+':'')+v+' ms';})()}</output>
+        </label>
+        <p class="ll-mic-hint">Bruk hodetelefoner. Havner vokalen litt sent, dra «Synk» mot høyre (Bluetooth trenger ofte +150–250 ms).</p>
+      </div>
       <div id="llTakeList" class="ll-take-list"></div>
     </div>
 
@@ -433,7 +445,7 @@
 </div><!-- /.ll-wrap -->
 `;
     _lastSaved = null;
-    setTimeout(()=>{ renderMemoList(); renderTakeList(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
+    setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
       const emptyTa = Array.from(container.querySelectorAll('.ll-textarea')).find(el=>!(el.value||el.textContent||'').trim());
@@ -692,7 +704,7 @@
       if(typeof showToast==='function') showToast('Mikrofon ikke tilgjengelig i denne nettleseren');
       return;
     }
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    openMic()
       .then(stream => {
         _memoChunks = [];
         const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
@@ -1061,142 +1073,162 @@
     if(container) container.insertAdjacentHTML('beforeend', inlineSectionHTML(newSec, beatId));
   };
 
-  // ── Record lyric take over beat ──────────────────────────────────────────
-  window.llRecordTake = function() {
-    if (_takeRecorder && _takeRecorder.state === 'recording') {
-      _takeRecorder.stop();
-      return;
+  // ── Mikrofon (velger + innstillinger for musikk) ─────────────────────────
+  // Nettleserens «telefon»-filtre (ekkofjerning, støydemping, auto-volum)
+  // forsinker og ødelegger vokal over musikk — de slås av. Valgt mikrofon
+  // huskes per enhet (localStorage mv_mic).
+  const MIC_KEY = 'mv_mic', SYNC_KEY = 'mv_rec_sync_ms';
+  const lsGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch(e){} };
+  function micConstraints(deviceId){
+    const c = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 };
+    if (deviceId) c.deviceId = { exact: deviceId };
+    return { audio: c, video: false };
+  }
+  async function openMic(){
+    const id = lsGet(MIC_KEY) || '';
+    try { return await navigator.mediaDevices.getUserMedia(micConstraints(id)); }
+    catch(e){
+      if (id && (e.name === 'OverconstrainedError' || e.name === 'NotFoundError' || e.name === 'NotReadableError')){
+        lsSet(MIC_KEY, '');                                   // mikrofonen er borte — bruk standard
+        return navigator.mediaDevices.getUserMedia(micConstraints(''));
+      }
+      throw e;
     }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      if(typeof showToast==='function') showToast('Mikrofon ikke tilgjengelig');
-      return;
-    }
+  }
+  window.llOpenMic = openMic;
+  async function fillMicSelect(){
+    const sel = document.getElementById('llMicSelect'); if (!sel || !navigator.mediaDevices?.enumerateDevices) return;
+    let devs = [];
+    try { devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput'); } catch(e){}
+    const saved = lsGet(MIC_KEY) || '';
+    const named = devs.some(d => d.label);
+    sel.innerHTML = `<option value="">Standardmikrofon</option>` + devs.filter(d => d.deviceId && d.deviceId !== 'default')
+      .map((d, i) => `<option value="${esc(d.deviceId)}" ${d.deviceId === saved ? 'selected' : ''}>${esc(d.label || 'Mikrofon ' + (i + 1))}</option>`).join('');
+    const access = document.getElementById('llMicAccess');
+    if (access) access.hidden = named;                       // navn vises først etter tilgang
+  }
+  window.llMicChanged = function(sel){ lsSet(MIC_KEY, sel.value); if (typeof showToast === 'function') showToast('✓ Mikrofon valgt'); };
+  window.llMicGrant = async function(){
+    try { const st = await openMic(); st.getTracks().forEach(t => t.stop()); }
+    catch(e){ if (typeof showToast === 'function') showToast('Fikk ikke tilgang til mikrofonen: ' + e.message); }
+    fillMicSelect();
+  };
+  window.llSyncChanged = function(inp){
+    lsSet(SYNC_KEY, inp.value);
+    const out = document.getElementById('llSyncVal'); if (out) out.textContent = (inp.value > 0 ? '+' : '') + inp.value + ' ms';
+  };
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) navigator.mediaDevices.addEventListener('devicechange', fillMicSelect);
+  window.llFillMicSelect = fillMicSelect;
+
+  // ── Spill inn vokal over beaten ──────────────────────────────────────────
+  // Hvorfor vokalen havnet for sent: du hører beaten etter utgangsforsinkelsen
+  // (høyttaler/Bluetooth) og mikrofonen leverer lyden etter inngangsforsinkelsen.
+  // Vokalen kommer altså L sekunder etter beaten den hører til. Løsning: i
+  // OPPTAKET forsinkes beaten like mye (DelayNode), så de havner i takt.
+  // L = målt forsinkelse (AudioContext + mikrofon) + manuell justering.
+  window.llRecordTake = async function() {
+    if (_takeRecorder && _takeRecorder.state === 'recording') { _takeRecorder.stop(); return; }
+    if (_takeRecorder && _takeRecorder.state === 'preparing') return;
+    if (!navigator.mediaDevices?.getUserMedia) { if (typeof showToast === 'function') showToast('Mikrofon ikke tilgjengelig'); return; }
 
     const beat = getBeat(window.currentLyricLabBeatId);
-    if (!beat) { if(typeof showToast==='function') showToast('Velg en sang først'); return; }
-
-    // Countdown UI
+    if (!beat) { if (typeof showToast === 'function') showToast('Velg en sang først'); return; }
     const btn = document.getElementById('llTakeBtn');
-    const overlay = document.getElementById('llTakeOverlay');
-    let count = 3;
+    const setBtn = t => { if (btn) btn.textContent = t; };
+    _takeRecorder = { state: 'preparing' };
 
-    function startCountdown() {
-      if(overlay) { overlay.style.display='flex'; overlay.querySelector('.ll-take-count').textContent = count; }
-      if(btn) btn.textContent = `Starter om ${count}s...`;
-      const cd = setInterval(() => {
-        count--;
-        if(overlay) overlay.querySelector('.ll-take-count').textContent = count || 'REC';
-        if(btn) btn.textContent = count > 0 ? `Starter om ${count}s...` : 'Stopp innspilling';
-        if (count <= 0) {
-          clearInterval(cd);
-          startRecording();
-        }
-      }, 1000);
-    }
-
-    function startRecording() {
-      // Don't use playSingleBeat — the blob Audio element handles playback
+    // 1) Mikrofon og beat gjøres klare FØR opptellingen (tilgangsspørsmål og
+    //    nedlasting skal ikke forskyve starten).
+    let micStream, beatBlobUrl = null;
+    try {
+      setBtn('Gjør klar …');
+      micStream = await openMic();
+      fillMicSelect();
       const beatUrl = beat.audio_url || beat.url || null;
-
-      function doRecord(blobUrl) {
-        const localAudio = blobUrl ? new Audio(blobUrl) : null;
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-          .then(micStream => {
-            _takeChunks = [];
-            _takeSecs   = 0;
-            const mime  = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const dest     = audioCtx.createMediaStreamDestination();
-
-            // Mic → mixer (with gain boost)
-            const micSrc  = audioCtx.createMediaStreamSource(micStream);
-            const micGain = audioCtx.createGain();
-            micGain.gain.value = 1.5;
-            micSrc.connect(micGain);
-            micGain.connect(dest);
-
-            // Beat blob → mixer via captureStream + also to speakers
-            if (localAudio) {
-              localAudio.volume = 1.0; // full volume
-              localAudio.play().catch(()=>{});
-              try {
-                const cs = localAudio.captureStream?.() || localAudio.mozCaptureStream?.();
-                if (cs) {
-                  const beatSrc  = audioCtx.createMediaStreamSource(cs);
-                  const beatGain = audioCtx.createGain();
-                  beatGain.gain.value = 1.0;
-                  beatSrc.connect(beatGain);
-                  beatGain.connect(dest);                  // → recording
-                  beatGain.connect(audioCtx.destination); // → speakers
-                }
-              } catch(e) { console.warn('[LyricLab] beat mix:', e.message); }
-            }
-
-            _takeRecorder = new MediaRecorder(dest.stream, { mimeType: mime });
-            _takeRecorder.ondataavailable = e => { if(e.data.size>0) _takeChunks.push(e.data); };
-
-            _takeRecorder.onstart = () => {
-              if(overlay) {
-                overlay.querySelector('.ll-take-count').textContent = '⬤';
-                overlay.querySelector('.ll-take-label').textContent = `Spiller inn over ${esc(beat.name)}`;
-              }
-              _takeInterval = setInterval(() => {
-                _takeSecs++;
-                const m = Math.floor(_takeSecs/60), s = String(_takeSecs%60).padStart(2,'0');
-                const timer = document.getElementById('llTakeTimer');
-                if(timer) timer.textContent = `${m}:${s}`;
-              }, 1000);
-              if(typeof showToast==='function') showToast('Innspilling startet');
-            };
-
-            _takeRecorder.onstop = () => {
-              clearInterval(_takeInterval);
-              micStream.getTracks().forEach(t=>t.stop());
-              audioCtx.close().catch(()=>{});
-              if(localAudio) { localAudio.pause(); }
-              if(blobUrl) URL.revokeObjectURL(blobUrl);
-              if(overlay) overlay.style.display='none';
-              if(btn){ btn.textContent='Spill inn over beat'; btn.style.background=''; }
-              const blob2 = new Blob(_takeChunks, { type: mime });
-              const reader = new FileReader();
-              reader.onload = ev => {
-                if(!beat.takes) beat.takes = [];
-                beat.takes.push({ id: uid(), url: ev.target.result, ts: Date.now(), dur: _takeSecs, mime });
-                if(typeof saveState==='function') saveState();
-                renderTakeList();
-                if(typeof showToast==='function') showToast(`✓ Take lagret (${_takeSecs}s)`);
-              };
-              reader.readAsDataURL(blob2);
-            };
-
-            _takeRecorder.start(500);
-          })
-          .catch(err => {
-            if(overlay) overlay.style.display='none';
-            if(btn) btn.textContent='Spill inn over beat';
-            if(typeof showToast==='function') showToast('Mikrofon feil: ' + err.message);
-          });
-      } // end doRecord
-
-      if (beatUrl) {
-        fetch(beatUrl)
-          .then(r => r.blob())
-          .then(b => doRecord(URL.createObjectURL(b)))
-          .catch(() => doRecord(null));
-      } else {
-        doRecord(null);
+      if (beatUrl){
+        try { const r = await fetch(beatUrl); if (r.ok) beatBlobUrl = URL.createObjectURL(await r.blob()); } catch(e){}
       }
+    } catch(err){
+      _takeRecorder = null; setBtn('Ny take');
+      if (typeof showToast === 'function') showToast('Mikrofon feil: ' + err.message);
+      return;
     }
 
-    // Opptelling i låtens tempo (music-tools.js): én takt med klikk, så starter opptaket på «1»
-    if (window.mvMetronome && window.mvMetronome.countInEnabled() && Number(beat.bpm) > 0) {
-      if (btn) btn.textContent = 'Teller opp …';
-      window.mvMetronome.countIn(beat.bpm, n => {
-        if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.ll-take-count').textContent = n; }
-      }, startRecording);
-    } else startCountdown();
+    const go = () => startRecording(micStream, beatBlobUrl, beat, btn, setBtn);
+    if (window.mvMetronome && window.mvMetronome.countInEnabled() && Number(beat.bpm) > 0){
+      setBtn('Teller opp …');
+      window.mvMetronome.countIn(beat.bpm, n => setBtn(String(n)), go);
+    } else {
+      let count = 3; setBtn(`Starter om ${count}s...`);
+      const cd = setInterval(() => { count--; if (count > 0) setBtn(`Starter om ${count}s...`); else { clearInterval(cd); go(); } }, 1000);
+    }
   };
+
+  function startRecording(micStream, beatBlobUrl, beat, btn, setBtn){
+    _takeChunks = []; _takeSecs = 0;
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg');
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    const dest = ctx.createMediaStreamDestination();
+
+    // Vokal → opptak
+    const micSrc = ctx.createMediaStreamSource(micStream);
+    const micGain = ctx.createGain(); micGain.gain.value = 1.4;
+    micSrc.connect(micGain).connect(dest);
+
+    // Forsinkelse: utgang (baseLatency + outputLatency) + mikrofon (track.latency) + manuell justering
+    const track = micStream.getAudioTracks()[0];
+    const inLat = (track && track.getSettings && track.getSettings().latency) || 0;
+    const manual = (Number(lsGet(SYNC_KEY)) || 0) / 1000;
+    const measured = (ctx.baseLatency || 0) + (ctx.outputLatency || 0) + inLat;
+    const L = Math.min(1.5, Math.max(0, measured + manual));
+
+    // Beat → høyttaler (én gang) og → forsinket inn i opptaket
+    let beatEl = null;
+    if (beatBlobUrl){
+      beatEl = new Audio(beatBlobUrl);
+      const src = ctx.createMediaElementSource(beatEl);
+      src.connect(ctx.destination);
+      const delay = ctx.createDelay(2.0); delay.delayTime.value = L;
+      src.connect(delay).connect(dest);
+    }
+
+    const rec = new MediaRecorder(dest.stream, { mimeType: mime });
+    _takeRecorder = rec;
+    rec.ondataavailable = e => { if (e.data.size > 0) _takeChunks.push(e.data); };
+    rec.onstart = () => {
+      setBtn('Stopp innspilling');
+      _takeInterval = setInterval(() => { _takeSecs++; }, 1000);
+      if (typeof showToast === 'function') showToast('Innspilling startet');
+    };
+    rec.onstop = () => {
+      clearInterval(_takeInterval);
+      micStream.getTracks().forEach(t => t.stop());
+      if (beatEl) beatEl.pause();
+      ctx.close().catch(() => {});
+      if (beatBlobUrl) URL.revokeObjectURL(beatBlobUrl);
+      setBtn('Ny take');
+      // Den første biten (L sekunder) er bare vokal før beaten — klippes ikke, men er kort.
+      const blob = new Blob(_takeChunks, { type: mime });
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (!beat.takes) beat.takes = [];
+        beat.takes.push({ id: uid(), url: ev.target.result, ts: Date.now(), dur: _takeSecs, mime, syncMs: Math.round(L * 1000) });
+        if (typeof saveState === 'function') saveState();
+        renderTakeList();
+        if (typeof showToast === 'function') showToast(`✓ Take lagret (${_takeSecs}s)`);
+      };
+      reader.readAsDataURL(blob);
+      _takeRecorder = null;
+    };
+    if (beatEl) beatEl.addEventListener('ended', () => { if (rec.state === 'recording') rec.stop(); }, { once: true });
+
+    ctx.resume().then(() => {
+      rec.start(500);
+      if (beatEl) beatEl.play().catch(() => {});
+    });
+  }
+
   function renderTakeList() {
     const beat = getBeat(window.currentLyricLabBeatId);
     const el   = document.getElementById('llTakeList');
