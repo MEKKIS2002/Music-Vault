@@ -146,6 +146,13 @@
       var token = params.get('s') || params.get('t') || (location.hash||'').replace(/^#/,'');
       if(!token){ fail(); return; }
 
+      // ── Statistikk (anonym): åpnet, spilt, hvor langt (maks %) ──
+      function sid(){ var s = sessionStorage.getItem('mv_sid'); if(!s){ s = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36)); sessionStorage.setItem('mv_sid', s); } return s; }
+      function track(ev, pct){
+        try { fetch(SB_URL + '/rest/v1/rpc/log_share_event', { method:'POST', headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+          body: JSON.stringify({ p_kind:'song', p_token:token, p_session:sid(), p_event:ev, p_beat:'', p_pct:pct||0 }) }).catch(function(){}); } catch(e){}
+      }
+
       fetch(SB_URL + '/rest/v1/rpc/get_song_share', {
         method:'POST',
         headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
@@ -155,6 +162,7 @@
       .then(function(data){
         if(!data || !data.audio_url){ fail(); return; }
         renderTrack(data);
+        track('open', 0);
       })
       .catch(fail);
 
@@ -185,6 +193,14 @@
             cur = $('cur'), dur = $('dur'), vol = $('vol'), muteBtn = $('muteBtn'),
             dlBtn = $('dlBtn');
         audio.src = data.audio_url;
+        var lastPct = -1;
+        audio.addEventListener('play', function(){ track('play', 0); });
+        audio.addEventListener('timeupdate', function(){
+          if(!audio.duration) return;
+          var p = Math.floor(audio.currentTime / audio.duration * 10) * 10;
+          if(p > lastPct){ lastPct = p; track('progress', p); }
+        });
+        audio.addEventListener('ended', function(){ track('progress', 100); });
         setFill(vol, 100);
 
         // Play / pause
