@@ -131,7 +131,7 @@ textarea{resize:vertical;line-height:1.55}
 /* grooves via conic + radial */
 .vinyl-groove{width:100%;height:100%;border-radius:50%;background:
   repeating-radial-gradient(circle,
-    #111 0px, #1a1a1a 1.5px, #0d0d0d 3px, var(--surface-1) 4.5px, #111 6px
+    #111 0px, #1a1a1a 1.5px, #0d0d0d 3px, #211d1a 4.5px, #111 6px
   );
   position:absolute;inset:0}
 /* subtle sheen */
@@ -461,7 +461,7 @@ input:focus,textarea:focus,select:focus{border-color:rgb(var(--accent-rgb) / .74
 .album-display{position:relative;width:100%;max-width:240px;height:194px;margin-bottom:12px;overflow:visible}
 .album-card .vinyl-disc,.album-new-btn .vinyl-disc{position:absolute;right:6px;top:5px;width:166px;height:166px;border-radius:50%;animation:vinylSpin 6s linear infinite;transition:transform .34s ease,filter .34s ease}
 .album-card:hover .vinyl-disc,.album-new-btn:hover .vinyl-disc{transform:translateX(18px) rotate(12deg);filter:drop-shadow(0 10px 22px rgb(var(--shadow-rgb) / calc(.55 * var(--shadow-k))))}
-.vinyl-groove{width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#080808 0,var(--surface-1) 2px,#0b0b0b 3.6px,var(--surface-1) 5.3px,#090909 7px);position:absolute;inset:0}
+.vinyl-groove{width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#080808 0,#211d1a 2px,#0b0b0b 3.6px,#211d1a 5.3px,#090909 7px);position:absolute;inset:0}
 .vinyl-groove::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 34% 30%,rgb(var(--ink-rgb) / .10),transparent 40%),radial-gradient(ellipse at 67% 70%,rgb(var(--ink-rgb) / .05),transparent 38%)}
 .vinyl-label{position:absolute;inset:50%;transform:translate(-50%,-50%);width:54%;height:54%;border-radius:50%;border:3px solid rgb(var(--accent-rgb) / .68);overflow:hidden;box-shadow:0 0 0 2px #111,inset 0 0 12px rgb(var(--shadow-rgb) / calc(.6 * var(--shadow-k)))}
 .vinyl-label img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -736,7 +736,7 @@ button.primary-btn,.primary-btn{background:linear-gradient(135deg,var(--accent),
   border-radius:50%;
   background:
     radial-gradient(circle at center,var(--bg) 0 7%,var(--surface-1) 7.5% 13%,#080808 13.5% 100%),
-    repeating-radial-gradient(circle at center,#141414 0 2px,var(--bg) 2px 4px);
+    repeating-radial-gradient(circle at center,#141414 0 2px,#181615 2px 4px);
   box-shadow:inset 0 0 0 1px rgb(var(--ink-rgb) / .05),inset 0 0 34px rgb(var(--shadow-rgb) / calc(.9 * var(--shadow-k)));
 }
 /* V12 follow-up: rotation is driven by the JS spin engine (mvVinylSetPlaying in app.js) so it can

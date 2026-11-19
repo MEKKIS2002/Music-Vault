@@ -700,6 +700,7 @@
           <button class="ghost-btn" onclick="window.labelPitchArtist('${lblEsc(artistId)}')"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>
           <button class="ghost-btn" onclick="window.labelCompareArtist('${lblEsc(artistId)}','${lblJs(name)}')">Sammenlign</button>
           <button class="ghost-btn" onclick="window.labelExportArtist('${lblEsc(artistId)}','${lblJs(name)}')"><span class="ic ic-download" aria-hidden="true"></span> Eksporter CSV</button>
+          <button class="ghost-btn mv-gear-danger" onclick="window.labelRemoveArtist('${lblEsc(artistId)}','${lblJs(name)}')">Fjern fra label</button>
         </div>
       </section>
 
@@ -978,10 +979,14 @@
     if(!confirm(`Fjerne ${name} fra labelen?`)) return;
     const token = await getToken();
     const uid   = await getUid();
-    await fetch(
-      `${SB_URL}/rest/v1/label_artists?label_id=eq.${uid}&artist_id=eq.${artistId}`,
+    const res = await fetch(
+      `${SB_URL}/rest/v1/label_artists?label_id=eq.${encodeURIComponent(uid)}&artist_id=eq.${encodeURIComponent(artistId)}`,
       {method:'DELETE', headers:{...sbH(token),'Prefer':'return=minimal'}}
-    );
+    ).catch(() => null);
+    if(!res || !res.ok){
+      if(typeof window.showToast==='function') window.showToast(`Kunne ikke fjerne ${name} — prøv igjen`);
+      return;
+    }
     if(typeof window.showToast==='function') window.showToast(`✓ ${name} fjernet fra labelen`);
     renderArtistList();
     const detail = document.getElementById('labelArtistPane');

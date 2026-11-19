@@ -297,6 +297,7 @@
                 </select>
               </label>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
+              <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>
@@ -541,22 +542,6 @@
     }
   }
 
-  window.llApplyColor = function(secId, color) {
-    // Legacy — used by contextmenu / popover
-    const editor = document.getElementById('lltxt-' + secId);
-    if (!editor) return;
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
-      if(typeof showToast==='function') showToast('Marker tekst først');
-      return;
-    }
-    if (color) {
-      document.execCommand('backColor', false, color);
-    } else {
-      document.execCommand('removeFormat');
-    }
-    llHighlightInput(editor, secId);
-  };
 
   window.llToggleSectionDone = function(id) {
     const beat = getBeat(window.currentLyricLabBeatId); if(!beat) return;
@@ -686,22 +671,7 @@
     const btn = document.querySelector('.tab-btn[data-tab="mixtapes"]');
     if (btn) btn.click();
   };
-  window.llPlayBeat = function() {
-    const id = window.currentLyricLabBeatId;
-    if (!id) return;
-    const wv = document.getElementById('llWaveform');
-    if (typeof playSingleBeat === 'function') {
-      playSingleBeat(id);
-      if (wv) { wv.classList.remove('paused'); setTimeout(()=>wv.classList.add('paused'), 30000); }
-    } else if (typeof showToast === 'function') {
-      showToast('Lydavspilling ikke tilgjengelig ennå');
-    }
-  };
 
-  window.llLoopHook = function() {
-    if (typeof showToast === 'function') showToast('Loop hook kommer snart');
-    else console.log('[LyricLab] Loop hook — not implemented yet');
-  };
 
   // ── Voice memo + take recorder ───────────────────────────────────────────
   let _memoRecorder = null;
@@ -1089,13 +1059,6 @@
     const container = document.getElementById(`llins-${beatId}`);
     if(container) container.insertAdjacentHTML('beforeend', inlineSectionHTML(newSec, beatId));
   };
-  window.llInlineSave = function(beatId, text) {
-    const beat = getBeat(beatId); if(!beat) return;
-    const secs = getSections(beat);
-    if(secs[0]) secs[0].text = text;
-    clearTimeout(_saveTimer);
-    scheduleAutoSave(beat, false);
-  };
 
   // ── Record lyric take over beat ──────────────────────────────────────────
   window.llRecordTake = function() {
@@ -1281,6 +1244,7 @@
         headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ word })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
       const data = await res.json();
       const text = data.text || '';
       let parsed;
@@ -1640,6 +1604,7 @@
           method:'POST', headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
           body: JSON.stringify({word})
         });
+        if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
         const data = await res.json();
         let parsed;
         try { parsed = JSON.parse((data.text||'{}').replace(/```json|```/g,'')); } catch(e) { parsed = {}; }
@@ -1889,6 +1854,7 @@
         headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ beatName: beat.name, lyrics: lyrics.slice(0, 800) })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
 
       const data = await res.json();
       const generated = (data.text || '').trim();
