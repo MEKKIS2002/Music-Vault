@@ -67,6 +67,12 @@ for (const f of css.filter(f => !/tokens\.css$/.test(f))) {
   }
 }
 
+// 5b) Ingen konfliktmarkører etter merge (har skjedd: <<<<<<< i share.html)
+for (const f of [...css, ...js, ...['index.html', 'share.html', 'mixtape.html', 'artist.html'].filter(f => existsSync(join(root, f)))]) {
+  const s = read(f);
+  for (const m of s.matchAll(/^(<{7}|={7}|>{7})( |$)/gm)) fail('konfliktmarkør', f, lineOf(s, m.index), 'uløst merge-konflikt');
+}
+
 // 6) ?v= i HTML skal være oppdatert (deploy setter det uansett, men lokalt bør det stemme)
 try { execFileSync(process.execPath, [join(root, 'scripts/version-assets.mjs'), '--check'], { stdio: 'pipe' }); }
 catch (e) { console.warn('⚠ ?v= er ikke oppdatert lokalt — kjør `node scripts/version-assets.mjs` (deploy gjør det automatisk).'); }
