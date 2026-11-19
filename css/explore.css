@@ -72,3 +72,17 @@
 /* Statuskolonnen på Hjem er sticky og ville gli over Explore-raden under seg
    når man scroller. Med Explore synlig ligger den fast i sin egen rad. */
 .dash-inner:has(> .dash-explore:not([hidden])) .hjem-bottom-row{ position: static !important; }
+
+/* ── Åpen profil fyller hele siden (ingen ramme/padding rundt) ── */
+#hjemTab.is-ex-profile .hjem-wrap{ padding: 0 !important; max-width: none !important; }
+#hjemTab.is-ex-profile .dash-inner{ display: block !important; max-width: none !important; padding: 0 !important; }
+#hjemTab.is-ex-profile #homeExplore .ex-wrap{ max-width: none; position: relative; }
+#homeExplore .ex-profile-view .ex-profile-bar{ position: absolute; top: 16px; left: 16px; right: 16px; z-index: 3; margin: 0; pointer-events: none; }
+#homeExplore .ex-profile-view .ex-back, #homeExplore .ex-profile-view .ex-chip{ pointer-events: auto; background: rgba(20,18,15,.55); color: #f4eadc;
+  border-color: rgba(255,255,255,.18); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+#homeExplore .ex-profile-view .ex-back:hover, #homeExplore .ex-profile-view .ex-chip:hover{ background: rgba(20,18,15,.75); border-color: rgba(255,255,255,.35); }
+#homeExplore .ex-profile-view .ex-ap{ border: 0; border-radius: 0; min-height: 100vh; }
+#homeExplore .ex-profile-view .ap-banner{ height: clamp(220px, 32vw, 380px); }
+#homeExplore .ex-profile-view .ap-inner{ max-width: 980px; padding-left: clamp(16px, 4vw, 40px); padding-right: clamp(16px, 4vw, 40px); }
+#hjemTab.is-ex-profile{ margin: 0 !important; }
+.app:has(#hjemTab.is-ex-profile:not(.hidden)){ padding-left: 0 !important; padding-right: 0 !important; padding-top: 0 !important; max-width: none !important; }
