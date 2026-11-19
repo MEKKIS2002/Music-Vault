@@ -20,14 +20,14 @@ window.MV_PACKAGES = {
   // ── Artist — standardpakke ────────────────────────────────────
   artist: {
     label: 'Artist',
-    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab'],
+    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab', 'artistpage'],
     features: ['upload', 'lyrics', 'share_mixtape', 'ai_inspire', 'rhymes', 'download']
   },
 
   // ── PRO Artist — utvidet pakke ────────────────────────────────
   pro: {
     label: 'PRO',
-    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab', 'pipeline'],
+    tabs: ['beats', 'mixtapes', 'albums', 'lyriclab', 'pipeline', 'artistpage'],
     features: ['upload', 'lyrics', 'share_mixtape', 'pitch', 'ai_inspire', 'rhymes',
                'download', 'r2_upload', 'stats', 'collab', 'release_planner']
   },

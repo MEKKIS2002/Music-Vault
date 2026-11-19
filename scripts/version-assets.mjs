@@ -16,7 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const pages = ['index.html', 'mixtape.html', 'share.html'];
+const pages = ['index.html', 'mixtape.html', 'share.html', 'artist.html'];
 const check = process.argv.includes('--check');
 const ref = /((?:href|src)=["'])([^"'?#:]+)\?v=[^"'&#]*/g;   // bare lokale stier (ingen «:»)
 

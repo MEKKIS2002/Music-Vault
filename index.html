@@ -97,9 +97,10 @@ AKTIVE BRUKERE:
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=6ebca22b1b">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=4508f6b63a">
+  <link rel="stylesheet" href="css/system.css?v=58dddcd964">
   <link rel="stylesheet" href="css/mobile.css?v=68adbb6110">
   <link rel="stylesheet" href="css/studio.css?v=8fb740b27e">
+  <link rel="stylesheet" href="css/artist-page.css?v=8d21e99ae0">
   <link rel="stylesheet" href="css/light.css?v=b2215184fc">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
@@ -301,6 +302,7 @@ AKTIVE BRUKERE:
     <button class="tab-btn" data-tab="albums"><span class="ic ic-disc" aria-hidden="true"></span> Albumer</button>
     <button class="tab-btn" data-tab="pipeline"><span class="ic ic-board" aria-hidden="true"></span> Pipeline</button>
     <button class="tab-btn" data-tab="lyriclab"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
+    <button class="tab-btn" data-tab="artistpage"><span class="ic ic-star" aria-hidden="true"></span> Artistside</button>
     <div class="mv-nav-sep" role="separator" aria-hidden="true"></div>
     <button class="tab-btn" data-tab="archive"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</button>
     <button class="tab-btn label-tab-hidden" data-tab="label" style="display:none"><span class="ic ic-tag" aria-hidden="true"></span> Label</button>
@@ -496,6 +498,7 @@ AKTIVE BRUKERE:
 </section>
 
 <!-- INTEGRASJONER -->
+<section id="artistpageTab" class="tab-view hidden" aria-label="Artistside"></section>
 <section id="integrationsTab" class="tab-view hidden">
   <div class="layout">
     <aside class="sidebar glass">
@@ -548,11 +551,6 @@ AKTIVE BRUKERE:
         </div>
       </div>
 
-      <div class="settings-card" id="artistPageCard">
-        <h2><span class="ic ic-user" aria-hidden="true"></span> Artistside</h2>
-        <p class="hint">En offentlig side med bio, bilde, kontakt og utvalgte låter. Bare det du publiserer blir synlig.</p>
-        <div class="ap-body" style="margin-top:12px"><p class="hint">Laster…</p></div>
-      </div>
       <div class="settings-card" id="analyseAllCard">
         <h2><span class="ic ic-wave" aria-hidden="true"></span> Toneart og BPM</h2>
         <p class="hint">Låter lastet opp før analysen fantes mangler toneart eller BPM. Analysen leser lyden og fyller inn det som mangler — verdier du har satt selv røres aldri.</p>
@@ -992,7 +990,7 @@ window.addEventListener('load', () => {
   <script src="js/beats-tab.js?v=650c08d85a"></script>
   <script src="js/supabase.js?v=83dd6a3ad5"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=9e5921134b"></script>
+  <script src="js/db.js?v=622e1f0d40"></script>
   <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=fb6c0091ab"></script>
   <script src="js/mixtape-share.js?v=d6b5cb1b9c"></script>
@@ -1001,7 +999,7 @@ window.addEventListener('load', () => {
   <script src="js/queue.js?v=05a190d025"></script>
   <script src="js/context-menu.js?v=a5a8b20bc4"></script>
   <script src="js/writing-tools.js?v=f6f7f4e118"></script>
-  <script src="js/router.js?v=8e7171b18b"></script>
+  <script src="js/router.js?v=d9bfbaeef9"></script>
   <script src="js/player-extras.js?v=9a8247056a"></script>
   <script src="js/search.js?v=80e399c4f2"></script>
   <script src="js/audio-tools.js?v=7a8509a1d2"></script>
@@ -1017,12 +1015,13 @@ window.addEventListener('load', () => {
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
-  <script src="js/packages.js?v=90b669b154"></script>
+  <script src="js/packages.js?v=c3919db8cf"></script>
   <script src="js/theme.js?v=c86ccdf616"></script>
   <script src="js/label.js?v=69aeaf29dd"></script>
   <script src="js/admin-panel.js?v=55eb715b72"></script>
   <script src="js/share-song.js?v=ab2de6f5e9"></script>
-  <script src="js/artist-editor.js?v=35b2240b39"></script>
+  <script src="js/artist-render.js?v=69cbaa714e"></script>
+  <script src="js/artist-studio.js?v=74382fc5ad"></script>
   <script src="js/docs.js?v=32506992ac"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
