@@ -487,8 +487,8 @@ async function loginWithUsername(){
       ({data, error} = await window.supabaseClient.auth.signInWithPassword({email: username, password}));
     } else {
       // Brukernavn: serveren slår opp e-posten og logger inn; vi får bare sesjonen tilbake
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
       let res, body;
       try {
         res = await fetch(`${SB_URL}/functions/v1/login-username`, {
@@ -670,8 +670,8 @@ window.registerUser = async function() {
       return;
     }
     // Valider koden mot Supabase
-    const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+    const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
     // invite_codes er admin-only (RLS) — sjekk via RPC som bare svarer ja/nei.
     const r = await fetch(`${SB_URL}/rest/v1/rpc/check_invite_code`, {
       method:'POST',
@@ -703,8 +703,8 @@ window.registerUser = async function() {
     // f.eks. med e-postbekreftelse). Dette er bare en reserve hvis triggeren feilet;
     // ignore-duplicates = ON CONFLICT DO NOTHING, så den rører aldri en eksisterende rad.
     if(data.user && data.session) {
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
       await fetch(`${SB_URL}/rest/v1/profiles`, {
         method: 'POST',
         headers: {
@@ -736,8 +736,8 @@ window.registerUser = async function() {
 
     // Løs inn invitasjonskoden (merker den brukt + setter package='label' atomisk)
     if(_selectedPkg === 'label' && data.user && data.session) {
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
       const rr = await fetch(`${SB_URL}/rest/v1/rpc/redeem_invite_code`, {
         method:'POST',
         headers:{'apikey':SB_KEY,'Authorization':'Bearer '+data.session.access_token,'Content-Type':'application/json'},
