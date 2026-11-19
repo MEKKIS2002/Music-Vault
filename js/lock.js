@@ -385,6 +385,7 @@ function injectUserCorner(role){
 
   // Tema/aksent: pakken (PRO?) er kjent nå — bruk valget og fyll Utseende-seksjonen.
   if (window.mvTheme){ window.mvTheme.apply(); window.mvTheme.syncFromAccount(); }
+  if (window.mvI18n) window.mvI18n.syncFromAccount();
 
   // Avatar — navnet ligger i tooltip, ikke som egen tekst ved siden av initialene
   slot.insertAdjacentHTML('beforeend', `

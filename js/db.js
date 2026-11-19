@@ -635,6 +635,8 @@ function releaseScore(d){
 }
 
 function renderStats(){ renderDashboard(); }
+// Språkbytte: tegn Hjem på nytt (ukedagsbokstaver o.l. lages i koden)
+document.addEventListener('mv:lang',()=>{ try{ renderDashboard(); }catch(e){} });
 
 function renderDashboard(){
   const username=sessionStorage.getItem('mv_username')||'deg';
@@ -707,7 +709,8 @@ function renderDashboard(){
     beats.forEach(b=>{const ts=b.updatedAt||b.createdAt;if(ts){const d=new Date(ts);d.setHours(0,0,0,0);activeDays.add(d.getTime());}});
     albums.forEach(a=>{const ts=a.updatedAt||a.createdAt;if(ts){const d=new Date(ts);d.setHours(0,0,0,0);activeDays.add(d.getTime());}});
     mixtapes.forEach(m=>{const ts=m.updatedAt||m.createdAt;if(ts){const d=new Date(ts);d.setHours(0,0,0,0);activeDays.add(d.getTime());}});
-    const dayNames=['\u00d8','M','T','O','T','F','L'];
+    // Ukedagsbokstaver følger valgt språk (søndag først, som getDay())
+    const dayNames=window.mvI18n&&mvI18n.lang==='en'?['S','M','T','W','T','F','S']:['\u00d8','M','T','O','T','F','L'];
     actEl.innerHTML=Array.from({length:7},(_,i)=>{
       const d=new Date(today);d.setDate(d.getDate()-(6-i));
       const on=activeDays.has(d.getTime()),isToday=i===6;

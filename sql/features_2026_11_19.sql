@@ -39,3 +39,6 @@ create index if not exists song_shares_public_idx on public.song_shares (publish
 
 -- ── Artistside: låter = utvalg av OFFENTLIGE låter (migrering artist_page_public_tracks_only)
 -- get_artist_page tar nå bare med song_shares der is_public og enabled.
+
+-- ── Språk på kontoen (migrering user_settings_lang) ─────────────────────────
+alter table public.user_settings add column if not exists lang text not null default 'no' check (lang in ('no', 'en'));

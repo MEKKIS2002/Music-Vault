@@ -177,7 +177,13 @@
             aria-checked="${on}" ${pro ? `onclick="mvTheme.setAccent('${a.id}')"` : 'disabled'}></button>`;
         }).join('')}
       </div>
-      ${pro ? '' : '<div class="mv-gear-hint">Velg egen aksentfarge med PRO.</div>'}`;
+      ${pro ? '' : '<div class="mv-gear-hint">Velg egen aksentfarge med PRO.</div>'}
+      <div class="mv-gear-section-label">Språk</div>
+      <div class="mv-theme-toggle" role="radiogroup" aria-label="Språk" data-no-i18n>
+        ${(() => { const l = window.mvI18n ? window.mvI18n.lang : 'no'; return `
+        <button type="button" role="radio" aria-checked="${l==='no'}" class="${l==='no'?'is-on':''}" onclick="mvI18n.setLang('no')" lang="no">Norsk</button>
+        <button type="button" role="radio" aria-checked="${l==='en'}" class="${l==='en'?'is-on':''}" onclick="mvI18n.setLang('en')" lang="en">English</button>`; })()}
+      </div>`;
   }
 
   window.mvTheme = { ACCENTS, getTheme, getAccent, canChooseAccent, setTheme, setAccent, apply, renderControls, syncFromAccount };
