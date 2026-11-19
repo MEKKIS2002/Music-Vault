@@ -74,6 +74,7 @@
   function bind(root, page){
     let audio = root.querySelector('audio.ap-audio');
     if (!audio){ audio = document.createElement('audio'); audio.className = 'ap-audio'; audio.preload = 'none'; root.appendChild(audio); }
+    if (window.mvExclusiveAudio) window.mvExclusiveAudio(audio);   // én lyd om gangen i appen (explore.js)
     let current = null;
     const icons = () => root.querySelectorAll('.ap-play').forEach(b => {
       const on = b.dataset.token === current && !audio.paused;

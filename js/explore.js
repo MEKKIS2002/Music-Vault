@@ -111,6 +111,7 @@
   // ── Profil inne i appen ──────────────────────────────────────────────────
   async function openProfile(slug){
     const el = root(); if (!el) return;
+    stopProfileAudio();
     view.slug = slug;
     el.hidden = false;
     home()?.classList.add('is-ex-profile');
@@ -140,17 +141,18 @@
   }
 
   function back(){
+    stopProfileAudio();
     view.slug = null; home()?.classList.remove('is-ex-profile');
     open().then(() => root()?.scrollIntoView({ block: 'start' }));
   }
   // Forlater man Hjem midt i en profil, starter Hjem på oversikten neste gang.
-  function reset(){ if (view.slug){ view.slug = null; home()?.classList.remove('is-ex-profile'); } }
+  function reset(){ if (view.slug){ stopProfileAudio(); view.slug = null; home()?.classList.remove('is-ex-profile'); } }
 
   // ── Avspilling i oversikten ──────────────────────────────────────────────
   function play(token){
     const t = (cache?.feed || []).find(x => x.token === token); if (!t || !/^https?:\/\//.test(t.data?.audio_url || '')) return;
     if (!audio){
-      audio = new Audio(); audio.preload = 'none';
+      audio = new Audio(); audio.preload = 'none'; exclusive(audio);
       ['play', 'pause', 'ended'].forEach(ev => audio.addEventListener(ev, paintPlaying));
     }
     if (current === token && !audio.paused){ audio.pause(); return; }
@@ -165,15 +167,27 @@
     });
   }
 
-  // Bare én lyd om gangen mellom Explore og resten av appen.
-  const isMine = a => a === audio || !!(a.closest && a.closest('#homeExplore'));
-  document.addEventListener('play', e => {
-    const a = e.target; if (!a || a.tagName !== 'AUDIO') return;
-    const mine = isMine(a);
-    document.querySelectorAll('audio').forEach(o => { if (o !== a && !o.paused && isMine(o) !== mine) o.pause(); });
-    if (!mine && audio && !audio.paused) audio.pause();
-    if (mine) document.querySelectorAll('audio').forEach(o => { if (o !== a && isMine(o) && !o.paused) o.pause(); });
-  }, true);
+  // ── Bare én lyd om gangen i hele appen ───────────────────────────────────
+  // Appens spiller (bottomPlayer.audio i db.js) og Explore bruker lydelementer
+  // UTENFOR DOM-en — «play» fra dem når aldri document. Derfor registreres de
+  // her (mvExclusiveAudio) og får sin egen lytter; lydelementer i DOM-en
+  // (profiler, Lyric Lab o.l.) fanges av lytteren på document.
+  const players = new Set();
+  function stopOthers(a){
+    players.forEach(o => { if (o !== a && !o.paused) o.pause(); });
+    document.querySelectorAll('audio').forEach(o => { if (o !== a && !o.paused) o.pause(); });
+  }
+  function exclusive(a){
+    if (!a || players.has(a)) return;
+    players.add(a);
+    if (!a.isConnected) a.addEventListener('play', () => stopOthers(a));
+  }
+  window.mvExclusiveAudio = exclusive;
+  document.addEventListener('play', e => { if (e.target && e.target.tagName === 'AUDIO') stopOthers(e.target); }, true);
+  try { if (typeof bottomPlayer !== 'undefined' && bottomPlayer.audio) exclusive(bottomPlayer.audio); } catch(_){}
+
+  // Profilens lyd stopper når profilen lukkes (eller byttes).
+  function stopProfileAudio(){ root()?.querySelectorAll('audio').forEach(a => { a.pause(); a.removeAttribute('src'); a.load(); }); }
 
   function bind(el){
     if (bound) return; bound = true;
