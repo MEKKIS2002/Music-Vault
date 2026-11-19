@@ -36,3 +36,6 @@ create index if not exists song_shares_public_idx on public.song_shares (publish
 -- explore_feed(p_limit, p_slug) og explore_profiles(): SECURITY DEFINER,
 -- kun authenticated (anon får 42501). Returnerer bare is_public+enabled låter
 -- og publiserte artistsider.
+
+-- ── Artistside: låter = utvalg av OFFENTLIGE låter (migrering artist_page_public_tracks_only)
+-- get_artist_page tar nå bare med song_shares der is_public og enabled.
