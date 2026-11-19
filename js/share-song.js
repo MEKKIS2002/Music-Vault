@@ -11,6 +11,26 @@
 //
 // DB: table public.song_shares + RPC public.get_song_share(p_token) — see sql/song_shares.sql
 // ════════════════════════════════════════════════════════════════════════════
+// ── Statistikk for delingslenker (tabell share_listens, RPC get_share_stats) ──
+// Fyller el med «Åpnet av N · M har spilt av · hørt i snitt P %». Bare eieren får tall.
+window.mvLoadShareStats = async function(kind, token, el){
+  if (!el || !token || !window.supabaseClient) return;
+  el.textContent = 'Henter statistikk…';
+  try {
+    const { data, error } = await window.supabaseClient.rpc('get_share_stats', { p_kind: kind, p_token: token });
+    if (error) throw error;
+    const rows = data || [];
+    const openRow = rows.find(r => r.beat_id === '');
+    const opens = openRow ? Number(openRow.opens) : Math.max(0, ...rows.map(r => Number(r.opens)));
+    const played = rows.filter(r => r.beat_id !== '' || kind === 'song');
+    const plays = played.reduce((n, r) => n + Number(r.plays || 0), 0);
+    const pcts = played.filter(r => r.avg_pct != null).map(r => Number(r.avg_pct));
+    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : null;
+    if (!opens && !plays){ el.textContent = 'Ingen har åpnet lenken ennå.'; return; }
+    el.textContent = [`Åpnet av ${opens}`, kind === 'song' ? `${plays} har spilt av` : `${plays} avspillinger`, avg != null ? `hørt i snitt ${avg} %` : ''].filter(Boolean).join(' · ');
+  } catch(e){ el.textContent = ''; }
+};
+
 (function(){
   'use strict';
 
@@ -104,6 +124,7 @@
     modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgb(var(--shade-rgb) / .82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
     const kindLabel = isSong(b)?'sang':'beat';
     const linkBlock = url ? `
+      <div class="mv-share-stats" style="font-size:12px;color:var(--muted);margin:0 0 10px"></div>
       <p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));margin:0 0 10px">Offentlig lenke — alle med denne kan høre kun denne ${kindLabel}en:</p>
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <input id="_mvSS_url" readonly value="${esc(url)}"
@@ -134,6 +155,8 @@
         ${linkBlock}
       </div>`;
     modal.style.display='flex';
+    const statsEl = modal.querySelector('.mv-share-stats');
+    if (statsEl && b.shareToken && window.mvLoadShareStats) window.mvLoadShareStats('song', b.shareToken, statsEl);
   }
 
   // Disable from the modal (sets enabled=false → public page stops working).

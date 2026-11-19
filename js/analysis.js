@@ -197,5 +197,41 @@
   }
   const labelKey = k => { const m = /^(.+?)(m?)$/.exec(k || ''); return m ? m[1] + (m[2] ? '-moll' : '-dur') : k; };
 
-  window.mvAnalysis = { enrich, reanalyse, analyseBlob, normKey, keyFromChroma, tempo, fromTags };
+  // ── 4. Alle som mangler ──────────────────────────────────────────────────
+  // Låter lastet opp før analysen fantes har verken toneart eller BPM. Gå
+  // gjennom dem én og én (lyden hentes fra R2/lokalt), lagre underveis.
+  let _bulkRunning = false;
+  const missing = () => ((window.state || {}).beats || []).filter(b => !b._shared && !b.archived &&
+    ((!b.key && b.keySource !== 'manuell') || (!(Number(b.bpm) > 0) && b.bpmSource !== 'manuell')));
+  async function enrichMissing(onProgress){
+    if (_bulkRunning) return null;
+    _bulkRunning = true;
+    const list = missing(); let done = 0, found = 0, failed = 0;
+    try {
+      for (const b of list){
+        onProgress && onProgress({ done, total: list.length, name: b.name });
+        let file = null; try { file = await audioDB.load(b.id); } catch(e){}
+        try { const ch = await enrich(b, file, { quiet: true }); if (ch && ch.length) found++; }
+        catch(e){ failed++; }
+        done++;
+        await new Promise(r => setTimeout(r, 50));      // la siden puste mellom låtene
+      }
+    } finally { _bulkRunning = false; }
+    onProgress && onProgress({ done, total: list.length, finished: true, found, failed });
+    return { total: list.length, found, failed };
+  }
+  // Knappen i Integrasjoner
+  window.mvAnalyseAll = async function(btn){
+    const n = missing().length;
+    if (!n){ toast('Alle låter har allerede toneart og BPM'); return; }
+    const label = btn ? btn.querySelector('.mv-aa-label') : null;
+    if (btn) btn.disabled = true;
+    const res = await enrichMissing(p => {
+      if (label) label.textContent = p.finished ? `Ferdig — ${p.found} av ${p.total} fikk toneart/BPM` : `Analyserer ${p.done + 1} av ${p.total}: ${p.name || ''}`;
+    });
+    if (btn) btn.disabled = false;
+    if (res) toast(`Analyse ferdig: ${res.found} av ${res.total} låter oppdatert` + (res.failed ? ` (${res.failed} feilet)` : ''));
+  };
+
+  window.mvAnalysis = { enrich, reanalyse, analyseBlob, normKey, keyFromChroma, tempo, fromTags, enrichMissing, missing };
 })();

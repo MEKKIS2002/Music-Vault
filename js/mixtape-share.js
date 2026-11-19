@@ -79,6 +79,7 @@ function _showMixtapePitchDialog(mt) {
     <div style="display:grid;gap:14px;font-family:system-ui">
       <div style="font-size:12px;color:rgb(var(--text-rgb) / calc(.62 + (1 - .62) * var(--ink-boost)));line-height:1.5">Hvem som helst med lenken kan lytte, uten innlogging. Ingen nedlasting.</div>
       <div id="mvPitchInfo" style="font-size:13px;color:var(--text);line-height:1.5;background:rgb(var(--ink-rgb) / .04);padding:10px 12px">Henter status…</div>
+      <div id="mvPitchStats" style="font-size:12px;color:var(--muted)"></div>
       <div style="display:flex;gap:8px">
         <input id="mvPitchUrl" readonly aria-label="Delingslenke" style="flex:1;min-width:0;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:9px 12px;font-size:12px;outline:none">
         <button id="mvPitchCopy" style="background:var(--accent);border:none;color:#000;font-size:12px;font-weight:800;padding:8px 14px;cursor:pointer">Kopier</button>
@@ -96,6 +97,7 @@ function _showMixtapePitchDialog(mt) {
   $m('mvPitchUrl').value = shareUrl;
   $m('mvPitchClose').onclick = () => { modal.style.display='none'; };
   $m('mvPitchOpen').onclick = () => window.open(shareUrl, '_blank', 'noopener');
+  if (window.mvLoadShareStats) window.mvLoadShareStats('mixtape', mt._shareToken, $m('mvPitchStats'));
   $m('mvPitchCopy').onclick = function(){
     navigator.clipboard.writeText(shareUrl).then(()=>{ this.textContent='✓'; setTimeout(()=>this.textContent='Kopier',2000); });
   };

@@ -295,6 +295,22 @@
       return fetch(SB_URL+'/rest/v1/rpc/'+name, { method:'POST', headers:HDR, body:JSON.stringify(args) })
         .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); });
     }
+    // ── Statistikk (anonym): åpnet, spilt, hvor langt (maks %) per låt ──
+    // Bare en tilfeldig økt-id, ingen IP. Feil ignoreres — forstyrrer aldri lytteren.
+    function track(ev, beatId, pct){
+      try { rpc('log_share_event', { p_kind:'mixtape', p_token:token, p_session:sessionId(), p_event:ev, p_beat:beatId||'', p_pct:pct||0 }).catch(function(){}); } catch(e){}
+    }
+    if (token) track('open', '', 0);
+    var lastPct = -1;
+    audio.addEventListener('loadstart', function(){ lastPct = -1; });
+    audio.addEventListener('play', function(){ var b = tracks[current]; if (b) track('play', b.id, 0); });
+    audio.addEventListener('timeupdate', function(){
+      var b = tracks[current]; if (!b || !audio.duration) return;
+      var p = Math.floor(audio.currentTime / audio.duration * 10) * 10;
+      if (p > lastPct){ lastPct = p; track('progress', b.id, p); }
+    });
+    audio.addEventListener('ended', function(){ var b = tracks[current]; if (b) track('progress', b.id, 100); });
+
     var likedKey = 'mv_liked_' + token;
     var liked = {}; try{ liked = JSON.parse(sessionStorage.getItem(likedKey)||'{}'); }catch(e){}
     var counts = {};
