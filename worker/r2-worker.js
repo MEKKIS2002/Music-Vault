@@ -13,7 +13,7 @@
 //   Offentlig:  GET /file/:key  (avspilling + delingslenker)
 //               GET /share/:id  (gamle lenker → videresendes til mixtape.html)
 //   Innlogget:  PUT /upload, DELETE /delete, POST /move  (+ må eie filen)
-//               GET /stats, POST /rhyme, POST /inspire
+//               GET /stats, POST /rhyme, POST /inspire (maks 20/min per bruker)
 //   Admin:      GET /list
 //   Eierskap: RPC beat_file_access (admin / owner / other / none). Admin og eier får
 //   skrive; «other» nektes; for beats som ikke finnes (ennå) brukes
@@ -158,6 +158,13 @@ export default {
           cursor = list.truncated ? list.cursor : undefined;
         } while (cursor);
         return json({ totalBytes, activeBytes, archivedBytes, fileCount }, allowed);
+      }
+
+      // AI-endepunktene: maks 20 kall/min per bruker (Cloudflare rate limiting,
+      // binding AI_LIMITER i wrangler.toml), så én konto ikke kan tømme kreditten.
+      if ((path === '/rhyme' || path === '/inspire') && request.method === 'POST' && env.AI_LIMITER) {
+        const { success } = await env.AI_LIMITER.limit({ key: user.id });
+        if (!success) return err('For mange AI-forespørsler — vent et minutt', 429, allowed);
       }
 
       // POST /rhyme — rimbank via Claude API
