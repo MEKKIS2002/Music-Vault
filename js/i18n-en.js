@@ -1866,4 +1866,29 @@
     'Last opp': 'Upload', 'Laster opp': 'Uploading', 'Laster': 'Loading',
   });
 
+
+  // ── Ny innloggingsskjerm og endringslogg v2.12 ─────────────────────────────
+  I.add({
+    'Ny her?': 'New here?',
+    'E-post': 'Email',
+    'Språk / Language': 'Language',
+    'Kun for autoriserte brukere · v2.12': 'Authorised users only · v2.12',
+    'Kun for autoriserte brukere · v2.11': 'Authorised users only · v2.11',
+    'Explore, artistside, engelsk og lys modus': 'Explore, artist pages, English and light mode',
+    'Explore nederst på Hjem: nye offentlige låter og artister i to kolonner, med «Se mer»': 'Explore at the bottom of Home: new public songs and artists in two columns, with “Show more”',
+    'Profiler åpnes inne i appen og fyller hele siden — «← Hjem» tar deg tilbake': 'Profiles open inside the app and fill the whole page — “← Home” takes you back',
+    '«Gjør offentlig på Explore» i menyen på en låt, i Lyric Lab og i delingsdialogen': '“Make public on Explore” in a song’s menu, in Lyric Lab and in the share dialog',
+    'Artistside: egen fane med visuell redigering og forhåndsvisning — banner, profilbilde, bio, bilder, tekst, lenker og kontakt': 'Artist page: its own tab with visual editing and a live preview — banner, profile photo, bio, photos, text, links and contact',
+    'Artistside: seksjoner kan flyttes, skjules og slettes, siden får egen aksentfarge, og låtene er et utvalg av dine offentlige låter': 'Artist page: sections can be moved, hidden and deleted, the page gets its own accent colour, and the songs are a selection of your public songs',
+    'Statistikk på delingslenker: hvor mange som har åpnet, spilt av og hvor langt de hørte i snitt': 'Share link stats: how many people opened it, played it and how far they listened on average',
+    'Integrasjoner: finn toneart og BPM for alle eldre låter som mangler det, i ett klikk': 'Integrations: find the key and BPM for every older song that’s missing them, in one click',
+    'Språk: hele appen og de offentlige sidene kan vises på engelsk (Innstillinger › Språk) — dine egne tekster røres ikke': 'Language: the whole app and the public pages can be shown in English (Settings › Language) — your own text is never touched',
+    'Ny innloggingsskjerm i samme stil som resten av appen — vinylen spinner fortsatt i bakgrunnen': 'A new sign-in screen in the same style as the rest of the app — the vinyl still spins in the background',
+    'Lys modus (kremhvit) og seks aksentfarger for PRO — fanikonet følger fargen': 'Light mode (cream) and six accent colours for PRO — the tab icon follows your colour',
+    'Tema, aksent og språk lagres på kontoen og følger deg til andre enheter': 'Theme, accent and language are saved to your account and follow you to other devices',
+    'Klikk et albumcover for å se det stort i HD med vinyl-tilt': 'Click an album cover to see it large in HD with a vinyl tilt',
+    'Bare én lyd om gangen: biblioteket, profiler og Explore stopper hverandre, og musikken stopper når du logger ut': 'One sound at a time: your library, profiles and Explore pause each other, and the music stops when you sign out',
+    'Tryggere synk: bare endringer lastes opp, så en gammel fane ikke kan overskrive nyere data': 'Safer sync: only changes are uploaded, so an old tab can’t overwrite newer data',
+    'Raskere app: cover flyttet til skylagring (tilstanden gikk fra 5 MB til under 200 kB) og nye versjoner lastes alltid': 'A faster app: covers moved to cloud storage (your data went from 5 MB to under 200 kB), and new versions always load',
+  });
 })(window.mvI18n);
