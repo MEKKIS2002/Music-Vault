@@ -17,11 +17,10 @@
   const client = () => window.supabaseClient;
   const root = () => document.getElementById('homeExplore');
   const home = () => document.getElementById('hjemTab');
-  const FEED_PREVIEW = 12;          // låter som vises før «Vis flere»
 
   let cache = null;            // { profiles, feed, at }
   let view = { slug: null };   // null = oversikt
-  let audio = null, current = null, bound = false, showAll = false;
+  let audio = null, current = null, bound = false;
 
   function ago(iso){
     const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -54,56 +53,59 @@
     if (!view.slug) drawOverview(el);
   }
 
-  // ── Oversikt ─────────────────────────────────────────────────────────────
+  // ── Oversikt: to kompakte kolonner (Nye låter | Artister) ───────────────
+  const PREVIEW = 5;                      // rader før «Se mer»
+  const open_ = { tracks: false, artists: false };
+
+  function column(key, title, items, row, empty){
+    const more = items.length > PREVIEW, expanded = open_[key];
+    const shown = expanded ? items : items.slice(0, PREVIEW);
+    return `
+      <div class="ex-col">
+        <div class="ex-col-head"><h3 class="ex-h">${title}</h3><span class="ex-count">${items.length}</span></div>
+        ${items.length ? `<ul class="ex-list">${shown.map(row).join('')}</ul>
+          ${more ? `<button class="ex-more" type="button" data-act="more" data-key="${key}" aria-expanded="${expanded}">
+            ${expanded ? 'Se mindre' : `Se mer (${items.length - PREVIEW})`}<span class="ex-chev" aria-hidden="true">▾</span></button>` : ''}`
+          : `<p class="ex-hint">${empty}</p>`}
+      </div>`;
+  }
+
   function drawOverview(el){
     const { profiles, feed } = cache;
     home()?.classList.remove('is-ex-profile');
     el.hidden = false;
-    const list = showAll ? feed : feed.slice(0, FEED_PREVIEW);
     el.innerHTML = `
-      <div class="dash-sec-hd ex-top">
-        <div class="dash-section-label">Explore</div>
-        <span class="ex-sub">Nye offentlige låter og artister på Music Vault</span>
-      </div>
-      <div class="ex-sec">
-        <div class="ex-sec-head"><h3 class="ex-h">Artister</h3><span class="ex-count">${profiles.length}</span></div>
-        ${profiles.length ? `<div class="ex-profiles">${profiles.map(profileCard).join('')}</div>`
-          : '<p class="ex-hint">Ingen har publisert en artistside ennå. Lag din egen under «Artistside».</p>'}
-      </div>
-      <div class="ex-sec">
-        <div class="ex-sec-head"><h3 class="ex-h">Nye låter</h3><span class="ex-count">${feed.length}</span></div>
-        ${feed.length ? `<div class="ex-tracks">${list.map(trackCard).join('')}</div>
-          ${feed.length > FEED_PREVIEW ? `<button class="ex-more" type="button" data-act="more">${showAll ? 'Vis færre' : 'Vis alle ' + feed.length}</button>` : ''}`
-          : '<p class="ex-hint">Ingen offentlige låter ennå. Åpne menyen på en låt og velg «Gjør offentlig på Explore».</p>'}
+      <div class="dash-sec-hd ex-top"><div class="dash-section-label">Explore</div><span class="ex-sub">Offentlig på Music Vault</span></div>
+      <div class="ex-cols">
+        ${column('tracks', 'Nye låter', feed, trackRow, 'Ingen offentlige låter ennå. Åpne menyen på en låt og velg «Gjør offentlig på Explore».')}
+        ${column('artists', 'Artister', profiles, profileRow, 'Ingen publiserte artistsider ennå. Lag din egen under «Artistside».')}
       </div>`;
     paintPlaying();
   }
 
-  function profileCard(p){
+  function profileRow(p){
     const accent = /^#[0-9a-f]{6}$/i.test(p.accent || '') ? p.accent : '#d68155';
-    const banner = img(p.banner_url), photo = img(p.photo_url), name = p.display_name || p.slug;
+    const photo = img(p.photo_url), name = p.display_name || p.slug;
     return `
-      <button class="ex-profile" type="button" data-slug="${esc(p.slug)}" style="--ex-accent:${accent}" aria-label="Åpne profilen til ${esc(name)}">
-        <span class="ex-profile-banner" ${banner ? `style="background-image:url('${esc(banner)}')"` : ''}></span>
-        ${photo ? `<img class="ex-profile-avatar" src="${esc(photo)}" alt="">` : `<span class="ex-profile-avatar is-empty" aria-hidden="true">${esc(name.slice(0, 1).toUpperCase())}</span>`}
-        <span class="ex-profile-name">${esc(name)}</span>
-        <span class="ex-profile-meta">${p.public_tracks ? p.public_tracks + (p.public_tracks === 1 ? ' låt' : ' låter') : 'Artist'}</span>
-      </button>`;
+      <li><button class="ex-row ex-profile" type="button" data-slug="${esc(p.slug)}" style="--ex-accent:${accent}" aria-label="Åpne profilen til ${esc(name)}">
+        ${photo ? `<img class="ex-avatar" src="${esc(photo)}" alt="" loading="lazy">` : `<span class="ex-avatar is-empty" aria-hidden="true">${esc(name.slice(0, 1).toUpperCase())}</span>`}
+        <span class="ex-main"><span class="ex-title">${esc(name)}</span>
+          <span class="ex-meta">${p.public_tracks ? p.public_tracks + (p.public_tracks === 1 ? ' offentlig låt' : ' offentlige låter') : 'Artist'}</span></span>
+        <span class="ex-go" aria-hidden="true">›</span>
+      </button></li>`;
   }
 
-  function trackCard(t){
+  function trackRow(t){
     const d = t.data || {}, cover = img(d.cover), pr = t.profile;
     const artist = pr ? `<button class="ex-artist-link" type="button" data-slug="${esc(pr.slug)}">${esc(pr.display_name || pr.slug)}</button>`
                       : `<span>${esc(d.artist || 'Ukjent artist')}</span>`;
     return `
-      <article class="ex-track" data-token="${esc(t.token)}">
-        <div class="ex-cover">
-          ${cover ? `<img src="${esc(cover)}" alt="" loading="lazy">` : '<span class="ex-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></span>'}
-          <button class="ex-play" type="button" data-token="${esc(t.token)}" aria-label="Spill ${esc(d.title || '')}"><span class="ic ic-play" aria-hidden="true"></span></button>
-        </div>
-        <div class="ex-track-title" title="${esc(d.title || '')}">${esc(d.title || 'Uten tittel')}</div>
-        <div class="ex-track-meta">${artist}<span aria-hidden="true"> · </span><span>${esc(ago(t.published_at))}</span></div>
-      </article>`;
+      <li class="ex-row ex-track" data-token="${esc(t.token)}">
+        <span class="ex-cover">${cover ? `<img src="${esc(cover)}" alt="" loading="lazy">` : '<span class="ic ic-music" aria-hidden="true"></span>'}</span>
+        <span class="ex-main"><span class="ex-title" title="${esc(d.title || '')}">${esc(d.title || 'Uten tittel')}</span>
+          <span class="ex-meta">${artist}<span aria-hidden="true"> · </span>${esc(ago(t.published_at))}</span></span>
+        <button class="ex-play" type="button" data-token="${esc(t.token)}" aria-label="Spill ${esc(d.title || '')}"><span class="ic ic-play" aria-hidden="true"></span></button>
+      </li>`;
   }
 
   // ── Profil inne i appen ──────────────────────────────────────────────────
@@ -183,7 +185,7 @@
       const t = e.target.closest('button'); if (!t) return;
       if (t.classList.contains('ex-play')) return play(t.dataset.token);
       if (t.dataset.act === 'back') return back();
-      if (t.dataset.act === 'more'){ showAll = !showAll; return drawOverview(root()); }
+      if (t.dataset.act === 'more'){ open_[t.dataset.key] = !open_[t.dataset.key]; return drawOverview(root()); }
       if (t.dataset.act === 'copy'){
         const url = new URL('artist.html?u=' + encodeURIComponent(t.dataset.copy), document.baseURI).href;
         return navigator.clipboard.writeText(url).then(() => window.showToast && showToast('✓ Lenke kopiert'));
