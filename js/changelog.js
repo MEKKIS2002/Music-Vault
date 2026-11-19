@@ -6,6 +6,29 @@
 
   const VERSIONS = [
     {
+      version: 'v2.12',
+      date: '19. november 2026',
+      label: 'Explore, artistside, engelsk og lys modus',
+      color: '#d68155',
+      changes: [
+        'Explore nederst på Hjem: nye offentlige låter og artister i to kolonner, med «Se mer»',
+        'Profiler åpnes inne i appen og fyller hele siden — «← Hjem» tar deg tilbake',
+        '«Gjør offentlig på Explore» i menyen på en låt, i Lyric Lab og i delingsdialogen',
+        'Artistside: egen fane med visuell redigering og forhåndsvisning — banner, profilbilde, bio, bilder, tekst, lenker og kontakt',
+        'Artistside: seksjoner kan flyttes, skjules og slettes, siden får egen aksentfarge, og låtene er et utvalg av dine offentlige låter',
+        'Statistikk på delingslenker: hvor mange som har åpnet, spilt av og hvor langt de hørte i snitt',
+        'Integrasjoner: finn toneart og BPM for alle eldre låter som mangler det, i ett klikk',
+        'Språk: hele appen og de offentlige sidene kan vises på engelsk (Innstillinger › Språk) — dine egne tekster røres ikke',
+        'Ny innloggingsskjerm i samme stil som resten av appen — vinylen spinner fortsatt i bakgrunnen',
+        'Lys modus (kremhvit) og seks aksentfarger for PRO — fanikonet følger fargen',
+        'Tema, aksent og språk lagres på kontoen og følger deg til andre enheter',
+        'Klikk et albumcover for å se det stort i HD med vinyl-tilt',
+        'Bare én lyd om gangen: biblioteket, profiler og Explore stopper hverandre, og musikken stopper når du logger ut',
+        'Tryggere synk: bare endringer lastes opp, så en gammel fane ikke kan overskrive nyere data',
+        'Raskere app: cover flyttet til skylagring (tilstanden gikk fra 5 MB til under 200 kB) og nye versjoner lastes alltid',
+      ]
+    },
+    {
       version: 'v2.11',
       date: '18. november 2026',
       label: 'Nye versjoner vises med en gang',
