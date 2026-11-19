@@ -32,7 +32,24 @@
 :root[data-theme="light"] .pl3-card-next span{ color: var(--muted) !important; }
 
 /* ── Albumside ───────────────────────────────────────────────────────────── */
-:root[data-theme="light"] .album-detail-cover-card{ border-color: rgb(var(--ink-rgb) / .12) !important; }
+/* Coverkortet hadde en halvgjennomsiktig kant over en LYS bakgrunn → lys ramme
+   rundt bildet. Ingen kant/bakgrunn; en hårfin mørk kontur i skyggen i stedet. */
+:root[data-theme="light"] #albumDetailHd .album-detail-cover-card,
+:root[data-theme="light"] .album-display .record-sleeve{
+  border: 0 !important; background: transparent !important;
+}
+:root[data-theme="light"] #albumDetailHd .album-detail-cover-card,
+:root[data-theme="light"] #albumDetailHd:hover .album-detail-cover-card{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .10),
+              0 14px 32px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))),
+              0 2px 6px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] .album-display .record-sleeve{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .10),
+              0 8px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))),
+              0 1px 3px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] .album-detail-cover-card::after{ display: none !important; }
 :root[data-theme="light"] .ab-uploader{ opacity: 1 !important; }
 :root[data-theme="light"] .drop-zone .drop-hint{ color: var(--muted) !important; opacity: 1 !important; }
 
