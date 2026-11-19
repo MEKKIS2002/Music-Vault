@@ -127,107 +127,86 @@ AKTIVE BRUKERE:
 <button id="viewerLoginBtn" onclick="returnToPasswordScreen()" style="display:none"></button>
 
 <!-- LOCK SCREEN -->
-<div id="lockScreen" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#0d0c0b">
+<div id="lockScreen">
+  <!-- Svakt lys i aksentfargen bak kortet -->
+  <div class="lk-glow" aria-hidden="true"></div>
 
-  <!-- Ambient gradient - subtle -->
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgb(var(--accent-rgb) / .07),transparent 70%),radial-gradient(ellipse 40% 50% at 80% 100%,rgb(var(--accent-rgb) / .04),transparent 70%);pointer-events:none"></div>
-
-  <!-- Spinning vinyl background — real PNG -->
-  <div id="lockVinyl" style="position:absolute;width:min(780px,140vw);height:min(780px,140vw);top:50%;left:50%;pointer-events:none;border-radius:50%;overflow:hidden">
-    <img src="assets/vinyl-label.png" alt="" style="width:100%;height:100%;display:block;object-fit:cover;opacity:.22;filter:brightness(.6) contrast(1.2)">
+  <!-- Vinylen som spinner i bakgrunnen (beholdt) -->
+  <div id="lockVinyl" aria-hidden="true">
+    <img src="assets/vinyl-label.png" alt="">
   </div>
 
-  <!-- Login card -->
-  <div id="lockCard" style="position:relative;z-index:2;width:min(360px,90vw);display:grid;gap:0;animation:lockCardEnter .6s cubic-bezier(.22,1,.36,1) both">
-    <div style="text-align:center;margin-bottom:40px">
-      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgb(var(--accent-ink-rgb) / .7);font-family:system-ui;margin-bottom:12px">Music Vault</div>
-      <div style="font-size:38px;font-weight:900;letter-spacing:-.06em;color:var(--text);line-height:1;font-family:Georgia,serif">Din musikk.<br>Din vault.</div>
+  <!-- Innlogging -->
+  <div id="lockCard" class="lk-card">
+    <div class="lk-brand"><span class="ic ic-wave" aria-hidden="true"></span> Music Vault</div>
+    <h1 class="lk-title">Din musikk.<br>Din vault.</h1>
+
+    <form class="lk-form" onsubmit="event.preventDefault();loginWithUsername()">
+      <label class="lk-field">
+        <span class="lk-label">Brukernavn eller e-post</span>
+        <input id="adminUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('adminPassword').focus()}">
+      </label>
+      <label class="lk-field">
+        <span class="lk-label">Passord</span>
+        <input id="adminPassword" type="password" autocomplete="current-password">
+      </label>
+      <button id="lockLoginBtn" class="lk-primary" type="submit">Logg inn</button>
+      <div id="lockError" class="lk-error" role="alert"></div>
+    </form>
+
+    <div class="lk-alt">
+      <span>Ny her?</span>
+      <button type="button" class="lk-link" onclick="showRegister()">Opprett ny konto</button>
     </div>
 
-    <div style="background:rgb(var(--ink-rgb) / .04);border:1px solid rgb(var(--ink-rgb) / .09);padding:28px;display:grid;gap:12px;backdrop-filter:blur(24px)">
-      <input id="adminUsername" type="text" placeholder="Brukernavn eller e-post" autocomplete="username"
-        onkeydown="if(event.key==='Enter')document.getElementById('adminPassword').focus()"
-        style="background:rgb(var(--panel-rgb) / .8);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .8) inset;-webkit-text-fill-color:var(--text)"
-        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-      />
-      <input id="adminPassword" type="password" placeholder="Passord" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter')loginWithUsername()"
-        style="background:rgb(var(--panel-rgb) / .8);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:15px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:12px 14px;transition:border-color .2s;letter-spacing:.01em;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .8) inset;-webkit-text-fill-color:var(--text)"
-        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-      />
-      <button id="lockLoginBtn" onclick="loginWithUsername()"
-        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
-        style="background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:14px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
-      >Logg inn</button>
-      <div id="lockError" style="color:var(--danger);font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px;letter-spacing:.01em"></div>
-    </div>
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:18px;padding:0 2px">
-      <div style="font-size:10px;color:rgb(var(--ink-rgb) / calc(.18 + (1 - .18) * var(--ink-boost)));font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Kun for autoriserte brukere</div>
-      <div style="font-size:10px;color:rgb(var(--accent-ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-family:system-ui;font-weight:700;letter-spacing:.08em">v2.11</div>
-    </div>
-    <div style="text-align:center;margin-top:16px">
-      <button onclick="showRegister()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px;letter-spacing:.04em" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Opprett ny konto</button>
+    <div class="lk-foot">
+      <span>Kun for autoriserte brukere · v2.12</span>
+      <span class="lk-lang" data-no-i18n role="group" aria-label="Språk / Language">
+        <button type="button" onclick="window.mvI18n&&mvI18n.setLang('no')" lang="no">Norsk</button>
+        <span aria-hidden="true">·</span>
+        <button type="button" onclick="window.mvI18n&&mvI18n.setLang('en')" lang="en">English</button>
+      </span>
     </div>
   </div>
 
-  <!-- REGISTER CARD -->
-  <div id="registerCard" style="position:relative;z-index:2;width:min(380px,90vw);display:none;animation:lockCardEnter .6s cubic-bezier(.22,1,.36,1) both">
-    <div style="text-align:center;margin-bottom:28px">
-      <div style="font-size:11px;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:rgb(var(--accent-ink-rgb) / .7);font-family:system-ui;margin-bottom:10px">Music Vault</div>
-      <div style="font-size:28px;font-weight:900;letter-spacing:-.04em;color:var(--text);line-height:1.1;font-family:Georgia,serif">Opprett konto</div>
-    </div>
+  <!-- Registrering -->
+  <div id="registerCard" class="lk-card lk-card-wide" style="display:none">
+    <div class="lk-brand"><span class="ic ic-wave" aria-hidden="true"></span> Music Vault</div>
+    <h1 class="lk-title lk-title-sm">Opprett konto</h1>
 
-    <!-- Package picker -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
-      <div class="pkg-card" data-pkg="artist" onclick="selectPkg(this)" style="border:1px solid rgb(var(--accent-rgb) / .5);background:rgb(var(--accent-rgb) / .08);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:var(--accent-ink);margin-bottom:4px"><span class="ic ic-mic" aria-hidden="true"></span> Artist</div>
-        <div style="font-size:10px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));font-family:system-ui;line-height:1.4">Beats · Mixtapes<br>Albumer · Lyric Lab</div>
+    <div class="lk-pkgs" role="radiogroup" aria-label="Pakke">
+      <div class="pkg-card is-on" data-pkg="artist" onclick="selectPkg(this)" role="radio" tabindex="0" aria-checked="true">
+        <div class="lk-pkg-name"><span class="ic ic-mic" aria-hidden="true"></span> Artist</div>
+        <div class="lk-pkg-desc">Beats · Mixtapes<br>Albumer · Lyric Lab</div>
       </div>
-      <div class="pkg-card" data-pkg="pro" onclick="selectPkg(this)" style="border:1px solid rgb(var(--ink-rgb) / .1);background:rgb(var(--ink-rgb) / .03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px"><span class="ic ic-bolt" aria-hidden="true"></span> PRO</div>
-        <div style="font-size:10px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));font-family:system-ui;line-height:1.4">Alt i Artist<br>+ Pipeline · AI · Stats</div>
+      <div class="pkg-card" data-pkg="pro" onclick="selectPkg(this)" role="radio" tabindex="0" aria-checked="false">
+        <div class="lk-pkg-name"><span class="ic ic-bolt" aria-hidden="true"></span> PRO</div>
+        <div class="lk-pkg-desc">Alt i Artist<br>+ Pipeline · AI · Stats</div>
       </div>
-      <div class="pkg-card" data-pkg="label" onclick="selectPkg(this)" style="border:1px solid rgb(var(--ink-rgb) / .1);background:rgb(var(--ink-rgb) / .03);cursor:pointer;padding:12px;transition:all .15s">
-        <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px"><span class="ic ic-tag" aria-hidden="true"></span> Label</div>
-        <div style="font-size:10px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));font-family:system-ui;line-height:1.4">Alt i PRO<br><span style="color:rgb(var(--accent-ink-rgb) / .6)">Krever invitasjonskode</span></div>
+      <div class="pkg-card" data-pkg="label" onclick="selectPkg(this)" role="radio" tabindex="0" aria-checked="false">
+        <div class="lk-pkg-name"><span class="ic ic-tag" aria-hidden="true"></span> Label</div>
+        <div class="lk-pkg-desc">Alt i PRO<br><span class="lk-pkg-note">Krever invitasjonskode</span></div>
       </div>
     </div>
 
-    <div style="background:rgb(var(--ink-rgb) / .04);border:1px solid rgb(var(--ink-rgb) / .09);padding:24px;display:grid;gap:10px">
-      <input id="regUsername" type="text" placeholder="Brukernavn"
-        style="background:rgb(var(--panel-rgb) / .85);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .85) inset;-webkit-text-fill-color:var(--text)"
-        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-      />
-      <input id="regEmail" type="email" placeholder="E-post"
-        style="background:rgb(var(--panel-rgb) / .85);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .85) inset;-webkit-text-fill-color:var(--text)"
-        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-      />
-      <input id="regPassword" type="password" placeholder="Passord (min. 6 tegn)"
-        style="background:rgb(var(--panel-rgb) / .85);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .85) inset;-webkit-text-fill-color:var(--text)"
-        onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-        onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-      />
+    <form class="lk-form" onsubmit="event.preventDefault();registerUser()">
+      <label class="lk-field"><span class="lk-label">Brukernavn</span>
+        <input id="regUsername" type="text" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
+      <label class="lk-field"><span class="lk-label">E-post</span>
+        <input id="regEmail" type="email" autocomplete="email"></label>
+      <label class="lk-field"><span class="lk-label">Passord (min. 6 tegn)</span>
+        <input id="regPassword" type="password" autocomplete="new-password"></label>
       <div id="regInviteWrap" style="display:none">
-        <input id="regInvite" type="text" placeholder="Invitasjonskode (LABEL-XXXXXXXX)"
-          style="background:rgb(var(--panel-rgb) / .85);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);font-size:14px;outline:none;width:100%;font-family:system-ui;box-sizing:border-box;padding:10px 12px;-webkit-box-shadow:0 0 0 100px rgb(var(--panel-rgb) / .85) inset;-webkit-text-fill-color:var(--text)"
-          onfocus="this.style.borderBottomColor='rgba(214,129,85,.8)'"
-          onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
-        />
+        <label class="lk-field"><span class="lk-label">Invitasjonskode (LABEL-XXXXXXXX)</span>
+          <input id="regInvite" type="text" autocapitalize="characters" spellcheck="false"></label>
       </div>
-      <button id="regBtn" onclick="registerUser()"
-        onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'"
-        style="background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;border-radius:0;color:#000;font-size:14px;font-weight:900;padding:13px;cursor:pointer;font-family:system-ui;letter-spacing:.08em;text-transform:uppercase;margin-top:4px;transition:opacity .15s"
-      >Opprett konto</button>
-      <div id="regError" style="color:var(--danger);font-size:12px;text-align:center;display:none;font-family:system-ui;min-height:16px"></div>
-    </div>
+      <button id="regBtn" class="lk-primary" type="submit">Opprett konto</button>
+      <div id="regError" class="lk-error" role="alert"></div>
+    </form>
 
-    <div style="text-align:center;margin-top:14px">
-      <button onclick="showLogin()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:11px;font-family:system-ui;cursor:pointer;text-decoration:underline;text-underline-offset:3px" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.3)'">← Tilbake til innlogging</button>
+    <div class="lk-alt">
+      <button type="button" class="lk-link" onclick="showLogin()">← Tilbake til innlogging</button>
     </div>
   </div>
 
@@ -240,32 +219,87 @@ AKTIVE BRUKERE:
 </div>
 
 <style>
-#lockVinyl { animation: lockVinylSpin 18s linear infinite; }
-#lockVinyl.exiting { animation: lockVinylExit 1.1s ease-in forwards; }
-@keyframes lockVinylSpin {
-  from { transform: translate(-50%,-50%) rotate(0deg); }
-  to   { transform: translate(-50%,-50%) rotate(360deg); }
+/* ── Innloggingsskjermen ─────────────────────────────────────────────────────
+   Alltid mørk (som delingssidene), aksent fra valgt farge. Vinylen spinner i
+   bakgrunnen og spinner ut når du logger inn (lockVinylExit). */
+#lockScreen{
+  --lk-bg:#100e0c; --lk-card:rgba(28,26,23,.72); --lk-line:rgba(244,234,220,.10); --lk-line-2:rgba(244,234,220,.18);
+  --lk-text:#f4eadc; --lk-muted:rgba(244,234,220,.62); --lk-faint:rgba(244,234,220,.40); --lk-field:rgba(10,9,8,.55);
+  position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; overflow:hidden;
+  background:var(--lk-bg); color:var(--lk-text); font-family:var(--font-ui, "DM Sans", system-ui, sans-serif); padding:16px;
 }
-@keyframes lockVinylExit {
-  0%   { opacity:.22; transform:translate(-50%,-50%) rotate(0deg) scale(1); }
-  60%  { opacity:.32; transform:translate(-50%,-50%) rotate(720deg) scale(1.06); }
-  100% { opacity:0;   transform:translate(-50%,-50%) rotate(1080deg) scale(1.15); }
+#lockScreen .lk-glow{ position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(60% 45% at 50% 38%, rgb(var(--accent-rgb) / .12), transparent 70%),
+             radial-gradient(40% 40% at 80% 100%, rgb(var(--accent-rgb) / .06), transparent 70%); }
+#lockVinyl{ position:absolute; width:min(820px,150vw); height:min(820px,150vw); top:50%; left:50%; pointer-events:none;
+  border-radius:50%; overflow:hidden; animation:lockVinylSpin 18s linear infinite; }
+#lockVinyl img{ width:100%; height:100%; display:block; object-fit:cover; opacity:.24; filter:brightness(.6) contrast(1.2); }
+#lockVinyl.exiting{ animation:lockVinylExit 1.1s ease-in forwards; }
+@keyframes lockVinylSpin{ from{ transform:translate(-50%,-50%) rotate(0deg); } to{ transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes lockVinylExit{
+  0%  { opacity:.24; transform:translate(-50%,-50%) rotate(0deg) scale(1); }
+  60% { opacity:.34; transform:translate(-50%,-50%) rotate(720deg) scale(1.06); }
+  100%{ opacity:0;   transform:translate(-50%,-50%) rotate(1080deg) scale(1.15); }
 }
-@keyframes lockCardEnter {
-  from { opacity:0; transform:translateY(28px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-#lockScreen input,
-#lockScreen input:focus,
-#lockScreen input:hover {
-  border-radius: 0 !important;
-  background: rgb(var(--panel-rgb) / .85) !important;
-  -webkit-box-shadow: 0 0 0 100px rgb(var(--panel-rgb) / .85) inset !important;
-  -webkit-text-fill-color: var(--text) !important;
-  color: var(--text) !important;
-}
-#lockLoginBtn {
-  border-radius: 0 !important;
+@keyframes lockCardEnter{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:none; } }
+@media (prefers-reduced-motion: reduce){ #lockVinyl{ animation:none; transform:translate(-50%,-50%); } }
+
+#lockScreen .lk-card{ position:relative; z-index:2; width:min(380px,100%); display:grid; gap:0;
+  padding:32px 28px 22px; border-radius:20px; background:var(--lk-card); border:1px solid var(--lk-line);
+  -webkit-backdrop-filter:blur(22px) saturate(1.1); backdrop-filter:blur(22px) saturate(1.1);
+  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.04) inset;
+  animation:lockCardEnter .6s cubic-bezier(.22,1,.36,1) both; }
+#lockScreen .lk-card-wide{ width:min(420px,100%); }
+#lockScreen .lk-brand{ display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent-ink); }
+#lockScreen .lk-title{ font-family:var(--font-display, "DM Serif Text", Georgia, serif) !important; font-weight:400 !important; color:var(--lk-text) !important;
+  font-size:40px !important; line-height:1.02 !important; letter-spacing:-.015em !important; margin:14px 0 26px !important; }
+#lockScreen .lk-title-sm{ font-size:32px !important; margin-bottom:20px !important; }
+
+#lockScreen .lk-form{ display:grid; gap:12px; margin:0; }
+#lockScreen .lk-field{ display:grid; gap:6px; }
+#lockScreen .lk-label{ font-size:12px; font-weight:600; color:var(--lk-muted); letter-spacing:.01em; }
+#lockScreen input{ width:100%; box-sizing:border-box; font:inherit; font-size:15px; color:var(--lk-text);
+  background:var(--lk-field); border:1px solid var(--lk-line-2); border-radius:10px; padding:12px 14px; outline:none;
+  transition:border-color .15s ease, box-shadow .15s ease; -webkit-text-fill-color:var(--lk-text); }
+#lockScreen input:hover{ border-color:rgba(244,234,220,.28); }
+#lockScreen input:focus{ border-color:rgb(var(--accent-rgb) / .9); box-shadow:0 0 0 3px rgb(var(--accent-rgb) / .22); }
+#lockScreen input:-webkit-autofill{ -webkit-box-shadow:0 0 0 100px #16130f inset; -webkit-text-fill-color:var(--lk-text); caret-color:var(--lk-text); }
+
+#lockScreen .lk-primary{ margin-top:6px; width:100%; padding:13px 16px; border:0; border-radius:10px !important; cursor:pointer;
+  font:inherit; font-size:15px; font-weight:700; letter-spacing:.01em !important; color:var(--on-accent); background:var(--accent);
+  box-shadow:0 10px 26px rgb(var(--accent-rgb) / .28) !important; transition:transform .15s ease, filter .15s ease, opacity .15s ease; }
+#lockScreen .lk-primary:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+#lockScreen .lk-primary:active{ transform:none; }
+#lockScreen .lk-primary:disabled{ opacity:.6; cursor:default; transform:none; }
+#lockScreen .lk-primary:focus-visible, #lockScreen .lk-link:focus-visible, #lockScreen .lk-lang button:focus-visible, #lockScreen .pkg-card:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px; }
+#lockScreen .lk-error{ display:none; min-height:0; font-size:13px; color:#f08a7a; text-align:center; }
+
+#lockScreen .lk-alt{ display:flex; justify-content:center; align-items:center; gap:6px; margin-top:18px; font-size:13px; color:var(--lk-muted); }
+#lockScreen .lk-link{ background:none; border:0; padding:2px 0; font:inherit; font-size:13px; font-weight:600; color:var(--lk-text); cursor:pointer;
+  text-decoration:underline; text-decoration-color:rgb(var(--accent-rgb) / .6); text-underline-offset:3px; border-radius:4px !important; }
+#lockScreen .lk-link:hover{ color:var(--accent-ink); }
+#lockScreen .lk-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+  margin-top:20px; padding-top:14px; border-top:1px solid var(--lk-line); font-size:11px; color:var(--lk-faint); }
+#lockScreen .lk-lang{ display:inline-flex; align-items:center; gap:6px; }
+#lockScreen .lk-lang button{ background:none; border:0; padding:2px 0; font:inherit; font-size:11px; color:var(--lk-faint); cursor:pointer; border-radius:4px !important; }
+#lockScreen .lk-lang button:hover{ color:var(--lk-text); }
+html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScreen .lk-lang button[lang="en"]{ color:var(--lk-text); font-weight:700; }
+
+#lockScreen .lk-pkgs{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+/* studio.css gir .pkg-card en generell kortflate — overstyres her */
+#lockScreen .pkg-card{ padding:12px !important; border-radius:12px !important; border:1px solid var(--lk-line) !important; background:rgba(244,234,220,.03) !important; box-shadow:none !important; cursor:pointer;
+  transition:border-color .15s ease, background .15s ease; }
+#lockScreen .pkg-card:hover{ border-color:var(--lk-line-2) !important; }
+#lockScreen .pkg-card.is-on{ border-color:rgb(var(--accent-rgb) / .7) !important; background:rgb(var(--accent-rgb) / .10) !important; }
+#lockScreen .lk-pkg-name{ font-size:13px; font-weight:700; color:var(--lk-text); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+#lockScreen .pkg-card.is-on .lk-pkg-name{ color:var(--accent-ink); }
+#lockScreen .lk-pkg-desc{ font-size:11px; line-height:1.45; color:var(--lk-muted); }
+#lockScreen .lk-pkg-note{ color:var(--accent-ink); }
+@media (max-width:420px){
+  #lockScreen .lk-card{ padding:26px 20px 18px; }
+  #lockScreen .lk-title{ font-size:34px !important; }
+  #lockScreen .lk-pkgs{ grid-template-columns:1fr; }
 }
 </style>
 
@@ -983,7 +1017,7 @@ window.addEventListener('load', () => {
 
   <!-- App scripts (load order matters) -->
   <script src="js/audio-compress.js?v=e3a053c571"></script>
-  <script src="js/lock.js?v=6d317845d7"></script>
+  <script src="js/lock.js?v=f77f173cfd"></script>
   <script src="js/pipeline.js?v=ce950b4f56"></script>
   <script src="js/lyriclab.js?v=3aff0a2cbc"></script>
   <script src="js/app.js?v=67b0e3628c"></script>
@@ -991,7 +1025,7 @@ window.addEventListener('load', () => {
   <script src="js/r2-storage.js?v=6192a354c8"></script>
   <script src="js/archive.js?v=f3caaed387"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
-  <script src="js/changelog.js?v=f48ca25030"></script>
+  <script src="js/changelog.js?v=a581c317ca"></script>
   <script src="js/beats-tab.js?v=451f240261"></script>
   <script src="js/supabase.js?v=83dd6a3ad5"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
