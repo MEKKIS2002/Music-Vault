@@ -304,8 +304,8 @@
     const coverUrl = album.cover || '';
     const PREVIEW_SEC = 17;
     const CROSSFADE_SEC = 1.2;
-    const SB_URL_P = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-    const SB_KEY_P = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    const SB_URL_P = window.MV_CONFIG.SUPABASE_URL;
+    const SB_KEY_P = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
     const ICONS_URL = new URL('css/icons.css', location.href).href;
     const escH = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

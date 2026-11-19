@@ -1275,7 +1275,7 @@
 
     try {
       // Route through Cloudflare Worker (has ANTHROPIC_API_KEY as secret)
-      const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+      const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
       const res = await fetch(`${workerUrl}/rhyme`, {
         method: 'POST',
         headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
@@ -1635,7 +1635,7 @@
 
       // Fetch rhymes
       try {
-        const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+        const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
         const res = await fetch(`${workerUrl}/rhyme`, {
           method:'POST', headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
           body: JSON.stringify({word})
@@ -1882,7 +1882,7 @@
     }
 
     try {
-      const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+      const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
 
       const res = await fetch(`${workerUrl}/inspire`, {
         method: 'POST',
