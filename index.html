@@ -13,7 +13,7 @@
        MERK: status-bar-style er 'black' og IKKE 'black-translucent' —
        ingen CSS i repoet bruker env(safe-area-inset-top), så translucent
        ville lagt headeren under klokka/notchen. -->
-  <link rel="manifest" href="manifest.json?v=202609200001">
+  <link rel="manifest" href="manifest.json?v=21a418d128">
   <meta name="theme-color" content="#0d0c0b">
   <script>
   /* Tema/aksent før første maling (logikken bor i js/theme.js). */
@@ -31,7 +31,7 @@
        den mørke plata ville druknet. assets/apple-touch-icon.png er samme
        vinyl komposittet på appens bakgrunn (#0d0c0b + amber-glød).
        Ikke pre-avrund hjørnene; iOS legger på sin egen squircle-maske. -->
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=202609200001">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=331deb093b">
 <!--
 AI / MARCUS MAINTENANCE NOTES — oppdatert mai 2026
 Music Vault er nå en multi-fil app. Koden er fordelt slik:
@@ -78,29 +78,29 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=202611191530">
-  <link rel="stylesheet" href="css/icons.css?v=202611160002">
-  <link rel="stylesheet" href="css/lyriclab.css?v=202611191530">
-  <link rel="stylesheet" href="css/pipeline.css?v=202611191530">
-  <link rel="stylesheet" href="css/main.css?v=202611191530">
-  <link rel="stylesheet" href="css/ui.css?v=202611191530">
-  <link rel="stylesheet" href="css/track-cards.css?v=202611191530">
-  <link rel="stylesheet" href="css/archive.css?v=202611191530">
-  <link rel="stylesheet" href="css/mixtape.css?v=202611191530">
-  <link rel="stylesheet" href="css/docs.css?v=202611191530">
-  <link rel="stylesheet" href="css/player.css?v=202611191600">
+  <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
+  <link rel="stylesheet" href="css/icons.css?v=b67086befd">
+  <link rel="stylesheet" href="css/lyriclab.css?v=b3075d21de">
+  <link rel="stylesheet" href="css/pipeline.css?v=a5e716c10e">
+  <link rel="stylesheet" href="css/main.css?v=873643ccfb">
+  <link rel="stylesheet" href="css/ui.css?v=a980ce1190">
+  <link rel="stylesheet" href="css/track-cards.css?v=9f496e04f1">
+  <link rel="stylesheet" href="css/archive.css?v=0f0efa6777">
+  <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
+  <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
+  <link rel="stylesheet" href="css/player.css?v=eaa75d553a">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=202611190700">
+  <link rel="stylesheet" href="css/refine.css?v=aca3e09523">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
-  <link rel="stylesheet" href="css/home.css?v=202611190500">
+  <link rel="stylesheet" href="css/home.css?v=6ebca22b1b">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=202611190700">
-  <link rel="stylesheet" href="css/mobile.css?v=202611191600">
-  <link rel="stylesheet" href="css/studio.css?v=202611191600">
-  <link rel="stylesheet" href="css/light.css?v=202611191700">
+  <link rel="stylesheet" href="css/system.css?v=ae79dd62c2">
+  <link rel="stylesheet" href="css/mobile.css?v=68adbb6110">
+  <link rel="stylesheet" href="css/studio.css?v=8fb740b27e">
+  <link rel="stylesheet" href="css/light.css?v=b2215184fc">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -958,42 +958,42 @@ window.addEventListener('load', () => {
 <!-- === ARCHIVE DEMO CRATES OVERRIDE === -->
 
   <!-- Supabase CDN -->
-  <script src="js/config.js?v=1"></script>
-  <script src="js/impersonate.js?v=202611192030"></script>
+  <script src="js/config.js?v=a6abb28894"></script>
+  <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
   <!-- R2 config — set this to your deployed Cloudflare Worker URL -->
 
   <!-- App scripts (load order matters) -->
-  <script src="js/audio-compress.js?v=202611190700"></script>
-  <script src="js/lock.js?v=202611192030"></script>
-  <script src="js/pipeline.js?v=202611190700"></script>
-  <script src="js/lyriclab.js?v=202611192110"></script>
-  <script src="js/app.js?v=202611192110"></script>
-  <script src="js/track-cards.js?v=202611190500"></script>
-  <script src="js/r2-storage.js?v=202611191530"></script>
-  <script src="js/archive.js?v=202611160016"></script>
-  <script src="js/mixtape.js?v=202605161400"></script>
-  <script src="js/changelog.js?v=202611191530"></script>
-  <script src="js/beats-tab.js?v=202611190700"></script>
-  <script src="js/supabase.js?v=202611192110"></script>
-  <script src="js/bpm.js?v=202611150004"></script>
-  <script src="js/db.js?v=202611192120"></script>
-  <script src="js/cover-offload.js?v=1"></script>
-  <script src="js/cover-viewer.js?v=202611191710"></script>
-  <script src="js/mixtape-share.js?v=202611190700"></script>
-  <script src="js/notifications.js?v=202611192030"></script>
-  <script src="js/mini-player.js?v=202611150010"></script>
-  <script src="js/queue.js?v=202611160027"></script>
-  <script src="js/context-menu.js?v=202611180110"></script>
-  <script src="js/writing-tools.js?v=202611180010"></script>
-  <script src="js/router.js?v=202611160045"></script>
-  <script src="js/player-extras.js?v=202611191600"></script>
-  <script src="js/search.js?v=202611180040"></script>
-  <script src="js/audio-tools.js?v=202611180040"></script>
-  <script src="js/analysis.js?v=202611180110"></script>
-  <script src="js/music-tools.js?v=202611180140"></script>
-  <script src="js/touch-reorder.js?v=202611180215"></script>
+  <script src="js/audio-compress.js?v=e3a053c571"></script>
+  <script src="js/lock.js?v=e7bccc0a55"></script>
+  <script src="js/pipeline.js?v=ce950b4f56"></script>
+  <script src="js/lyriclab.js?v=3a5085a42d"></script>
+  <script src="js/app.js?v=67b0e3628c"></script>
+  <script src="js/track-cards.js?v=b09d140e79"></script>
+  <script src="js/r2-storage.js?v=6192a354c8"></script>
+  <script src="js/archive.js?v=f3caaed387"></script>
+  <script src="js/mixtape.js?v=5863630308"></script>
+  <script src="js/changelog.js?v=f48ca25030"></script>
+  <script src="js/beats-tab.js?v=650c08d85a"></script>
+  <script src="js/supabase.js?v=83dd6a3ad5"></script>
+  <script src="js/bpm.js?v=4bfbb47164"></script>
+  <script src="js/db.js?v=9e5921134b"></script>
+  <script src="js/cover-offload.js?v=297ea66969"></script>
+  <script src="js/cover-viewer.js?v=fb6c0091ab"></script>
+  <script src="js/mixtape-share.js?v=8083882853"></script>
+  <script src="js/notifications.js?v=f64a07780c"></script>
+  <script src="js/mini-player.js?v=4027371703"></script>
+  <script src="js/queue.js?v=05a190d025"></script>
+  <script src="js/context-menu.js?v=a5a8b20bc4"></script>
+  <script src="js/writing-tools.js?v=f6f7f4e118"></script>
+  <script src="js/router.js?v=8e7171b18b"></script>
+  <script src="js/player-extras.js?v=9a8247056a"></script>
+  <script src="js/search.js?v=80e399c4f2"></script>
+  <script src="js/audio-tools.js?v=7a8509a1d2"></script>
+  <script src="js/analysis.js?v=5bc0e357ad"></script>
+  <script src="js/music-tools.js?v=ab113b055d"></script>
+  <script src="js/touch-reorder.js?v=ffdfdec57a"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
@@ -1003,12 +1003,12 @@ window.addEventListener('load', () => {
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
-  <script src="js/packages.js?v=202605251400"></script>
-  <script src="js/theme.js?v=202611190500"></script>
-  <script src="js/label.js?v=202611192110"></script>
-  <script src="js/admin-panel.js?v=202611192110"></script>
-  <script src="js/share-song.js?v=202611192110"></script>
-  <script src="js/docs.js?v=202611192110"></script>
+  <script src="js/packages.js?v=90b669b154"></script>
+  <script src="js/theme.js?v=f7e6bace95"></script>
+  <script src="js/label.js?v=69aeaf29dd"></script>
+  <script src="js/admin-panel.js?v=55eb715b72"></script>
+  <script src="js/share-song.js?v=21998a65d5"></script>
+  <script src="js/docs.js?v=32506992ac"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>
