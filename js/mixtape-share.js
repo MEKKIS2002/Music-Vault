@@ -74,10 +74,10 @@ function _showMixtapePitchDialog(mt) {
   modal.innerHTML = `<div role="dialog" aria-modal="true" aria-labelledby="mvPitchHd" style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);max-width:460px;width:100%;padding:24px 28px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <h2 id="mvPitchHd" style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-globe" aria-hidden="true"></span> Alle med lenken</h2>
-      <button id="mvPitchClose" aria-label="Lukk" style="background:none;border:none;color:rgb(var(--ink-rgb) / .6);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
+      <button id="mvPitchClose" aria-label="Lukk" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost)));font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
     </div>
     <div style="display:grid;gap:14px;font-family:system-ui">
-      <div style="font-size:12px;color:rgb(var(--text-rgb) / .62);line-height:1.5">Hvem som helst med lenken kan lytte, uten innlogging. Ingen nedlasting.</div>
+      <div style="font-size:12px;color:rgb(var(--text-rgb) / calc(.62 + (1 - .62) * var(--ink-boost)));line-height:1.5">Hvem som helst med lenken kan lytte, uten innlogging. Ingen nedlasting.</div>
       <div id="mvPitchInfo" style="font-size:13px;color:var(--text);line-height:1.5;background:rgb(var(--ink-rgb) / .04);padding:10px 12px">Henter status…</div>
       <div style="display:flex;gap:8px">
         <input id="mvPitchUrl" readonly aria-label="Delingslenke" style="flex:1;min-width:0;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:9px 12px;font-size:12px;outline:none">
@@ -88,7 +88,7 @@ function _showMixtapePitchDialog(mt) {
         <button id="mvPitchUpdateBtn" style="${btn}"><span class="ic ic-refresh" aria-hidden="true"></span> Oppdater sporlisten</button>
         <button id="mvPitchDisableBtn" style="${btn};background:rgb(var(--danger-rgb) / .1);border-color:rgb(var(--danger-rgb) / .3);color:var(--danger);margin-left:auto"><span class="ic ic-alert" aria-hidden="true"></span> Deaktiver</button>
       </div>
-      <div id="mvPitchStatus" role="status" style="font-size:12px;color:rgb(var(--text-rgb) / .62);min-height:16px"></div>
+      <div id="mvPitchStatus" role="status" style="font-size:12px;color:rgb(var(--text-rgb) / calc(.62 + (1 - .62) * var(--ink-boost)));min-height:16px"></div>
     </div>
   </div>`;
 
@@ -117,7 +117,7 @@ function _showMixtapePitchDialog(mt) {
     let html = `<strong>${linked.length} av ${p.all.length} spor</strong> deles${when?` · sist oppdatert ${esc(when)}`:''}.`;
     if (missing) html += `<br>${missing} nye spor er ikke med — trykk «Oppdater sporlisten».`;
     if (removed) html += `<br>${removed} spor i lenken er fjernet fra mixtapen.`;
-    if (p.skipped.length) html += `<br><span style="color:rgb(var(--text-rgb) / .62)">${p.skipped.length} spor mangler offentlig lydfil og kan ikke deles: ${p.skipped.slice(0,3).map(b=>esc(b.name)).join(', ')}${p.skipped.length>3?' …':''}</span>`;
+    if (p.skipped.length) html += `<br><span style="color:rgb(var(--text-rgb) / calc(.62 + (1 - .62) * var(--ink-boost)))">${p.skipped.length} spor mangler offentlig lydfil og kan ikke deles: ${p.skipped.slice(0,3).map(b=>esc(b.name)).join(', ')}${p.skipped.length>3?' …':''}</span>`;
     info.innerHTML = html;
   };
   renderInfo();

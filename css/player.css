@@ -15,7 +15,7 @@
   border:0 !important;
   border-top:1px solid var(--line) !important;
   border-radius:0 !important;
-  box-shadow:0 -8px 30px rgba(0,0,0,.6) !important;
+  box-shadow:0 -8px 30px rgb(var(--shadow-rgb) / calc(.6 * var(--shadow-k))) !important;
   backdrop-filter:none !important;
   padding:12px 16px !important;
   gap:16px !important;
@@ -27,11 +27,11 @@
 .bp-cover{
   width:56px !important; height:56px !important; border-radius:var(--r-flat)!important;
   background:var(--surface-1) !important; border:0 !important;
-  box-shadow:0 4px 14px rgba(0,0,0,.5) !important; color:#666 !important;
+  box-shadow:0 4px 14px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))) !important; color:#666 !important;
 }
 .bp-cover::before,.bp-cover::after{ display:none !important; }   /* remove old vinyl reels */
 .bp-title{ color:#fff !important; font-size:var(--fs-base)!important; font-weight:600 !important; letter-spacing:0 !important; }
-.bp-sub{ color:rgb(var(--ink-rgb) / .6) !important; font-size:var(--fs-sm)!important; }
+.bp-sub{ color:rgb(var(--ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost))) !important; font-size:var(--fs-sm)!important; }
 
 /* ── Center: transport controls + progress ── */
 .bp-controls{ background:transparent !important; border:0 !important; padding:0 !important; gap:20px !important; }
@@ -39,7 +39,7 @@
 /* prev / next — plain white-ish glyphs, no chrome */
 .bp-btn{
   background:transparent !important; border:0 !important; box-shadow:none !important;
-  color:rgb(var(--ink-rgb) / .72) !important; font-size:var(--fs-lg)!important;
+  color:rgb(var(--ink-rgb) / calc(.72 + (1 - .72) * var(--ink-boost))) !important; font-size:var(--fs-lg)!important;
   width:32px !important; height:32px !important; border-radius:50% !important;
   transition:color .12s ease, transform .12s ease !important;
 }
@@ -50,15 +50,15 @@
 .bp-play,.bp-btn.bp-play{
   background:var(--accent) !important; color:#000 !important;
   width:40px !important; height:40px !important; font-size:var(--fs-md)!important;
-  box-shadow:0 2px 10px rgba(0,0,0,.45) !important;
+  box-shadow:0 2px 10px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))) !important;
 }
 .bp-play:hover,.bp-btn.bp-play:hover{
-  background:var(--accent2) !important; color:#000 !important; transform:scale(1.07) !important;
+  background:var(--accent) !important; color:var(--on-accent) !important; filter:brightness(1.08); transform:scale(1.07) !important;
 }
 
 /* progress row */
 .bp-progress{ gap:10px !important; }
-.bp-time{ color:rgb(var(--ink-rgb) / .6) !important; font-size:var(--fs-xs)!important; }
+.bp-time{ color:rgb(var(--ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost))) !important; font-size:var(--fs-xs)!important; }
 
 /* ── Range inputs (seek + volume): thin bar, white fill, hover-only thumb ── */
 .bp-seek,.bp-vol{
@@ -77,7 +77,7 @@
 .bp-seek::-webkit-slider-thumb,.bp-vol::-webkit-slider-thumb{
   -webkit-appearance:none; appearance:none;
   width:12px; height:12px; border-radius:50%; background:#fff; border:0;
-  box-shadow:0 1px 4px rgba(0,0,0,.5); opacity:0; transition:opacity .12s ease;
+  box-shadow:0 1px 4px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))); opacity:0; transition:opacity .12s ease;
 }
 .bp-seek:hover::-webkit-slider-thumb,.bp-vol:hover::-webkit-slider-thumb,
 .bp-seek:active::-webkit-slider-thumb,.bp-vol:active::-webkit-slider-thumb{ opacity:1; }
@@ -88,7 +88,7 @@
 
 /* ── Right: volume + close ── */
 .bp-actions{ gap:10px !important; }
-.bp-actions > span{ color:rgb(var(--ink-rgb) / .7) !important; }
+.bp-actions > span{ color:rgb(var(--ink-rgb) / calc(.7 + (1 - .7) * var(--ink-boost))) !important; }
 .bp-vol{ width:96px !important; }
-.bp-close{ color:rgb(var(--ink-rgb) / .5) !important; font-size:var(--fs-md)!important; }
+.bp-close{ color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost))) !important; font-size:var(--fs-md)!important; }
 .bp-close:hover{ color:#fff !important; background:transparent !important; }

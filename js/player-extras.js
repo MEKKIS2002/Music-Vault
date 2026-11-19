@@ -113,10 +113,11 @@
     if (url === tintFor) return; tintFor = url;
     const rgb = url ? await coverRgb(url) : null;
     if (url !== tintFor) return;                       // låten byttet mens vi regnet
-    if (!rgb){ bar.classList.remove('bp-tinted'); bar.style.removeProperty('--bp-tint'); bar.style.removeProperty('--bp-hl'); return; }
+    if (!rgb){ bar.classList.remove('bp-tinted'); bar.style.removeProperty('--bp-tint'); bar.style.removeProperty('--bp-hl'); bar.style.removeProperty('--bp-tint-light'); return; }
     const { h, s, l } = rgbToHsl(rgb);
     bar.style.setProperty('--bp-tint', hsl(h, Math.min(s, .45), .22, .55));
     bar.style.setProperty('--bp-hl', hsl(h, s, Math.min(Math.max(l, .55), .68)));
+    bar.style.setProperty('--bp-tint-light', hsl(h, Math.min(s, .5), .88, .9));   // lys modus: pastell-vask
     bar.classList.add('bp-tinted');
   }
 

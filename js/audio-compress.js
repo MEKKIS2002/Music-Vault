@@ -157,17 +157,17 @@
     modal.innerHTML = `
       <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);width:min(460px,92vw);padding:28px;font-family:system-ui">
         <h2 style="font-size:16px;font-weight:800;margin:0 0 8px;color:var(--text)"><span class="ic ic-refresh" aria-hidden="true"></span> Konverter WAV til MP3</h2>
-        <p style="font-size:13px;color:rgb(var(--ink-rgb) / .5);margin:0 0 16px">Fant <strong style="color:var(--accent-ink)">${toConvert.length}</strong> WAV-beat${toConvert.length>1?'s':''}</p>
+        <p style="font-size:13px;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));margin:0 0 16px">Fant <strong style="color:var(--accent-ink)">${toConvert.length}</strong> WAV-beat${toConvert.length>1?'s':''}</p>
         <div style="max-height:200px;overflow-y:auto;margin-bottom:16px">
           ${toConvert.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .06)">
             <span style="font-size:13px;color:var(--text);flex:1">${b.name||b.title||b.id.slice(0,8)}</span>
-            <span id="wcS_${b.id}" style="font-size:11px;color:rgb(var(--ink-rgb) / .35)">Venter</span>
+            <span id="wcS_${b.id}" style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)))">Venter</span>
           </div>`).join('')}
         </div>
         <div style="background:rgb(var(--ink-rgb) / .06);height:6px;margin-bottom:16px"><div id="wcBar" style="height:100%;background:var(--accent);width:0;transition:width .3s"></div></div>
         <div style="display:flex;gap:10px">
           <button id="wcBtn" onclick="window._runWavConvert()" style="flex:1;background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;color:#000;font-size:13px;font-weight:800;padding:11px;cursor:pointer">Start</button>
-          <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);color:rgb(var(--ink-rgb) / .5);font-size:13px;padding:11px 16px;cursor:pointer">Avbryt</button>
+          <button onclick="this.closest('[style*=fixed]').remove()" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:13px;padding:11px 16px;cursor:pointer">Avbryt</button>
         </div>
       </div>`;
     document.body.appendChild(modal);

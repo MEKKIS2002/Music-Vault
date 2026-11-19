@@ -114,7 +114,7 @@ function mvShowRestoring(on){
     if(!el){
       el = document.createElement('div');
       el.id = 'mvRestoreMsg';
-      el.style.cssText = 'position:relative;z-index:2;color:rgb(var(--accent-rgb) / .85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
+      el.style.cssText = 'position:relative;z-index:2;color:rgb(var(--accent-ink-rgb) / calc(.85 + (1 - .85) * var(--ink-boost)));font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
       el.innerHTML = '<div class="mv-restore-txt">Logger inn…</div>'
         + '<div class="mv-restore-slow" hidden>'
         +   '<p>Det tar lengre tid enn vanlig.</p>'

@@ -1040,7 +1040,7 @@ html body .ll-v2 .ll-editor-header{ flex-wrap: wrap !important; }
 html body .ll-v2 .ll-color-tools{ display: inline-flex !important; align-items: center !important; gap: .55rem !important; padding: .3rem .6rem !important; border: 1px solid var(--line) !important; border-radius: var(--radius) !important; background: var(--panel) !important; }
 html body .ll-v2 .ll-color-lbl{ color: var(--muted) !important; font: 600 .72rem var(--body) !important; letter-spacing: .12em !important; text-transform: uppercase !important; }
 html body .ll-v2 .ll-color-row{ display: inline-flex !important; gap: .35rem !important; margin: 0 !important; }
-html body .ll-v2 .ll-color-dot{ width: 1.35rem !important; height: 1.35rem !important; border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25) !important; padding: 0 !important; cursor: pointer; }
+html body .ll-v2 .ll-color-dot{ width: 1.35rem !important; height: 1.35rem !important; border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: inset 0 0 0 1px rgb(var(--shadow-rgb) / calc(.25 * var(--shadow-k))) !important; padding: 0 !important; cursor: pointer; }
 html body .ll-v2 .ll-color-dot:hover{ border-color: var(--text) !important; }
 html body .ll-v2 .ll-color-clear{ background: var(--raised) !important; color: var(--muted) !important; font-size: .7rem !important; display: grid !important; place-items: center !important; }
 html body .ll-v2 .ll-color-hint{ color: var(--muted) !important; font-size: .75rem !important; margin: 0 !important; white-space: nowrap; }
@@ -1236,7 +1236,7 @@ html body .docs-tb-sep{ width: 1px !important; height: 1.2rem !important; backgr
 /* Uthevingsfarger: synlige prikker (generell knappestil gjorde dem gjennomsiktige) */
 html body .docs-toolbar .docs-hl-btn{
   width: 1.15rem !important; height: 1.15rem !important; min-width: 0 !important; padding: 0 !important; margin: 0 .1rem !important;
-  border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: inset 0 0 0 1px rgba(0,0,0,.25) !important;
+  border-radius: 50% !important; border: 2px solid transparent !important; box-shadow: inset 0 0 0 1px rgb(var(--shadow-rgb) / calc(.25 * var(--shadow-k))) !important;
 }
 html body .docs-toolbar .docs-hl-btn[data-hl="var(--accent)"]{ background: var(--accent) !important; }
 html body .docs-toolbar .docs-hl-btn[data-hl="var(--ok)"]{ background: var(--ok) !important; }
@@ -1307,13 +1307,13 @@ html body .lbl-hero{ display: grid; grid-template-columns: clamp(10rem, 17vw, 16
 html body .lbl-hero-cover{
   position: relative; aspect-ratio: 1; border-radius: var(--radius); overflow: hidden;
   background: radial-gradient(circle at 68% 42%, var(--accent) 0 22%, transparent 23%), linear-gradient(160deg, var(--surface-1) 0%, var(--surface-1) 48%, #87614a 100%);
-  box-shadow: inset 0 0 0 1px rgb(var(--text-rgb) / .15), 0 18px 40px rgba(0,0,0,.35);
+  box-shadow: inset 0 0 0 1px rgb(var(--text-rgb) / .15), 0 18px 40px rgb(var(--shadow-rgb) / calc(.35 * var(--shadow-k)));
   display: flex; align-items: flex-start; padding: 1rem;
 }
 html body .lbl-hero-cover img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 html body .lbl-hero-mark{
   position: relative; font: 400 clamp(1.6rem, 2.6vw, 2.4rem)/.95 var(--display); color: var(--text);
-  text-transform: uppercase; letter-spacing: -.01em; text-shadow: 0 2px 12px rgba(0,0,0,.35); max-width: 80%;
+  text-transform: uppercase; letter-spacing: -.01em; text-shadow: 0 2px 12px rgb(var(--shadow-rgb) / calc(.35 * var(--shadow-k))); max-width: 80%;
 }
 html body .lbl-hero-cover img + .lbl-hero-mark{ display: none; }
 html body .lbl-hero-name{ font: 400 clamp(2rem, 3.4vw, 3.1rem)/1.05 var(--display) !important; margin: .25rem 0 .5rem !important; letter-spacing: -.015em !important; }
@@ -1535,7 +1535,7 @@ html body .lbl-notes-actions .lbl-muted{ margin-right: auto; }
   html body .lbl-stat-prog{ flex-basis: 100%; margin-top: var(--space-2); border: 0; }
 }
 
-html body button.lbl-hero-cover{ border-radius: var(--radius) !important; width: auto !important; height: auto !important; min-height: 0 !important; aspect-ratio: 1 !important; box-shadow: inset 0 0 0 1px rgb(var(--text-rgb) / .15), 0 18px 40px rgba(0,0,0,.35) !important; background-color: transparent; }
+html body button.lbl-hero-cover{ border-radius: var(--radius) !important; width: auto !important; height: auto !important; min-height: 0 !important; aspect-ratio: 1 !important; box-shadow: inset 0 0 0 1px rgb(var(--text-rgb) / .15), 0 18px 40px rgb(var(--shadow-rgb) / calc(.35 * var(--shadow-k))) !important; background-color: transparent; }
 
 /* ── 30. Kø-panel + kø-knapp i spilleren (js/queue.js) ───────────────────── */
 html body .mv-queue-btn{ color: var(--muted) !important; }
@@ -1589,7 +1589,7 @@ html body .mv-queue-empty{ color: var(--muted); font-size: .88rem; padding: .3re
 
 @media (max-width: 768px){
   html body .mv-queue-btn-d{ display: none !important; }
-  html body .mv-queue-btn-m{ display: inline-grid !important; place-items: center; width: 40px !important; height: 40px !important; background: transparent !important; border: 0 !important; color: rgb(var(--ink-rgb) / .8) !important; order: 5; }
+  html body .mv-queue-btn-m{ display: inline-grid !important; place-items: center; width: 40px !important; height: 40px !important; background: transparent !important; border: 0 !important; color: rgb(var(--ink-rgb) / calc(.8 + (1 - .8) * var(--ink-boost))) !important; order: 5; }
   html body .mv-queue{
     left: 8px; right: 8px; width: auto;
     bottom: calc(var(--mv-footer-h) + var(--mv-player-live-h, var(--mv-mini-player-h)) + var(--mv-safe-bottom) + 12px);
@@ -1600,7 +1600,7 @@ html body .mv-queue-empty{ color: var(--muted); font-size: .88rem; padding: .3re
 }
 @media (max-width: 768px){
   /* mobile.css skjuler alle .bp-btn unntatt play i minispilleren — kø-knappen skal vises */
-  html body #bottomPlayer .bp-controls .bp-btn.mv-queue-btn-m{ display: inline-grid !important; place-items: center; width: 40px !important; height: 40px !important; background: transparent !important; border: 0 !important; color: rgb(var(--ink-rgb) / .8) !important; }
+  html body #bottomPlayer .bp-controls .bp-btn.mv-queue-btn-m{ display: inline-grid !important; place-items: center; width: 40px !important; height: 40px !important; background: transparent !important; border: 0 !important; color: rgb(var(--ink-rgb) / calc(.8 + (1 - .8) * var(--ink-boost))) !important; }
 }
 
 /* ── 31. Felles meny (⋯ og høyreklikk) — js/context-menu.js ─────────────── */
@@ -1736,13 +1736,13 @@ html body .mv-switch{
 html body .mv-switch-fab{
   display: inline-flex; align-items: center; gap: .45rem; height: 2.4rem; padding: 0 .85rem 0 .7rem;
   border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--muted);
-  font: 600 .82rem var(--body); cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.35); opacity: .75;
+  font: 600 .82rem var(--body); cursor: pointer; box-shadow: 0 6px 20px rgb(var(--shadow-rgb) / calc(.35 * var(--shadow-k))); opacity: .75;
 }
 html body .mv-switch-fab:hover, html body .mv-switch-fab[aria-expanded="true"]{ opacity: 1; color: var(--text); border-color: var(--border-control); }
 html body .mv-switch-bar{
   display: flex; align-items: center; gap: .6rem; padding: .45rem .5rem .45rem .85rem;
   border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent);
-  box-shadow: 0 8px 26px rgba(0,0,0,.45);
+  box-shadow: 0 8px 26px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k)));
 }
 html body .mv-switch-bar > .ic{ color: var(--accent-text); }
 html body .mv-switch-txt{ font-size: .88rem; white-space: nowrap; }
@@ -1795,7 +1795,7 @@ html body .adm-viewas-note{ color: var(--muted); font-size: .78rem; }
 
 /* ── 35. Spiller: farge fra coverbildet (js/player-extras.js, idé fra Koel) ── */
 html body #bottomPlayer.bp-tinted{ background-image: linear-gradient(90deg, var(--bp-tint) 0%, transparent 60%) !important; }
-html body #bottomPlayer.bp-tinted .bp-play{ background: var(--bp-hl) !important; border-color: var(--bp-hl) !important; }
+html body #bottomPlayer .bp-play, html body #bottomPlayer.bp-tinted .bp-play{ background: var(--accent) !important; border-color: var(--accent) !important; color: var(--on-accent) !important; }   /* alltid valgt aksent */
 html body #bottomPlayer.bp-tinted .bp-cover{ box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .06), 0 6px 22px var(--bp-tint); }
 /* «Bytt bruker»-knappen (ikke-aktiv) ligger i sidemenyen over brukerikonene, så den ikke dekker innhold */
 @media (min-width: 769px){
@@ -1843,7 +1843,7 @@ html body .mv-offline-pill{
   position: fixed; z-index: 960; top: .75rem; left: 50%; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: 999px;
   background: var(--raised); border: 1px solid var(--border-control); color: var(--text); font: 600 .82rem var(--body);
-  box-shadow: 0 8px 24px rgba(0,0,0,.4); max-width: calc(100vw - 2rem);
+  box-shadow: 0 8px 24px rgb(var(--shadow-rgb) / calc(.4 * var(--shadow-k))); max-width: calc(100vw - 2rem);
 }
 html body.mv-offline .mv-unavailable{ opacity: .38; }
 html body.mv-offline .mv-unavailable *{ cursor: not-allowed; }
@@ -1889,6 +1889,51 @@ html body .mv-chords-scale span{ color: var(--faint); }
 html body #albumBeatList .ab-cover-wrap[draggable="true"],
 html body #mixtapeBeatList .ab-cover-wrap[draggable="true"]{ -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
 html body .mv-touch-ghost{ transition: transform .06s linear, box-shadow .18s ease, opacity .16s ease; border-radius: var(--radius); background: var(--panel); opacity: .96; will-change: transform; }
-html body .mv-touch-ghost.lifted{ box-shadow: 0 18px 44px rgba(0,0,0,.55), 0 0 0 2px var(--accent) !important; }
+html body .mv-touch-ghost.lifted{ box-shadow: 0 18px 44px rgb(var(--shadow-rgb) / calc(.55 * var(--shadow-k))), 0 0 0 2px var(--accent) !important; }
 html body .mv-touch-ghost.dropping{ opacity: 0; }
 html body.mv-touch-dragging, html body.mv-touch-dragging *{ -webkit-user-select: none !important; user-select: none !important; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   VINYL — felles design for alle plater (albumliste, albumside, hero).
+   En plate er et fysisk objekt: samme svarte plate i lys og mørk modus.
+   Derfor FASTE farger her, ikke tema-tokens (tidligere ga --bg/--ink-rgb i
+   rillene grove striper i lys modus). Skyggen bruker skygge-tokenet.
+   ════════════════════════════════════════════════════════════════════════ */
+html body .vinyl-groove,
+html body .album-detail-vinyl-disc,
+html body .hero-vinyl-surface{
+  background:
+    /* fine riller: nesten usynlige, ingen striper */
+    repeating-radial-gradient(circle at 50% 50%, rgba(255,255,255,.035) 0 .6px, rgba(255,255,255,0) .6px 2.4px),
+    /* matt område rundt etiketten + kant */
+    radial-gradient(circle at 50% 50%, #1c1b1a 0 33%, #0f0e0d 34.5% 95.5%, #23211f 96.5% 100%) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 18px rgba(0,0,0,.55) !important;
+}
+html body .album-detail-vinyl-disc::before,
+html body .vinyl-groove::after{ display: none !important; }
+
+/* Lysrefleks på holderen som IKKE roterer — står stille mens platen spinner. */
+html body .album-detail-vinyl::after{
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: conic-gradient(from 200deg at 50% 50%,
+    rgba(255,255,255,0) 0deg, rgba(255,255,255,.09) 26deg, rgba(255,255,255,0) 58deg,
+    rgba(255,255,255,0) 180deg, rgba(255,255,255,.06) 206deg, rgba(255,255,255,0) 238deg);
+  -webkit-mask: radial-gradient(circle, transparent 0 34%, #000 35% 96%, transparent 97%);
+          mask: radial-gradient(circle, transparent 0 34%, #000 35% 96%, transparent 97%);
+}
+
+/* Myk, liten skygge under plate og cover (ikke et stort dis) */
+html body #albumDetailHd .album-detail-vinyl,
+html body #albumDetailHd:hover .album-detail-vinyl{
+  filter: drop-shadow(0 10px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k)))) !important;
+}
+html body #albumDetailHd .album-detail-cover-card,
+html body #albumDetailHd:hover .album-detail-cover-card{
+  box-shadow: 0 14px 32px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))),
+              0 2px 6px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+html body .album-display .vinyl-disc{ filter: drop-shadow(0 8px 14px rgb(var(--shadow-rgb) / calc(.4 * var(--shadow-k)))); }
+html body .album-display .record-sleeve{
+  box-shadow: 0 8px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))),
+              0 1px 3px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}

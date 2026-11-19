@@ -615,7 +615,7 @@
       <div class="cl-header">
         <div>
           <h2 style="margin:0 0 4px">Changelog</h2>
-          <p class="hint" style="margin:0">Siste: <strong style="color:${latest.color}">${latest.version} — ${latest.label}</strong> · ${latest.date}</p>
+          <p class="hint" style="margin:0">Siste: <strong style="color:var(--accent-ink)">${latest.version} — ${latest.label}</strong> · ${latest.date}</p>
         </div>
         <button class="ghost-btn cl-toggle" onclick="changelogToggle()" id="clToggleBtn">
           Vis alle versjoner ▾

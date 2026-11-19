@@ -65,7 +65,7 @@
       <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);width:min(600px,92vw);padding:0 0 24px">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgb(var(--ink-rgb) / .08)">
           <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-clipboard" aria-hidden="true"></span> Aktivitetsfeed</h2>
-          <button onclick="document.getElementById('labelFeedModal').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / .5);font-size:20px;cursor:pointer;line-height:1">×</button>
+          <button onclick="document.getElementById('labelFeedModal').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:20px;cursor:pointer;line-height:1">×</button>
         </div>
         <div id="labelFeedContent" style="padding:0 24px"></div>
       </div>
@@ -76,7 +76,7 @@
       <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);max-width:400px;width:90%;padding:28px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
           <h2 style="font-size:16px;font-weight:800;margin:0">Inviter artist</h2>
-          <button onclick="window.labelCloseInvite()" style="background:none;border:none;color:rgb(var(--ink-rgb) / .5);font-size:20px;cursor:pointer;line-height:1">×</button>
+          <button onclick="window.labelCloseInvite()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:20px;cursor:pointer;line-height:1">×</button>
         </div>
         <input id="labelInviteUsername" placeholder="Brukernavn"
           style="width:100%;box-sizing:border-box;background:rgb(var(--ink-rgb) / .06);border:none;border-bottom:2px solid rgb(var(--accent-rgb) / .3);color:var(--text);padding:10px 12px;font-size:14px;font-family:system-ui;outline:none;margin-bottom:12px"
@@ -84,7 +84,7 @@
           onblur="this.style.borderBottomColor='rgba(214,129,85,.3)'"
         />
         <button onclick="window.labelSendInvite()" style="width:100%;background:linear-gradient(135deg,var(--accent),var(--accent-deep));border:none;color:#000;font-size:14px;font-weight:900;padding:12px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send invitasjon</button>
-        <div id="labelInviteStatus" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-family:system-ui;color:rgb(var(--ink-rgb) / .5)"></div>
+        <div id="labelInviteStatus" style="font-size:12px;text-align:center;margin-top:10px;min-height:16px;font-family:system-ui;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)))"></div>
       </div>
     </div></div>`;
   }
@@ -104,32 +104,32 @@
 
 /* Sidebar */
 .label-sidebar { width:210px;flex-shrink:0;border-right:1px solid rgb(var(--ink-rgb) / .08);overflow-y:auto }
-.label-sidebar-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgb(var(--ink-rgb) / .35);padding:8px 16px 6px }
+.label-sidebar-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));padding:8px 16px 6px }
 .label-artist-row { display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;transition:background .12s;border-left:3px solid transparent }
 .label-artist-row:hover { background:rgb(var(--ink-rgb) / .04) }
 .label-artist-row.active { background:rgb(var(--accent-rgb) / .08);border-left-color:var(--accent) }
 .label-avatar { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0 }
 .label-artist-name { font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
-.label-artist-sub { font-size:10px;color:rgb(var(--ink-rgb) / .4) }
+.label-artist-sub { font-size:10px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost))) }
 .label-pending-row { display:flex;align-items:center;gap:10px;padding:9px 16px;opacity:.5 }
 
 /* Detail pane */
 .label-detail { flex:1;min-width:0;overflow-y:auto;padding:20px }
-.label-detail-empty { display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:rgb(var(--ink-rgb) / .3);font-size:13px;text-align:center }
+.label-detail-empty { display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:13px;text-align:center }
 .label-detail-header { display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgb(var(--ink-rgb) / .08) }
 .label-detail-avatar { width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0 }
 .label-detail-name { font-size:18px;font-weight:900;color:var(--text);letter-spacing:-.03em;margin-bottom:2px }
-.label-detail-meta { font-size:12px;color:rgb(var(--ink-rgb) / .4) }
+.label-detail-meta { font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost))) }
 .label-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px }
 .label-stat { background:rgb(var(--ink-rgb) / .04);border:1px solid rgb(var(--ink-rgb) / .06);padding:12px;text-align:center }
 .label-stat-n { font-size:22px;font-weight:900;color:var(--text);letter-spacing:-.04em;line-height:1 }
-.label-stat-l { font-size:10px;color:rgb(var(--ink-rgb) / .4);margin-top:3px;text-transform:uppercase;letter-spacing:.1em }
-.label-section-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgb(var(--ink-rgb) / .35);margin-bottom:10px }
+.label-stat-l { font-size:10px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin-top:3px;text-transform:uppercase;letter-spacing:.1em }
+.label-section-hd { font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));margin-bottom:10px }
 .label-album-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .05) }
 .label-album-row:last-child { border-bottom:none }
 .label-album-cover { width:38px;height:38px;flex-shrink:0;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .08);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden }
 .label-album-name { font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
-.label-album-meta { font-size:11px;color:rgb(var(--ink-rgb) / .4);margin-top:1px }
+.label-album-meta { font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin-top:1px }
 .label-progress { height:3px;background:rgb(var(--ink-rgb) / .1);overflow:hidden;min-width:60px }
 .label-progress-fill { height:100%;background:var(--accent) }
 .label-badge { display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;letter-spacing:.04em }
@@ -138,14 +138,14 @@
 .badge-skriving { background:rgb(var(--muted-rgb) / .15);color:var(--muted) }
 .badge-ide { background:rgb(var(--accent-rgb) / .15);color:var(--accent2) }
 .badge-mixing { background:rgb(var(--accent-rgb) / .15);color:var(--accent-ink) }
-.label-loading { padding:20px 16px;font-size:12px;color:rgb(var(--ink-rgb) / .4);text-align:center }
-.label-empty { padding:20px 16px;font-size:12px;color:rgb(var(--ink-rgb) / .4);text-align:center }
+.label-loading { padding:20px 16px;font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));text-align:center }
+.label-empty { padding:20px 16px;font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));text-align:center }
 
 /* Oversiktskort */
 .lov-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px }
 .lov-card { background:rgb(var(--ink-rgb) / .04);border:1px solid rgb(var(--ink-rgb) / .07);padding:16px;text-align:center }
 .lov-n { font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.06em;line-height:1 }
-.lov-l { font-size:10px;color:rgb(var(--ink-rgb) / .4);text-transform:uppercase;letter-spacing:.12em;margin-top:4px }
+.lov-l { font-size:10px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));text-transform:uppercase;letter-spacing:.12em;margin-top:4px }
 .lov-artist-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px }
 .lov-artist-card { background:rgb(var(--ink-rgb) / .04);border:1px solid rgb(var(--ink-rgb) / .07);padding:16px;cursor:pointer;transition:all .15s }
 .lov-artist-card:hover { background:rgb(var(--ink-rgb) / .07);border-color:rgb(var(--accent-rgb) / .3) }
@@ -495,7 +495,7 @@
       pending.forEach(a => {
         const name = a.profile?.username || 'Ukjent';
         html += `<div class="label-pending-row" data-name="${name}">
-          <div class="label-avatar" style="background:rgb(var(--ink-rgb) / .06);color:rgb(var(--ink-rgb) / .4)">?</div>
+          <div class="label-avatar" style="background:rgb(var(--ink-rgb) / .06);color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)))">?</div>
           <div style="min-width:0">
             <div class="label-artist-name">${name}</div>
             <div class="label-artist-sub">Invitert</div>
@@ -813,10 +813,10 @@
     modal.innerHTML='<div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);width:min(800px,96vw);padding:0 0 24px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgb(var(--ink-rgb) / .08)">'
         +'<h2 style="font-size:16px;font-weight:800;margin:0">Sammenlign artist</h2>'
-        +'<button onclick="document.getElementById(\'labelCompareModal\').style.display=\'none\'" style="background:none;border:none;color:rgb(var(--ink-rgb) / .5);font-size:20px;cursor:pointer">×</button>'
+        +'<button onclick="document.getElementById(\'labelCompareModal\').style.display=\'none\'" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:20px;cursor:pointer">×</button>'
       +'</div>'
       +'<div style="padding:20px 24px">'
-        +'<p style="font-size:13px;color:rgb(var(--ink-rgb) / .5);margin-bottom:16px">Velg artist å sammenligne med <strong style="color:var(--accent-ink)">'+name+'</strong>:</p>'
+        +'<p style="font-size:13px;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));margin-bottom:16px">Velg artist å sammenligne med <strong style="color:var(--accent-ink)">'+name+'</strong>:</p>'
         +'<div style="display:flex;flex-wrap:wrap;gap:8px">'
         +artists.map(a=>'<button onclick="window.labelDoCompare(\''+artistId+'\',\''+a.artist_id+'\')" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);color:var(--text);padding:8px 16px;cursor:pointer;font-family:system-ui;font-size:13px">'+(a.profile?.username||a.artist_id.slice(0,8))+'</button>').join('')
         +'</div>'
@@ -856,7 +856,7 @@
       const bWins = higherIsBetter ? Number(vB)>Number(vA) : Number(vB)<Number(vA);
       return '<div style="display:grid;grid-template-columns:1fr 120px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .05);align-items:center">'
         +'<div style="text-align:right;font-size:14px;font-weight:'+(aWins?'900':'400')+';color:'+(aWins?'#d68155':'#f4eadc')+'">'+vA+'</div>'
-        +'<div style="text-align:center;font-size:10px;color:rgb(var(--ink-rgb) / .35);text-transform:uppercase;letter-spacing:.1em">'+label+'</div>'
+        +'<div style="text-align:center;font-size:10px;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));text-transform:uppercase;letter-spacing:.1em">'+label+'</div>'
         +'<div style="font-size:14px;font-weight:'+(bWins?'900':'400')+';color:'+(bWins?'#d68155':'#f4eadc')+'">'+vB+'</div>'
       +'</div>';
     };
@@ -1106,7 +1106,7 @@
     const artistIds = laRows.map(r=>r.artist_id);
 
     if(!artistIds.length){
-      feedEl.innerHTML = '<div style="padding:20px;font-size:13px;color:rgb(var(--ink-rgb) / .3)">Ingen artister i labelen ennå.</div>';
+      feedEl.innerHTML = '<div style="padding:20px;font-size:13px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)))">Ingen artister i labelen ennå.</div>';
       return;
     }
 
@@ -1126,7 +1126,7 @@
     }
 
     if(!notifs.length){
-      feedEl.innerHTML = '<div style="padding:20px;font-size:13px;color:rgb(var(--ink-rgb) / .3)">Ingen aktivitet ennå.</div>';
+      feedEl.innerHTML = '<div style="padding:20px;font-size:13px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)))">Ingen aktivitet ennå.</div>';
       return;
     }
 
@@ -1138,7 +1138,7 @@
         <div style="font-size:18px;flex-shrink:0;margin-top:2px">${label.split(' ')[0]}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:700;color:var(--text)">${label.slice(2)} — ${n.content_name||''}</div>
-          <div style="font-size:11px;color:rgb(var(--ink-rgb) / .4);margin-top:2px">${who} · ${when}</div>
+          <div style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin-top:2px">${who} · ${when}</div>
         </div>
       </div>`;
     }).join('');
@@ -1165,9 +1165,9 @@
       <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid rgb(var(--ink-rgb) / .08)">
         <div>
           <h2 style="font-size:16px;font-weight:800;margin:0"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer</h2>
-          <div style="font-size:12px;color:rgb(var(--ink-rgb) / .4);margin-top:3px">${albumName}</div>
+          <div style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin-top:3px">${albumName}</div>
         </div>
-        <button onclick="document.getElementById('labelCommentModal').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / .5);font-size:20px;cursor:pointer;line-height:1">×</button>
+        <button onclick="document.getElementById('labelCommentModal').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:20px;cursor:pointer;line-height:1">×</button>
       </div>
       <div id="labelCommentList" style="padding:16px 24px;max-height:280px;overflow-y:auto">
         <div class="label-loading">Laster...</div>
@@ -1176,7 +1176,7 @@
         <textarea id="labelCommentText" placeholder="Skriv en tilbakemelding..." rows="3"
           style="width:100%;box-sizing:border-box;background:rgb(var(--ink-rgb) / .05);border:1px solid rgb(var(--ink-rgb) / .1);color:var(--text);padding:10px 12px;font-size:13px;font-family:Georgia,serif;outline:none;resize:vertical;margin-bottom:8px"></textarea>
         <button onclick="window.labelSubmitComment('${albumId}','${artistId}')" style="background:var(--accent);border:none;color:#000;font-size:12px;font-weight:800;padding:9px 20px;cursor:pointer;font-family:system-ui;letter-spacing:.06em;text-transform:uppercase">Send</button>
-        <div id="labelCommentStatus" style="font-size:11px;color:rgb(var(--ink-rgb) / .4);margin-top:8px;min-height:14px"></div>
+        <div id="labelCommentStatus" style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin-top:8px;min-height:14px"></div>
       </div>
     </div>`;
     loadLabelComments(albumId);
@@ -1188,14 +1188,14 @@
     const token = await getToken();
     const res = await fetch(`${SB_URL}/rest/v1/pitch_comments?album_id=eq.${albumId}&order=created_at.asc&select=*`, {headers:sbH(token)});
     const comments = res.ok ? await res.json() : [];
-    if(!comments.length){ el.innerHTML = '<div style="font-size:12px;color:rgb(var(--ink-rgb) / .3)">Ingen kommentarer ennå.</div>'; return; }
+    if(!comments.length){ el.innerHTML = '<div style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)))">Ingen kommentarer ennå.</div>'; return; }
     el.innerHTML = comments.map(c=>`
       <div style="padding:10px 0;border-bottom:1px solid rgb(var(--ink-rgb) / .06)">
         <div style="display:flex;gap:8px;margin-bottom:4px">
           <span style="font-size:12px;font-weight:800;color:var(--accent-ink)">${c.author||'Anonym'}</span>
-          <span style="font-size:10px;color:rgb(var(--ink-rgb) / .3)">${new Date(c.created_at).toLocaleDateString('no-NO')}</span>
+          <span style="font-size:10px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)))">${new Date(c.created_at).toLocaleDateString('no-NO')}</span>
         </div>
-        <div style="font-size:13px;color:rgb(var(--ink-rgb) / .7);line-height:1.5;white-space:pre-wrap">${c.comment||''}</div>
+        <div style="font-size:13px;color:rgb(var(--ink-rgb) / calc(.7 + (1 - .7) * var(--ink-boost)));line-height:1.5;white-space:pre-wrap">${c.comment||''}</div>
       </div>`).join('');
     el.scrollTop = el.scrollHeight;
   }
