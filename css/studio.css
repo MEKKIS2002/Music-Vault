@@ -2070,3 +2070,8 @@ html body .np-sheet.no-cover .nps-bg::before{ display: none; }
    farge, og la bildet gå helt opp under statuslinjen (viewport-fit=cover). */
 html body .np-sheet{ background: var(--np-bg, #110d0b) !important; }
 html body .nps-bg{ top: calc(-1 * env(safe-area-inset-top, 0px)); }
+/* «Spilles nå» mobil: minimalistisk skriving — ingen ramme eller boks rundt teksten du skriver i */
+html body .np-sheet .nps-sec-text:focus,
+html body .np-sheet .nps-sec-text:focus-visible,
+html body .np-sheet .nps-lyr:focus,
+html body .np-sheet .nps-lyr:focus-visible{ outline: none !important; box-shadow: none !important; background: transparent !important; border-radius: 0 !important; }
