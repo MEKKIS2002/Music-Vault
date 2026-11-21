@@ -1921,4 +1921,6 @@
     'Legg til favoritt': 'Add to favorites', 'Fjern fra favoritter': 'Remove from favorites', 'Spill av / pause': 'Play / pause',
   });
   I.pat([['Gå til albumet «{0}»', 'Go to the album “{0}”'], ['Gå til mixtapen «{0}»', 'Go to the mixtape “{0}”'], ['Skriv {0} …', 'Write {0} …']]);
+  // Versjonen i innloggingsfoten endres ved hver utgivelse — mønster i stedet for én nøkkel per versjon
+  I.pat([['Kun for autoriserte brukere · {0}', 'Authorised users only · {0}']]);
 })(window.mvI18n);
