@@ -6,6 +6,16 @@
 
   const VERSIONS = [
     {
+      version: 'v2.15',
+      date: '21. november 2026',
+      label: 'Ingen brun stripe øverst',
+      color: '#d68155',
+      changes: [
+        '«Spilles nå» på mobil: toppen av telefonen (statuslinjen) får en mørk tone av coverets farge i stedet for brunt, og bildet går helt opp',
+        'Minimalistisk skriving: ingen oransje ramme eller boks rundt teksten du skriver i',
+      ]
+    },
+    {
       version: 'v2.14',
       date: '21. november 2026',
       label: 'Spilles nå på mobil — rettinger',

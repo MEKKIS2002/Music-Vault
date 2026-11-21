@@ -203,6 +203,8 @@
     el.querySelector('.np-title').textContent = b.name || 'Uten navn';
     el.querySelector('.np-sub').textContent = sub(b) || (collection()?.name || 'Beat');
     const h = el.querySelector('.np-heart'); h.classList.toggle('on', !!b.favorite); h.setAttribute('aria-pressed', !!b.favorite); h.setAttribute('aria-label', b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt');
+    el.style.setProperty('--np-bg', darkTone(getComputedStyle($('bottomPlayer') || document.body).getPropertyValue('--bp-tint').trim() || '#2a1d12'));
+    if (sheetOpen) setThemeColor(true);
     el.style.setProperty('--np-tint', getComputedStyle($('bottomPlayer') || document.body).getPropertyValue('--bp-tint').trim() || '#2a1d12');
     if (changed) renderLyrics(el, b);
     syncModes(); tickSheet();
@@ -223,6 +225,29 @@
   // Siden bak skal ikke kunne rulles mens visningen er åpen. overflow:hidden på
   // body alene holder ikke på iPhone, og appens innhold ruller i main.app —
   // så vi fryser begge og legger rulleposisjonen tilbake etterpå.
+  // 35 % coverfarge + 65 % nesten svart, som #rrggbb (theme-color forstår ikke alle fargeformater)
+  function darkTone(color){
+    try{
+      const c = document.createElement('canvas').getContext('2d');
+      c.fillStyle = '#2a1d12'; c.fillStyle = color;
+      const v = c.fillStyle; let r, g, b;
+      if (v[0] === '#'){ r = parseInt(v.slice(1, 3), 16); g = parseInt(v.slice(3, 5), 16); b = parseInt(v.slice(5, 7), 16); }
+      else { [r, g, b] = v.match(/[\d.]+/g).map(Number); }
+      const mix = (x, y) => Math.round(x * .35 + y * .65).toString(16).padStart(2, '0');
+      return '#' + mix(r, 7) + mix(g, 6) + mix(b, 5);
+    }catch(e){ return '#110d0b'; }
+  }
+  // Nettleserens statuslinje/adresselinje (theme-color) i samme mørke tone som visningen
+  let prevTheme = null;
+  function setThemeColor(on){
+    const meta = document.querySelector('meta[name="theme-color"]'); if (!meta) return;
+    if (on){
+      if (prevTheme == null) prevTheme = meta.getAttribute('content');
+      const sheet = document.getElementById('mvNowSheet');
+      const bg = sheet && sheet.style.getPropertyValue('--np-bg');
+      if (bg) meta.setAttribute('content', bg);
+    } else if (prevTheme != null){ meta.setAttribute('content', prevTheme); prevTheme = null; }
+  }
   let locked = null;
   function lockPage(on){
     const main = document.querySelector('main.app'), se = document.scrollingElement || document.documentElement;
@@ -253,7 +278,7 @@
     const wasOpen = sheetOpen;
     sheetTab = document.querySelector('.tab-btn.active')?.dataset.tab || null; watchNav();
     sheetOpen = true; renderSheet();
-    el.classList.add('open'); lockPage(true);
+    el.classList.add('open'); lockPage(true); setThemeColor(true);
     el.querySelector('.nps-lyr').scrollTop = 0;
     if (!wasOpen) history.pushState({ mvNow: 1 }, '', location.href);    // telefonens tilbakeknapp lukker
   }
@@ -262,7 +287,7 @@
     if (el.querySelector('.nps-lyr').contains(document.activeElement)) document.activeElement.blur();
     clearTimeout(saveT); if (typeof window.saveState === 'function') window.saveState();
     sheetOpen = false;
-    el.classList.remove('open', 'editing'); lockPage(false);
+    el.classList.remove('open', 'editing'); lockPage(false); setThemeColor(false);
     if (!fromPop && history.state && history.state.mvNow) history.back();
   }
   window.addEventListener('popstate', () => { if (sheetOpen) closeSheet(true); });
