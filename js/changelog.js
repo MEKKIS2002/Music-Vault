@@ -6,6 +6,16 @@
 
   const VERSIONS = [
     {
+      version: 'v2.16',
+      date: '21. november 2026',
+      label: 'Coverbildet helt opp',
+      color: '#d68155',
+      changes: [
+        'iPhone-appen (lagt til på hjemskjermen): bildet i «Spilles nå» går helt opp bak klokka og batteriet',
+        'Resten av appen holder seg pent under statuslinjen',
+      ]
+    },
+    {
       version: 'v2.15',
       date: '21. november 2026',
       label: 'Ingen brun stripe øverst',

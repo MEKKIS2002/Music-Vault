@@ -10,9 +10,9 @@
   <!-- Hjem-skjerm / PWA. Gjør lagringen mye mer stabil på iOS (Safaris
        7-dagers sletting av localStorage treffer ikke installerte web-apper
        på samme måte) og gir appen eget ikon uten nettleser-chrome.
-       MERK: status-bar-style er 'black' og IKKE 'black-translucent' —
-       ingen CSS i repoet bruker env(safe-area-inset-top), så translucent
-       ville lagt headeren under klokka/notchen. -->
+       Status-bar-style er 'black-translucent': «Spilles nå»-bildet skal gå
+       helt opp bak klokka. Headeren og andre elementer øverst får
+       padding med env(safe-area-inset-top) i css/studio.css. -->
   <link rel="manifest" href="manifest.json?v=21a418d128">
   <meta name="theme-color" content="#0d0c0b">
   <script>
@@ -24,7 +24,7 @@
   </script>
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Music Vault">
   <!-- iOS bruker apple-touch-icon på hjem-skjermen. Den MÅ være ugjennomsiktig:
        favicon.png er 82 % transparent, og iOS flater transparens til svart —
@@ -99,7 +99,7 @@ AKTIVE BRUKERE:
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
   <link rel="stylesheet" href="css/system.css?v=634e12eb97">
   <link rel="stylesheet" href="css/mobile.css?v=86c3dcf76c">
-  <link rel="stylesheet" href="css/studio.css?v=e6c958f51d">
+  <link rel="stylesheet" href="css/studio.css?v=1a2bc77a2c">
   <link rel="stylesheet" href="css/artist-page.css?v=6648b2e9f6">
   <link rel="stylesheet" href="css/explore.css?v=b2c108ef47">
   <link rel="stylesheet" href="css/light.css?v=452cc865a7">
@@ -161,7 +161,7 @@ AKTIVE BRUKERE:
     </div>
 
     <div class="lk-foot">
-      <span>Kun for autoriserte brukere · v2.15</span>
+      <span>Kun for autoriserte brukere · v2.16</span>
       <span class="lk-lang" data-no-i18n role="group" aria-label="Språk / Language">
         <button type="button" onclick="window.mvI18n&&mvI18n.setLang('no')" lang="no">Norsk</button>
         <span aria-hidden="true">·</span>
@@ -1027,7 +1027,7 @@ window.addEventListener('load', () => {
   <script src="js/r2-storage.js?v=99291065a3"></script>
   <script src="js/archive.js?v=57b96821d1"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
-  <script src="js/changelog.js?v=026810a2f6"></script>
+  <script src="js/changelog.js?v=b282b13e22"></script>
   <script src="js/beats-tab.js?v=525d5e49fc"></script>
   <script src="js/supabase.js?v=5ddb805a74"></script>
   <script src="js/bpm.js?v=9d8fe64e9e"></script>
