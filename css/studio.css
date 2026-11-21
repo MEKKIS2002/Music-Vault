@@ -2075,3 +2075,12 @@ html body .np-sheet .nps-sec-text:focus,
 html body .np-sheet .nps-sec-text:focus-visible,
 html body .np-sheet .nps-lyr:focus,
 html body .np-sheet .nps-lyr:focus-visible{ outline: none !important; box-shadow: none !important; background: transparent !important; border-radius: 0 !important; }
+/* iPhone-app (lagt til på hjemskjermen): statuslinjen er gjennomsiktig
+   (black-translucent), så «Spilles nå»-bildet går helt opp bak klokka.
+   Resten av appen holder seg under statuslinjen. env() er 0 i vanlig nettleser. */
+@media (max-width: 768px){
+  html body .mv-header{ padding-top: env(safe-area-inset-top, 0px) !important; height: calc(54px + env(safe-area-inset-top, 0px)) !important; min-height: calc(54px + env(safe-area-inset-top, 0px)) !important; }
+}
+html body .mv-offline-pill{ top: calc(.75rem + env(safe-area-inset-top, 0px)); }
+html body #lockScreen{ padding-top: env(safe-area-inset-top, 0px); }
+html body .mv-search{ padding-top: calc(4vh + env(safe-area-inset-top, 0px)); }
