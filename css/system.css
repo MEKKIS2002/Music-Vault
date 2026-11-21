@@ -377,7 +377,14 @@ html.mv-cv-lock, html.mv-cv-lock body{ overflow: hidden; }
   transition: transform .7s var(--ease) .12s;
 }
 .mv-cover-viewer.is-open .mv-cv-disc{ transform: translateX(34%) rotate(40deg); }
-.mv-cover-viewer.is-closing .mv-cv-disc{ transition-delay: 0s; transition-duration: .25s; }
+.mv-cover-viewer.is-closing .mv-cv-disc{ transition: transform .26s cubic-bezier(.4,0,.2,1) 0s; }
+/* Lukking: bakgrunn og tekst tones ut i samme tempo som coveret flyr tilbake */
+.mv-cover-viewer.is-closing{ transition: background .38s cubic-bezier(.45,0,.2,1), backdrop-filter .38s cubic-bezier(.45,0,.2,1), -webkit-backdrop-filter .38s cubic-bezier(.45,0,.2,1); pointer-events: none; }
+.mv-cover-viewer.is-closing .mv-cv-hint{ transition: opacity .12s; opacity: 0; }
+.mv-cover-viewer.is-closing .mv-cv-tilt{ transition: none; }
+/* Uten kilde å fly tilbake til: krymp og ton ut på stedet */
+.mv-cover-viewer .mv-cv-stage{ transition: opacity .2s ease, transform .2s ease; }
+.mv-cover-viewer.is-gone .mv-cv-stage{ opacity: 0; transform: translateX(calc(var(--cv) * -0.16)) scale(.94); }
 .mv-cv-disc-label{
   position: absolute; inset: 33%; border-radius: 50%;
   background-size: cover; background-position: center;

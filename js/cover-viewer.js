@@ -96,21 +96,25 @@
     // ── Fly opp fra coveret i headeren (FLIP) ──────────────────────────────
     requestAnimationFrame(() => {
       root.classList.add('is-open');
-      flip(sleeve, source, false);
+      flip(tilt, source, false);
     });
   }
 
-  // Animer coveret mellom kilde-rektangelet i headeren og plassen i visningen.
-  function flip(sleeve, source, reverse){
-    if (reduced() || !source || !sleeve.animate) return Promise.resolve();
-    const a = source.getBoundingClientRect(), b = sleeve.getBoundingClientRect();
+  // Animer cover + plate SAMMEN (hele .mv-cv-tilt) mellom kilde-rektangelet i
+  // headeren og plassen i visningen. Før fløy bare coveret, så platen ble stående
+  // stor midt på skjermen ved lukking.
+  // Åpning: fill 'none' — etterpå tar CSS over igjen, så vippingen virker.
+  // Lukking: fill 'forwards' — står i mål til visningen fjernes (ingen hopp).
+  function flip(el, source, reverse){
+    if (reduced() || !source || !el.animate) return Promise.resolve();
+    const a = source.getBoundingClientRect(), b = el.getBoundingClientRect();
     if (!a.width || !b.width) return Promise.resolve();
-    const from = `translate(${a.left - b.left}px, ${a.top - b.top}px) scale(${a.width / b.width})`;
-    const frames = [{ transform: from, borderRadius: '6px' }, { transform: 'none' }];
-    const anim = sleeve.animate(reverse ? frames.reverse() : frames, {
-      duration: reverse ? 260 : 420,
-      easing: reverse ? 'cubic-bezier(.4,0,1,1)' : 'cubic-bezier(.22,1,.36,1)',   // ease-out-quint inn
-      fill: 'both',
+    const atSource = `translate(${(a.left + a.width / 2) - (b.left + b.width / 2)}px, ${(a.top + a.height / 2) - (b.top + b.height / 2)}px) scale(${a.width / b.width})`;
+    const frames = reverse ? [{ transform: 'none' }, { transform: atSource }] : [{ transform: atSource }, { transform: 'none' }];
+    const anim = el.animate(frames, {
+      duration: reverse ? 380 : 440,
+      easing: reverse ? 'cubic-bezier(.45,0,.2,1)' : 'cubic-bezier(.22,1,.36,1)',   // myk inn og ut / ease-out-quint
+      fill: reverse ? 'forwards' : 'none',
     });
     return anim.finished.catch(() => {});
   }
@@ -136,8 +140,13 @@
       // Fokus tilbake bare ved tastatur — med mus ga det en fokusring (boks) rundt coveret.
       if (sourceVisible && viaKeyboard) source.focus({ preventScroll: true });
     };
-    flip(sleeve, sourceVisible ? source : null, true).then(done);
-    setTimeout(done, 400);                               // sikkerhetsnett
+    // Platen glir inn bak coveret (CSS .is-closing) mens begge flyr tilbake,
+    // og bakgrunnen tones ut i samme tempo. Fjern først når alt har landet.
+    void sleeve;
+    flip(tilt, sourceVisible ? source : null, true).then(() => {
+      if (!sourceVisible){ root.classList.add('is-gone'); setTimeout(done, 220); } else done();
+    });
+    setTimeout(done, 900);                               // sikkerhetsnett
   }
 
   // ── Åpne fra albumheaderen (delegert, overlever re-render) ────────────────

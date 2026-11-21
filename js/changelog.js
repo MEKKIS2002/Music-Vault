@@ -6,6 +6,16 @@
 
   const VERSIONS = [
     {
+      version: 'v2.18',
+      date: '21. november 2026',
+      label: 'Vinyl og covervisning',
+      color: '#d68155',
+      changes: [
+        'Albumsiden: vinylen er nå litt mindre enn coveret, så den ikke stikker ut over og under',
+        'Stort albumcover: lukkingen er myk — cover og plate flyr tilbake sammen mens bakgrunnen tones ut',
+      ]
+    },
+    {
       version: 'v2.17',
       date: '21. november 2026',
       label: 'Coverbildet helt opp også i Safari',
