@@ -2085,3 +2085,8 @@ html body .np-sheet .nps-lyr:focus-visible{ outline: none !important; box-shadow
 html body .mv-offline-pill{ top: calc(.75rem + env(safe-area-inset-top, 0px)); }
 html body #lockScreen{ padding-top: env(safe-area-inset-top, 0px); }
 html body .mv-search{ padding-top: calc(4vh + env(safe-area-inset-top, 0px)); }
+/* Albumheader: platen litt mindre enn coveret (≈94 %), så den ikke stikker ut over/under */
+html body #albumDetailHd .album-detail-vinyl{ width: 236px !important; height: 236px !important; }
+@media (max-width: 1180px){ html body #albumDetailHd .album-detail-vinyl{ width: 218px !important; height: 218px !important; } }
+@media (max-width: 780px){ html body #albumDetailHd .album-detail-vinyl{ width: 198px !important; height: 198px !important; } }
+@media (max-width: 480px){ html body #albumDetailHd .album-detail-vinyl{ width: 174px !important; height: 174px !important; } }
