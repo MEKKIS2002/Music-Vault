@@ -2043,3 +2043,25 @@ html body .album-display .record-sleeve{
   box-shadow: 0 8px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))),
               0 1px 3px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
 }
+/* «Spilles nå» mobil: teksten ruller for seg selv, siden bak står helt stille */
+html body.mv-now-sheet{ position: fixed; left: 0; right: 0; width: 100%; overflow: hidden; }
+html body.mv-now-sheet main.app{ overflow: hidden !important; }
+html body .np-sheet{ overscroll-behavior: contain; touch-action: none; }
+html body .nps-lyr{ overscroll-behavior: contain; touch-action: pan-y; }
+html body .nps-seek input.nps-range{ touch-action: none; }
+html body .nps-ctrl, html body .nps-info, html body .nps-top{ touch-action: manipulation; }
+/* «Spilles nå» mobil: mørkt, uskarpt lag laget av selve coveret — samme farger,
+   mørkere toner — så hvit tekst kan leses også over lyse/hvite cover */
+html body .nps-bg{ overflow: hidden; }
+html body .nps-bg::before{
+  content: ""; position: absolute; inset: -12%;
+  background: var(--np-cover) center/cover no-repeat;
+  filter: blur(34px) saturate(1.35) brightness(.48);
+  opacity: .82;
+}
+html body .nps-bg::after{
+  background:
+    linear-gradient(180deg, rgba(8,6,5,.38) 0%, rgba(8,6,5,.22) 28%, rgba(8,6,5,.5) 62%, rgba(8,6,5,.9) 84%),
+    color-mix(in srgb, var(--np-tint, #2a1d12) 30%, transparent) !important;
+}
+html body .np-sheet.no-cover .nps-bg::before{ display: none; }
