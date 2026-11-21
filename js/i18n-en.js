@@ -1911,4 +1911,14 @@
   });
   I.pat([['Mikrofon {#0}', 'Microphone {0}']]);
   I.prefix({ 'Fikk ikke tilgang til mikrofonen:': 'Couldn’t access the microphone:' });
+  // ── now-playing.js (Spilles nå) ─────────────────────────────────────
+  I.add({
+    'Neste i køen': 'Next in queue', 'Åpne kø': 'Open queue', 'Ingen tekst ennå.': 'No lyrics yet.',
+    'Køen er tom etter denne låten.': 'The queue is empty after this song.', 'Ingenting spilles akkurat nå.': 'Nothing is playing right now.',
+    '+ Ny seksjon': '+ New section', 'Trykk her for å skrive tekst …': 'Tap here to write lyrics …', 'Vis «Spilles nå»': 'Show “Now playing”',
+    'Spol i låten': 'Seek in the song', 'Gjenta låten': 'Repeat song', 'Tilfeldig rekkefølge': 'Shuffle',
+    'Tilfeldig rekkefølge på': 'Shuffle on', 'Tilfeldig rekkefølge av': 'Shuffle off', 'Gjentar låten': 'Repeating song', 'Gjenta av': 'Repeat off',
+    'Legg til favoritt': 'Add to favorites', 'Fjern fra favoritter': 'Remove from favorites', 'Spill av / pause': 'Play / pause',
+  });
+  I.pat([['Gå til albumet «{0}»', 'Go to the album “{0}”'], ['Gå til mixtapen «{0}»', 'Go to the mixtape “{0}”'], ['Skriv {0} …', 'Write {0} …']]);
 })(window.mvI18n);

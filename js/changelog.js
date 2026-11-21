@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v2.13',
+      date: '21. november 2026',
+      label: 'Spilles nå',
+      color: '#d68155',
+      changes: [
+        'PC: klikk coveret eller tittelen i spilleren for «Spilles nå» på høyre side — stort cover, tekst, favoritt og neste i køen',
+        'Mobil: trykk på spilleren for fullskjerm med coveret i bakgrunnen og teksten over — du kan lese og skrive direkte',
+        'Mobil: trykk på coveret til en låt i et album eller en mixtape for å åpne samme visning (erstatter skriveboksen under låten)',
+        'Mobil: dra i tidslinjen for å spole, og bruk tilfeldig rekkefølge og gjenta',
+      ]
+    },
+    {
       version: 'v2.12',
       date: '19. november 2026',
       label: 'Explore, artistside, engelsk og lys modus',

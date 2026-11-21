@@ -68,7 +68,7 @@
   }
 
   // ── DOM ──────────────────────────────────────────────────────────────────
-  const ATTRS = ['placeholder', 'title', 'aria-label', 'alt', 'data-tip'];
+  const ATTRS = ['placeholder', 'title', 'aria-label', 'alt', 'data-tip', 'data-ph'];
   const SKIP_SEL = 'script,style,textarea,code,pre,[contenteditable=""],[contenteditable="true"],[data-no-i18n]';
   const orig = new WeakMap();          // tekstnode → original norsk tekst
   const last = new WeakMap();          // tekstnode → det vi satte sist

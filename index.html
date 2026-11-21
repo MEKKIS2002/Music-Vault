@@ -78,31 +78,31 @@ AKTIVE BRUKERE:
 
   <!-- Stylesheets -->
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
-  <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
-  <link rel="stylesheet" href="css/icons.css?v=b67086befd">
-  <link rel="stylesheet" href="css/lyriclab.css?v=3df82fa4e3">
-  <link rel="stylesheet" href="css/pipeline.css?v=a5e716c10e">
-  <link rel="stylesheet" href="css/main.css?v=873643ccfb">
-  <link rel="stylesheet" href="css/ui.css?v=a980ce1190">
-  <link rel="stylesheet" href="css/track-cards.css?v=9f496e04f1">
-  <link rel="stylesheet" href="css/archive.css?v=0f0efa6777">
-  <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
-  <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
-  <link rel="stylesheet" href="css/player.css?v=eaa75d553a">
+  <link rel="stylesheet" href="css/tokens.css?v=4839e5d7d4">
+  <link rel="stylesheet" href="css/icons.css?v=50c7dc28e6">
+  <link rel="stylesheet" href="css/lyriclab.css?v=050a64b781">
+  <link rel="stylesheet" href="css/pipeline.css?v=4688c34b03">
+  <link rel="stylesheet" href="css/main.css?v=06848db656">
+  <link rel="stylesheet" href="css/ui.css?v=cce362c6d3">
+  <link rel="stylesheet" href="css/track-cards.css?v=94403076ec">
+  <link rel="stylesheet" href="css/archive.css?v=91bf06557d">
+  <link rel="stylesheet" href="css/mixtape.css?v=0beb045b6c">
+  <link rel="stylesheet" href="css/docs.css?v=7194960176">
+  <link rel="stylesheet" href="css/player.css?v=6be712dbee">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
-  <link rel="stylesheet" href="css/refine.css?v=aca3e09523">
+  <link rel="stylesheet" href="css/refine.css?v=0b5cef132b">
   <!-- home.css er et sidespesifikt lag OPPÅ refine.css — derfor etter den.
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
-  <link rel="stylesheet" href="css/home.css?v=6ebca22b1b">
+  <link rel="stylesheet" href="css/home.css?v=76775a05e5">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=58dddcd964">
-  <link rel="stylesheet" href="css/mobile.css?v=68adbb6110">
-  <link rel="stylesheet" href="css/studio.css?v=8fb740b27e">
-  <link rel="stylesheet" href="css/artist-page.css?v=8d21e99ae0">
-  <link rel="stylesheet" href="css/explore.css?v=5ac5079a46">
-  <link rel="stylesheet" href="css/light.css?v=b2215184fc">
+  <link rel="stylesheet" href="css/system.css?v=634e12eb97">
+  <link rel="stylesheet" href="css/mobile.css?v=86c3dcf76c">
+  <link rel="stylesheet" href="css/studio.css?v=40daf28202">
+  <link rel="stylesheet" href="css/artist-page.css?v=6648b2e9f6">
+  <link rel="stylesheet" href="css/explore.css?v=b2c108ef47">
+  <link rel="stylesheet" href="css/light.css?v=452cc865a7">
   <style>html,body{background:#090705 !important}
   /* Label-brukere kan ikke arkivere eller slette */
   body.pkg-label #archiveMixtapeBtn,
@@ -161,7 +161,7 @@ AKTIVE BRUKERE:
     </div>
 
     <div class="lk-foot">
-      <span>Kun for autoriserte brukere · v2.12</span>
+      <span>Kun for autoriserte brukere · v2.13</span>
       <span class="lk-lang" data-no-i18n role="group" aria-label="Språk / Language">
         <button type="button" onclick="window.mvI18n&&mvI18n.setLang('no')" lang="no">Norsk</button>
         <span aria-hidden="true">·</span>
@@ -1009,44 +1009,45 @@ window.addEventListener('load', () => {
 <!-- === ARCHIVE DEMO CRATES OVERRIDE === -->
 
   <!-- Supabase CDN -->
-  <script src="js/i18n.js?v=65f2de6bef"></script>
-  <script src="js/i18n-en.js?v=5dbf214fa8"></script>
-  <script src="js/config.js?v=a6abb28894"></script>
-  <script src="js/impersonate.js?v=59e3623bd6"></script>
+  <script src="js/i18n.js?v=52a4b3492d"></script>
+  <script src="js/i18n-en.js?v=ff85a964c3"></script>
+  <script src="js/config.js?v=b121068c62"></script>
+  <script src="js/impersonate.js?v=db91e85706"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 
   <!-- R2 config — set this to your deployed Cloudflare Worker URL -->
 
   <!-- App scripts (load order matters) -->
-  <script src="js/audio-compress.js?v=e3a053c571"></script>
-  <script src="js/lock.js?v=6302acc7c7"></script>
-  <script src="js/pipeline.js?v=ce950b4f56"></script>
-  <script src="js/lyriclab.js?v=7bd03dd2d0"></script>
-  <script src="js/app.js?v=67b0e3628c"></script>
-  <script src="js/track-cards.js?v=b09d140e79"></script>
-  <script src="js/r2-storage.js?v=6192a354c8"></script>
-  <script src="js/archive.js?v=f3caaed387"></script>
+  <script src="js/audio-compress.js?v=bf65c424e4"></script>
+  <script src="js/lock.js?v=d7025f1e2e"></script>
+  <script src="js/pipeline.js?v=8d330a4baa"></script>
+  <script src="js/lyriclab.js?v=e795c96d6d"></script>
+  <script src="js/app.js?v=f154633347"></script>
+  <script src="js/track-cards.js?v=2bedc1badf"></script>
+  <script src="js/r2-storage.js?v=99291065a3"></script>
+  <script src="js/archive.js?v=57b96821d1"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
-  <script src="js/changelog.js?v=a581c317ca"></script>
-  <script src="js/beats-tab.js?v=451f240261"></script>
-  <script src="js/supabase.js?v=5488a4587c"></script>
-  <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=62facb1455"></script>
-  <script src="js/cover-offload.js?v=297ea66969"></script>
-  <script src="js/cover-viewer.js?v=fb6c0091ab"></script>
-  <script src="js/mixtape-share.js?v=d6b5cb1b9c"></script>
-  <script src="js/notifications.js?v=f64a07780c"></script>
-  <script src="js/mini-player.js?v=4027371703"></script>
-  <script src="js/queue.js?v=05a190d025"></script>
-  <script src="js/context-menu.js?v=76740b6015"></script>
-  <script src="js/writing-tools.js?v=f6f7f4e118"></script>
-  <script src="js/router.js?v=ff2ddabd20"></script>
-  <script src="js/player-extras.js?v=9a8247056a"></script>
-  <script src="js/search.js?v=80e399c4f2"></script>
-  <script src="js/audio-tools.js?v=7a8509a1d2"></script>
-  <script src="js/analysis.js?v=70dc8461d7"></script>
-  <script src="js/music-tools.js?v=ab113b055d"></script>
-  <script src="js/touch-reorder.js?v=ffdfdec57a"></script>
+  <script src="js/changelog.js?v=c87992038d"></script>
+  <script src="js/beats-tab.js?v=525d5e49fc"></script>
+  <script src="js/supabase.js?v=5ddb805a74"></script>
+  <script src="js/bpm.js?v=9d8fe64e9e"></script>
+  <script src="js/db.js?v=18ee0b8df0"></script>
+  <script src="js/cover-offload.js?v=e09282ed72"></script>
+  <script src="js/cover-viewer.js?v=c95b2374f3"></script>
+  <script src="js/mixtape-share.js?v=b14d117a45"></script>
+  <script src="js/notifications.js?v=a90be7d20c"></script>
+  <script src="js/mini-player.js?v=e482ebba5d"></script>
+  <script src="js/queue.js?v=90d4e3f50c"></script>
+  <script src="js/context-menu.js?v=28dd0f0677"></script>
+  <script src="js/writing-tools.js?v=dd338da044"></script>
+  <script src="js/router.js?v=3de41e778a"></script>
+  <script src="js/player-extras.js?v=d9435e1487"></script>
+  <script src="js/search.js?v=2a985b9936"></script>
+  <script src="js/audio-tools.js?v=b22419cd2e"></script>
+  <script src="js/analysis.js?v=c4ab6e1de5"></script>
+  <script src="js/music-tools.js?v=0b5221af49"></script>
+  <script src="js/touch-reorder.js?v=a524368b5b"></script>
+  <script src="js/now-playing.js?v=1adc252e08"></script>
 
     <!-- LYRIC LAB TAB -->
     <section id="lyriclabTab" class="tab-view hidden">
@@ -1056,15 +1057,15 @@ window.addEventListener('load', () => {
   <section id="labelTab" class="tab-view hidden"></section>
   <section id="adminPanelTab" class="tab-view hidden"></section>
 
-  <script src="js/packages.js?v=c3919db8cf"></script>
-  <script src="js/theme.js?v=36706adffd"></script>
-  <script src="js/label.js?v=69aeaf29dd"></script>
-  <script src="js/admin-panel.js?v=55eb715b72"></script>
-  <script src="js/share-song.js?v=b5b59f1f1e"></script>
-  <script src="js/artist-render.js?v=2109045c05"></script>
-  <script src="js/artist-studio.js?v=e445e4eddc"></script>
-  <script src="js/explore.js?v=28144a339e"></script>
-  <script src="js/docs.js?v=32506992ac"></script>
+  <script src="js/packages.js?v=f46c5d7ac5"></script>
+  <script src="js/theme.js?v=1d86190d19"></script>
+  <script src="js/label.js?v=4a6abd8df9"></script>
+  <script src="js/admin-panel.js?v=80a1ad8726"></script>
+  <script src="js/share-song.js?v=7edc89cae3"></script>
+  <script src="js/artist-render.js?v=f1fd1cdadd"></script>
+  <script src="js/artist-studio.js?v=949b572496"></script>
+  <script src="js/explore.js?v=30d1a957f1"></script>
+  <script src="js/docs.js?v=6ceaf171ad"></script>
 
 <button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
 </body>
