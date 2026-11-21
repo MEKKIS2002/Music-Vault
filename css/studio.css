@@ -2065,3 +2065,8 @@ html body .nps-bg::after{
     color-mix(in srgb, var(--np-tint, #2a1d12) 30%, transparent) !important;
 }
 html body .np-sheet.no-cover .nps-bg::before{ display: none; }
+/* «Spilles nå» mobil: ingen brun stripe øverst. Safari farger statuslinjen etter
+   bakgrunnsfargen til det faste elementet øverst — bruk en mørk tone av coverets
+   farge, og la bildet gå helt opp under statuslinjen (viewport-fit=cover). */
+html body .np-sheet{ background: var(--np-bg, #110d0b) !important; }
+html body .nps-bg{ top: calc(-1 * env(safe-area-inset-top, 0px)); }
