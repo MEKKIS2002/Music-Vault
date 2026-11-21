@@ -6,6 +6,18 @@
 
   const VERSIONS = [
     {
+      version: 'v2.14',
+      date: '21. november 2026',
+      label: 'Spilles nå på mobil — rettinger',
+      color: '#d68155',
+      changes: [
+        'Teksten ruller nå for seg selv — siden bak står helt stille mens «Spilles nå» er åpen',
+        'De tre prikkene øverst åpner menyen for låten',
+        'Mørk, uskarp bakgrunn i coverets egne farger, så teksten er lett å lese også over lyse cover',
+        'Trykk på coveret til en låt i et album eller en mixtape spiller den — tekstvisningen åpnes fra spilleren nederst',
+      ]
+    },
+    {
       version: 'v2.13',
       date: '21. november 2026',
       label: 'Spilles nå',

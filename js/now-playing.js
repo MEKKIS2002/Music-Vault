@@ -194,7 +194,9 @@
     const b = beatById(sheetBeatId) || cur(); if (!b){ closeSheet(); return; }
     const changed = b.id !== el.dataset.beat; el.dataset.beat = b.id;
     const src = b.cover || collection()?.cover || '';
-    el.querySelector('.nps-bg').style.backgroundImage = src ? `url("${src.replace(/"/g, '%22')}")` : '';
+    const bgUrl = src ? `url("${src.replace(/"/g, '%22')}")` : '';
+    el.querySelector('.nps-bg').style.backgroundImage = bgUrl;
+    el.style.setProperty('--np-cover', bgUrl || 'none');   // brukes av det uskarpe laget (samme farger som coveret)
     el.classList.toggle('no-cover', !src);
     el.querySelector('.nps-top-title').textContent = b.name || 'Uten navn';
     el.querySelector('.nps-mini').innerHTML = coverHTML(b, 'nps-mini-img');
@@ -218,13 +220,40 @@
     el.querySelector('.nps-cur').textContent = fmt(d ? a.currentTime : 0);
     el.querySelector('.nps-dur').textContent = d ? fmt(d) : '0:00';
   }
+  // Siden bak skal ikke kunne rulles mens visningen er åpen. overflow:hidden på
+  // body alene holder ikke på iPhone, og appens innhold ruller i main.app —
+  // så vi fryser begge og legger rulleposisjonen tilbake etterpå.
+  let locked = null;
+  function lockPage(on){
+    const main = document.querySelector('main.app'), se = document.scrollingElement || document.documentElement;
+    if (on && !locked){
+      locked = { y: se.scrollTop, my: main ? main.scrollTop : 0 };
+      document.body.classList.add('mv-now-sheet');
+      document.body.style.top = -locked.y + 'px';
+    } else if (!on && locked){
+      const l = locked; locked = null;
+      document.body.classList.remove('mv-now-sheet');
+      document.body.style.top = '';
+      se.scrollTop = l.y; if (main) main.scrollTop = l.my;
+    }
+  }
+  // Byttes siden (f.eks. «Åpne i Lyric Lab» fra menyen), lukkes visningen
+  let navWatch = null;
+  function watchNav(){
+    if (navWatch) return;
+    const nav = document.querySelector('.mv-tabs'); if (!nav) return;
+    navWatch = new MutationObserver(() => { if (sheetOpen && document.querySelector('.tab-btn.active')?.dataset.tab !== sheetTab) closeSheet(); });
+    navWatch.observe(nav, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  }
+  let sheetTab = null;
   function openSheet(beatId){
     sheetBeatId = beatId || cur()?.id; if (!sheetBeatId) return;
     const el = $('mvNowSheet') || buildSheet();
     delete el.dataset.beat;
     const wasOpen = sheetOpen;
+    sheetTab = document.querySelector('.tab-btn.active')?.dataset.tab || null; watchNav();
     sheetOpen = true; renderSheet();
-    el.classList.add('open'); document.body.classList.add('mv-now-sheet');
+    el.classList.add('open'); lockPage(true);
     el.querySelector('.nps-lyr').scrollTop = 0;
     if (!wasOpen) history.pushState({ mvNow: 1 }, '', location.href);    // telefonens tilbakeknapp lukker
   }
@@ -233,7 +262,7 @@
     if (el.querySelector('.nps-lyr').contains(document.activeElement)) document.activeElement.blur();
     clearTimeout(saveT); if (typeof window.saveState === 'function') window.saveState();
     sheetOpen = false;
-    el.classList.remove('open', 'editing'); document.body.classList.remove('mv-now-sheet');
+    el.classList.remove('open', 'editing'); lockPage(false);
     if (!fromPop && history.state && history.state.mvNow) history.back();
   }
   window.addEventListener('popstate', () => { if (sheetOpen) closeSheet(true); });
@@ -302,7 +331,7 @@
     if (act === 'repeat') return toggleRepeat();
     if (act === 'play') return window.playBottomIndex?.(Number(t.dataset.i));
     if (act === 'queue') return window.mvToggleQueue?.();
-    if (act === 'menu' && b){ const r = t.getBoundingClientRect(); return window.mvSongMenu?.(b.id, { x: r.right - 8, y: r.bottom + 4 }, 'beats'); }
+    if (act === 'menu' && b) return window.mvSongMenu?.(b.id, { anchor: t }, 'beats');
     if (act === 'add-sec' && b){
       const secs = sectionsFor(b, true);
       const n = secs.filter(x => /^Vers/.test(x.title || '')).length + 1;
@@ -341,7 +370,10 @@
       if (!isMobile()) return orig.apply(this, arguments);
       const card = document.getElementById('abi-' + id);
       const mode = card && card.closest('#mixtapeBeatList') ? 'mixtape' : 'album';
-      openFromCollection(id, mode);
+      // Trykk på coveret spiller låten (resten av samlingen følger etter).
+      // «Spilles nå» åpnes bare fra spilleren nederst.
+      if (typeof window.playCollectionFromBeat === 'function') window.playCollectionFromBeat(id, mode);
+      else window.playSingleBeat?.(id);
     };
     wrapped._np = true; window.toggleAlbumBeat = wrapped;
   }
