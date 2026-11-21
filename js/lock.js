@@ -6,7 +6,6 @@ if(history.scrollRestoration) history.scrollRestoration = 'manual';
 
 function getUserRole(){return sessionStorage.getItem('mv_role')||'';}
 function isProducerUser(){return getUserRole()==='producer';}
-function isViewerUser(){return getUserRole()==='viewer';}
 
 function applyRoleMode(){
   const role = getUserRole();
@@ -115,7 +114,7 @@ function mvShowRestoring(on){
     if(!el){
       el = document.createElement('div');
       el.id = 'mvRestoreMsg';
-      el.style.cssText = 'position:relative;z-index:2;color:rgba(214,129,85,.85);font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
+      el.style.cssText = 'position:relative;z-index:2;color:rgb(var(--accent-ink-rgb) / calc(.85 + (1 - .85) * var(--ink-boost)));font-family:system-ui;font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase';
       el.innerHTML = '<div class="mv-restore-txt">Logger inn…</div>'
         + '<div class="mv-restore-slow" hidden>'
         +   '<p>Det tar lengre tid enn vanlig.</p>'
@@ -153,6 +152,7 @@ function mvWithTimeout(p, ms, fallback){
 // Nødutgang: rydd ALL lokal innlogging (også Supabase-tokenet) uten å vente
 // på nettet, og last siden på nytt med innloggingsskjemaet.
 function mvHardLogout(){
+  mvStopAllAudio();
   try{
     mvClearPersistentSession();
     Object.keys(localStorage).filter(k=>/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k));
@@ -290,7 +290,17 @@ async function mvRestoreSession(){
   return true;
 }
 
+// Utlogging: all avspilling stopper (appens spiller, Explore/profiler og
+// alle andre lydelementer) — musikk skal ikke fortsette bak låseskjermen.
+function mvStopAllAudio(){
+  try{ if(typeof bottomStop==='function') bottomStop(true); }catch(e){}
+  try{ window.mvExplore?.stopAll?.(); }catch(e){}
+  try{ document.querySelectorAll('audio,video').forEach(a=>{ try{ a.pause(); }catch(_){} }); }catch(e){}
+}
+window.mvStopAllAudio = mvStopAllAudio;
+
 function returnToPasswordScreen(){
+  mvStopAllAudio();
   // Tilbake på låseskjermen = logget ut. Uten dette ville neste lasting
   // gjenopprette sesjonen og kaste deg rett inn igjen.
   mvClearPersistentSession();
@@ -353,7 +363,8 @@ function injectUserCorner(role){
   bellSlotDiv.style.cssText = 'display:flex;align-items:center;';
   slot.appendChild(bellSlotDiv);
 
-  // Gear/settings button with dropdown
+  // Gear/settings button with dropdown (en gammel meny kan ligge i <body> etter forrige åpning)
+  document.querySelectorAll('body > #mvGearMenu').forEach(m => m.remove());
   slot.insertAdjacentHTML('beforeend', `
     <div style="position:relative">
       <button id="mvGearBtn" class="mv-hdr-icon-btn" onclick="mvToggleGearMenu(event)" title="Innstillinger" aria-label="Innstillinger"><span class="ic ic-sliders" aria-hidden="true"></span></button>
@@ -363,12 +374,18 @@ function injectUserCorner(role){
           ${!isAdmin ? '<div class="mv-gear-pkg">'+pkgLabel+'</div>' : ''}
         </div>
         <div class="mv-gear-divider"></div>
+        <div id="mvGearAppearance" class="mv-gear-appearance"></div>
+        <div class="mv-gear-divider"></div>
         <div id="mvGearLabelItem" style="display:none">
           <button class="mv-gear-item mv-gear-danger" onclick="mvGearLeaveLabel()">Forlat label</button>
         </div>
         <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
       </div>
     </div>`);
+
+  // Tema/aksent: pakken (PRO?) er kjent nå — bruk valget og fyll Utseende-seksjonen.
+  if (window.mvTheme){ window.mvTheme.apply(); window.mvTheme.syncFromAccount(); }
+  if (window.mvI18n) window.mvI18n.syncFromAccount();
 
   // Avatar — navnet ligger i tooltip, ikke som egen tekst ved siden av initialene
   slot.insertAdjacentHTML('beforeend', `
@@ -388,7 +405,9 @@ function injectUserCorner(role){
   document.addEventListener('click', e => {
     const menu = document.getElementById('mvGearMenu');
     const btn  = document.getElementById('mvGearBtn');
-    if(menu && !menu.contains(e.target) && e.target !== btn) menu.style.display='none';
+    // isConnected: klikk på Mørk/Lys tegner kontrollene på nytt, så målet er borte fra
+    // DOM-en — det er fortsatt et klikk INNE i menyen.
+    if(menu && e.target.isConnected && !menu.contains(e.target) && !(btn && btn.contains(e.target))) menu.style.display='none';
   });
 
   if(!isAdmin){
@@ -404,8 +423,29 @@ function injectUserCorner(role){
 window.mvToggleGearMenu = function(e){
   e.stopPropagation();
   const menu = document.getElementById('mvGearMenu');
+  const btn  = document.getElementById('mvGearBtn');
   if(!menu) return;
-  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+  if(menu.style.display !== 'none'){ menu.style.display = 'none'; return; }
+  // Sidefeltet har overflow:hidden og spilleren ligger over bunnen — menyen ble
+  // klippet bort. Flytt den til <body> og plasser den fast rett over knappen.
+  if(menu.parentElement !== document.body) document.body.appendChild(menu);
+  menu.style.display = 'block';
+  const r = btn ? btn.getBoundingClientRect() : { left: 16, top: window.innerHeight - 16 };
+  const w = menu.offsetWidth || 240;
+  const set = (k, v) => menu.style.setProperty(k, v, 'important');
+  set('position', 'fixed');
+  set('z-index', '10050');
+  set('left', Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px');
+  set('right', 'auto');
+  const below = r.top < window.innerHeight / 2;          // knapp øverst (mobil): åpne nedover
+  if(below){
+    set('top', (r.bottom + 8) + 'px'); set('bottom', 'auto');
+    set('max-height', (window.innerHeight - r.bottom - 16) + 'px');
+  } else {
+    set('top', 'auto'); set('bottom', (window.innerHeight - r.top + 8) + 'px');
+    set('max-height', (r.top - 16) + 'px');
+  }
+  set('overflow-y', 'auto');
 };
 
 // Oppdater gear-menyen med "Forlat label" hvis artisten er i et label
@@ -430,30 +470,7 @@ window.mvLogout = async function(){
   returnToPasswordScreen();
 };
 
-function loginViewer(){
-  unlockAs('viewer');
-}
 
-function switchLockTab(tab){
-  const adminCard   = document.getElementById('lockCardAdmin');
-  const viewerCard  = document.getElementById('lockCardViewer');
-  const adminBtn    = document.getElementById('lockTabAdmin');
-  const viewerBtn   = document.getElementById('lockTabViewer');
-  const active = 'background:linear-gradient(135deg,#d68155,#b9683f);color:#fff;';
-  const inactive = 'background:transparent;color:#aaa4bd;';
-  if(tab==='admin'){
-    adminCard.style.display='grid';
-    viewerCard.style.display='none';
-    if(adminBtn) adminBtn.style.cssText += active;
-    if(viewerBtn) viewerBtn.style.cssText += inactive;
-    document.getElementById('adminUsername')?.focus();
-  } else {
-    adminCard.style.display='none';
-    viewerCard.style.display='grid';
-    if(viewerBtn) viewerBtn.style.cssText += active;
-    if(adminBtn) adminBtn.style.cssText += inactive;
-  }
-}
 
 // ── Innlogging med brukernavn ─────────────────────────────────────────────
 async function loginWithUsername(){
@@ -482,8 +499,8 @@ async function loginWithUsername(){
       ({data, error} = await window.supabaseClient.auth.signInWithPassword({email: username, password}));
     } else {
       // Brukernavn: serveren slår opp e-posten og logger inn; vi får bare sesjonen tilbake
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
       let res, body;
       try {
         res = await fetch(`${SB_URL}/functions/v1/login-username`, {
@@ -566,8 +583,6 @@ async function loginWithUsername(){
   }
 }
 
-function loginProducer(){unlockAs('producer');}
-async function checkPw(){}
 
 function initLock(){
   // 1) Samme fane, vanlig reload — sessionStorage lever fortsatt.
@@ -610,25 +625,25 @@ initLock();
 let _selectedPkg = 'artist';
 
 window.selectPkg = function(el) {
-  document.querySelectorAll('.pkg-card').forEach(c => {
-    c.style.border = '1px solid rgba(255,255,255,.1)';
-    c.style.background = 'rgba(255,255,255,.03)';
-    c.querySelector('div').style.color = '#f4eadc';
-  });
-  el.style.border = '1px solid rgba(214,129,85,.5)';
-  el.style.background = 'rgba(214,129,85,.08)';
-  el.querySelector('div').style.color = '#d68155';
+  // Utseendet styres av klassen is-on (stilene ligger ved #lockScreen i index.html)
+  document.querySelectorAll('.pkg-card').forEach(c => { c.classList.remove('is-on'); c.setAttribute('aria-checked', 'false'); });
+  el.classList.add('is-on'); el.setAttribute('aria-checked', 'true');
   _selectedPkg = el.dataset.pkg;
   // Vis invitasjonskode-felt for label
   const inviteWrap = document.getElementById('regInviteWrap');
   if(inviteWrap) inviteWrap.style.display = _selectedPkg === 'label' ? 'block' : 'none';
 };
 
+document.addEventListener('keydown', e => {
+  const c = e.target && e.target.closest && e.target.closest('#lockScreen .pkg-card');
+  if (c && (e.key === 'Enter' || e.key === ' ')){ e.preventDefault(); window.selectPkg(c); }
+});
+
 window.showRegister = function() {
   document.getElementById('lockCard').style.display = 'none';
   const rc = document.getElementById('registerCard');
   rc.style.display = 'grid';
-  rc.style.animation = 'lockCardEnter .4s cubic-bezier(.22,.68,0,1.2) both';
+  rc.style.animation = 'lockCardEnter .4s cubic-bezier(.22,1,.36,1) both';
 };
 
 window.showLogin = function() {
@@ -667,18 +682,17 @@ window.registerUser = async function() {
       return;
     }
     // Valider koden mot Supabase
-    const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
-    const r = await fetch(`${SB_URL}/rest/v1/invite_codes?code=eq.${invite}&select=code,used_by`, {
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+    const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
+    // invite_codes er admin-only (RLS) — sjekk via RPC som bare svarer ja/nei.
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/check_invite_code`, {
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({ p_code: invite })
     });
-    const codes = await r.json();
-    if(!codes.length) {
-      if(errEl){ errEl.textContent='Ugyldig invitasjonskode.'; errEl.style.display='block'; }
-      return;
-    }
-    if(codes[0].used_by) {
-      if(errEl){ errEl.textContent='Denne koden er allerede brukt.'; errEl.style.display='block'; }
+    const ok = r.ok ? await r.json() : false;
+    if(ok !== true) {
+      if(errEl){ errEl.textContent='Ugyldig eller allerede brukt invitasjonskode.'; errEl.style.display='block'; }
       return;
     }
   }
@@ -697,39 +711,55 @@ window.registerUser = async function() {
 
     if(error) throw error;
 
-    // Opprett profil-rad manuelt (trigger er fjernet)
-    if(data.user) {
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    // Profilen lages server-side av triggeren on_auth_user_created (også uten sesjon,
+    // f.eks. med e-postbekreftelse). Dette er bare en reserve hvis triggeren feilet;
+    // ignore-duplicates = ON CONFLICT DO NOTHING, så den rører aldri en eksisterende rad.
+    if(data.user && data.session) {
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
       await fetch(`${SB_URL}/rest/v1/profiles`, {
         method: 'POST',
         headers: {
           'apikey': SB_KEY,
-          'Authorization': `Bearer ${data.session?.access_token || SB_KEY}`,
+          'Authorization': `Bearer ${data.session.access_token}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
+          'Prefer': 'resolution=ignore-duplicates,return=minimal'
         },
         body: JSON.stringify({
           id: data.user.id,
           username,
           email,
           role: 'user',
-          package: _selectedPkg
+          // Label settes server-side av redeem_invite_code (RLS tillater bare artist/pro her)
+          package: _selectedPkg === 'label' ? 'artist' : _selectedPkg
         })
       });
     }
 
     if(error) throw error;
 
-    // Merk invitasjonskode som brukt
-    if(_selectedPkg === 'label' && data.user) {
-      const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
-      await fetch(`${SB_URL}/rest/v1/invite_codes?code=eq.${invite}`, {
-        method:'PATCH',
-        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body: JSON.stringify({ used_by: data.user.id, used_at: new Date().toISOString() })
+    // Uten sesjon (e-postbekreftelse påkrevd) kan koden ikke løses inn nå — ikke lat som
+    // kontoen er label; koden forblir ubrukt og kan løses inn senere.
+    if(_selectedPkg === 'label' && data.user && !data.session) {
+      console.warn('[Lock] Ingen sesjon etter registrering — invitasjonskoden er ikke løst inn.');
+      if(errEl){ errEl.textContent='Kontoen er opprettet. Bekreft e-posten og logg inn — label-tilgang må aktiveres med koden etterpå.'; errEl.style.display='block'; }
+      _selectedPkg = 'artist';
+    }
+
+    // Løs inn invitasjonskoden (merker den brukt + setter package='label' atomisk)
+    if(_selectedPkg === 'label' && data.user && data.session) {
+      const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
+      const rr = await fetch(`${SB_URL}/rest/v1/rpc/redeem_invite_code`, {
+        method:'POST',
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+data.session.access_token,'Content-Type':'application/json'},
+        body: JSON.stringify({ p_code: invite })
       });
+      const redeemed = rr.ok ? await rr.json() : false;
+      if(redeemed !== true) {
+        console.warn('[Lock] Invitasjonskoden kunne ikke løses inn — kontoen er opprettet som artist.');
+        _selectedPkg = 'artist';
+      }
     }
 
     // Logg inn automatisk

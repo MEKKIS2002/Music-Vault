@@ -59,7 +59,7 @@
 
   window.showToast=function(msg, actionLabel, actionFn){
     let t=document.getElementById('_toast');
-    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgba(33,29,26,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgba(0,0,0,.35);display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
+    if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:14px;padding:11px 14px;font-size:13px;z-index:9999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 18px 50px rgb(var(--shadow-rgb) / calc(.35 * var(--shadow-k)));display:flex;align-items:center;gap:4px;pointer-events:auto';document.body.appendChild(t);}
     t.innerHTML=`<span>${esc(String(msg||''))}</span>${actionLabel?`<button class="toast-action" id="toastActionBtn">${esc(actionLabel)}</button>`:''}`;
     if(actionLabel&&actionFn){const b=document.getElementById('toastActionBtn'); if(b)b.onclick=()=>{actionFn();t.style.opacity='0';};}
     t.style.transform='translateY(0)';t.style.opacity='1';
@@ -179,14 +179,14 @@
     hd.classList.toggle('is-playing-album',!!isPlaying);
     hd.innerHTML=`
       <div class="album-detail-premium">
-        <div class="album-detail-art" aria-hidden="true">
-          <div class="album-detail-vinyl">
+        <div class="album-detail-art">
+          <div class="album-detail-vinyl" aria-hidden="true">
             <div class="album-detail-vinyl-disc">
               <div class="album-detail-vinyl-label">${label}</div>
               <div class="album-detail-vinyl-hole"></div>
             </div>
           </div>
-          <div class="album-detail-cover-card">${cover}</div>
+          <div class="album-detail-cover-card"${album.cover?` role="button" tabindex="0" aria-label="Vis cover stort" data-cover-viewer`:''}>${cover}</div>
         </div>
 
         <div class="album-detail-main">
@@ -304,8 +304,8 @@
     const coverUrl = album.cover || '';
     const PREVIEW_SEC = 17;
     const CROSSFADE_SEC = 1.2;
-    const SB_URL_P = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-    const SB_KEY_P = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    const SB_URL_P = window.MV_CONFIG.SUPABASE_URL;
+    const SB_KEY_P = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
     const ICONS_URL = new URL('css/icons.css', location.href).href;
     const escH = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -379,7 +379,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .track-row.active{background:var(--accent-soft);border-radius:var(--r);border-bottom-color:transparent}
 .track-row.active .track-name{color:var(--accent-text)}
 .track-row.active .track-play-icon{background:var(--accent);color:var(--on-accent)}
-.track-row.active::after{content:'';position:absolute;left:0;bottom:0;height:2px;background:var(--accent);width:var(--progress,0%);transition:width .3s linear}
+.track-row.active::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:100%;background:var(--accent);transform:scaleX(var(--progress,0));transform-origin:left;transition:transform .3s linear}
 .comments-section{margin-top:clamp(20px,4vw,32px)}
 .comment-form{display:grid;gap:.6rem;margin-bottom:1.2rem}
 .comment-input,.comment-name{width:100%;background:var(--bg);border:1px solid var(--ctl);border-radius:var(--r);color:var(--text);font:400 1rem "DM Sans";padding:.65rem .8rem;outline:none}
@@ -491,7 +491,7 @@ async function playPreview(idx){
     const elapsed=(Date.now()-startTime)/1000;
     const pct=Math.min(100,(elapsed/PREVIEW_SEC)*100);
     const row=document.querySelectorAll('.track-row')[idx];
-    if(row)row.style.setProperty('--progress',pct+'%');
+    if(row)row.style.setProperty('--progress',(pct/100).toFixed(4));
     if(elapsed>=PREVIEW_SEC-CROSSFADE_SEC){
       if(audio)audio.volume=Math.max(0,VOL*((PREVIEW_SEC-elapsed)/CROSSFADE_SEC));
       if(!nextAudio&&idx+1<BEATS.length){const nb=BEATS[idx+1];if(nb?.audio_url){nextAudio=new Audio();nextAudio.volume=0;nextAudio.src=nb.audio_url;nextAudio.load();}}
@@ -558,12 +558,6 @@ loadComments();
   function primaryMixtapeName(id){const m=(state.mixtapes||[]).find(mt=>(mt.beatIds||[]).includes(id));return m?.name||'';}
   function extraBeatFields(b,mode){return ``;}
   window.updateBeatMeta=function(id,key,val){const b=state.beats.find(x=>x.id===id);if(!b)return;b[key]=val;saveState();showToast('✓ Oppdatert');};
-  // Masseredigering er fjernet fra tracklisten.
-  window.toggleBeatSelect=function(){};
-  window.batchFavorite=function(){};
-  window.batchRemove=function(){};
-  window.batchMoveToAlbum=function(){};
-  window.moveBeatToAlbumPrompt=function(id){const a=state.albums[0]; if(!a){showToast('Lag et album først');return;} if(!a.beatIds.includes(id))a.beatIds.push(id);saveState();renderMixtapeDetail();showToast(`✓ Kopiert til ${a.name}`,'Angre',()=>{a.beatIds=a.beatIds.filter(x=>x!==id);saveState();renderMixtapeDetail();});};
 
   const _oldRemoveFromCollection=window.removeFromCollection;
   window.removeFromCollection=function(beatId,mode){const col=activeCollectionForMode(mode||'album'); if(!col)return; const before=col.beatIds.slice(); if(typeof _oldRemoveFromCollection==='function')_oldRemoveFromCollection(beatId,mode); showToast('✓ Beat fjernet','Angre',()=>{col.beatIds=before;saveState();mode==='mixtape'?renderMixtapeDetail():renderAlbumDetail();});};
@@ -650,7 +644,7 @@ loadComments();
   // ingen "✓ Lagret"-tilbakemelding i det hele tatt.
   window.mvEnsureFullData = ensureFullData;
   window.mvShowSaved = showSavedIndicator;
-  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgba(33,29,26,.92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
+  function showSavedIndicator(){let el=$('#autosaveIndicator'); if(!el){el=document.createElement('div');el.id='autosaveIndicator';el.className='upgrade-pill';el.style.cssText='position:fixed;left:18px;bottom:108px;z-index:2300;background:rgb(var(--panel-rgb) / .92);backdrop-filter:blur(14px)';document.body.appendChild(el);}el.textContent='✓ Lagret';el.style.opacity='1';clearTimeout(window.__saveT);window.__saveT=setTimeout(()=>el.style.opacity='.0',1200);}
 
   function installGlobalSearch(){
     const app=$('.app')||document.body; if($('#globalSearchWrap'))return;
@@ -733,7 +727,6 @@ loadComments();
     document.querySelectorAll('.mv-archive-detail-toolbar').forEach(el=>el.remove());
     if(!state.settings.showArchived){(state.albums||[]).forEach((al,i)=>{if(al.archived) $$('.album-card')[i]?.classList.add('archive-hidden')}); (state.mixtapes||[]).forEach((mt,i)=>{if(mt.archived) $$('.cassette-card')[i]?.classList.add('archive-hidden')});}
   }
-  window.toggleShowArchived=function(){state.settings.showArchived=!state.settings.showArchived;saveState();renderAll();};
   window.toggleArchiveItem=function(type,id){const arr=type==='album'?state.albums:state.mixtapes; const item=arr.find(x=>x.id===id); if(!item)return; item.archived=!item.archived; saveState(); renderAll(); updateArchiveToolbarButtons?.(); showToast(item.archived?'✓ Arkivert':'✓ Gjenopprettet','Angre',()=>{item.archived=!item.archived;saveState();renderAll();updateArchiveToolbarButtons?.();});};
 
   function createModal(id,title,body){let m=$('#'+id); if(!m){m=document.createElement('div');m.id=id;m.className='modal';m.innerHTML=`<div class="modal-card modal-sm"><div class="modal-hd"><div class="modal-hd-left"><h2>${title}</h2></div><div class="modal-hd-right"><button class="close-btn" onclick="closeModal('${id}')">×</button></div></div><div class="modal-body" style="padding:22px 28px 28px;display:grid;gap:14px"></div></div>`;document.body.appendChild(m);} $('.modal-body',m).innerHTML=body; return m;}
@@ -874,7 +867,6 @@ loadComments();
     show(item.archived?'✓ Arkivert':'✓ Gjenopprettet fra arkiv');
   };
 
-  window.toggleShowArchived=function(){openArchiveTab();};
 
   function installArchiveTab(){
     const tabs=document.querySelector('.tabs');

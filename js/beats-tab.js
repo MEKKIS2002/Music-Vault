@@ -100,26 +100,27 @@
       ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}
       ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
       ${admin ? `<button onclick="beatsTab.toggleFav('${beatId}')">${beat.favorite ? '★ Fjern favoritt' : '☆ Legg til favoritt'}</button>` : ''}
-      ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase">Legg i mixtape</div>
+      ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
+        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i mixtape</div>
         ${mixtapes.map(m=>{
           const inIt=(m.beatIds||[]).includes(beatId);
-          return `<button onclick="beatsTab.addToCollection('${beatId}','mixtape','${m.id}')" style="${inIt?'color:rgba(255,255,255,.3);':''}">
+          return `<button onclick="beatsTab.addToCollection('${beatId}','mixtape','${m.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${m.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
-      ${admin && albums.length ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgba(255,255,255,.3);text-transform:uppercase">Legg i album</div>
+      ${admin && albums.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
+        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i album</div>
         ${albums.map(a=>{
           const inIt=(a.beatIds||[]).includes(beatId);
-          return `<button onclick="beatsTab.addToCollection('${beatId}','album','${a.id}')" style="${inIt?'color:rgba(255,255,255,.3);':''}">
+          return `<button onclick="beatsTab.addToCollection('${beatId}','album','${a.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${a.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
-      ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
-      ${admin ? `<hr style="border:none;border-top:1px solid rgba(255,255,255,.08);margin:4px 0">` : ''}
+      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
+      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
       ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+      ${admin && !beat._shared && window.mvSetSongPublic ? `<button onclick="beatsTab.togglePublic('${beatId}')"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beatId) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
       ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Arkiver sang'}</button>` : ''}
       ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')"><span class="ic ic-trash" aria-hidden="true"></span> Slett permanent</button>` : ''}
     `;
@@ -303,7 +304,7 @@
       .beats-tab-title h1 { font-size: 28px; font-weight: 900; letter-spacing: -.04em; margin: 0; }
       .beats-count {
         font-size: 12px; font-weight: 800; letter-spacing: .08em;
-        color: var(--muted); background: rgba(255,255,255,.06);
+        color: var(--muted); background: rgb(var(--ink-rgb) / .06);
         padding: 3px 10px; border-radius: 999px;
       }
       .beats-tab-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -315,7 +316,7 @@
         position: absolute; left: 12px; font-size: 13px; pointer-events: none;
       }
       .beats-search {
-        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+        background: rgb(var(--ink-rgb) / .07); border: 1px solid rgb(var(--ink-rgb) / .12);
         border-radius: 12px; padding: 9px 32px 9px 34px; color: var(--text);
         font-size: 13px; font-family: inherit; outline: none; width: 240px;
         transition: border-color .15s;
@@ -327,7 +328,7 @@
       }
 
       .beats-sort {
-        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+        background: rgb(var(--ink-rgb) / .07); border: 1px solid rgb(var(--ink-rgb) / .12);
         border-radius: 12px; padding: 9px 12px; color: var(--text);
         font-size: 13px; font-family: inherit; cursor: pointer; outline: none;
       }
@@ -335,7 +336,7 @@
       .beats-list-header {
         display: grid;
         grid-template-columns: 32px 40px minmax(160px,2fr) minmax(120px,1.5fr) 110px 90px 60px 72px;
-        gap: 0 10px; padding: 0 12px 8px; border-bottom: 1px solid rgba(255,255,255,.07);
+        gap: 0 10px; padding: 0 12px 8px; border-bottom: 1px solid rgb(var(--ink-rgb) / .07);
         font-size: 11px; font-weight: 800; letter-spacing: .08em;
         color: var(--muted); text-transform: uppercase;
       }
@@ -349,7 +350,7 @@
         padding: 5px 12px; border-radius: 10px;
         transition: background .12s; cursor: default;
       }
-      .bl-row:hover { background: rgba(255,255,255,.05); }
+      .bl-row:hover { background: rgb(var(--ink-rgb) / .05); }
       .bl-row:hover .bl-play { opacity: 1; }
 
       .bl-num { font-size: 12px; color: var(--muted); text-align: center; }
@@ -357,8 +358,8 @@
       .bl-cover-img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; }
       .bl-cover-ph {
         width: 36px; height: 36px; border-radius: 6px;
-        background: rgba(214,129,85,.15); display: flex; align-items: center;
-        justify-content: center; font-size: 14px; color: rgba(214,129,85,.6);
+        background: rgb(var(--accent-rgb) / .15); display: flex; align-items: center;
+        justify-content: center; font-size: 14px; color: rgb(var(--accent-ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost)));
       }
 
       .bl-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -366,8 +367,8 @@
         font-size: 13px; font-weight: 800; letter-spacing: -.01em;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
-      .bl-fav { color: #d68155; font-size: 12px; flex-shrink: 0; }
-      .bl-rating { font-size: 10px; color: #d68155; letter-spacing: -1px; flex-shrink: 0; }
+      .bl-fav { color: var(--accent-ink); font-size: 12px; flex-shrink: 0; }
+      .bl-rating { font-size: 10px; color: var(--accent-ink); letter-spacing: -1px; flex-shrink: 0; }
 
       .bl-collections { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
       .bl-chip {
@@ -375,11 +376,11 @@
         padding: 2px 8px; border-radius: 999px; white-space: nowrap;
         max-width: 120px; overflow: hidden; text-overflow: ellipsis;
       }
-      .bl-chip.mixtape { background: rgba(214,129,85,.15); color: #f0a579; }
-      .bl-chip.album   { background: rgba(191,178,166,.12); color: #67e8f9; }
+      .bl-chip.mixtape { background: rgb(var(--accent-rgb) / .15); color: var(--accent2); }
+      .bl-chip.album   { background: rgb(var(--muted-rgb) / .12); color: #67e8f9; }
 
       .bl-uploader-tag {
-        font-size: 11px; font-weight: 700; color: var(--mv-amber, #d68155);
+        font-size: 11px; font-weight: 700; color: var(--accent-ink);
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       }
 
@@ -388,19 +389,19 @@
 
       .bl-actions { display: flex; gap: 4px; align-items: center; justify-content: flex-end; }
       .bl-play {
-        background: rgba(214,129,85,.15); border: none; border-radius: 50%;
-        width: 28px; height: 28px; color: #d68155; font-size: 11px;
+        background: rgb(var(--accent-rgb) / .15); border: none; border-radius: 50%;
+        width: 28px; height: 28px; color: var(--accent-ink); font-size: 11px;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
         opacity: 0; transition: opacity .12s, background .12s;
       }
-      .bl-play:hover { background: rgba(214,129,85,.3); }
+      .bl-play:hover { background: rgb(var(--accent-rgb) / .3); }
       .bl-menu {
-        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+        background: rgb(var(--ink-rgb) / .07); border: 1px solid rgb(var(--ink-rgb) / .1);
         border-radius: 8px; width: 28px; height: 28px; color: var(--text);
         font-size: 16px; cursor: pointer; display: flex; align-items: center;
         justify-content: center; transition: background .12s;
       }
-      .bl-menu:hover { background: rgba(255,255,255,.14); }
+      .bl-menu:hover { background: rgb(var(--ink-rgb) / .14); }
 
       .beats-empty {
         text-align: center; padding: 48px 20px; color: var(--muted);
@@ -409,8 +410,8 @@
 
       /* Dropdown */
       .bt-dropdown {
-        background: #1a1825; border: 1px solid rgba(255,255,255,.12);
-        border-radius: 12px; padding: 6px; box-shadow: 0 16px 48px rgba(0,0,0,.6);
+        background: var(--surface-1); border: 1px solid rgb(var(--ink-rgb) / .12);
+        border-radius: 12px; padding: 6px; box-shadow: 0 16px 48px rgb(var(--shadow-rgb) / calc(.6 * var(--shadow-k)));
         display: flex; flex-direction: column; gap: 2px;
       }
       .bt-dropdown button {
@@ -419,9 +420,9 @@
         border-radius: 8px; cursor: pointer; text-align: left; width: 100%;
         transition: background .1s;
       }
-      .bt-dropdown button:hover { background: rgba(255,255,255,.08); }
-      .bt-dropdown button.danger { color: #ffaaa3; }
-      .bt-dropdown button.danger:hover { background: rgba(255,170,163,.12); }
+      .bt-dropdown button:hover { background: rgb(var(--ink-rgb) / .08); }
+      .bt-dropdown button.danger { color: var(--danger); }
+      .bt-dropdown button.danger:hover { background: rgb(var(--danger-rgb) / .12); }
 
       /* Now-playing equalizer keyframes (self-contained for the injected sheet) */
       @keyframes mvEqBl {
@@ -462,13 +463,13 @@
           content: ""; position: absolute; inset: 0;
           border-radius: 6px; pointer-events: none;
           background:
-            linear-gradient(#d68155,#d68155) 25% 100% / 3px 40% no-repeat,
+            linear-gradient(var(--accent),var(--accent)) 25% 100% / 3px 40% no-repeat,
             linear-gradient(#d68155,#d68155) 50% 100% / 3px 65% no-repeat,
             linear-gradient(#d68155,#d68155) 75% 100% / 3px 50% no-repeat,
             rgba(0,0,0,.5);
           animation: mvEqBl .9s ease-in-out infinite;
         }
-        .bl-row.now-playing-glow .bl-title { color: #d68155; }
+        .bl-row.now-playing-glow .bl-title { color: var(--accent-ink); }
       }
     `;
     document.head.appendChild(style);
@@ -550,6 +551,7 @@
     renameBeat: (id) => window.renameBeat?.(id),
     openLyricLab(id){ closeDropdown(); if(typeof window.openInLyricLab==='function') window.openInLyricLab(id); },
     shareLink(id){ closeDropdown(); if(typeof window.shareSong==='function') window.shareSong(id); },
+    togglePublic(id){ closeDropdown(); if(window.mvSetSongPublic) window.mvSetSongPublic(id, !window.mvIsSongPublic(id)); },
     addToCollection(beatId, type, colId){
       const st = typeof state !== 'undefined' ? state : window.state;
       if(!st) return;

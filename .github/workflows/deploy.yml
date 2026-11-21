@@ -27,6 +27,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      # ?v= i HTML settes til en hash av filinnholdet (ny fil = ny adresse),
+      # så nettleser/service worker aldri blander gamle og nye filer.
+      - name: Versjoner css/js etter innhold
+        run: node scripts/version-assets.mjs
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

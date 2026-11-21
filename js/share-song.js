@@ -11,11 +11,31 @@
 //
 // DB: table public.song_shares + RPC public.get_song_share(p_token) — see sql/song_shares.sql
 // ════════════════════════════════════════════════════════════════════════════
+// ── Statistikk for delingslenker (tabell share_listens, RPC get_share_stats) ──
+// Fyller el med «Åpnet av N · M har spilt av · hørt i snitt P %». Bare eieren får tall.
+window.mvLoadShareStats = async function(kind, token, el){
+  if (!el || !token || !window.supabaseClient) return;
+  el.textContent = 'Henter statistikk…';
+  try {
+    const { data, error } = await window.supabaseClient.rpc('get_share_stats', { p_kind: kind, p_token: token });
+    if (error) throw error;
+    const rows = data || [];
+    const openRow = rows.find(r => r.beat_id === '');
+    const opens = openRow ? Number(openRow.opens) : Math.max(0, ...rows.map(r => Number(r.opens)));
+    const played = rows.filter(r => r.beat_id !== '' || kind === 'song');
+    const plays = played.reduce((n, r) => n + Number(r.plays || 0), 0);
+    const pcts = played.filter(r => r.avg_pct != null).map(r => Number(r.avg_pct));
+    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : null;
+    if (!opens && !plays){ el.textContent = 'Ingen har åpnet lenken ennå.'; return; }
+    el.textContent = [`Åpnet av ${opens}`, kind === 'song' ? `${plays} har spilt av` : `${plays} avspillinger`, avg != null ? `hørt i snitt ${avg} %` : ''].filter(Boolean).join(' · ');
+  } catch(e){ el.textContent = ''; }
+};
+
 (function(){
   'use strict';
 
-  const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+  const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function toast(m){ if(typeof window.showToast==='function') window.showToast(m); else console.log(m); }
@@ -60,11 +80,11 @@
   }
 
   // Create-or-refresh a share link for a beat. Returns {token,url} or null.
-  async function upsertShare(b, kind){
+  async function upsertShare(b, kind, extra){
     const {token:authToken, uid} = await getAuth();
     if(!uid){ toast('Logg inn for å lage delingslenke'); return null; }
     const token = b.shareToken || newToken();
-    const row = { id:token, owner_id:uid, beat_id:b.id, kind, data:snapshot(b,kind), enabled:true };
+    const row = { id:token, owner_id:uid, beat_id:b.id, kind, data:snapshot(b,kind), enabled:true, ...(extra||{}) };
     const res = await fetch(`${SB_URL}/rest/v1/song_shares`, {
       method:'POST',
       headers:{...hdrs(authToken),'Prefer':'resolution=merge-duplicates,return=minimal'},
@@ -92,6 +112,37 @@
     showModal(b, r.url, '');
   };
 
+  // ── Offentlig på Explore ──────────────────────────────────────────────────
+  // Gjør en låt synlig i Explore-fanen for alle innloggede (song_shares.is_public).
+  // Lager/oppdaterer delingslenken ved behov. Å skjule den igjen lar lenken leve.
+  window.mvIsSongPublic = function(beatId){
+    const b = getState()?.beats?.find(x=>x.id===beatId);
+    return !!(b && b.isPublic && b.shareEnabled !== false);
+  };
+  window.mvSetSongPublic = async function(beatId, makePublic){
+    const b = getState()?.beats?.find(x=>x.id===beatId);
+    if(!b){ toast('Fant ikke sangen'); return false; }
+    if(makePublic){
+      if(!publicAudioUrl(b)){ toast('Last opp lydfilen først — en offentlig låt trenger en publisert lydfil.'); return false; }
+      const extra = { is_public:true };
+      if(!b.isPublic) extra.published_at = new Date().toISOString();
+      const r = await upsertShare(b, isSong(b)?'song':'beat', extra);
+      if(!r) return false;
+    } else if(b.shareToken){
+      const {token:authToken} = await getAuth();
+      const res = await fetch(`${SB_URL}/rest/v1/song_shares?id=eq.${encodeURIComponent(b.shareToken)}`, {
+        method:'PATCH', headers:{...hdrs(authToken),'Prefer':'return=minimal'}, body: JSON.stringify({ is_public:false })
+      });
+      if(!res.ok){ toast('Kunne ikke endre synlighet'); return false; }
+    }
+    b.isPublic = !!makePublic;
+    if(typeof saveState==='function') saveState();
+    toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
+    const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
+    if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'hjem') window.mvExplore.refresh();
+    return true;
+  };
+
   // ── Modal ─────────────────────────────────────────────────────────────────
   function closeModal(){ const m=document.getElementById('_mvSongShare'); if(m) m.style.display='none'; }
   function showModal(b, url, statusMsg){
@@ -101,39 +152,46 @@
       modal.addEventListener('click',e=>{ if(e.target===modal) modal.style.display='none'; });
       document.body.appendChild(modal);
     }
-    modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
+    modal.style.cssText='position:fixed;inset:0;z-index:9999;background:rgb(var(--shade-rgb) / .82);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)';
     const kindLabel = isSong(b)?'sang':'beat';
     const linkBlock = url ? `
-      <p style="font-size:12px;color:rgba(255,255,255,.45);margin:0 0 10px">Offentlig lenke — alle med denne kan høre kun denne ${kindLabel}en:</p>
+      <label style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:0 0 14px;border:1px solid rgb(var(--ink-rgb) / .12);border-radius:10px;cursor:pointer">
+        <input type="checkbox" id="_mvSS_public" ${b.isPublic?'checked':''} onchange="window.mvSetSongPublic('${esc(b.id)}', this.checked).then(ok=>{ if(!ok) this.checked=!this.checked; })" style="margin-top:2px;accent-color:var(--accent);width:16px;height:16px;flex:none">
+        <span style="font-size:13px;color:var(--text);line-height:1.4"><strong>Vis på Explore</strong><br><span style="color:var(--muted);font-size:12px">Alle med Music Vault-konto kan finne og høre ${kindLabel}en.</span></span>
+      </label>
+      <div class="mv-share-stats" style="font-size:12px;color:var(--muted);margin:0 0 10px"></div>
+      <p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.45 + (1 - .45) * var(--ink-boost)));margin:0 0 10px">Offentlig lenke — alle med denne kan høre kun denne ${kindLabel}en:</p>
       <div style="display:flex;gap:8px;margin-bottom:14px">
         <input id="_mvSS_url" readonly value="${esc(url)}"
-          style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:9px 12px;font-size:12px;font-family:system-ui;outline:none;border-radius:8px">
+          style="flex:1;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:9px 12px;font-size:12px;font-family:system-ui;outline:none;border-radius:8px">
         <button onclick="navigator.clipboard.writeText(document.getElementById('_mvSS_url').value).then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Kopier',1800)})"
-          style="background:#d68155;border:none;color:#000;font-size:12px;font-weight:800;padding:9px 16px;cursor:pointer;border-radius:8px;font-family:inherit;white-space:nowrap">Kopier</button>
+          style="background:var(--accent);border:none;color:#000;font-size:12px;font-weight:800;padding:9px 16px;cursor:pointer;border-radius:8px;font-family:inherit;white-space:nowrap">Kopier</button>
       </div>
       <div style="display:flex;gap:8px">
         <a href="${esc(url)}" target="_blank" rel="noopener"
-          style="flex:1;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#f4eadc;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;border-radius:8px;text-decoration:none">Åpne forhåndsvisning ↗</a>
+          style="flex:1;text-align:center;background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .12);color:var(--text);padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;border-radius:8px;text-decoration:none">Åpne forhåndsvisning ↗</a>
         <button onclick="window._mvDisableShare('${esc(b.shareToken||'')}')"
-          style="background:rgba(255,170,163,.12);border:1px solid rgba(255,170,163,.3);color:#ffaaa3;font-size:12px;font-weight:800;padding:9px 16px;cursor:pointer;border-radius:8px;font-family:inherit;white-space:nowrap">Deaktiver lenke</button>
+          style="background:rgb(var(--danger-rgb) / .12);border:1px solid rgb(var(--danger-rgb) / .3);color:var(--danger);font-size:12px;font-weight:800;padding:9px 16px;cursor:pointer;border-radius:8px;font-family:inherit;white-space:nowrap">Deaktiver lenke</button>
       </div>` : `
-      <p style="font-size:13px;color:rgba(255,255,255,.5);margin:18px 0;text-align:center">${esc(statusMsg||'…')}</p>`;
+      <p style="font-size:13px;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));margin:18px 0;text-align:center">${esc(statusMsg||'…')}</p>`;
     modal.innerHTML=`
-      <div style="background:#1c1a17;border:1px solid rgba(255,255,255,.12);max-width:480px;width:94%;padding:26px 28px;border-radius:14px">
+      <div style="background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .12);max-width:480px;width:94%;padding:26px 28px;border-radius:14px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <h2 style="font-size:16px;font-weight:900;margin:0;color:#f4eadc"><span class="ic ic-link" aria-hidden="true"></span> Del ${esc(kindLabel)}</h2>
-          <button onclick="document.getElementById('_mvSongShare').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:22px;cursor:pointer;padding:0;line-height:1">&times;</button>
+          <h2 style="font-size:16px;font-weight:900;margin:0;color:var(--text)"><span class="ic ic-link" aria-hidden="true"></span> Del ${esc(kindLabel)}</h2>
+          <button onclick="document.getElementById('_mvSongShare').style.display='none'" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));font-size:22px;cursor:pointer;padding:0;line-height:1">&times;</button>
         </div>
         <div style="display:flex;align-items:center;gap:12px;margin:8px 0 18px">
-          ${b.cover?`<img src="${esc(b.cover)}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0">`:`<div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"><span class="ic ic-music" aria-hidden="true"></span></div>`}
+          ${b.cover?`<img src="${esc(b.cover)}" alt="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0">`:`<div style="width:48px;height:48px;border-radius:8px;background:rgb(var(--ink-rgb) / .06);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0"><span class="ic ic-music" aria-hidden="true"></span></div>`}
           <div style="min-width:0">
-            <div style="font-size:14px;font-weight:800;color:#f4eadc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.name||'Uten tittel')}</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.4)">${esc(artistOf(b)||'—')}</div>
+            <div style="font-size:14px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.name||'Uten tittel')}</div>
+            <div style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)))">${esc(artistOf(b)||'—')}</div>
           </div>
         </div>
         ${linkBlock}
       </div>`;
     modal.style.display='flex';
+    const statsEl = modal.querySelector('.mv-share-stats');
+    if (statsEl && b.shareToken && window.mvLoadShareStats) window.mvLoadShareStats('song', b.shareToken, statsEl);
   }
 
   // Disable from the modal (sets enabled=false → public page stops working).
@@ -142,7 +200,7 @@
     const ok = await window.setSongShareEnabled(token, false);
     if(ok){
       const st=getState(); const b=st?.beats?.find(x=>x.shareToken===token);
-      if(b){ b.shareEnabled=false; if(typeof saveState==='function') saveState(); }
+      if(b){ b.shareEnabled=false; b.isPublic=false; if(typeof saveState==='function') saveState(); }
       toast('✓ Delingslenke deaktivert');
     }
     closeModal();

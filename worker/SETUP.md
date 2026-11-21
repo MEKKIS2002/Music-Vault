@@ -96,28 +96,34 @@ create table if not exists public.mixtape_beats (
   primary key (mixtape_id, beat_id)
 );
 
--- Row Level Security (alle kan lese, kun autentiserte kan skrive)
+-- Row Level Security: slå på for alle tabeller
 alter table public.beats enable row level security;
 alter table public.albums enable row level security;
 alter table public.mixtapes enable row level security;
 alter table public.album_beats enable row level security;
 alter table public.mixtape_beats enable row level security;
-
-create policy "Alle kan lese" on public.beats for select using (true);
-create policy "Alle kan lese" on public.albums for select using (true);
-create policy "Alle kan lese" on public.mixtapes for select using (true);
-create policy "Alle kan lese" on public.album_beats for select using (true);
-create policy "Alle kan lese" on public.mixtape_beats for select using (true);
-
-create policy "Kun autentiserte kan skrive" on public.beats for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.albums for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.mixtapes for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.album_beats for all using (auth.role() = 'authenticated');
-create policy "Kun autentiserte kan skrive" on public.mixtape_beats for all using (auth.role() = 'authenticated');
 ```
+
+> ⚠️ **Ikke** bruk `for all using (auth.role() = 'authenticated')` — det lar ALLE innloggede
+> endre ALLES data. Bruk eier-policyer (`owner_id = auth.uid()`), se
+> `sql/security_fixes_2026_11_18.sql` for album_beats/mixtape_beats.
 
 ## Ferdig! Flyten er nå:
 - **Ny lydfil** → lastes opp til R2 `active/beat-id` → URL lagres i Supabase
 - **Arkiver beat** → flyttes til R2 `archived/beat-id` → oppdateres i Supabase
 - **Gjenopprett beat** → flyttes tilbake til R2 `active/beat-id` → oppdateres i Supabase
 - **Data (tekst/metadata)** → synkes alltid via Supabase på tvers av maskiner
+
+## Sikkerhet (2026-11-18) — Workeren krever innlogging
+`r2-worker.js` er nå den faktiske koden for den deployede Workeren «beat-vault»
+(inkl. `/rhyme`, `/inspire`, `/stats`, `/list`). Deploy med `npx wrangler deploy` fra
+`worker/` — `wrangler.toml` har navn, R2-binding og variabler. `ANTHROPIC_API_KEY`
+er en secret og beholdes ved deploy.
+
+- Offentlig: `GET /file/:key`, `GET /share/:id` (videresender til `mixtape.html?t=`)
+- Innlogget (Supabase-token i `Authorization`): `/upload`, `/delete`, `/move`
+  (+ brukeren må eie beaten/filen), `/stats`, `/rhyme`, `/inspire`
+- Kun admin: `/list`
+
+Eierskap sjekkes med brukerens eget token mot `beats` (RLS), så Workeren trenger
+ingen service-nøkkel.

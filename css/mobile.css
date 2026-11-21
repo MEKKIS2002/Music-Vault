@@ -19,7 +19,7 @@
 :root {
   --mv-footer-h: 58px;          /* height of the bottom tab footer            */
   --mv-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --mv-accent: #d68155;
+  --mv-accent: var(--accent);
   --mv-mini-player-h: 78px;     /* approx height of the mini bottom player (2 rows) */
 }
 
@@ -153,10 +153,10 @@
     border-radius:var(--r-sm)!important;
     cursor: pointer !important;
     font-family: inherit !important;
-    color: rgba(255,255,255,.42) !important;
+    color: rgb(var(--ink-rgb) / calc(.42 + (1 - .42) * var(--ink-boost))) !important;
     transition: color .15s, background .15s !important;
   }
-  .mv-mob-btn:active { background: rgba(255,255,255,.06) !important; }
+  .mv-mob-btn:active { background: rgb(var(--ink-rgb) / .06) !important; }
   .mv-mob-icon { font-size:var(--fs-lg)!important; line-height: 1 !important; }
   .mv-mob-lbl {
     font-size:var(--fs-xs)!important;
@@ -169,7 +169,7 @@
     white-space: nowrap !important;
   }
   .mv-mob-btn.active { color: var(--mv-accent) !important; }
-  .mv-mob-btn.active .mv-mob-icon { filter: drop-shadow(0 0 6px rgba(214,129,85,.5)) !important; }
+  .mv-mob-btn.active .mv-mob-icon { filter: drop-shadow(0 0 6px rgb(var(--accent-rgb) / .5)) !important; }
 
   /* ── Floating "+ Ny sang" action button ───────────────────────────────── */
   #mvMobFab {
@@ -189,7 +189,7 @@
     color: #1a1206 !important;
     font-size:var(--fs-xl)!important;
     font-weight: 900 !important;
-    box-shadow: 0 6px 20px rgba(214,129,85,.45) !important;
+    box-shadow: 0 6px 20px rgb(var(--accent-rgb) / .45) !important;
     z-index: 8400 !important;
     cursor: pointer !important;
     transition: transform .15s !important;
@@ -221,8 +221,8 @@
     padding: 8px 8px 10px 8px !important;
     border: 0 !important;
     border-radius: 8px !important;
-    background: var(--bp-tint, #2a1d12) !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,.45) !important;
+    background: var(--bp-tint, var(--surface-1)) !important;
+    box-shadow: 0 6px 20px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))) !important;
     overflow: hidden !important;
     transition: background .4s ease !important;
   }
@@ -233,15 +233,15 @@
 
   .bp-cover { width: 40px !important; height: 40px !important; border-radius: 4px !important; box-shadow: none !important; flex-shrink: 0 !important; }
   .bp-title { font-size: 13px !important; font-weight: 700 !important; color: #fff !important; }
-  .bp-sub { font-size: 12px !important; color: rgba(255,255,255,.72) !important; }
+  .bp-sub { font-size: 12px !important; color: rgb(var(--ink-rgb) / calc(.72 + (1 - .72) * var(--ink-boost))) !important; }
 
   /* Spill/pause: hvitt ikon uten sirkel, stor nok trykkflate */
   .bp-play, .bp-btn.bp-play {
     width: 44px !important; height: 44px !important; min-height: 0 !important;
-    background: transparent !important; color: #fff !important; box-shadow: none !important;
+    background: transparent !important; color: var(--accent) !important; box-shadow: none !important;
     font-size: 22px !important; border-radius: 50% !important;
   }
-  .bp-play:hover, .bp-btn.bp-play:hover { background: transparent !important; color: #fff !important; transform: none !important; }
+  .bp-play:hover, .bp-btn.bp-play:hover { background: transparent !important; color: var(--accent) !important; transform: none !important; }
 
   /* Fremdrift: 2 px strek helt nederst i kortet, kun visning (som Spotify) */
   .bp-progress {
@@ -250,7 +250,7 @@
   }
   .bp-seek {
     height: 2px !important; border-radius: 2px !important;
-    background: linear-gradient(to right, #fff 0, #fff var(--pct,0%), rgba(255,255,255,.25) var(--pct,0%), rgba(255,255,255,.25) 100%) !important;
+    background: linear-gradient(to right, #fff 0, #fff var(--pct,0%), rgb(var(--ink-rgb) / .25) var(--pct,0%), rgb(var(--ink-rgb) / .25) 100%) !important;
   }
   .bp-seek::-webkit-slider-thumb { opacity: 0 !important; width: 0 !important; }
 
@@ -424,9 +424,9 @@
     font-size:var(--fs-base)!important; padding: 10px 12px !important; border-radius:var(--r-sm)!important;
   }
   .ab-expand-top-bar > label.ab-swap-audio {
-    background: rgba(214,129,85,.12) !important;
-    border: 1px solid rgba(214,129,85,.35) !important;
-    color: #ffd89d !important; font-weight: 800 !important;
+    background: rgb(var(--accent-rgb) / .12) !important;
+    border: 1px solid rgb(var(--accent-rgb) / .35) !important;
+    color: var(--accent2) !important; font-weight: 800 !important;
   }
 
   /* Tap the row body (not the cover) to play — cover still expands. */
@@ -464,13 +464,13 @@
     position: absolute !important; inset: 0 !important;
     border-radius:var(--r-sm)!important; pointer-events: none !important;
     background:
-      linear-gradient(#d68155,#d68155) 25% 100% / 3px 40% no-repeat,
-      linear-gradient(#d68155,#d68155) 50% 100% / 3px 65% no-repeat,
-      linear-gradient(#d68155,#d68155) 75% 100% / 3px 50% no-repeat,
+      linear-gradient(var(--accent),var(--accent)) 25% 100% / 3px 40% no-repeat,
+      linear-gradient(var(--accent),var(--accent)) 50% 100% / 3px 65% no-repeat,
+      linear-gradient(var(--accent),var(--accent)) 75% 100% / 3px 50% no-repeat,
       rgba(0,0,0,.5) !important;
     animation: mvEq .9s ease-in-out infinite !important;
   }
-  .now-playing-glow .ab-title { color: #d68155 !important; }
+  .now-playing-glow .ab-title { color: var(--accent-ink) !important; }
 
   /* PIPELINE — keep kanban columns swipeable */
   .kanban-board, #pipelineBoard { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }

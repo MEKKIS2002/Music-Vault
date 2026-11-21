@@ -24,6 +24,20 @@
 
   const ready = () => !!R2_WORKER_URL && !R2_WORKER_URL.includes('DIN_WORKER');
 
+  // Workeren krever innlogget bruker for opplasting/sletting/flytting.
+  async function authToken() {
+    try {
+      const { data } = await window.supabaseClient.auth.getSession();
+      return data?.session?.access_token || '';
+    } catch { return ''; }
+  }
+  async function authHeaders(extra = {}) {
+    const t = await authToken();
+    return t ? { ...extra, Authorization: `Bearer ${t}` } : extra;
+  }
+  // Felles for alle Worker-kall (lyriclab.js /rhyme /inspire, fetchStats nedenfor)
+  window.mvAuthHeaders = authHeaders;
+
   // r2Key(beat, archived) → "active/beat-id.mp3" or "archived/beat-id.mp3"
   function r2Key(beatId, archived) {
     const folder = archived ? 'archived' : 'active';
@@ -36,10 +50,12 @@
     if (!ready()) throw new Error('R2 Worker URL ikke konfigurert');
     const key = r2Key(beatId, archived);
     const url = `${R2_WORKER_URL}/upload/${encodeURIComponent(key)}`;
+    const token = await authToken();
 
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('PUT', url);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('Content-Type', file.type || 'audio/mpeg');
       if (onProgress) {
         xhr.upload.addEventListener('progress', e => {
@@ -67,7 +83,7 @@
   async function remove(beatId, archived = false) {
     if (!ready()) return;
     const key = r2Key(beatId, archived);
-    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE', headers: await authHeaders() });
     if (!res.ok) console.warn('R2 sletting feilet:', res.status);
   }
 
@@ -76,9 +92,11 @@
   async function uploadKey(key, file, onProgress = null) {
     if (!ready()) throw new Error('R2 Worker URL ikke konfigurert');
     const url = `${R2_WORKER_URL}/upload/${encodeURIComponent(key)}`;
+    const token = await authToken();
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('PUT', url);
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
       if (onProgress) xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); });
       xhr.onload = () => {
@@ -93,7 +111,7 @@
   }
   async function removeKey(key) {
     if (!ready()) return;
-    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE' });
+    const res = await fetch(`${R2_WORKER_URL}/delete/${encodeURIComponent(key)}`, { method: 'DELETE', headers: await authHeaders() });
     if (!res.ok) console.warn('R2 sletting feilet:', res.status);
   }
   function fileUrl(key) { return ready() ? `${R2_WORKER_URL}/file/${encodeURIComponent(key)}` : null; }
@@ -106,7 +124,7 @@
     const to   = r2Key(beatId,  toArchived);
     const res = await fetch(`${R2_WORKER_URL}/move`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await authHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ from, to })
     });
     if (!res.ok) { console.warn('R2 move feilet:', res.status); return null; }
@@ -182,7 +200,7 @@
   async function fetchStats() {
     const workerUrl = window.R2_WORKER_URL || '';
     if (!workerUrl) throw new Error('R2_WORKER_URL ikke konfigurert');
-    const res = await fetch(`${workerUrl}/stats`, { method: 'GET' });
+    const res = await fetch(`${workerUrl}/stats`, { method: 'GET', headers: await window.mvAuthHeaders() });
     if (!res.ok) throw new Error(`Worker svarte med HTTP ${res.status}`);
     return res.json();
   }
@@ -247,8 +265,8 @@
 
       <div class="r2-bar-wrap">
         <div class="r2-bar-bg">
-          <div class="r2-bar-fill r2-bar-active"  style="width:${activePct}%;background:#a6be8b"></div>
-          <div class="r2-bar-fill r2-bar-archive" style="width:${archivePct}%;background:#f0a579;margin-left:${activePct}%"></div>
+          <div class="r2-bar-fill r2-bar-active"  style="width:${activePct}%;background:var(--ok)"></div>
+          <div class="r2-bar-fill r2-bar-archive" style="width:${archivePct}%;background:var(--accent2);margin-left:${activePct}%"></div>
         </div>
         <div class="r2-bar-label">
           <span style="color:${color};font-weight:900;font-size:18px">${fmt(data.totalBytes)}</span>
@@ -259,9 +277,9 @@
       <div class="r2-bar-pct" style="color:${color}">${usedPct}% brukt</div>
 
       <div class="r2-legend">
-        <span class="r2-dot" style="background:#a6be8b"></span>
+        <span class="r2-dot" style="background:var(--ok)"></span>
         <span>Aktive: ${fmt(data.activeBytes || 0)}</span>
-        <span class="r2-dot" style="background:#f0a579;margin-left:12px"></span>
+        <span class="r2-dot" style="background:var(--accent2);margin-left:12px"></span>
         <span>Arkivert: ${fmt(data.archivedBytes || 0)}</span>
         <span style="margin-left:auto;color:var(--muted)">${data.fileCount || 0} filer</span>
       </div>`;
@@ -332,7 +350,7 @@
       font-weight: 900;
       font-size: 15px;
       letter-spacing: -.02em;
-      color: #f4eadc;
+      color: var(--text);
       flex: 1;
     }
     .r2-widget-status {
@@ -342,8 +360,8 @@
       padding: 3px 10px;
       border-radius: 999px;
     }
-    .r2-status-ok   { background: rgba(166,190,139,.15); color: #a6be8b; }
-    .r2-status-warn { background: rgba(255,170,163,.12); color: #ffaaa3; }
+    .r2-status-ok   { background: rgb(var(--ok-rgb) / .15); color: var(--ok); }
+    .r2-status-warn { background: rgb(var(--danger-rgb) / .12); color: var(--danger); }
     .r2-refresh-btn {
       font-size: 14px !important;
       padding: 4px 10px !important;
@@ -359,7 +377,7 @@
       position: relative;
       height: 10px;
       border-radius: 999px;
-      background: rgba(255,255,255,.08);
+      background: rgb(var(--ink-rgb) / .08);
       overflow: hidden;
     }
     .r2-bar-fill {
@@ -389,7 +407,7 @@
       align-items: center;
       gap: 6px;
       font-size: 12px;
-      color: var(--muted, #aaa);
+      color: var(--muted, var(--muted));
       flex-wrap: wrap;
     }
     .r2-dot {
@@ -400,7 +418,7 @@
     }
     .r2-widget-hint {
       font-size: 12px;
-      color: var(--muted, #aaa);
+      color: var(--muted, var(--muted));
       margin: 0;
     }
   `;

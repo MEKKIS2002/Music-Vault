@@ -17,19 +17,19 @@
 
   // ── Flow stages (fine-grained, used by Oversikt/Timeline/Status) ────────────
   const FLOW = [
-    { key: 'idea',    label: 'Idé',          color: '#8b8794' },
-    { key: 'writing', label: 'Skriving',     color: '#a78bfa' },
-    { key: 'record',  label: 'Innspilling',  color: '#bfb2a6' },
-    { key: 'mix',     label: 'Mixing',       color: '#d68155' },
-    { key: 'master',  label: 'Mastering',    color: '#f0a579' },
-    { key: 'done',    label: 'Ferdig',       color: '#a6be8b' },
+    { key: 'idea',    label: 'Idé',          color: 'var(--stage-idea)' },
+    { key: 'writing', label: 'Skriving',     color: 'var(--stage-writing)' },
+    { key: 'record',  label: 'Innspilling',  color: 'var(--muted)' },
+    { key: 'mix',     label: 'Mixing',       color: 'var(--accent-ink)' },
+    { key: 'master',  label: 'Mastering',    color: 'var(--accent2)' },
+    { key: 'done',    label: 'Ferdig',       color: 'var(--ok)' },
   ];
 
   // Board buckets (coarse, drag & drop)
   const BOARD = [
-    { id: 'todo',       label: 'Ikke startet', color: 'rgba(255,255,255,.05)' },
-    { id: 'inprogress', label: 'I arbeid',     color: 'rgba(214,129,85,.10)'  },
-    { id: 'done',       label: 'Ferdig',       color: 'rgba(166,190,139,.10)'  },
+    { id: 'todo',       label: 'Ikke startet', color: 'rgb(var(--ink-rgb) / .05)' },
+    { id: 'inprogress', label: 'I arbeid',     color: 'rgb(var(--accent-rgb) / .10)'  },
+    { id: 'done',       label: 'Ferdig',       color: 'rgb(var(--ok-rgb) / .10)'  },
   ];
 
   const ALBUM_STATUS = ['Idé', 'Skriving', 'Innspilling', 'Mixing', 'Mastering', 'Klar for release'];
@@ -41,7 +41,7 @@
   function clamp(n) { return Math.max(0, Math.min(100, Number(n) || 0)); }
   // Felles statusfarger: ikke startet = nøytral, i arbeid = oransje, ferdig = grønn.
   // Rødt er forbeholdt feil og destruktive handlinger (ikke «lav prosent»).
-  function pctColor(p){ return p >= 100 ? '#a6be8b' : p > 0 ? '#d68155' : 'rgba(244,234,220,.6)'; }
+  function pctColor(p){ return p >= 100 ? 'var(--ok)' : p > 0 ? 'var(--accent-ink)' : 'var(--muted)'; }
 
   function hasAudio(b)  { return !!(b.audio_url || b.url); }
   function hasLyrics(b) { return (b.lyricSections||[]).some(s => s && s.text && s.text.trim()) || !!(b.lyrics||'').trim(); }

@@ -167,11 +167,6 @@
     if (_lastSaved) document.getElementById('llLastSaved').textContent = 'Lagret ' + _lastSaved.toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'});
   }
 
-  // ── Waveform bars HTML ────────────────────────────────────────────────────
-  function waveformHTML() {
-    const heights = [20,35,55,70,50,80,65,45,90,70,55,40,75,60,45,30,65,50,35,55,70,45,60,80,55];
-    return heights.map(h => `<div class="ll-waveform-bar" style="height:${h}%"></div>`).join('');
-  }
 
   // ── Section HTML ──────────────────────────────────────────────────────────
   function sectionHTML(sec, beat) {
@@ -302,9 +297,11 @@
                 </select>
               </label>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
+              <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
-              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-globe" aria-hidden="true"></span> Del offentlig lenke</button>
+              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>
+              ${window.mvSetSongPublic && !beat._shared ? `<button class="ghost-btn" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beat.id) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
               <button class="ghost-btn" onclick="llShowBeatPicker()">⇄ Bytt låt</button>
             </div>
           </details>
@@ -344,12 +341,12 @@
       <div class="ll-color-tools" role="group" aria-label="Fargemarkering av tekst">
         <span class="ll-color-lbl">Farge</span>
         <div class="ll-color-row">
-          <button class="ll-color-dot" style="background:#d68155" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" title="Kobber" aria-label="Farge: Kobber"></button>
-          <button class="ll-color-dot" style="background:#a6be8b" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" title="Grønn" aria-label="Farge: Grønn"></button>
-          <button class="ll-color-dot" style="background:#bfb2a6" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" title="Grå" aria-label="Farge: Grå"></button>
+          <button class="ll-color-dot" style="background:var(--accent)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" title="Kobber" aria-label="Farge: Kobber"></button>
+          <button class="ll-color-dot" style="background:var(--ok)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" title="Grønn" aria-label="Farge: Grønn"></button>
+          <button class="ll-color-dot" style="background:var(--muted)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" title="Grå" aria-label="Farge: Grå"></button>
           <button class="ll-color-dot" style="background:#ec4899" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" title="Rosa" aria-label="Farge: Rosa"></button>
-          <button class="ll-color-dot" style="background:#ffaaa3" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
-          <button class="ll-color-dot" style="background:#f0a579" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
+          <button class="ll-color-dot" style="background:var(--danger)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
+          <button class="ll-color-dot" style="background:var(--accent2)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
           <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge" aria-label="Farge: Fjern farge">✕</button>
         </div>
         <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
@@ -382,6 +379,18 @@
 
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
+      <div class="ll-mic">
+        <label class="ll-mic-row"><span class="ic ic-mic" aria-hidden="true"></span>
+          <select id="llMicSelect" aria-label="Mikrofon" onchange="llMicChanged(this)"><option value="">Standardmikrofon</option></select>
+        </label>
+        <button type="button" class="ll-mic-access" id="llMicAccess" onclick="llMicGrant()">Vis mikrofonene mine</button>
+        <label class="ll-sync" title="Flytt vokalen i forhold til beaten. Høyere tall = vokalen trekkes tidligere.">
+          <span>Synk</span>
+          <input type="range" id="llSyncMs" min="-150" max="400" step="5" value="${Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0}" oninput="llSyncChanged(this)">
+          <output id="llSyncVal">${(()=>{const v=Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0;return (v>0?'+':'')+v+' ms';})()}</output>
+        </label>
+        <p class="ll-mic-hint">Bruk hodetelefoner. Havner vokalen litt sent, dra «Synk» mot høyre (Bluetooth trenger ofte +150–250 ms).</p>
+      </div>
       <div id="llTakeList" class="ll-take-list"></div>
     </div>
 
@@ -436,7 +445,7 @@
 </div><!-- /.ll-wrap -->
 `;
     _lastSaved = null;
-    setTimeout(()=>{ renderMemoList(); renderTakeList(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
+    setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
       const emptyTa = Array.from(container.querySelectorAll('.ll-textarea')).find(el=>!(el.value||el.textContent||'').trim());
@@ -546,22 +555,6 @@
     }
   }
 
-  window.llApplyColor = function(secId, color) {
-    // Legacy — used by contextmenu / popover
-    const editor = document.getElementById('lltxt-' + secId);
-    if (!editor) return;
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
-      if(typeof showToast==='function') showToast('Marker tekst først');
-      return;
-    }
-    if (color) {
-      document.execCommand('backColor', false, color);
-    } else {
-      document.execCommand('removeFormat');
-    }
-    llHighlightInput(editor, secId);
-  };
 
   window.llToggleSectionDone = function(id) {
     const beat = getBeat(window.currentLyricLabBeatId); if(!beat) return;
@@ -691,22 +684,7 @@
     const btn = document.querySelector('.tab-btn[data-tab="mixtapes"]');
     if (btn) btn.click();
   };
-  window.llPlayBeat = function() {
-    const id = window.currentLyricLabBeatId;
-    if (!id) return;
-    const wv = document.getElementById('llWaveform');
-    if (typeof playSingleBeat === 'function') {
-      playSingleBeat(id);
-      if (wv) { wv.classList.remove('paused'); setTimeout(()=>wv.classList.add('paused'), 30000); }
-    } else if (typeof showToast === 'function') {
-      showToast('Lydavspilling ikke tilgjengelig ennå');
-    }
-  };
 
-  window.llLoopHook = function() {
-    if (typeof showToast === 'function') showToast('Loop hook kommer snart');
-    else console.log('[LyricLab] Loop hook — not implemented yet');
-  };
 
   // ── Voice memo + take recorder ───────────────────────────────────────────
   let _memoRecorder = null;
@@ -726,7 +704,7 @@
       if(typeof showToast==='function') showToast('Mikrofon ikke tilgjengelig i denne nettleseren');
       return;
     }
-    navigator.mediaDevices.getUserMedia({ audio: true })
+    openMic()
       .then(stream => {
         _memoChunks = [];
         const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
@@ -867,14 +845,6 @@
     const mixtapes = (st.mixtapes || []).filter(m => !m.archived);
     const albums   = (st.albums   || []).filter(a => !a.archived);
 
-    function beatsByCollection(colId, colType) {
-      const col = colType === 'mixtape'
-        ? mixtapes.find(m => m.id === colId)
-        : albums.find(a => a.id === colId);
-      return (col?.beatIds || [])
-        .map(id => allBeats.find(b => b.id === id))
-        .filter(Boolean);
-    }
 
     function renderList(beats, emptyMsg) {
       if (!beats.length) return `<div class="ll-picker-empty">${emptyMsg}</div>`;
@@ -885,7 +855,7 @@
             <div class="ll-picker-name">${esc(b.name)}</div>
             <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
           </div>
-          ${b.favorite ? '<span style="color:#d68155;font-size:14px">★</span>' : ''}
+          ${b.favorite ? '<span style="color:var(--accent-ink);font-size:14px">★</span>' : ''}
         </div>`).join('');
     }
 
@@ -959,7 +929,7 @@
               <div class="ll-picker-name">${esc(b.name)}</div>
               <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
             </div>
-            ${b.favorite ? '<span style="color:#d68155;font-size:14px">★</span>' : ''}
+            ${b.favorite ? '<span style="color:var(--accent-ink);font-size:14px">★</span>' : ''}
           </div>`).join('')
       : `<div class="ll-picker-empty">Ingen treff for "${esc(query)}"</div>`;
   };
@@ -1102,150 +1072,163 @@
     const container = document.getElementById(`llins-${beatId}`);
     if(container) container.insertAdjacentHTML('beforeend', inlineSectionHTML(newSec, beatId));
   };
-  window.llInlineSave = function(beatId, text) {
-    const beat = getBeat(beatId); if(!beat) return;
-    const secs = getSections(beat);
-    if(secs[0]) secs[0].text = text;
-    clearTimeout(_saveTimer);
-    scheduleAutoSave(beat, false);
-  };
 
-  // ── Record lyric take over beat ──────────────────────────────────────────
-  window.llRecordTake = function() {
-    if (_takeRecorder && _takeRecorder.state === 'recording') {
-      _takeRecorder.stop();
-      return;
+  // ── Mikrofon (velger + innstillinger for musikk) ─────────────────────────
+  // Nettleserens «telefon»-filtre (ekkofjerning, støydemping, auto-volum)
+  // forsinker og ødelegger vokal over musikk — de slås av. Valgt mikrofon
+  // huskes per enhet (localStorage mv_mic).
+  const MIC_KEY = 'mv_mic', SYNC_KEY = 'mv_rec_sync_ms';
+  const lsGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch(e){} };
+  function micConstraints(deviceId){
+    const c = { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 };
+    if (deviceId) c.deviceId = { exact: deviceId };
+    return { audio: c, video: false };
+  }
+  async function openMic(){
+    const id = lsGet(MIC_KEY) || '';
+    try { return await navigator.mediaDevices.getUserMedia(micConstraints(id)); }
+    catch(e){
+      if (id && (e.name === 'OverconstrainedError' || e.name === 'NotFoundError' || e.name === 'NotReadableError')){
+        lsSet(MIC_KEY, '');                                   // mikrofonen er borte — bruk standard
+        return navigator.mediaDevices.getUserMedia(micConstraints(''));
+      }
+      throw e;
     }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      if(typeof showToast==='function') showToast('Mikrofon ikke tilgjengelig');
-      return;
-    }
+  }
+  window.llOpenMic = openMic;
+  async function fillMicSelect(){
+    const sel = document.getElementById('llMicSelect'); if (!sel || !navigator.mediaDevices?.enumerateDevices) return;
+    let devs = [];
+    try { devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput'); } catch(e){}
+    const saved = lsGet(MIC_KEY) || '';
+    const named = devs.some(d => d.label);
+    sel.innerHTML = `<option value="">Standardmikrofon</option>` + devs.filter(d => d.deviceId && d.deviceId !== 'default')
+      .map((d, i) => `<option value="${esc(d.deviceId)}" ${d.deviceId === saved ? 'selected' : ''}>${esc(d.label || 'Mikrofon ' + (i + 1))}</option>`).join('');
+    const access = document.getElementById('llMicAccess');
+    if (access) access.hidden = named;                       // navn vises først etter tilgang
+  }
+  window.llMicChanged = function(sel){ lsSet(MIC_KEY, sel.value); if (typeof showToast === 'function') showToast('✓ Mikrofon valgt'); };
+  window.llMicGrant = async function(){
+    try { const st = await openMic(); st.getTracks().forEach(t => t.stop()); }
+    catch(e){ if (typeof showToast === 'function') showToast('Fikk ikke tilgang til mikrofonen: ' + e.message); }
+    fillMicSelect();
+  };
+  window.llSyncChanged = function(inp){
+    lsSet(SYNC_KEY, inp.value);
+    const out = document.getElementById('llSyncVal'); if (out) out.textContent = (inp.value > 0 ? '+' : '') + inp.value + ' ms';
+  };
+  if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) navigator.mediaDevices.addEventListener('devicechange', fillMicSelect);
+  window.llFillMicSelect = fillMicSelect;
+
+  // ── Spill inn vokal over beaten ──────────────────────────────────────────
+  // Hvorfor vokalen havnet for sent: du hører beaten etter utgangsforsinkelsen
+  // (høyttaler/Bluetooth) og mikrofonen leverer lyden etter inngangsforsinkelsen.
+  // Vokalen kommer altså L sekunder etter beaten den hører til. Løsning: i
+  // OPPTAKET forsinkes beaten like mye (DelayNode), så de havner i takt.
+  // L = målt forsinkelse (AudioContext + mikrofon) + manuell justering.
+  window.llRecordTake = async function() {
+    if (_takeRecorder && _takeRecorder.state === 'recording') { _takeRecorder.stop(); return; }
+    if (_takeRecorder && _takeRecorder.state === 'preparing') return;
+    if (!navigator.mediaDevices?.getUserMedia) { if (typeof showToast === 'function') showToast('Mikrofon ikke tilgjengelig'); return; }
 
     const beat = getBeat(window.currentLyricLabBeatId);
-    if (!beat) { if(typeof showToast==='function') showToast('Velg en sang først'); return; }
-
-    // Countdown UI
+    if (!beat) { if (typeof showToast === 'function') showToast('Velg en sang først'); return; }
     const btn = document.getElementById('llTakeBtn');
-    const overlay = document.getElementById('llTakeOverlay');
-    let count = 3;
+    const setBtn = t => { if (btn) btn.textContent = t; };
+    _takeRecorder = { state: 'preparing' };
 
-    function startCountdown() {
-      if(overlay) { overlay.style.display='flex'; overlay.querySelector('.ll-take-count').textContent = count; }
-      if(btn) btn.textContent = `Starter om ${count}s...`;
-      const cd = setInterval(() => {
-        count--;
-        if(overlay) overlay.querySelector('.ll-take-count').textContent = count || 'REC';
-        if(btn) btn.textContent = count > 0 ? `Starter om ${count}s...` : 'Stopp innspilling';
-        if (count <= 0) {
-          clearInterval(cd);
-          startRecording();
-        }
-      }, 1000);
-    }
-
-    function startRecording() {
-      // Don't use playSingleBeat — the blob Audio element handles playback
+    // 1) Mikrofon og beat gjøres klare FØR opptellingen (tilgangsspørsmål og
+    //    nedlasting skal ikke forskyve starten).
+    let micStream, beatBlobUrl = null;
+    try {
+      setBtn('Gjør klar …');
+      micStream = await openMic();
+      fillMicSelect();
       const beatUrl = beat.audio_url || beat.url || null;
-
-      function doRecord(blobUrl) {
-        const localAudio = blobUrl ? new Audio(blobUrl) : null;
-
-        navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-          .then(micStream => {
-            _takeChunks = [];
-            _takeSecs   = 0;
-            const mime  = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const dest     = audioCtx.createMediaStreamDestination();
-
-            // Mic → mixer (with gain boost)
-            const micSrc  = audioCtx.createMediaStreamSource(micStream);
-            const micGain = audioCtx.createGain();
-            micGain.gain.value = 1.5;
-            micSrc.connect(micGain);
-            micGain.connect(dest);
-
-            // Beat blob → mixer via captureStream + also to speakers
-            if (localAudio) {
-              localAudio.volume = 1.0; // full volume
-              localAudio.play().catch(()=>{});
-              try {
-                const cs = localAudio.captureStream?.() || localAudio.mozCaptureStream?.();
-                if (cs) {
-                  const beatSrc  = audioCtx.createMediaStreamSource(cs);
-                  const beatGain = audioCtx.createGain();
-                  beatGain.gain.value = 1.0;
-                  beatSrc.connect(beatGain);
-                  beatGain.connect(dest);                  // → recording
-                  beatGain.connect(audioCtx.destination); // → speakers
-                }
-              } catch(e) { console.warn('[LyricLab] beat mix:', e.message); }
-            }
-
-            _takeRecorder = new MediaRecorder(dest.stream, { mimeType: mime });
-            _takeRecorder.ondataavailable = e => { if(e.data.size>0) _takeChunks.push(e.data); };
-
-            _takeRecorder.onstart = () => {
-              if(overlay) {
-                overlay.querySelector('.ll-take-count').textContent = '⬤';
-                overlay.querySelector('.ll-take-label').textContent = `Spiller inn over ${esc(beat.name)}`;
-              }
-              _takeInterval = setInterval(() => {
-                _takeSecs++;
-                const m = Math.floor(_takeSecs/60), s = String(_takeSecs%60).padStart(2,'0');
-                const timer = document.getElementById('llTakeTimer');
-                if(timer) timer.textContent = `${m}:${s}`;
-              }, 1000);
-              if(typeof showToast==='function') showToast('Innspilling startet');
-            };
-
-            _takeRecorder.onstop = () => {
-              clearInterval(_takeInterval);
-              micStream.getTracks().forEach(t=>t.stop());
-              audioCtx.close().catch(()=>{});
-              if(localAudio) { localAudio.pause(); }
-              if(blobUrl) URL.revokeObjectURL(blobUrl);
-              if(overlay) overlay.style.display='none';
-              if(btn){ btn.textContent='Spill inn over beat'; btn.style.background=''; }
-              const blob2 = new Blob(_takeChunks, { type: mime });
-              const reader = new FileReader();
-              reader.onload = ev => {
-                if(!beat.takes) beat.takes = [];
-                beat.takes.push({ id: uid(), url: ev.target.result, ts: Date.now(), dur: _takeSecs, mime });
-                if(typeof saveState==='function') saveState();
-                renderTakeList();
-                if(typeof showToast==='function') showToast(`✓ Take lagret (${_takeSecs}s)`);
-              };
-              reader.readAsDataURL(blob2);
-            };
-
-            _takeRecorder.start(500);
-          })
-          .catch(err => {
-            if(overlay) overlay.style.display='none';
-            if(btn) btn.textContent='Spill inn over beat';
-            if(typeof showToast==='function') showToast('Mikrofon feil: ' + err.message);
-          });
-      } // end doRecord
-
-      if (beatUrl) {
-        fetch(beatUrl)
-          .then(r => r.blob())
-          .then(b => doRecord(URL.createObjectURL(b)))
-          .catch(() => doRecord(null));
-      } else {
-        doRecord(null);
+      if (beatUrl){
+        try { const r = await fetch(beatUrl); if (r.ok) beatBlobUrl = URL.createObjectURL(await r.blob()); } catch(e){}
       }
+    } catch(err){
+      _takeRecorder = null; setBtn('Ny take');
+      if (typeof showToast === 'function') showToast('Mikrofon feil: ' + err.message);
+      return;
     }
 
-    // Opptelling i låtens tempo (music-tools.js): én takt med klikk, så starter opptaket på «1»
-    if (window.mvMetronome && window.mvMetronome.countInEnabled() && Number(beat.bpm) > 0) {
-      if (btn) btn.textContent = 'Teller opp …';
-      window.mvMetronome.countIn(beat.bpm, n => {
-        if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.ll-take-count').textContent = n; }
-      }, startRecording);
-    } else startCountdown();
+    const go = () => startRecording(micStream, beatBlobUrl, beat, btn, setBtn);
+    if (window.mvMetronome && window.mvMetronome.countInEnabled() && Number(beat.bpm) > 0){
+      setBtn('Teller opp …');
+      window.mvMetronome.countIn(beat.bpm, n => setBtn(String(n)), go);
+    } else {
+      let count = 3; setBtn(`Starter om ${count}s...`);
+      const cd = setInterval(() => { count--; if (count > 0) setBtn(`Starter om ${count}s...`); else { clearInterval(cd); go(); } }, 1000);
+    }
   };
+
+  function startRecording(micStream, beatBlobUrl, beat, btn, setBtn){
+    _takeChunks = []; _takeSecs = 0;
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg');
+    const ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    const dest = ctx.createMediaStreamDestination();
+
+    // Vokal → opptak
+    const micSrc = ctx.createMediaStreamSource(micStream);
+    const micGain = ctx.createGain(); micGain.gain.value = 1.4;
+    micSrc.connect(micGain).connect(dest);
+
+    // Forsinkelse: utgang (baseLatency + outputLatency) + mikrofon (track.latency) + manuell justering
+    const track = micStream.getAudioTracks()[0];
+    const inLat = (track && track.getSettings && track.getSettings().latency) || 0;
+    const manual = (Number(lsGet(SYNC_KEY)) || 0) / 1000;
+    const measured = (ctx.baseLatency || 0) + (ctx.outputLatency || 0) + inLat;
+    const L = Math.min(1.5, Math.max(0, measured + manual));
+
+    // Beat → høyttaler (én gang) og → forsinket inn i opptaket
+    let beatEl = null;
+    if (beatBlobUrl){
+      beatEl = new Audio(beatBlobUrl);
+      const src = ctx.createMediaElementSource(beatEl);
+      src.connect(ctx.destination);
+      const delay = ctx.createDelay(2.0); delay.delayTime.value = L;
+      src.connect(delay).connect(dest);
+    }
+
+    const rec = new MediaRecorder(dest.stream, { mimeType: mime });
+    _takeRecorder = rec;
+    rec.ondataavailable = e => { if (e.data.size > 0) _takeChunks.push(e.data); };
+    rec.onstart = () => {
+      setBtn('Stopp innspilling');
+      _takeInterval = setInterval(() => { _takeSecs++; }, 1000);
+      if (typeof showToast === 'function') showToast('Innspilling startet');
+    };
+    rec.onstop = () => {
+      clearInterval(_takeInterval);
+      micStream.getTracks().forEach(t => t.stop());
+      if (beatEl) beatEl.pause();
+      ctx.close().catch(() => {});
+      if (beatBlobUrl) URL.revokeObjectURL(beatBlobUrl);
+      setBtn('Ny take');
+      // Den første biten (L sekunder) er bare vokal før beaten — klippes ikke, men er kort.
+      const blob = new Blob(_takeChunks, { type: mime });
+      const reader = new FileReader();
+      reader.onload = ev => {
+        if (!beat.takes) beat.takes = [];
+        beat.takes.push({ id: uid(), url: ev.target.result, ts: Date.now(), dur: _takeSecs, mime, syncMs: Math.round(L * 1000) });
+        if (typeof saveState === 'function') saveState();
+        renderTakeList();
+        if (typeof showToast === 'function') showToast(`✓ Take lagret (${_takeSecs}s)`);
+      };
+      reader.readAsDataURL(blob);
+      _takeRecorder = null;
+    };
+    if (beatEl) beatEl.addEventListener('ended', () => { if (rec.state === 'recording') rec.stop(); }, { once: true });
+
+    ctx.resume().then(() => {
+      rec.start(500);
+      if (beatEl) beatEl.play().catch(() => {});
+    });
+  }
+
   function renderTakeList() {
     const beat = getBeat(window.currentLyricLabBeatId);
     const el   = document.getElementById('llTakeList');
@@ -1284,16 +1267,17 @@
     const word = input.value.trim();
     if(!word) return;
 
-    results.innerHTML = '<p style="font-size:11px;color:rgba(255,255,255,.4);margin:0">Søker...</p>';
+    results.innerHTML = '<p style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));margin:0">Søker...</p>';
 
     try {
       // Route through Cloudflare Worker (has ANTHROPIC_API_KEY as secret)
-      const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+      const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
       const res = await fetch(`${workerUrl}/rhyme`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ word })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
       const data = await res.json();
       const text = data.text || '';
       let parsed;
@@ -1303,7 +1287,7 @@
       results.innerHTML = `
         ${perfekte.length ? `
           <div style="margin-bottom:8px">
-            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">Perfekte rim</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase;margin-bottom:5px">Perfekte rim</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
               ${perfekte.map(w => `<button class="ll-rhyme-chip" onclick="llInsertRhyme('${w.replace(/'/g,"\'")}')">
                 ${w}
@@ -1312,7 +1296,7 @@
           </div>` : ''}
         ${nesten.length ? `
           <div>
-            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.3);text-transform:uppercase;margin-bottom:5px">Nesten-rim</div>
+            <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase;margin-bottom:5px">Nesten-rim</div>
             <div style="display:flex;flex-wrap:wrap;gap:4px">
               ${nesten.map(w => `<button class="ll-rhyme-chip muted" onclick="llInsertRhyme('${w.replace(/'/g,"\'")}')">
                 ${w}
@@ -1321,7 +1305,7 @@
           </div>` : ''}
       `;
     } catch(e) {
-      results.innerHTML = `<p style="font-size:11px;color:#ffaaa3;margin:0">Feil: ${e.message}</p>`;
+      results.innerHTML = `<p style="font-size:11px;color:var(--danger);margin:0">Feil: ${e.message}</p>`;
     }
   };
 
@@ -1384,7 +1368,7 @@
 
     const audioUrl = beat.audio_url || beat.url || null;
     if (!audioUrl) {
-      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:64px;color:rgba(255,255,255,.25);font-size:12px">Ingen lydfil</div>';
+      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:64px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-size:12px">Ingen lydfil</div>';
       return;
     }
 
@@ -1634,13 +1618,13 @@
       // Build popover
       const pop = document.createElement('div');
       pop.id = 'llRhymePopover';
-      pop.style.cssText = `position:fixed;z-index:9000;background:#1a1614;border:1px solid rgba(255,255,255,.15);`
+      pop.style.cssText = `position:fixed;z-index:9000;background:var(--surface-1);border:1px solid rgb(var(--ink-rgb) / .15);`
         + `border-radius:12px;padding:10px 12px;min-width:220px;max-width:300px;`
-        + `box-shadow:0 12px 40px rgba(0,0,0,.7);font-family:inherit;`;
+        + `box-shadow:0 12px 40px rgb(var(--shadow-rgb) / calc(.7 * var(--shadow-k)));font-family:inherit;`;
       pop.style.left = Math.min(e.clientX, window.innerWidth - 320) + 'px';
       pop.style.top  = (e.clientY + 8) + 'px';
-      pop.innerHTML = `<div style="font-size:11px;font-weight:900;letter-spacing:.08em;color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:8px">Rim for "${word}"</div>
-        <div id="llPopoverResults" style="font-size:12px;color:rgba(255,255,255,.4)">Laster...</div>`;
+      pop.innerHTML = `<div style="font-size:11px;font-weight:900;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">Rim for "${word}"</div>
+        <div id="llPopoverResults" style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)))">Laster...</div>`;
       document.body.appendChild(pop);
       _popover = pop;
 
@@ -1648,11 +1632,12 @@
 
       // Fetch rhymes
       try {
-        const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+        const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
         const res = await fetch(`${workerUrl}/rhyme`, {
-          method:'POST', headers:{'Content-Type':'application/json'},
+          method:'POST', headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
           body: JSON.stringify({word})
         });
+        if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
         const data = await res.json();
         let parsed;
         try { parsed = JSON.parse((data.text||'{}').replace(/```json|```/g,'')); } catch(e) { parsed = {}; }
@@ -1661,8 +1646,8 @@
         if (!r) return;
         if (!perfekte.length && !nesten.length) { r.textContent = 'Ingen rimord funnet'; return; }
         r.innerHTML = [
-          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgba(214,129,85,.12);border:1px solid rgba(214,129,85,.28);border-radius:999px;color:#d68155;font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
-          nesten.length ? `<div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:4px">Nesten</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nesten.slice(0,6).map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:999px;color:rgba(255,255,255,.6);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : ''
+          perfekte.length ? `<div style="margin-bottom:6px"><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:4px">Perfekte rim</div><div style="display:flex;flex-wrap:wrap;gap:4px">${perfekte.map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .28);border-radius:999px;color:var(--accent-ink);font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : '',
+          nesten.length ? `<div><div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:4px">Nesten</div><div style="display:flex;flex-wrap:wrap;gap:4px">${nesten.slice(0,6).map(w=>`<button onclick="event.stopPropagation();llInsertRhyme('${w}');document.getElementById('llRhymePopover')?.remove()" style="background:rgb(var(--ink-rgb) / .06);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:999px;color:rgb(var(--ink-rgb) / calc(.6 + (1 - .6) * var(--ink-boost)));font-size:11px;font-weight:800;padding:2px 8px;cursor:pointer;font-family:inherit">${w}</button>`).join('')}</div></div>` : ''
         ].join('');
       } catch(e) {
         const r = document.getElementById('llPopoverResults');
@@ -1795,24 +1780,24 @@
     document.getElementById('llHistoryModal')?.remove();
     const modal = document.createElement('div');
     modal.id = 'llHistoryModal';
-    modal.style.cssText = `position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px`;
-    modal.innerHTML = `<div style="background:#141210;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:580px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7)">
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07)">
+    modal.style.cssText = `position:fixed;inset:0;z-index:3000;background:rgb(var(--shade-rgb) / .75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px`;
+    modal.innerHTML = `<div style="background:var(--surface-sunken);border:1px solid rgb(var(--ink-rgb) / .1);border-radius:18px;width:100%;max-width:580px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgb(var(--shadow-rgb) / calc(.7 * var(--shadow-k)))">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgb(var(--ink-rgb) / .07)">
         <span style="font-size:15px;font-weight:900">Versjonshistorikk — ${esc(sec.title)}</span>
-        <button onclick="document.getElementById('llHistoryModal').remove()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:18px;cursor:pointer">✕</button>
+        <button onclick="document.getElementById('llHistoryModal').remove()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost)));font-size:18px;cursor:pointer">✕</button>
       </div>
       <div style="overflow-y:auto;padding:8px">
-        ${hist.length === 0 ? '<p style="padding:16px;color:rgba(255,255,255,.3);font-size:13px">Ingen lagrede versjoner ennå. Klikk <span class="ic ic-clock" aria-hidden="true"></span> i seksjonmenyen for å lagre.</p>'
+        ${hist.length === 0 ? '<p style="padding:16px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:13px">Ingen lagrede versjoner ennå. Klikk <span class="ic ic-clock" aria-hidden="true"></span> i seksjonmenyen for å lagre.</p>'
           : [...hist].reverse().map((v, i) => {
             const d = new Date(v.ts);
             const label = d.toLocaleString('no-NO',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
             const preview = v.text.slice(0,120).replace(/&/g,'&amp;').replace(/</g,'&lt;');
-            return `<div style="padding:12px;border-bottom:1px solid rgba(255,255,255,.05)">
+            return `<div style="padding:12px;border-bottom:1px solid rgb(var(--ink-rgb) / .05)">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-                <span style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700">${label}</span>
-                <button onclick="llRestoreVersion('${secId}',${hist.length-1-i})" style="background:rgba(214,129,85,.12);border:1px solid rgba(214,129,85,.3);border-radius:7px;color:#d68155;font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:inherit">Gjenopprett</button>
+                <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.4 + (1 - .4) * var(--ink-boost)));font-weight:700">${label}</span>
+                <button onclick="llRestoreVersion('${secId}',${hist.length-1-i})" style="background:rgb(var(--accent-rgb) / .12);border:1px solid rgb(var(--accent-rgb) / .3);border-radius:7px;color:var(--accent-ink);font-size:11px;font-weight:800;padding:3px 10px;cursor:pointer;font-family:inherit">Gjenopprett</button>
               </div>
-              <pre style="font-size:12px;color:rgba(255,255,255,.55);font-family:Georgia,serif;margin:0;white-space:pre-wrap;max-height:80px;overflow:hidden">${preview}${v.text.length>120?'…':''}</pre>
+              <pre style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.55 + (1 - .55) * var(--ink-boost)));font-family:Georgia,serif;margin:0;white-space:pre-wrap;max-height:80px;overflow:hidden">${preview}${v.text.length>120?'…':''}</pre>
             </div>`;
           }).join('')}
       </div>
@@ -1864,7 +1849,7 @@
     if (!el) return;
 
     if (beats.length === 0) {
-      el.innerHTML = '<p style="font-size:12px;color:rgba(255,255,255,.3);margin:0">Skriv tekst på andre sanger for å få inspirasjon her</p>';
+      el.innerHTML = '<p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin:0">Skriv tekst på andre sanger for å få inspirasjon her</p>';
       el.style.display = 'block';
       return;
     }
@@ -1879,10 +1864,10 @@
     // Show loading state
     el.style.display = 'block';
     el.innerHTML = `
-      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:8px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">
         Genererer fra "${esc(beat.name)}"…
       </div>
-      <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.3);font-size:13px">
+      <div style="display:flex;align-items:center;gap:8px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:13px">
         <span style="animation:llSpin 1s linear infinite;display:inline-block">⟳</span>
         Spør Claude om inspirasjon…
       </div>`;
@@ -1895,13 +1880,14 @@
     }
 
     try {
-      const workerUrl = window.R2_WORKER_URL || 'https://beat-vault.marcus-aas-mekiassen.workers.dev';
+      const workerUrl = window.R2_WORKER_URL || window.MV_CONFIG.R2_WORKER_URL;
 
       const res = await fetch(`${workerUrl}/inspire`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await window.mvAuthHeaders({'Content-Type':'application/json'}),
         body: JSON.stringify({ beatName: beat.name, lyrics: lyrics.slice(0, 800) })
       });
+      if (res.status === 429) { if (typeof showToast === 'function') showToast('Mange AI-forespørsler på kort tid — vent et minutt'); throw new Error('For mange forespørsler'); }
 
       const data = await res.json();
       const generated = (data.text || '').trim();
@@ -1909,20 +1895,20 @@
       if (!generated) throw new Error('Tom respons');
 
       el.innerHTML = `
-        <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgba(255,255,255,.25);text-transform:uppercase;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.08em;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));text-transform:uppercase;margin-bottom:8px">
           Inspirert av "${esc(beat.name)}"
         </div>
-        <div style="font-size:15px;font-family:Georgia,serif;color:rgba(255,255,255,.82);font-style:italic;line-height:1.7;white-space:pre-wrap">${esc(generated)}</div>
+        <div style="font-size:15px;font-family:Georgia,serif;color:rgb(var(--ink-rgb) / calc(.82 + (1 - .82) * var(--ink-boost)));font-style:italic;line-height:1.7;white-space:pre-wrap">${esc(generated)}</div>
         <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <button onclick="llInspirasjon()" style="background:none;border:none;color:rgba(255,255,255,.35);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">↻ Ny inspirasjon</button>
-          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" style="background:none;border:none;color:rgba(255,255,255,.25);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Kopier</button>
+          <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">↻ Ny inspirasjon</button>
+          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Kopier</button>
         </div>`;
 
     } catch(err) {
       console.error('[llInspirasjon] Feil:', err);
       el.innerHTML = `
         <div style="font-size:12px;color:rgba(255,113,113,.6);margin-bottom:6px">Kunne ikke generere inspirasjon — prøv igjen</div>
-        <button onclick="llInspirasjon()" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800">↻ Prøv igjen</button>`;
+        <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800">↻ Prøv igjen</button>`;
     }
   };
 

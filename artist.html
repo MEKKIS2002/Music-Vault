@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Artist · Music Vault</title>
+  <meta name="theme-color" content="#14120f">
+  <!-- Offentlig artistside (EPK): artist.html?u=<adresse>. Leser KUN publiserte
+       sider via RPC get_artist_page. Tegnes av js/artist-render.js, som også
+       brukes av forhåndsvisningen i fanen «Artistside». -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=DM+Serif+Text&display=swap">
+  <link rel="stylesheet" href="css/artist-page.css?v=6648b2e9f6">
+  <style>html, body{ margin: 0; background: #14120f; min-height: 100%; }</style>
+</head>
+<body>
+  <main class="ap-page" id="app"><div class="ap-empty-state">Laster …</div></main>
+  <script src="js/i18n.js?v=52a4b3492d"></script>
+  <script src="js/i18n-en.js?v=ff85a964c3"></script>
+  <script src="js/config.js?v=b121068c62"></script>
+  <script src="js/artist-render.js?v=f1fd1cdadd"></script>
+  <script>
+  (function(){
+    var app = document.getElementById('app');
+    var slug = (new URLSearchParams(location.search).get('u') || '').toLowerCase();
+    function fail(msg){
+      app.innerHTML = '<div class="ap-empty-state">' + (msg || 'Denne artistsiden finnes ikke eller er ikke publisert ennå.') + '</div>';
+    }
+    if (!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(slug)) { fail(); return; }
+    fetch(MV_CONFIG.SUPABASE_URL + '/rest/v1/rpc/get_artist_page', {
+      method: 'POST',
+      headers: { apikey: MV_CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + MV_CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_slug: slug })
+    }).then(function(r){ return r.ok ? r.json() : null; }).then(function(p){
+      if (!p) { fail(); return; }
+      document.title = (p.display_name || slug) + ' · Music Vault';
+      mvArtistRender.applyAccent(app, p.accent);
+      var meta = document.querySelector('meta[name="theme-color"]');
+      app.innerHTML = mvArtistRender.html(p);
+      mvArtistRender.bind(app, p);
+      if (meta) meta.content = '#14120f';
+    }).catch(function(){ fail('Kunne ikke laste siden. Prøv igjen senere.'); });
+  })();
+  </script>
+</body>
+</html>

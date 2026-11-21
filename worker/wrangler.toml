@@ -1,0 +1,22 @@
+# Cloudflare Worker «beat-vault» — deploy med: npx wrangler deploy  (fra denne mappen)
+# ANTHROPIC_API_KEY er en secret og settes separat: npx wrangler secret put ANTHROPIC_API_KEY
+name = "beat-vault"
+main = "r2-worker.js"
+compatibility_date = "2026-05-12"
+workers_dev = true
+preview_urls = false
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "music-vault-audio"
+
+[vars]
+ALLOWED_ORIGIN = "https://mekkis2002.github.io"
+SUPABASE_URL = "https://ylvqkfdvijqnecuqznyr.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc"
+
+# AI-kall (/rhyme, /inspire): maks 20 per minutt per bruker
+[[ratelimits]]
+name = "AI_LIMITER"
+namespace_id = "1001"
+simple = { limit = 20, period = 60 }

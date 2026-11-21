@@ -109,7 +109,7 @@
       .cover{ width:100%; height:auto; aspect-ratio:1/1; max-width:320px; }
     }
   </style>
-  <link rel="stylesheet" href="css/icons.css?v=202611150030">
+  <link rel="stylesheet" href="css/icons.css?v=50c7dc28e6">
 </head>
 <body>
   <main class="page">
@@ -157,11 +157,14 @@
 
   <audio id="audio" preload="none"></audio>
 
+  <script src="js/i18n.js?v=52a4b3492d"></script>
+  <script src="js/i18n-en.js?v=ff85a964c3"></script>
+  <script src="js/config.js?v=b121068c62"></script>
   <script>
   (function(){
     'use strict';
-    var SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-    var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+    var SB_URL = window.MV_CONFIG.SUPABASE_URL;
+    var SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
     var HDR = { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' };
 
     function $(id){ return document.getElementById(id); }
@@ -294,6 +297,22 @@
       return fetch(SB_URL+'/rest/v1/rpc/'+name, { method:'POST', headers:HDR, body:JSON.stringify(args) })
         .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); });
     }
+    // ── Statistikk (anonym): åpnet, spilt, hvor langt (maks %) per låt ──
+    // Bare en tilfeldig økt-id, ingen IP. Feil ignoreres — forstyrrer aldri lytteren.
+    function track(ev, beatId, pct){
+      try { rpc('log_share_event', { p_kind:'mixtape', p_token:token, p_session:sessionId(), p_event:ev, p_beat:beatId||'', p_pct:pct||0 }).catch(function(){}); } catch(e){}
+    }
+    if (token) track('open', '', 0);
+    var lastPct = -1;
+    audio.addEventListener('loadstart', function(){ lastPct = -1; });
+    audio.addEventListener('play', function(){ var b = tracks[current]; if (b) track('play', b.id, 0); });
+    audio.addEventListener('timeupdate', function(){
+      var b = tracks[current]; if (!b || !audio.duration) return;
+      var p = Math.floor(audio.currentTime / audio.duration * 10) * 10;
+      if (p > lastPct){ lastPct = p; track('progress', b.id, p); }
+    });
+    audio.addEventListener('ended', function(){ var b = tracks[current]; if (b) track('progress', b.id, 100); });
+
     var likedKey = 'mv_liked_' + token;
     var liked = {}; try{ liked = JSON.parse(sessionStorage.getItem(likedKey)||'{}'); }catch(e){}
     var counts = {};

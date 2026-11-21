@@ -63,6 +63,8 @@ Deno.serve(async (req) => {
     const p = await fetch(`${SB_URL}/rest/v1/profiles?select=id,email,username,role,package&id=eq.${target}`, { headers: svc });
     const prof = (p.ok ? await p.json() : [])?.[0];
     if (!prof?.email) return json({ error: "Fant ikke brukeren." }, 404);
+    // Aldri bytt til en annen admin — da får man en full admin-sesjon.
+    if (prof.role === "admin") return json({ error: "Kan ikke bytte til en annen admin." }, 403);
 
     // 1) Engangs-token for målbrukeren (sender ingen e-post)
     const g = await fetch(`${SB_URL}/auth/v1/admin/generate_link`, {

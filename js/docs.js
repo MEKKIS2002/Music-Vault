@@ -10,8 +10,8 @@
 (function(){
   'use strict';
 
-  const SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+  const SB_URL = window.MV_CONFIG.SUPABASE_URL;
+  const SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
   let _docs = [];           // [{id,title,content,format,created_at,updated_at}]
   let _currentId = null;
@@ -186,12 +186,12 @@
         <button data-cmd="insertUnorderedList" title="Punktliste" aria-label="Punktliste">•</button>
         <button data-cmd="insertOrderedList" title="Nummerert liste" aria-label="Nummerert liste">1.</button>
         <span class="docs-tb-sep"></span>
-        <button class="docs-hl-btn" data-hl="#d68155" style="background:#d68155" title="Uthev kobber" aria-label="Uthev kobber"></button>
-        <button class="docs-hl-btn" data-hl="#a6be8b" style="background:#a6be8b" title="Uthev grønn" aria-label="Uthev grønn"></button>
-        <button class="docs-hl-btn" data-hl="#bfb2a6" style="background:#bfb2a6" title="Uthev grå" aria-label="Uthev grå"></button>
+        <button class="docs-hl-btn" data-hl="#d68155" style="background:var(--accent)" title="Uthev kobber" aria-label="Uthev kobber"></button>
+        <button class="docs-hl-btn" data-hl="#a6be8b" style="background:var(--ok)" title="Uthev grønn" aria-label="Uthev grønn"></button>
+        <button class="docs-hl-btn" data-hl="#bfb2a6" style="background:var(--muted)" title="Uthev grå" aria-label="Uthev grå"></button>
         <button class="docs-hl-btn" data-hl="#ec4899" style="background:#ec4899" title="Uthev rosa" aria-label="Uthev rosa"></button>
-        <button class="docs-hl-btn" data-hl="#ffaaa3" style="background:#ffaaa3" title="Uthev rød" aria-label="Uthev rød"></button>
-        <button class="docs-hl-btn" data-hl="#f0a579" style="background:#f0a579" title="Uthev lys kobber" aria-label="Uthev lys kobber"></button>
+        <button class="docs-hl-btn" data-hl="#ffaaa3" style="background:var(--danger)" title="Uthev rød" aria-label="Uthev rød"></button>
+        <button class="docs-hl-btn" data-hl="#f0a579" style="background:var(--accent2)" title="Uthev lys kobber" aria-label="Uthev lys kobber"></button>
         <button class="docs-hl-btn docs-hl-clear" data-hl="" title="Fjern uthevning" aria-label="Fjern uthevning">✕</button>
       </div>
         <span class="docs-bar-spacer"></span>

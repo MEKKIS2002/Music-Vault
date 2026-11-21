@@ -1,0 +1,77 @@
+/* ============================================================================
+   light.css — målrettede rettelser for LYS MODUS (kremhvit).
+
+   Grunnfargene byttes i tokens.css ([data-theme="light"]). Denne fila tar
+   komponentene som har egne, hardkodede farger laget for mørk bakgrunn
+   (ofte med !important), og som derfor blir uleselige på krem.
+
+   Regel: ALLE regler her starter med :root[data-theme="light"], så mørk modus
+   er garantert uendret. Lastes sist (etter studio.css).
+   ========================================================================= */
+
+/* ── Arkivert: arkivkassen ───────────────────────────────────────────────── */
+/* Kassen og vinylen er objekter og står urørt; teksten rundt dem står på krem. */
+:root[data-theme="light"] #archiveTab .fa-info h3{ color: var(--text) !important; text-shadow: none !important; }
+:root[data-theme="light"] #archiveTab .fa-info p,
+:root[data-theme="light"] #archiveTab .fa-meta span{ color: var(--muted) !important; text-shadow: none !important; }
+:root[data-theme="light"] #archiveTab .fa-kicker{ color: var(--accent-ink) !important; }
+:root[data-theme="light"] #archiveTab .fa-demo-card-count{
+  color: var(--accent-ink) !important; background: rgb(var(--panel-rgb) / .9) !important;
+}
+:root[data-theme="light"] #archiveTab .fa-note,
+:root[data-theme="light"] #archiveTab .fa-footer,
+:root[data-theme="light"] #archiveTab .fa-footer span{ color: var(--muted) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini:not(.restore){ color: var(--text) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini:not(.restore):hover{ color: var(--text) !important; }
+:root[data-theme="light"] #archiveTab .fa-mini.restore{ color: var(--on-accent) !important; }
+:root[data-theme="light"] #archiveTab .fa-hover{ background: rgb(var(--panel-rgb) / .96) !important; }
+
+/* ── Pipeline ────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .pl3-focus-hd{ color: var(--accent-ink) !important; }
+:root[data-theme="light"] .pl3-card-next{ background: rgb(var(--ink-rgb) / .05) !important; }
+:root[data-theme="light"] .pl3-card-next span{ color: var(--muted) !important; }
+
+/* ── Albumside ───────────────────────────────────────────────────────────── */
+/* Coverkortet hadde en halvgjennomsiktig kant over en LYS bakgrunn → lys ramme
+   rundt bildet. Ingen kant/bakgrunn; en hårfin mørk kontur i skyggen i stedet. */
+:root[data-theme="light"] #albumDetailHd .album-detail-cover-card,
+:root[data-theme="light"] .album-display .record-sleeve{
+  border: 0 !important; background: transparent !important;
+}
+:root[data-theme="light"] #albumDetailHd .album-detail-cover-card,
+:root[data-theme="light"] #albumDetailHd:hover .album-detail-cover-card{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .10),
+              0 14px 32px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))),
+              0 2px 6px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] .album-display .record-sleeve{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .10),
+              0 8px 18px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))),
+              0 1px 3px rgb(var(--shadow-rgb) / calc(.3 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] .album-detail-cover-card::after{ display: none !important; }
+:root[data-theme="light"] .ab-uploader{ opacity: 1 !important; }
+:root[data-theme="light"] .drop-zone .drop-hint{ color: var(--muted) !important; opacity: 1 !important; }
+
+/* ── Docs ────────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .docs-item-snip{ color: var(--muted) !important; opacity: 1 !important; }
+
+/* ── Admin ───────────────────────────────────────────────────────────────── */
+:root[data-theme="light"] .adm-code{ color: var(--accent-ink) !important; }
+
+/* ── Spilleren ───────────────────────────────────────────────────────────── */
+/* Mørk modus: mørk tone fra coveret som toner ut. Lys modus: lys pastell-vask
+   fra coveret (--bp-tint-light, js/player-extras.js), tekst forblir mørk. */
+:root[data-theme="light"] #bottomPlayer.bp-tinted{
+  background-image: linear-gradient(90deg, var(--bp-tint-light, transparent) 0%, transparent 55%) !important;
+}
+:root[data-theme="light"] #bottomPlayer.bp-tinted .bp-cover{
+  box-shadow: 0 0 0 1px rgb(var(--ink-rgb) / .08), 0 4px 12px rgb(var(--shadow-rgb) / calc(.4 * var(--shadow-k))) !important;
+}
+:root[data-theme="light"] #bottomPlayer .bp-title{ color: var(--text) !important; }
+@media (max-width: 768px){
+  /* Mobil-minispilleren brukte coverfargen som hel (mørk) bakgrunn */
+  :root[data-theme="light"] .bottom-player.show{
+    background: color-mix(in srgb, var(--bp-tint, var(--surface-1)) 14%, var(--surface-1)) !important;
+  }
+}

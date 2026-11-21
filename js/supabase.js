@@ -5,8 +5,8 @@
   2) Brukeren må finnes i Authentication -> Users.
   3) Brukeren må ha role = 'admin' i public.profiles.
 */
-const SUPABASE_URL = "https://ylvqkfdvijqnecuqznyr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc";
+const SUPABASE_URL = window.MV_CONFIG.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
 const isSupabaseConfigured =
   SUPABASE_URL &&
@@ -210,6 +210,7 @@ async function loginAdmin(email, password) {
 
 async function logoutAdmin() {
   if (!supabaseClient) return;
+  if (typeof window.mvStopAllAudio === 'function') window.mvStopAllAudio();
   await supabaseClient.auth.signOut();
   window.currentAdminUser = null;
   window.isAdminMode = false;
@@ -247,14 +248,14 @@ function installAdminLoginPanel() {
 
   const style = document.createElement("style");
   style.textContent = `
-    .supabase-admin-card{margin-bottom:14px;border:1px solid rgba(166,190,139,.18)!important;background:rgba(166,190,139,.055)!important}
+    .supabase-admin-card{margin-bottom:14px;border:1px solid rgb(var(--ok-rgb) / .18)!important;background:rgb(var(--ok-rgb) / .055)!important}
     .admin-status-row{display:flex;gap:8px;align-items:center;margin:10px 0 14px;font-size:13px;color:var(--muted)}
     .admin-status-row strong{color:var(--text)}
     .admin-login-box{display:grid;gap:10px;margin-top:10px}
     .admin-login-message{margin-top:10px;min-height:18px}
-    .admin-login-message[data-type="success"]{color:#a6be8b}
-    .admin-login-message[data-type="warning"]{color:#f0a579}
-    .admin-login-message[data-type="error"]{color:#ffaaa3}
+    .admin-login-message[data-type="success"]{color:var(--ok)}
+    .admin-login-message[data-type="warning"]{color:var(--accent2)}
+    .admin-login-message[data-type="error"]{color:var(--danger)}
     #adminLoginBtn:disabled{opacity:.65;cursor:not-allowed}
   `;
   document.head.appendChild(style);
@@ -318,6 +319,43 @@ setTimeout(updateAdminUi, 50);
   let _pushFailCount = 0;    // consecutive fail counter for backoff
   let _intervalId = null;
   let _hasPulledOk = false;      // har vi sett skyens innhold denne økta?
+  let lastPullAt = 0;
+
+  // ── Grunnlinje for synk ────────────────────────────────────────────────────
+  // Fingeravtrykk (hash) av hver beat/album/mixtape slik den var ved forrige
+  // vellykkede pull/push. Push sender BARE det som er endret siden da, og
+  // sletter BARE det som var med da og nå er borte. Før ble hele den lokale
+  // tilstanden sendt, så en gammel fane overskrev nyere endringer fra andre
+  // faner/enheter (og kunne slette ting laget andre steder).
+  const _baseKey = () => `musicVault.syncBase.${window._mvCurrentUserId || 'anon'}`;
+  let _base = null, _baseFor = null;      // Map<"b:<id>"|"a:<id>"|"m:<id>", hash>, for hvilken bruker
+  function _hash(str){                    // cyrb53 — rask, god spredning
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < str.length; i++){ const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+  }
+  function _loadBase(){
+    if (_base && _baseFor === _baseKey()) return _base;
+    _baseFor = _baseKey();
+    try { const o = JSON.parse(localStorage.getItem(_baseKey()) || 'null'); _base = o ? new Map(Object.entries(o)) : null; }
+    catch(e){ _base = null; }
+    return _base;
+  }
+  function _saveBase(){ try { localStorage.setItem(_baseKey(), JSON.stringify(Object.fromEntries(_base || []))); } catch(e){} }
+  // Alle lokale elementer med fingeravtrykk. Delte (andres) elementer pushes aldri.
+  function _localItems(st){
+    const out = [];
+    (st.beats || []).forEach(b => { if (!b._shared) { const row = packBeat(b); out.push({ k: 'b:' + b.id, table: 'beats', row, sig: _hash(JSON.stringify(row)) }); } });
+    (st.albums || []).forEach(a => { if (!a._shared) { const row = packAlbum(a); out.push({ k: 'a:' + a.id, table: 'albums', row, col: a, sig: _hash(JSON.stringify(row) + '|' + JSON.stringify(a.beatIds || [])) }); } });
+    (st.mixtapes || []).forEach(m => { if (!m._shared) { const row = packMixtape(m); out.push({ k: 'm:' + m.id, table: 'mixtapes', row, col: m, sig: _hash(JSON.stringify(row) + '|' + JSON.stringify(m.beatIds || [])) }); } });
+    return out;
+  }
+  function _resetBaseFrom(st){
+    _base = new Map(_localItems(st).map(x => [x.k, x.sig])); _baseFor = _baseKey();
+    _saveBase();
+  }
   let _pushingBeforePull = false;// vakt mot rekursjon push↔pull
   let _pendingSince = 0;         // når noe først ble ulagret (for varsling)
 
@@ -622,6 +660,8 @@ setTimeout(updateAdminUi, 50);
       if(typeof renderAll === 'function') renderAll();
 
       _hasPulledOk = true;   // nå vet vi hva skyen inneholder → sletting er trygt
+      lastPullAt = Date.now();
+      _resetBaseFrom(st);
       const sharedCount = sharedBeats.length + sharedAlbums.length + sharedMixtapes.length;
       say(`Synket: ${st.beats.length} beats, ${st.albums.length} albumer, ${st.mixtapes.length} mixtapes${sharedCount ? ` (${sharedCount} delt med deg)` : ''}.`, 'success');
       return true;
@@ -637,20 +677,6 @@ setTimeout(updateAdminUi, 50);
     }
   }
 
-  async function deleteMissingRows(table, currentIds){
-    const uid = window._mvCurrentUserId;
-    // Only delete own content — filter by owner_id
-    let q = client().from(table).select('id');
-    if(uid) q = q.eq('owner_id', uid);
-    const { data, error } = await q;
-    if(error) throw error;
-    const keep = new Set(currentIds || []);
-    const missing = (data || []).map(r=>r.id).filter(id=>!keep.has(id));
-    for(const id of missing){
-      const del = await client().from(table).delete().eq('id', id);
-      if(del.error) throw del.error;
-    }
-  }
   async function syncRelations(table, parentKey, collections){
     const ids = (collections || []).map(c=>c.id).filter(Boolean);
     for(const id of ids){
@@ -709,31 +735,46 @@ setTimeout(updateAdminUi, 50);
     _updateSyncIndicator('saving');
     say('Lagrer til Supabase...', 'info');
     try{
-      const beats = (st.beats || []).map(packBeat);
-      const albums = (st.albums || []).map(packAlbum);
-      const mixtapes = (st.mixtapes || []).map(packMixtape);
+      const items = _localItems(st);
+      const base = _loadBase();
 
-      // ⚠️ deleteMissingRows sletter ALT i skyen som ikke finnes lokalt. Med
-      // tom eller halvlastet state ville den tømt hele biblioteket. Invariant:
-      // vi sletter bare hvis vi FAKTISK har sett skyens innhold denne økta
-      // (vellykket pull) OG har noe lokalt. Ellers kun upsert — da kan en
-      // sletting bli hengende igjen til neste økt, men ingenting går tapt.
-      const totalLocal = beats.length + albums.length + mixtapes.length;
-      if(_hasPulledOk && totalLocal > 0){
-        await deleteMissingRows('beats', beats.map(x=>x.id));
-        await deleteMissingRows('albums', albums.map(x=>x.id));
-        await deleteMissingRows('mixtapes', mixtapes.map(x=>x.id));
+      if (!base){
+        // Første push etter oppdateringen (ingen grunnlinje ennå): én full
+        // opplasting som før, deretter gjelder endringsbasert synk.
+        const beats = items.filter(x => x.table === 'beats').map(x => x.row);
+        const albums = items.filter(x => x.table === 'albums').map(x => x.row);
+        const mixtapes = items.filter(x => x.table === 'mixtapes').map(x => x.row);
+        if(beats.length){ const r = await client().from('beats').upsert(beats, { onConflict:'id' }); if(r.error) throw r.error; }
+        if(albums.length){ const r = await client().from('albums').upsert(albums, { onConflict:'id' }); if(r.error) throw r.error; }
+        if(mixtapes.length){ const r = await client().from('mixtapes').upsert(mixtapes, { onConflict:'id' }); if(r.error) throw r.error; }
+        await syncRelations('album_beats', 'album_id', items.filter(x => x.table === 'albums').map(x => x.col));
+        await syncRelations('mixtape_beats', 'mixtape_id', items.filter(x => x.table === 'mixtapes').map(x => x.col));
+        _resetBaseFrom(st);
       } else {
-        console.warn('[Sync] Hopper over sletting (ingen fullført pull / tom state) — kun upsert.',
-          { hasPulledOk: _hasPulledOk, totalLocal });
+        const changed = items.filter(x => base.get(x.k) !== x.sig);
+        const localKeys = new Set(items.map(x => x.k));
+        // Slettet lokalt = var med ved forrige synk, finnes ikke nå.
+        const removed = [...base.keys()].filter(k => !localKeys.has(k));
+        const tableOf = { b: 'beats', a: 'albums', m: 'mixtapes' };
+        for (const k of removed){
+          const [t, id] = [k.slice(0, 1), k.slice(2)];
+          const del = await client().from(tableOf[t]).delete().eq('id', id);
+          if (del.error) throw del.error;
+          base.delete(k);
+        }
+        for (const table of ['beats', 'albums', 'mixtapes']){
+          const rows = changed.filter(x => x.table === table).map(x => x.row);
+          if (rows.length){ const r = await client().from(table).upsert(rows, { onConflict:'id' }); if (r.error) throw r.error; }
+        }
+        // Sporlister: bare for album/mixtapes som faktisk er endret.
+        const chAlbums = changed.filter(x => x.table === 'albums').map(x => x.col);
+        const chMixtapes = changed.filter(x => x.table === 'mixtapes').map(x => x.col);
+        if (chAlbums.length) await syncRelations('album_beats', 'album_id', chAlbums);
+        if (chMixtapes.length) await syncRelations('mixtape_beats', 'mixtape_id', chMixtapes);
+        changed.forEach(x => base.set(x.k, x.sig));
+        _saveBase();
+        if (changed.length || removed.length) console.info('[Sync] Lastet opp', changed.length, 'endret,', removed.length, 'slettet.');
       }
-
-      if(beats.length){ const r = await client().from('beats').upsert(beats, { onConflict:'id' }); if(r.error) throw r.error; }
-      if(albums.length){ const r = await client().from('albums').upsert(albums, { onConflict:'id' }); if(r.error) throw r.error; }
-      if(mixtapes.length){ const r = await client().from('mixtapes').upsert(mixtapes, { onConflict:'id' }); if(r.error) throw r.error; }
-
-      await syncRelations('album_beats', 'album_id', st.albums || []);
-      await syncRelations('mixtape_beats', 'mixtape_id', st.mixtapes || []);
 
       lastPushAt = Date.now();
       _setPending(false);
@@ -780,10 +821,10 @@ setTimeout(updateAdminUi, 50);
       const style = document.createElement('style');
       style.id = 'supabaseDataSyncStyle';
       style.textContent = `
-        .supabase-sync-card{margin-bottom:14px;border:1px solid rgba(191,178,166,.18)!important;background:rgba(191,178,166,.055)!important}
+        .supabase-sync-card{margin-bottom:14px;border:1px solid rgb(var(--muted-rgb) / .18)!important;background:rgb(var(--muted-rgb) / .055)!important}
         .sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
         .sync-status{min-height:18px;margin-top:10px}
-        .sync-status[data-type="success"]{color:#a6be8b}.sync-status[data-type="warning"]{color:#f0a579}.sync-status[data-type="error"]{color:#ffaaa3}
+        .sync-status[data-type="success"]{color:var(--ok)}.sync-status[data-type="warning"]{color:var(--accent2)}.sync-status[data-type="error"]{color:var(--danger)}
       `;
       document.head.appendChild(style);
     }
@@ -846,6 +887,15 @@ setTimeout(updateAdminUi, 50);
     if (document.hidden && _pendingPush && canWrite()) {
       clearTimeout(pushTimer);
       pushToSupabase();
+      return;
+    }
+    // Tilbake til fanen: hent ferske data, så fanen ikke blir stående gammel
+    // mens det er jobbet andre steder. Ikke hvis noe er ulagret eller brukeren
+    // står i et tekstfelt (pull tegner alt på nytt).
+    if (!document.hidden && !_pendingPush && _hasPulledOk && Date.now() - lastPullAt > 30000) {
+      const a = document.activeElement;
+      const editing = a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+      if (!editing && !isPullingFromSupabase) pullFromSupabase();
     }
   });
 
@@ -878,7 +928,7 @@ setTimeout(updateAdminUi, 50);
     const dot = document.createElement('span');
     dot.id = 'mvSyncDot';
     dot.title = 'Supabase sync';
-    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#a6be8b;display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
+    dot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-left:6px;flex-shrink:0;transition:background .3s;cursor:help';
     dot.addEventListener('click', () => {
       if (_syncState === 'error' || _syncState === 'blocked') { _staleWarned = false; pushToSupabase({manual:true}); }
     });
@@ -910,6 +960,13 @@ setTimeout(updateAdminUi, 50);
   window.mvSupabaseSync = {
     pull: pullFromSupabase,
     push: pushToSupabase,
+    // Diagnose (endrer ingenting): hva neste push ville lastet opp / slettet.
+    diff: () => { const st = appState(); const base = _loadBase(); if (!st) return null;
+      const items = _localItems(st);
+      if (!base) return { baseline: false, changed: items.length, removed: 0 };
+      const keys = new Set(items.map(x => x.k));
+      return { baseline: true, changed: items.filter(x => base.get(x.k) !== x.sig).map(x => x.k),
+               removed: [...base.keys()].filter(k => !keys.has(k)) }; },
     schedulePush,
     isReady: () => !!client()
   };

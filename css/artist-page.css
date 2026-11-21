@@ -1,0 +1,160 @@
+/* ============================================================================
+   artist-page.css — utseendet til den offentlige artistsiden (.ap-page).
+   Brukes av artist.html OG forhåndsvisningen i fanen «Artistside», så de alltid
+   ser like ut. Siden er alltid mørk (som delingssidene); aksenten er profilens
+   egen (--ap-accent, settes fra artist_pages.accent).
+   ========================================================================= */
+.ap-page{
+  --ap-accent: #d68155;
+  --ap-bg: #14120f; --ap-card: #1c1a17; --ap-line: rgba(255,255,255,.10);
+  --ap-text: #f4eadc; --ap-muted: rgba(244,234,220,.64);
+  color: var(--ap-text); background: var(--ap-bg);
+  font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased; min-height: 100%;
+}
+.ap-page *{ box-sizing: border-box; }
+
+/* Banner + profil */
+.ap-banner{ position: relative; height: clamp(160px, 28vw, 320px); background: #0d0c0b center/cover no-repeat; }
+.ap-banner::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,18,15,0) 40%, var(--ap-bg) 100%); }
+.ap-banner.is-empty{ background: radial-gradient(900px 300px at 30% 0%, color-mix(in srgb, var(--ap-accent) 35%, transparent), transparent 70%), #0d0c0b; }
+.ap-inner{ max-width: 820px; margin: 0 auto; padding: 0 20px 72px; position: relative; }
+.ap-head{ display: flex; gap: 22px; align-items: flex-end; margin-top: -64px; position: relative; z-index: 1; flex-wrap: wrap; }
+.ap-avatar{ width: 128px; height: 128px; border-radius: 50%; object-fit: cover; flex: none;
+  border: 4px solid var(--ap-bg); background: var(--ap-card); box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+.ap-avatar.is-empty{ display: grid; place-items: center; font-size: 44px; color: var(--ap-accent); font-family: Georgia, serif; }
+.ap-kicker{ font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--ap-accent); font-weight: 700; margin-bottom: 6px; }
+.ap-name{ font-family: "DM Serif Text", Georgia, "Times New Roman", serif; font-weight: 400; font-size: clamp(34px, 6vw, 56px); line-height: 1; margin: 0; }
+
+/* Seksjoner */
+.ap-section{ margin-top: 44px; }
+.ap-section-title{ font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ap-muted); font-weight: 700; margin: 0 0 14px; }
+.ap-prose{ color: var(--ap-muted); line-height: 1.7; font-size: 16px; white-space: pre-line; max-width: 62ch; margin: 0; }
+.ap-prose.is-lead{ color: var(--ap-text); font-size: 18px; }
+
+.ap-tracks{ display: grid; gap: 8px; }
+.ap-track{ display: flex; align-items: center; gap: 14px; padding: 10px; border-radius: 12px; background: var(--ap-card); border: 1px solid var(--ap-line); }
+.ap-track img, .ap-track .ap-ph{ width: 54px; height: 54px; border-radius: 6px; object-fit: cover; flex: none; background: #000; }
+.ap-track .ap-meta{ flex: 1; min-width: 0; }
+.ap-track .ap-t{ font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ap-track .ap-s{ font-size: 12px; color: var(--ap-muted); }
+.ap-play{ width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--ap-accent); color: var(--ap-on-accent, #14120f); font-size: 15px; cursor: pointer; flex: none; transition: transform .15s ease; }
+.ap-play:hover{ transform: scale(1.06); }
+.ap-track.is-playing{ border-color: var(--ap-accent); }
+
+.ap-gallery{ display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.ap-gallery img{ width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; display: block; background: var(--ap-card); }
+
+.ap-links{ display: flex; gap: 8px; flex-wrap: wrap; }
+.ap-links a, .ap-contact a{ color: var(--ap-text); text-decoration: none; border: 1px solid var(--ap-line); border-radius: 999px; padding: 8px 16px; font-size: 14px; transition: border-color .15s ease, color .15s ease; }
+.ap-links a:hover, .ap-contact a:hover{ border-color: var(--ap-accent); color: var(--ap-accent); }
+.ap-page :focus-visible{ outline: 2px solid var(--ap-accent); outline-offset: 2px; }
+
+.ap-foot{ margin-top: 64px; font-size: 12px; color: var(--ap-muted); }
+.ap-foot a{ color: var(--ap-accent); text-decoration: none; }
+.ap-empty-state{ color: var(--ap-muted); text-align: center; padding: 96px 20px; }
+@media (max-width: 560px){ .ap-head{ margin-top: -52px; } .ap-avatar{ width: 104px; height: 104px; } }
+
+/* ============================================================================
+   Fanen «Artistside» i appen (js/artist-studio.js) — bruker appens tokens.
+   ========================================================================= */
+#artistpageTab .as-empty{ color: var(--muted); padding: 64px 0; text-align: center; }
+#artistpageTab .as-bar{ display: flex; justify-content: space-between; align-items: flex-end; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-4); }
+#artistpageTab .as-title{ font-family: "DM Serif Text", Georgia, serif; font-weight: 400; font-size: 34px; line-height: 1.1; margin: 0; color: var(--text); }
+#artistpageTab .as-url{ font-size: var(--fs-sm); color: var(--muted); margin-top: 4px; word-break: break-all; }
+#artistpageTab .as-actions{ display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+#artistpageTab .as-actions [hidden]{ display: none; }
+#artistpageTab .as-status{ font-size: var(--fs-sm); color: var(--muted); }
+#artistpageTab .as-status.is-dirty{ color: var(--accent-ink); font-weight: 600; }
+#artistpageTab .as-save{ background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r-sm); padding: 9px 18px; font: inherit; font-weight: 700; cursor: pointer; }
+#artistpageTab .as-save:disabled{ opacity: .45; cursor: default; }
+#artistpageTab .as-switch{ display: inline-flex; gap: 8px; align-items: center; cursor: pointer; font-size: var(--fs-base); color: var(--text); }
+#artistpageTab .as-switch input{ appearance: none; -webkit-appearance: none; width: 36px; height: 20px; flex: none; border-radius: 999px; margin: 0; padding: 0; border: 0;
+  background: rgb(var(--ink-rgb) / .2); position: relative; cursor: pointer; transition: background .15s ease; }
+#artistpageTab .as-switch input::after{ content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text); transition: transform .15s ease; }
+#artistpageTab .as-switch input:checked{ background: var(--accent); }
+#artistpageTab .as-switch input:checked::after{ transform: translateX(16px); background: var(--on-accent); }
+
+#artistpageTab .as-grid{ display: grid; grid-template-columns: minmax(320px, 430px) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+#artistpageTab .as-editor{ display: grid; gap: var(--sp-3); min-width: 0; }
+#artistpageTab .as-card{ background: var(--surface-1); border: 1px solid var(--line); border-radius: 14px; padding: var(--sp-4); }
+#artistpageTab .as-card h2{ font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 0 0 var(--sp-3); font-weight: 700; }
+#artistpageTab .as-card-head{ display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+#artistpageTab .as-hint{ font-size: var(--fs-sm); color: var(--muted); margin: 0; }
+#artistpageTab .as-field{ display: grid; gap: 6px; font-size: var(--fs-sm); color: var(--muted); margin-bottom: var(--sp-3); }
+#artistpageTab .as-field:last-child{ margin-bottom: 0; }
+#artistpageTab input:not([type="checkbox"]):not([type="color"]), #artistpageTab textarea, #artistpageTab select{
+  font: inherit; font-size: var(--fs-base); color: var(--text); background: var(--surface-sunken);
+  border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 10px; width: 100%; min-width: 0; }
+#artistpageTab textarea{ resize: vertical; line-height: 1.5; }
+#artistpageTab input:focus-visible, #artistpageTab textarea:focus-visible, #artistpageTab select:focus-visible{ outline: 2px solid var(--accent); outline-offset: 1px; }
+
+#artistpageTab .as-chip{ display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface-1); color: var(--text); cursor: pointer; transition: border-color .15s ease; }
+#artistpageTab .as-chip:hover{ border-color: var(--accent); }
+#artistpageTab .as-banner-pick{ position: relative; height: 128px; border-radius: 10px; background: #0d0c0b center/cover no-repeat; border: 1px solid var(--line);
+  display: flex; align-items: flex-end; justify-content: flex-end; gap: 6px; padding: 8px; margin-bottom: var(--sp-3); }
+#artistpageTab .as-banner-hint{ position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: rgba(244,234,220,.55); pointer-events: none; }
+#artistpageTab .as-banner-pick .as-chip{ background: rgba(0,0,0,.62); color: #fff; border-color: rgba(255,255,255,.22); position: relative; }
+#artistpageTab .as-profile{ display: flex; gap: var(--sp-3); align-items: center; margin-bottom: var(--sp-3); }
+#artistpageTab .as-profile-btns{ display: flex; gap: 6px; flex-wrap: wrap; }
+#artistpageTab .as-avatar{ width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex: none; background: var(--surface-sunken);
+  border: 1px solid var(--line); display: grid; place-items: center; font-size: 28px; color: var(--muted); font-family: Georgia, serif; }
+#artistpageTab .as-slug{ display: flex; align-items: center; gap: 4px; }
+#artistpageTab .as-slug > span{ color: var(--faint); font-size: var(--fs-sm); white-space: nowrap; }
+#artistpageTab .as-swatches{ display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#artistpageTab .as-swatch{ width: 30px; height: 30px; border-radius: 50%; padding: 0; cursor: pointer; border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25); transition: transform .15s ease; }
+#artistpageTab .as-swatch:hover{ transform: scale(1.08); }
+#artistpageTab .as-swatch[aria-pressed="true"]{ border-color: var(--text); box-shadow: inset 0 0 0 2px var(--surface-1); }
+#artistpageTab .as-custom-color{ width: 30px; height: 30px; border-radius: 50%; overflow: hidden; border: 1px dashed var(--muted); display: grid; place-items: center; cursor: pointer; }
+#artistpageTab .as-custom-color input{ width: 44px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer; }
+
+#artistpageTab .as-blocks{ display: grid; gap: 8px; }
+#artistpageTab .as-block{ border: 1px solid var(--line); border-radius: 10px; background: var(--surface-sunken); transition: border-color .15s ease, opacity .15s ease; }
+#artistpageTab .as-block.is-hidden .as-block-body, #artistpageTab .as-block.is-hidden strong{ opacity: .45; }
+#artistpageTab .as-block.is-dragging{ opacity: .35; }
+#artistpageTab .as-block.is-over{ border-color: var(--accent); }
+#artistpageTab .as-block-head{ display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 8px; font-size: var(--fs-base); color: var(--text); }
+#artistpageTab .as-grip{ cursor: grab; color: var(--faint); letter-spacing: -3px; padding: 4px 6px 4px 2px; user-select: none; }
+#artistpageTab .as-tag{ font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+#artistpageTab .as-block-tools{ margin-left: auto; display: flex; gap: 2px; }
+#artistpageTab .as-icon-btn{ display: inline-grid; place-items: center; font: inherit; font-size: 14px; min-width: 30px; height: 30px; border-radius: 6px; border: 0;
+  background: transparent; color: var(--muted); cursor: pointer; }
+#artistpageTab .as-icon-btn:hover:not(:disabled){ background: rgb(var(--ink-rgb) / .08); color: var(--text); }
+#artistpageTab .as-icon-btn:disabled{ opacity: .3; cursor: default; }
+#artistpageTab .as-block-body{ padding: 0 10px 10px; display: grid; gap: 8px; }
+#artistpageTab .as-list-row{ display: flex; gap: 6px; align-items: center; }
+#artistpageTab .as-num{ width: 18px; text-align: right; font-size: 12px; color: var(--faint); flex: none; }
+#artistpageTab .as-grow{ flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-base); color: var(--text); }
+#artistpageTab .as-link-row input:first-child{ flex: 0 0 34%; }
+#artistpageTab .as-thumbs{ display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
+#artistpageTab .as-thumbs:empty{ display: none; }
+#artistpageTab .as-thumb{ position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden; background: #000; }
+#artistpageTab .as-thumb img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+#artistpageTab .as-thumb-tools{ position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-between; background: linear-gradient(transparent, rgba(0,0,0,.75));
+  opacity: 0; transition: opacity .15s ease; }
+#artistpageTab .as-thumb:hover .as-thumb-tools, #artistpageTab .as-thumb:focus-within .as-thumb-tools{ opacity: 1; }
+#artistpageTab .as-thumb-tools button{ background: none; border: 0; color: #fff; cursor: pointer; padding: 4px 8px; font-size: 15px; }
+#artistpageTab .as-thumb-tools button:disabled{ opacity: .3; }
+#artistpageTab .as-block-body .as-chip{ justify-self: start; }
+#artistpageTab .as-add{ display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: var(--sp-3); }
+
+#artistpageTab .as-preview{ position: sticky; top: var(--sp-4); min-width: 0; }
+#artistpageTab .as-preview-label{ font-size: var(--fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--faint); font-weight: 700; margin-bottom: 8px; }
+#artistpageTab .as-device{ border-radius: 16px; overflow: auto; max-height: calc(100vh - 150px); border: 1px solid var(--line);
+  box-shadow: 0 20px 48px rgb(var(--shadow-rgb) / calc(.45 * var(--shadow-k))); }
+#artistpageTab .as-device .ap-banner{ height: 210px; }
+#artistpageTab .as-device .ap-inner{ padding-bottom: 40px; }
+@media (max-width: 1000px){
+  #artistpageTab .as-grid{ grid-template-columns: 1fr; }
+  #artistpageTab .as-preview{ position: static; }
+  #artistpageTab .as-device{ max-height: none; }
+}
+/* studio.css tvinger alle h1/h2 i faner til visningsfont/-størrelse/-farge med
+   !important — overstyr for kortoverskriftene og forhåndsvisningen. */
+#artistpageTab .as-card h2, #artistpageTab .ap-section-title{
+  font-family: "DM Sans", system-ui, sans-serif !important; font-weight: 700 !important; line-height: 1.3 !important; }
+#artistpageTab .as-card h2{ font-size: 11px !important; letter-spacing: .08em !important; color: var(--faint) !important; }
+#artistpageTab .ap-section-title{ font-size: 12px !important; letter-spacing: .14em !important; color: var(--ap-muted) !important; }
+#artistpageTab .ap-name{ color: var(--ap-text) !important; font-size: clamp(34px, 4vw, 52px) !important; letter-spacing: -.01em !important; }

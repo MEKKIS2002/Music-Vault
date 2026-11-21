@@ -84,7 +84,7 @@
     .state p{ margin:0; font-size:13px; }
     .hidden{ display:none !important; }
   </style>
-  <link rel="stylesheet" href="css/icons.css?v=202611150030">
+  <link rel="stylesheet" href="css/icons.css?v=50c7dc28e6">
 </head>
 <body>
   <div class="card">
@@ -127,11 +127,14 @@
     </div>
   </div>
 
+  <script src="js/i18n.js?v=52a4b3492d"></script>
+  <script src="js/i18n-en.js?v=ff85a964c3"></script>
+  <script src="js/config.js?v=b121068c62"></script>
   <script>
     (function(){
       'use strict';
-      var SB_URL = 'https://ylvqkfdvijqnecuqznyr.supabase.co';
-      var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlsdnFrZmR2aWpxbmVjdXF6bnlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzA4MzIsImV4cCI6MjA5MzkwNjgzMn0.bYPTaxQK8n7I7w5Ri2DVYW5_LbFHg2IXkuhHsLTDDqc';
+      var SB_URL = window.MV_CONFIG.SUPABASE_URL;
+      var SB_KEY = window.MV_CONFIG.SUPABASE_ANON_KEY;
 
       function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];}); }
       function $(id){ return document.getElementById(id); }
@@ -145,6 +148,13 @@
       var token = params.get('s') || params.get('t') || (location.hash||'').replace(/^#/,'');
       if(!token){ fail(); return; }
 
+      // ── Statistikk (anonym): åpnet, spilt, hvor langt (maks %) ──
+      function sid(){ var s = sessionStorage.getItem('mv_sid'); if(!s){ s = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now().toString(36)); sessionStorage.setItem('mv_sid', s); } return s; }
+      function track(ev, pct){
+        try { fetch(SB_URL + '/rest/v1/rpc/log_share_event', { method:'POST', headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
+          body: JSON.stringify({ p_kind:'song', p_token:token, p_session:sid(), p_event:ev, p_beat:'', p_pct:pct||0 }) }).catch(function(){}); } catch(e){}
+      }
+
       fetch(SB_URL + '/rest/v1/rpc/get_song_share', {
         method:'POST',
         headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' },
@@ -154,6 +164,7 @@
       .then(function(data){
         if(!data || !data.audio_url){ fail(); return; }
         renderTrack(data);
+        track('open', 0);
       })
       .catch(fail);
 
@@ -184,6 +195,14 @@
             cur = $('cur'), dur = $('dur'), vol = $('vol'), muteBtn = $('muteBtn'),
             dlBtn = $('dlBtn');
         audio.src = data.audio_url;
+        var lastPct = -1;
+        audio.addEventListener('play', function(){ track('play', 0); });
+        audio.addEventListener('timeupdate', function(){
+          if(!audio.duration) return;
+          var p = Math.floor(audio.currentTime / audio.duration * 10) * 10;
+          if(p > lastPct){ lastPct = p; track('progress', p); }
+        });
+        audio.addEventListener('ended', function(){ track('progress', 100); });
         setFill(vol, 100);
 
         // Play / pause

@@ -31,17 +31,39 @@
   --faint:           #a89a8d;   /* 6.4:1 mot --bg (var .42 = 3.6:1, under WCAG AA) */
 
   /* ── Aksent (vinyl/amber-temaet) ────────────────────────────────────── */
+  /* Byttes av [data-accent] (PRO) nedenfor — skriv aldri aksent-hex i stiler. */
   --accent:          #d68155;
+  --accent-rgb:      214 129 85;
   --accent2:         #f0a579;   /* = --accent-text */
+  --accent2-rgb:     240 165 121;
+  --accent-deep:     #b9683f;   /* mørk ende i gradienter */
+  --accent-ink:      var(--accent);   /* aksent brukt som TEKST (mørkere i lys modus) */
+  --accent-ink-rgb:  var(--accent-rgb);
   --accent-soft:     #39271e;
-  --accent-line:     rgba(214,129,85,.55);
-  --gold:            #f0a579;
+  --accent-line:     rgb(var(--accent-rgb) / .55);
+  --gold:            var(--accent2);
 
   /* ── Status ─────────────────────────────────────────────────────────── */
   --ok:              #a6be8b;
   --warn:            #f0a579;
   --danger:          #ffaaa3;
   --info:            #bfb2a6;
+  --stage-idea:      #8b8794;   /* pipeline-stadier med egen farge */
+  --stage-writing:   #a78bfa;
+
+  /* ── RGB-tripler for gjennomsiktighet: rgb(var(--ink-rgb) / .12) ───── */
+  /* --ink-rgb = «forgrunn»: hvit i mørk modus, mørk brun i lys modus.    */
+  --ink-rgb:         255 255 255;
+  --shade-rgb:       0 0 0;          /* mørk tone for halvgjennomsiktige bakgrunner */
+  --shadow-rgb:      0 0 0;          /* skyggefarge: rgb(var(--shadow-rgb) / calc(a * var(--shadow-k))) */
+  --shadow-k:        1;              /* skyggestyrke (lys modus: svakere) */
+  --ink-boost:       0;              /* løfter dekningen på halvgjennomsiktig TEKST i lys modus */
+  --text-rgb:        244 234 220;
+  --muted-rgb:       191 178 166;
+  --bg-rgb:          24 22 21;
+  --panel-rgb:       33 29 26;
+  --danger-rgb:      255 170 163;
+  --ok-rgb:          166 190 139;
 
   /* ── Radius: tre trinn, ikke atten ──────────────────────────────────── */
   --r-flat:          12px;    /* store flater: paneler, kort, cover */
@@ -86,14 +108,14 @@
   --font-display: "DM Serif Text",Georgia,"Times New Roman",serif;
 
   /* ── Studio × Platebutikken (ny stil/music-vault.css) ──────────────── */
-  --sidebar:        #141210;
-  --panel:          #211d1a;
-  --raised:         #2a231e;
-  --border-control: #897567;
-  --accent-text:    #f0a579;
+  --sidebar:        var(--surface-sunken);
+  --panel:          var(--surface-1);
+  --raised:         var(--surface-2);
+  --border-control: var(--line-strong);
+  --accent-text:    var(--accent2);
   --on-accent:      #21130e;
-  --done:           #a6be8b;
-  --error:          #ffaaa3;
+  --done:           var(--ok);
+  --error:          var(--danger);
   --display:        var(--font-display);
   --body:           var(--font-ui);
   --radius-panel:   12px;
@@ -114,6 +136,85 @@
   --r-xl:        var(--r-flat);      /* gammel --radius-xl pekte på 24px */
   --radius-xl:   var(--r-flat);
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   LYS MODUS — kremhvit. Settes med <html data-theme="light"> (js/theme.js).
+   Bare tokens byttes; alt annet følger automatisk.
+   ════════════════════════════════════════════════════════════════════════ */
+:root[data-theme="light"]{
+  color-scheme: light;
+  --bg:              #f5efe4;   /* krem */
+  --surface-1:       #fbf8f2;
+  --surface-2:       #efe7da;
+  --surface-3:       #e6dbca;
+  --surface-sunken:  #ece4d6;
+
+  --line:            #ddd1bf;
+  --line-strong:     #a8988a;
+
+  --text:            #2b221c;
+  --muted:           #5e5148;
+  --faint:           #665950;   /* ≥4.9:1 mot alle lyse flater */
+
+  --accent-soft:     #f6e3d6;
+  --accent2:         #93472a;   /* aksent som TEKST må være mørkere på krem */
+  --accent-ink:      var(--accent2);
+  --accent2-rgb:     147 71 42;
+  --accent-ink-rgb:  var(--accent2-rgb);
+
+  --ok:              #435e2f;
+  --danger:          #a1372e;
+  --info:            #5e5148;
+  --stage-idea:      #625f6b;
+  --stage-writing:   #6247b8;
+  --warn:            #a65a1e;
+
+  --ink-rgb:         43 34 28;
+  --shade-rgb:       120 92 66;
+  --shadow-rgb:      74 52 32;       /* varm brun i stedet for svart */
+  --shadow-k:        .32;
+  --ink-boost:       .6;
+  --text-rgb:        43 34 28;
+  --muted-rgb:       94 81 72;
+  --bg-rgb:          245 239 228;
+  --panel-rgb:       251 248 242;
+  --danger-rgb:      161 55 46;
+  --ok-rgb:          67 94 47;
+
+  --shadow-float:    0 18px 48px rgba(74,52,32,.16);
+  --shadow-modal:    0 32px 90px rgba(74,52,32,.24);
+}
+
+/* Låseskjermen er et mørkt vinyl-motiv — den holder seg mørk i lys modus. */
+:root[data-theme="light"] #lockScreen{
+  color-scheme: dark;
+  --bg:#181615; --surface-1:#211d1a; --surface-2:#2a231e; --surface-3:#33291f; --surface-sunken:#141210;
+  --line:#40362f; --line-strong:#897567;
+  --text:#f4eadc; --muted:#bfb2a6; --faint:#a89a8d;
+  --accent2:#f0a579; --accent2-rgb:240 165 121; --accent-soft:#39271e;
+  --accent-ink:var(--accent); --accent-ink-rgb:var(--accent-rgb); --ink-boost:0;
+  --ok:#a6be8b; --danger:#ffaaa3; --info:#bfb2a6; --warn:#f0a579;
+  --ink-rgb:255 255 255; --shade-rgb:0 0 0; --shadow-rgb:0 0 0; --shadow-k:1; --text-rgb:244 234 220; --muted-rgb:191 178 166;
+  --bg-rgb:24 22 21; --panel-rgb:33 29 26; --danger-rgb:255 170 163; --ok-rgb:166 190 139;
+  color: var(--text);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   AKSENTFARGER (PRO) — <html data-accent="…">. Oransje er standard (ingen attr).
+   Hver farge: hovedtone, lys tekst-variant (mørk modus), mørk ende, myk flate.
+   ════════════════════════════════════════════════════════════════════════ */
+:root[data-accent="rosa"]{  --accent:#e07a9b; --accent-rgb:224 122 155; --accent2:#f2a7bf; --accent2-rgb:242 167 191; --accent-deep:#c25f80; --accent-soft:#3a2229; }
+:root[data-accent="bla"]{   --accent:#6f9fd8; --accent-rgb:111 159 216; --accent2:#a3c4ec; --accent2-rgb:163 196 236; --accent-deep:#557fb5; --accent-soft:#1f2a38; }
+:root[data-accent="gronn"]{ --accent:#7fb069; --accent-rgb:127 176 105; --accent2:#a9cf96; --accent2-rgb:169 207 150; --accent-deep:#648f50; --accent-soft:#232d1e; }
+:root[data-accent="lilla"]{ --accent:#a785d6; --accent-rgb:167 133 214; --accent2:#c7b0ec; --accent2-rgb:199 176 236; --accent-deep:#8a69bb; --accent-soft:#2b2338; }
+:root[data-accent="gul"]{   --accent:#d9b44a; --accent-rgb:217 180 74;  --accent2:#ecd287; --accent2-rgb:236 210 135; --accent-deep:#b8952f; --accent-soft:#352d18; }
+
+/* I lys modus må tekst-varianten være mørk nok for kontrast mot krem. */
+:root[data-theme="light"][data-accent="rosa"]{  --accent2:#9b3d5d; --accent2-rgb:155 61 93;  --accent-soft:#f8e1e8; }
+:root[data-theme="light"][data-accent="bla"]{   --accent2:#2f5b8f; --accent2-rgb:47 91 143;  --accent-soft:#e1ebf7; }
+:root[data-theme="light"][data-accent="gronn"]{ --accent2:#3e672c; --accent2-rgb:62 103 44;   --accent-soft:#e3efdc; }
+:root[data-theme="light"][data-accent="lilla"]{ --accent2:#5f4390; --accent2-rgb:95 67 144;  --accent-soft:#ece4f7; }
+:root[data-theme="light"][data-accent="gul"]{   --accent2:#755c0e; --accent2-rgb:117 92 14;  --accent-soft:#f6eed3; }
 
 /* Respekter systemets «reduser bevegelse». */
 @media (prefers-reduced-motion: reduce){

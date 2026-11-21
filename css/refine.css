@@ -143,7 +143,7 @@ button.ghost-btn:hover,.ghost-btn:hover,
 button.small-btn:hover,.small-btn:hover{ background:var(--surface-3) !important; }
 
 button.danger,.danger{
-  background:rgba(255,170,163,.12) !important;
+  background:rgb(var(--danger-rgb) / .12) !important;
   border:0 !important;
   color:var(--danger) !important;
 }
@@ -250,7 +250,7 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
 .modal-card{
   border:0 !important;
   border-radius:var(--r-flat) !important;
-  background:#141210 !important;
+  background:var(--surface-sunken) !important;
   box-shadow:var(--shadow-modal) !important;
 }
 .modal-hd{ border-bottom:1px solid var(--line) !important; }
@@ -265,7 +265,7 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
 .mv-gear-dropdown{
   border:0 !important;
   border-radius:var(--r-sm) !important;
-  background:#17140f !important;
+  background:var(--surface-1) !important;
   box-shadow:var(--shadow-float) !important;
 }
 
@@ -354,8 +354,8 @@ input:focus,select:focus,textarea:focus,.ux-input:focus{
 .mv-proj-menu-panel{
   position:absolute; top:calc(100% + 6px); left:0; z-index:60;
   min-width:220px; display:grid; gap:4px; padding:6px;
-  background:#15120e; border:1px solid var(--line-strong); border-radius:var(--r-sm);
-  box-shadow:0 16px 40px rgba(0,0,0,.55);
+  background:var(--surface-1); border:1px solid var(--line-strong); border-radius:var(--r-sm);
+  box-shadow:0 16px 40px rgb(var(--shadow-rgb) / calc(.55 * var(--shadow-k)));
 }
 .mv-proj-menu-panel > button{
   width:100%; margin:0 !important; justify-content:flex-start !important; text-align:left !important;
