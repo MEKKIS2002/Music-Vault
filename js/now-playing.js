@@ -204,7 +204,7 @@
     el.querySelector('.np-sub').textContent = sub(b) || (collection()?.name || 'Beat');
     const h = el.querySelector('.np-heart'); h.classList.toggle('on', !!b.favorite); h.setAttribute('aria-pressed', !!b.favorite); h.setAttribute('aria-label', b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt');
     el.style.setProperty('--np-bg', darkTone(getComputedStyle($('bottomPlayer') || document.body).getPropertyValue('--bp-tint').trim() || '#2a1d12'));
-    if (sheetOpen) setThemeColor(true);
+    if (sheetOpen){ setThemeColor(true); setPageBackdrop(true); }
     el.style.setProperty('--np-tint', getComputedStyle($('bottomPlayer') || document.body).getPropertyValue('--bp-tint').trim() || '#2a1d12');
     if (changed) renderLyrics(el, b);
     syncModes(); tickSheet();
@@ -248,6 +248,55 @@
       if (bg) meta.setAttribute('content', bg);
     } else if (prevTheme != null){ meta.setAttribute('content', prevTheme); prevTheme = null; }
   }
+  // Safari (iPhone) tegner ikke faste elementer under statuslinjen — der vises
+  // SIDENS bakgrunn. Mens visningen er åpen gjør vi derfor sidebakgrunnen til en
+  // uskarp, mørk versjon av coveret, så bildet ser ut til å gå helt opp.
+  // Uskarpheten lages ved å skalere coveret ned til 16×16 og la nettleseren
+  // strekke det opp igjen (glatt), og fargene dempes i samme slengen.
+  const backdropCache = new Map();
+  function blurredBackdrop(src){
+    if (!src) return Promise.resolve(null);
+    if (backdropCache.has(src)) return backdropCache.get(src);
+    const p = new Promise(res => {
+      const img = new Image(); img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try{
+          const n = 16, c = document.createElement('canvas'); c.width = c.height = n;
+          const x = c.getContext('2d'); x.drawImage(img, 0, 0, n, n);
+          const d = x.getImageData(0, 0, n, n), px = d.data;
+          for (let i = 0; i < px.length; i += 4){
+            const avg = (px[i] + px[i+1] + px[i+2]) / 3;
+            for (let k = 0; k < 3; k++){ const v = avg + (px[i+k] - avg) * 1.3; px[i+k] = Math.max(0, Math.min(255, v * .42)); }   // mer farge, mørkere
+          }
+          x.putImageData(d, 0, 0);
+          res(c.toDataURL('image/png'));
+        }catch(e){ res(null); }                               // cover uten CORS: bruk bare fargen
+      };
+      img.onerror = () => res(null);
+      img.src = src;
+    });
+    backdropCache.set(src, p);
+    return p;
+  }
+  let backdropOn = false, backdropFor = null;
+  async function setPageBackdrop(on){
+    const html = document.documentElement, body = document.body;
+    if (!on){
+      backdropOn = false; backdropFor = null;
+      ['background', 'background-color'].forEach(p => { html.style.removeProperty(p); body.style.removeProperty(p); });
+      return;
+    }
+    backdropOn = true;
+    const b = beatById(sheetBeatId) || cur();
+    const src = (b && (b.cover || collection()?.cover)) || '';
+    const color = $('mvNowSheet')?.style.getPropertyValue('--np-bg') || '#110d0b';
+    backdropFor = src;
+    body.style.setProperty('background', 'transparent', 'important');
+    html.style.setProperty('background', color, 'important');
+    const url = await blurredBackdrop(src);
+    if (!backdropOn || backdropFor !== src) return;            // lukket eller byttet låt imens
+    if (url) html.style.setProperty('background', `${color} url("${url}") center / cover no-repeat`, 'important');
+  }
   let locked = null;
   function lockPage(on){
     const main = document.querySelector('main.app'), se = document.scrollingElement || document.documentElement;
@@ -278,7 +327,7 @@
     const wasOpen = sheetOpen;
     sheetTab = document.querySelector('.tab-btn.active')?.dataset.tab || null; watchNav();
     sheetOpen = true; renderSheet();
-    el.classList.add('open'); lockPage(true); setThemeColor(true);
+    el.classList.add('open'); lockPage(true); setThemeColor(true); setPageBackdrop(true);
     el.querySelector('.nps-lyr').scrollTop = 0;
     if (!wasOpen) history.pushState({ mvNow: 1 }, '', location.href);    // telefonens tilbakeknapp lukker
   }
@@ -287,7 +336,7 @@
     if (el.querySelector('.nps-lyr').contains(document.activeElement)) document.activeElement.blur();
     clearTimeout(saveT); if (typeof window.saveState === 'function') window.saveState();
     sheetOpen = false;
-    el.classList.remove('open', 'editing'); lockPage(false); setThemeColor(false);
+    el.classList.remove('open', 'editing'); lockPage(false); setThemeColor(false); setPageBackdrop(false);
     if (!fromPop && history.state && history.state.mvNow) history.back();
   }
   window.addEventListener('popstate', () => { if (sheetOpen) closeSheet(true); });
