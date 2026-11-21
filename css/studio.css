@@ -2068,7 +2068,8 @@ html body .np-sheet.no-cover .nps-bg::before{ display: none; }
 /* «Spilles nå» mobil: ingen brun stripe øverst. Safari farger statuslinjen etter
    bakgrunnsfargen til det faste elementet øverst — bruk en mørk tone av coverets
    farge, og la bildet gå helt opp under statuslinjen (viewport-fit=cover). */
-html body .np-sheet{ background: var(--np-bg, #110d0b) !important; }
+/* Gjennomsiktig: Safari viser da sidebakgrunnen (uskarpt cover, satt i now-playing.js) under statuslinjen */
+html body .np-sheet{ background: transparent !important; }
 html body .nps-bg{ top: calc(-1 * env(safe-area-inset-top, 0px)); }
 /* «Spilles nå» mobil: minimalistisk skriving — ingen ramme eller boks rundt teksten du skriver i */
 html body .np-sheet .nps-sec-text:focus,

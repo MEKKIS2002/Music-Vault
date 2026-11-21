@@ -6,6 +6,15 @@
 
   const VERSIONS = [
     {
+      version: 'v2.17',
+      date: '21. november 2026',
+      label: 'Coverbildet helt opp også i Safari',
+      color: '#d68155',
+      changes: [
+        'Safari på iPhone: toppen bak klokka viser nå en uskarp, mørk versjon av coveret i stedet for en mørk stripe',
+      ]
+    },
+    {
       version: 'v2.16',
       date: '21. november 2026',
       label: 'Coverbildet helt opp',
