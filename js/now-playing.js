@@ -431,7 +431,7 @@
     const bar = $('bottomPlayer'); if (!bar || !bar.contains(e.target)) return;
     if (isMobile()){
       // Hele minispilleren åpner «Spilles nå», unntatt play-knappen
-      if (e.target.closest('.bp-play, .bp-btn, button, input')) return;
+      if (e.target.closest('.bp-play, .bp-btn, button, input, .bp-progress') || scrubbedAt > Date.now() - 400) return;
       e.preventDefault(); openSheet(cur()?.id); return;
     }
     if (e.target.closest('#bpCover, .bp-meta')){ e.preventDefault(); togglePanel(); }
@@ -451,7 +451,43 @@
     };
     wrapped._np = true; window.toggleAlbumBeat = wrapped;
   }
+  // ── Mobil: dra i tidslinjen i minispilleren for å spole ─────────────────
+  // Streken er 2 px, men treffflaten (.bp-progress) er ~22 px høy. Mens du
+  // drar blir streken tykkere og viser tiden; lyden spoles når du slipper.
+  let scrubbedAt = 0;
+  function bindScrub(){
+    const area = document.querySelector('#bottomPlayer .bp-progress'), seek = $('bpSeek');
+    if (!area || !seek || area.dataset.scrub) return;
+    area.dataset.scrub = '1';
+    const tip = document.createElement('span'); tip.className = 'bp-scrub-time'; tip.setAttribute('aria-hidden', 'true'); area.appendChild(tip);
+    let active = false, ratio = 0;
+    const at = x => { const r = seek.getBoundingClientRect(); return r.width ? Math.min(1, Math.max(0, (x - r.left) / r.width)) : 0; };
+    const show = x => {
+      const a = P()?.audio, dur = a && isFinite(a.duration) ? a.duration : 0;
+      ratio = at(x);
+      seek.value = Math.round(ratio * 1000);
+      if (typeof window.bpSetRangeFill === 'function') window.bpSetRangeFill(seek); else seek.style.setProperty('--pct', (ratio * 100) + '%');
+      tip.textContent = fmt(ratio * dur);
+      tip.style.left = (ratio * 100) + '%';
+    };
+    area.addEventListener('pointerdown', e => {
+      if (!isMobile()) return;
+      const a = P()?.audio; if (!a || !(a.duration > 0)) return;
+      active = true; area.classList.add('is-scrubbing'); try { area.setPointerCapture(e.pointerId); } catch(_){}
+      e.preventDefault(); e.stopPropagation(); show(e.clientX);
+    });
+    area.addEventListener('pointermove', e => { if (active){ e.preventDefault(); show(e.clientX); } });
+    const end = e => {
+      if (!active) return;
+      active = false; area.classList.remove('is-scrubbing'); scrubbedAt = Date.now();
+      const a = P()?.audio; if (a && a.duration > 0) a.currentTime = ratio * a.duration;
+      e && e.stopPropagation();
+    };
+    area.addEventListener('pointerup', end); area.addEventListener('pointercancel', end); area.addEventListener('lostpointercapture', () => active && end());
+  }
+
   function init(){
+    bindScrub();
     hookCollectionCovers(); setTimeout(hookCollectionCovers, 1500);
     document.addEventListener('click', onPlayerClick);
     const bar = $('bottomPlayer');
