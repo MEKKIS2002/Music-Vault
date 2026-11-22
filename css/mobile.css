@@ -507,3 +507,22 @@
   }
 
 } /* end @media (max-width: 768px) */
+
+/* ── Minispiller: dra i tidslinjen for å spole (js/now-playing.js bindScrub) ──
+   Streken er fortsatt 2 px, men treffflaten er 22 px og tar imot fingeren. */
+@media (max-width: 768px) {
+  #bottomPlayer .bp-progress {
+    pointer-events: auto !important; height: 22px !important; bottom: -7px !important;
+    display: flex !important; align-items: center !important; touch-action: none; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #bottomPlayer .bp-progress .bp-seek { pointer-events: none !important; flex: 1; transition: height .12s ease; }
+  #bottomPlayer .bp-progress.is-scrubbing .bp-seek { height: 5px !important; }
+  #bottomPlayer .bp-progress.is-scrubbing .bp-seek::-webkit-slider-thumb { opacity: 1 !important; width: 14px !important; height: 14px !important; }
+  #bottomPlayer .bp-scrub-time {
+    position: absolute; bottom: 18px; transform: translateX(-50%); pointer-events: none; opacity: 0;
+    padding: 3px 7px; border-radius: 6px; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums;
+    color: #fff; background: rgba(0,0,0,.78); transition: opacity .12s ease; white-space: nowrap;
+  }
+  #bottomPlayer .bp-progress.is-scrubbing .bp-scrub-time { opacity: 1; }
+}
