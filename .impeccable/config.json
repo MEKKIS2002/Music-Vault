@@ -1,0 +1,44 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "broken-image",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-11-23T21:35:12.162Z",
+        "reason": "user confirmed: #albumCoverPreview og #newMixtapeCoverPreview er forhåndsvisninger som fylles av JS når et bilde velges"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "share.html"
+        ],
+        "createdAt": "2026-11-23T21:45:49.020Z",
+        "reason": "user confirmed: eksisterende design på de offentlige delingssidene"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "mixtape.html"
+        ],
+        "createdAt": "2026-11-23T21:45:49.034Z",
+        "reason": "user confirmed: eksisterende design på de offentlige delingssidene"
+      },
+      {
+        "rule": "layout-transition",
+        "value": "*",
+        "files": [
+          "mixtape.html"
+        ],
+        "createdAt": "2026-11-23T21:45:49.047Z",
+        "reason": "user confirmed: eksisterende design på de offentlige delingssidene"
+      }
+    ]
+  }
+}
