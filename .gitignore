@@ -29,3 +29,6 @@ node_modules/
 node_modules/
 test-results/
 playwright-report/
+
+# Impeccable designkontroll: lokal cache (config.json med unntak commites)
+.impeccable/hook.cache.json
