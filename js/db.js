@@ -718,7 +718,9 @@ function renderDashboard(){
     }).join('');
     let streak=0,cur=new Date(today);
     while(activeDays.has(cur.getTime())){streak++;cur=new Date(cur);cur.setDate(cur.getDate()-1);}
-    if(streakEl) streakEl.innerHTML=streak>0?`<span class="streak-num">${streak}</span><span class="streak-txt">dag${streak===1?'':'er'} p\u00e5 rad</span>`:'<span class="streak-txt">Ingen aktivitet registrert enn\u00e5</span>';
+    // Ingen rekke i dag betyr ikke «ingen aktivitet» — vis hvor mange av de 7 dagene som har vært aktive
+    const week=Array.from({length:7},(_,i)=>{const d=new Date(today);d.setDate(d.getDate()-i);return activeDays.has(d.getTime());}).filter(Boolean).length;
+    if(streakEl) streakEl.innerHTML=streak>0?`<span class="streak-num">${streak}</span><span class="streak-txt">dag${streak===1?'':'er'} p\u00e5 rad</span>`:week?`<span class="streak-num">${week}</span><span class="streak-txt">aktiv${week===1?'':'e'} dag${week===1?'':'er'} siste uke</span>`:'<span class="streak-txt">Ingen aktivitet siste uke</span>';
   }
   const recent2=beats.slice().sort((a,b)=>(b.createdAt||b.id||0)-(a.createdAt||a.id||0)).slice(0,4);
   const bEl=document.getElementById('dashBeats');
@@ -748,7 +750,24 @@ window.dashNewAlbum=function(){document.querySelector('.tab-btn[data-tab="albums
 window.dashNewMixtape=function(){document.querySelector('.tab-btn[data-tab="mixtapes"]')?.click();setTimeout(()=>document.getElementById('newMixtapeBtn')?.click(),80);};
 window.dashOpenLyricLab=function(){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();};
 window.dashUploadTrigger=function(){document.getElementById('dashUploadInput')?.click();};
-window.dashUpload=async function(files){if(!files||!files.length)return;for(const file of files){if(typeof createBeatFromFileIDB==='function')await createBeatFromFileIDB(file);}renderDashboard();showToast('\u2713 '+files.length+' sang'+(files.length>1?'er':'')+' lastet opp');};
+// Opplasting fra Hjem, Beats-siden og mobilknappen: legg låten(e) i biblioteket og lagre
+// (før ble lydfila bare lagret lokalt og låten aldri lagt til). Én låt → «Skriv tekst».
+window.dashUpload=async function(files){
+  files=[...(files||[])].filter(f=>f&&(/^audio\//.test(f.type)||/\.(mp3|wav|m4a|aac|flac|ogg|aif|aiff)$/i.test(f.name)));
+  if(!files.length){showToast('Fant ingen lydfiler');return;}
+  const added=[];
+  for(const file of files){
+    try{const b=await createBeatFromFile(file);if(b){if(!state.beats.find(x=>x.id===b.id))state.beats.unshift(b);added.push(b);if(typeof uploadBeatToR2==='function')uploadBeatToR2(b,file);}}
+    catch(e){console.warn('[upload]',e);}
+  }
+  const inp=document.getElementById('dashUploadInput');if(inp)inp.value='';
+  if(!added.length){showToast('Kunne ikke laste opp — prøv igjen');return;}
+  saveState();
+  try{renderDashboard();}catch(e){}
+  try{window.beatsTab&&beatsTab.renderBeatsTab();}catch(e){}
+  if(added.length===1&&typeof openInLyricLab==='function'){const id=added[0].id;showToast('✓ «'+added[0].name+'» lastet opp','Skriv tekst',()=>{document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>openInLyricLab(id),60);});}
+  else showToast('✓ '+added.length+' sang'+(added.length>1?'er':'')+' lastet opp');
+};
 
 
 // ── BEATS ──

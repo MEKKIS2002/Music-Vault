@@ -202,6 +202,7 @@
             <span class="beats-count" aria-live="polite">${searchQ ? `${beats.length} av ${total}` : `${total} sanger`}</span>
           </div>
           <div class="beats-tab-controls">
+            <button type="button" class="primary-btn beats-upload-btn" onclick="dashUploadTrigger()" title="Last opp lydfiler — eller slipp dem på siden"><span class="ic ic-upload" aria-hidden="true"></span> Last opp</button>
             <div class="beats-search-wrap">
               <span class="beats-search-icon"><span class="ic ic-search" aria-hidden="true"></span></span>
               <input
@@ -576,3 +577,19 @@
   if (document.readyState !== 'loading') init();
   else document.addEventListener('DOMContentLoaded', init);
 })();
+
+// Slipp lydfiler hvor som helst på Beats-siden for å laste dem opp
+(function(){
+  const tab = () => document.getElementById('beatsTab');
+  const hasFiles = e => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes('Files');
+  let depth = 0;
+  document.addEventListener('dragenter', e => { const t = tab(); if (!t || t.classList.contains('hidden') || !hasFiles(e) || !t.contains(e.target)) return; depth++; t.classList.add('is-file-over'); });
+  document.addEventListener('dragleave', e => { const t = tab(); if (!t || !t.contains(e.target)) return; if (--depth <= 0){ depth = 0; t.classList.remove('is-file-over'); } });
+  document.addEventListener('dragover', e => { const t = tab(); if (t && !t.classList.contains('hidden') && hasFiles(e) && t.contains(e.target)) e.preventDefault(); });
+  document.addEventListener('drop', e => {
+    const t = tab(); if (!t || t.classList.contains('hidden') || !hasFiles(e) || !t.contains(e.target)) return;
+    e.preventDefault(); depth = 0; t.classList.remove('is-file-over');
+    if (typeof window.dashUpload === 'function') window.dashUpload(e.dataTransfer.files);
+  });
+})();
+

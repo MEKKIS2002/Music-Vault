@@ -1998,4 +1998,21 @@
   });
 
   I.add({ 'Supabase er ikke konfigurert.': 'The database isn’t configured.' });
+
+  // Kritikk 3: opplasting fra Beats, Hjem-kommentarer, aktivitet, steg-velger
+  I.add({
+    'Last opp': 'Upload',
+    'Last opp lydfiler — eller slipp dem på siden': 'Upload audio files — or drop them on the page',
+    'Skriv tekst': 'Write lyrics',
+    'Fant ingen lydfiler': 'No audio files found',
+    'Kunne ikke laste opp — prøv igjen': 'Couldn’t upload — try again',
+    'Ingen aktivitet siste uke': 'No activity in the last week',
+    'aktiv dag siste uke': 'active day in the last week',
+    'aktive dager siste uke': 'active days in the last week',
+    'nå nettopp': 'just now',
+    'Kunne ikke hente kommentarene.': 'Couldn’t load comments.',
+  });
+  I.pat([
+    ['✓ «{0}» lastet opp', '✓ “{0}” uploaded'],
+  ]);
 })(window.mvI18n);
