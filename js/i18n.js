@@ -74,8 +74,6 @@
   const last = new WeakMap();          // tekstnode → det vi satte sist
   const origAttr = new WeakMap();      // element → { attr: original, _attr: oversatt }
   const skipped = el => !!(el && el.closest && el.closest(SKIP_SEL));
-  // Attributter på tekstfelt (placeholder o.l.) er standardtekst og oversettes; bare redigerbart innhold og [data-no-i18n] hoppes over
-  const ATTR_SKIP = '[contenteditable=""],[contenteditable="true"],[data-no-i18n],script,style';
   // Selve redigerbare element (f.eks. Lyric Lab-seksjonen) kan ha oversettbar data-placeholder; elementer INNI redigerbart innhold aldri
   const skippedAttr = el => !!(el && el.closest && (el.closest('[data-no-i18n],script,style') || (el.parentElement && el.parentElement.closest(SKIP_SEL))));
 
