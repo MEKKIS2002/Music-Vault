@@ -378,8 +378,8 @@
           <button class="ll-color-dot" style="background:var(--danger)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
           <button class="ll-color-dot" style="background:var(--accent2)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
           <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge" aria-label="Farge: Fjern farge">✕</button>
+          <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
         </div>
-        <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
       </details>
       <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
     </div>
@@ -436,7 +436,7 @@
     <div class="ll-card ll-stat-card">
       <div class="ll-stat-title">Gjentagende ord</div>
       <div class="ll-repeated-list">
-        ${repeated.map(([w,n])=>`<span class="ll-word-chip">${esc(w)} ×${n}</span>`).join('')}
+        ${repeated.map(([w,n])=>`<span class="ll-word-chip" data-no-i18n>${esc(w)} ×${n}</span>`).join('')}
       </div>
     </div>` : ''}
     </div>
