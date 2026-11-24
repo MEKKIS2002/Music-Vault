@@ -281,7 +281,7 @@
         </div>
       </div>
       <div class="ll-song-info">
-        <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
+        <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
         <div class="ll-song-controls">
           <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
@@ -788,7 +788,7 @@
     mvStages.set(beat, key);
     const s = mvStages.of(beat);
     const pill = document.querySelector('.ll-status-pill');
-    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.textContent = s.label; }
+    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.textContent = s.label; void pill.offsetWidth; pill.classList.add('is-changed'); }
     if (typeof saveState === 'function') saveState();
     if (typeof showToast === 'function') showToast('✓ Steg: ' + s.label + ' (' + mvStages.pct(beat) + ' %)');
   };
@@ -1913,8 +1913,8 @@
         </div>
         <div style="font-size:15px;font-family:Georgia,serif;color:rgb(var(--ink-rgb) / calc(.82 + (1 - .82) * var(--ink-boost)));font-style:italic;line-height:1.7;white-space:pre-wrap">${esc(generated)}</div>
         <div style="display:flex;gap:10px;margin-top:10px;align-items:center">
-          <button onclick="llInspirasjon()" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.35 + (1 - .35) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">↻ Ny inspirasjon</button>
-          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" style="background:none;border:none;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-size:11px;cursor:pointer;font-family:inherit;padding:0;font-weight:800;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">Kopier</button>
+          <button type="button" class="ll-insp-btn" onclick="llInspirasjon()">↻ Ny inspirasjon</button>
+          <button onclick="navigator.clipboard.writeText(this.closest('[id]').querySelector('div:nth-child(2)').innerText).then(()=>{this.textContent='✓ Kopiert';setTimeout(()=>this.textContent='Kopier',1500)})" type="button" class="ll-insp-btn">Kopier</button>
         </div>`;
 
     } catch(err) {

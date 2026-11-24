@@ -115,6 +115,10 @@ window.mvLoadShareStats = async function(kind, token, el){
   // ── Offentlig på Explore ──────────────────────────────────────────────────
   // Gjør en låt synlig i Explore-fanen for alle innloggede (song_shares.is_public).
   // Lager/oppdaterer delingslenken ved behov. Å skjule den igjen lar lenken leve.
+  window.mvBadgeAttrs = function(beatId){
+    const j = window.__mvJustPublic;
+    return j && j.id === beatId ? ` is-new" style="animation-delay:-${Math.round(performance.now() - j.at)}ms` : '';
+  };
   window.mvIsSongPublic = function(beatId){
     const b = getState()?.beats?.find(x=>x.id===beatId);
     return !!(b && b.isPublic && b.shareEnabled !== false);
@@ -141,11 +145,29 @@ window.mvLoadShareStats = async function(kind, token, el){
         </div>`;
       const done = ok => {
         if (ok && wrap.querySelector('#mvPubRemember').checked){ try { localStorage.setItem(CONFIRM_KEY, '1'); } catch(e){} }
-        document.removeEventListener('keydown', onKey, true); wrap.remove();
+        document.removeEventListener('keydown', onKey, true);
+        // Tones ut; fjernes når animasjonen er ferdig (tidsfrist som reserve)
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) wrap.remove();
+        else {
+          const card = wrap.querySelector('.mv-pub-card');
+          wrap.style.setProperty('--o-from', getComputedStyle(wrap).opacity);
+          if (card) card.style.setProperty('--o-from', getComputedStyle(card).opacity);
+          wrap.classList.add('is-leaving');
+          const rm = () => wrap.remove();
+          wrap.addEventListener('animationend', e => { if (e.target === wrap) rm(); }, { once: false });
+          setTimeout(rm, 400);
+        }
         try { prev && prev.focus && prev.focus({ preventScroll: true }); } catch(e){}
         resolve(ok);
       };
-      const onKey = e => { if (e.key === 'Escape'){ e.preventDefault(); done(false); } };
+      const onKey = e => {
+        if (e.key === 'Escape'){ e.preventDefault(); done(false); return; }
+        if (e.key === 'Tab'){                                              // fokus blir i dialogen
+          const f = [...wrap.querySelectorAll('button, input')]; const first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+        }
+      };
       wrap.addEventListener('click', e => {
         if (e.target === wrap) return done(false);
         const b = e.target.closest('button[data-v]'); if (b) done(b.dataset.v === '1');
@@ -174,6 +196,10 @@ window.mvLoadShareStats = async function(kind, token, el){
       if(!res.ok){ toast('Kunne ikke endre synlighet'); return false; }
     }
     b.isPublic = !!makePublic;
+    // Merket spiller inn-animasjonen én gang. Tegnes det på nytt like etter, fortsetter
+    // animasjonen der den var (negativ delay) i stedet for å starte på nytt.
+    window.__mvJustPublic = makePublic ? { id: b.id, at: performance.now() } : null;
+    setTimeout(() => { if (window.__mvJustPublic && window.__mvJustPublic.id === b.id) window.__mvJustPublic = null; }, 1500);
     if(typeof saveState==='function') saveState();
     toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
     const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
