@@ -252,6 +252,8 @@
 .pl3-bcard-bar i { display: block; height: 100%; border-radius: 999px; }
 .pl3-bcard-next { font-size:var(--fs-xs); color: rgb(var(--accent-ink-rgb) / calc(.8 + (1 - .8) * var(--ink-boost))); font-weight: 700; margin-top: 7px; }
 .pl3-bcard-next.done { color: var(--ok); }
+.pl3-why { display: block; font-size: var(--fs-xs); font-weight: 500; color: var(--muted); margin-top: 2px; }
+.pl3-focus-txt .pl3-why { display: inline; margin: 0; }
 
 /* ── 4c. Timeline ─────────────────────────────────────────────── */
 .pl3-tl-head { font-size:var(--fs-sm); color: var(--faint); margin-bottom: 16px; line-height: 1.6; }

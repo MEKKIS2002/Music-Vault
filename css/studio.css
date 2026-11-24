@@ -1046,7 +1046,7 @@ html body .ll-v2 .ll-color-clear{ background: var(--raised) !important; color: v
 html body .ll-v2 .ll-color-hint{ color: var(--muted) !important; font-size: .75rem !important; margin: 0 !important; white-space: nowrap; }
 html body .ll-v2 .ll-editor-progress{ min-width: 12rem; }
 html body .ll-v2 .ll-ctrl-field{ margin-left: 0 !important; gap: .45rem !important; }
-html body .ll-v2 .ll-ctrl-field select.ll-key-select{ max-width: 8.5rem !important; }
+html body .ll-v2 .ll-ctrl-field select.ll-key-select{ max-width: 10rem !important; }
 html body .ll-v2 .ll-song-controls{ gap: .5rem !important; }
 @media (max-width: 768px){ html body .ll-v2 .ll-color-hint{ display: none !important; } html body .ll-v2 .ll-color-tools{ width: 100%; justify-content: space-between; } }
 

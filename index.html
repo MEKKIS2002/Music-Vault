@@ -80,10 +80,10 @@ AKTIVE BRUKERE:
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
   <link rel="stylesheet" href="css/icons.css?v=b67086befd">
-  <link rel="stylesheet" href="css/lyriclab.css?v=be069111cf">
-  <link rel="stylesheet" href="css/pipeline.css?v=8820150752">
-  <link rel="stylesheet" href="css/main.css?v=873643ccfb">
-  <link rel="stylesheet" href="css/ui.css?v=3e93b7fc78">
+  <link rel="stylesheet" href="css/lyriclab.css?v=75bb181def">
+  <link rel="stylesheet" href="css/pipeline.css?v=8ac31ce13d">
+  <link rel="stylesheet" href="css/main.css?v=da15a934d1">
+  <link rel="stylesheet" href="css/ui.css?v=6e36a4618b">
   <link rel="stylesheet" href="css/track-cards.css?v=18e4924be6">
   <link rel="stylesheet" href="css/archive.css?v=0f0efa6777">
   <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
@@ -99,7 +99,7 @@ AKTIVE BRUKERE:
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
   <link rel="stylesheet" href="css/system.css?v=2e96aed230">
   <link rel="stylesheet" href="css/mobile.css?v=b4b1c4246e">
-  <link rel="stylesheet" href="css/studio.css?v=e535591dc5">
+  <link rel="stylesheet" href="css/studio.css?v=d18826e10b">
   <link rel="stylesheet" href="css/artist-page.css?v=8d21e99ae0">
   <link rel="stylesheet" href="css/explore.css?v=3add49f6f6">
   <link rel="stylesheet" href="css/light.css?v=b2215184fc">
@@ -224,7 +224,7 @@ AKTIVE BRUKERE:
    bakgrunnen og spinner ut når du logger inn (lockVinylExit). */
 #lockScreen{
   --lk-bg:#100e0c; --lk-card:rgba(28,26,23,.72); --lk-line:rgba(244,234,220,.10); --lk-line-2:rgba(244,234,220,.18);
-  --lk-text:#f4eadc; --lk-muted:rgba(244,234,220,.62); --lk-faint:rgba(244,234,220,.40); --lk-field:rgba(10,9,8,.55);
+  --lk-text:#f4eadc; --lk-muted:rgba(244,234,220,.62); --lk-faint:rgba(244,234,220,.62); --lk-field:rgba(10,9,8,.55);
   position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; overflow:hidden;
   background:var(--lk-bg); color:var(--lk-text); font-family:var(--font-ui, "DM Sans", system-ui, sans-serif); padding:16px;
 }
@@ -280,9 +280,9 @@ AKTIVE BRUKERE:
   text-decoration:underline; text-decoration-color:rgb(var(--accent-rgb) / .6); text-underline-offset:3px; border-radius:4px !important; }
 #lockScreen .lk-link:hover{ color:var(--accent-ink); }
 #lockScreen .lk-foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
-  margin-top:20px; padding-top:14px; border-top:1px solid var(--lk-line); font-size:11px; color:var(--lk-faint); }
+  margin-top:20px; padding-top:14px; border-top:1px solid var(--lk-line); font-size:12px; color:var(--lk-faint); }
 #lockScreen .lk-lang{ display:inline-flex; align-items:center; gap:6px; }
-#lockScreen .lk-lang button{ background:none; border:0; padding:2px 0; font:inherit; font-size:11px; color:var(--lk-faint); cursor:pointer; border-radius:4px !important; }
+#lockScreen .lk-lang button{ background:none; border:0; padding:2px 0; font:inherit; font-size:12px; color:var(--lk-faint); cursor:pointer; border-radius:4px !important; }
 #lockScreen .lk-lang button:hover{ color:var(--lk-text); }
 html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScreen .lk-lang button[lang="en"]{ color:var(--lk-text); font-weight:700; }
 
@@ -294,7 +294,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
 #lockScreen .pkg-card.is-on{ border-color:rgb(var(--accent-rgb) / .7) !important; background:rgb(var(--accent-rgb) / .10) !important; }
 #lockScreen .lk-pkg-name{ font-size:13px; font-weight:700; color:var(--lk-text); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
 #lockScreen .pkg-card.is-on .lk-pkg-name{ color:var(--accent-ink); }
-#lockScreen .lk-pkg-desc{ font-size:11px; line-height:1.45; color:var(--lk-muted); }
+#lockScreen .lk-pkg-desc{ font-size:12px; line-height:1.45; color:var(--lk-muted); }
 #lockScreen .lk-pkg-note{ color:var(--accent-ink); }
 @media (max-width:420px){
   #lockScreen .lk-card{ padding:26px 20px 18px; }
@@ -1010,7 +1010,7 @@ window.addEventListener('load', () => {
 
   <!-- Supabase CDN -->
   <script src="js/i18n.js?v=63ab828394"></script>
-  <script src="js/i18n-en.js?v=95c1a2fa9c"></script>
+  <script src="js/i18n-en.js?v=8d58112f7f"></script>
   <script src="js/config.js?v=a6abb28894"></script>
   <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
@@ -1021,8 +1021,8 @@ window.addEventListener('load', () => {
   <script src="js/audio-compress.js?v=e3a053c571"></script>
   <script src="js/lock.js?v=6302acc7c7"></script>
   <script src="js/stages.js?v=d76fc4576e"></script>
-  <script src="js/pipeline.js?v=1a4cfe444f"></script>
-  <script src="js/lyriclab.js?v=3db9416b09"></script>
+  <script src="js/pipeline.js?v=93aca853c1"></script>
+  <script src="js/lyriclab.js?v=430cc71109"></script>
   <script src="js/app.js?v=052a0d3dc7"></script>
   <script src="js/track-cards.js?v=2fb0865f33"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
@@ -1047,7 +1047,7 @@ window.addEventListener('load', () => {
   <script src="js/search.js?v=80e399c4f2"></script>
   <script src="js/audio-tools.js?v=7a8509a1d2"></script>
   <script src="js/analysis.js?v=70dc8461d7"></script>
-  <script src="js/music-tools.js?v=7108e31d60"></script>
+  <script src="js/music-tools.js?v=6fff711dfa"></script>
   <script src="js/touch-reorder.js?v=ffdfdec57a"></script>
   <script src="js/now-playing.js?v=c3644a4398"></script>
 

@@ -166,8 +166,8 @@
   // ═════════════════════════════ KORT I LYRIC LAB ═════════════════════════
   function addCards(){
     const right = document.querySelector('#lyriclabTab .ll-right'); if (!right || document.getElementById('llMetroCard')) return;
-    // Inne i «Verktøy»-panelet når det finnes (Lyric Lab), ellers etter Memoer
-    const toolsBody = right.querySelector('#llToolsBody');
+    // Øverst i «Spill inn»-fanen når den finnes (Lyric Lab), ellers etter Memoer
+    const toolsBody = right.querySelector('#llRecTools');
     const after = toolsBody ? null : (right.querySelector('#llMemoList')?.closest('.ll-card') || right.firstElementChild);
     (toolsBody || after).insertAdjacentHTML(toolsBody ? 'afterbegin' : 'afterend', `
       <div class="ll-card ll-side-card" id="llMetroCard">

@@ -781,27 +781,6 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-section-header { padding: 8px 12px !important; }
 .ll-textarea[contenteditable] { min-height: 92px !important; }
 
-/* ── Right: progress ring card ───────────────────────── */
-.ll-progress-card {
-  display: flex; align-items: center; gap: 14px; padding: 14px;
-  background: rgb(var(--ink-rgb) / .05); border: 1px solid var(--line);
-}
-.ll-ring-wrap { position: relative; width: 74px; height: 74px; flex-shrink: 0; }
-.ll-ring {
-  width: 74px; height: 74px; border-radius: 50%;
-  background:
-    radial-gradient(closest-side, var(--surface-1) calc(100% - 9px), transparent calc(100% - 8px) 100%),
-    conic-gradient(var(--accent) calc(var(--pct) * 1%), rgb(var(--ink-rgb) / .1) 0);
-}
-.ll-ring-val {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-  font-size:var(--fs-md); font-weight: 900; letter-spacing: -.03em; color: var(--accent-ink); font-variant-numeric: tabular-nums;
-}
-.ll-progress-meta { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.ll-pm-row { display: flex; justify-content: space-between; align-items: center; font-size:var(--fs-sm); }
-.ll-pm-row span { color: var(--muted); }
-.ll-pm-row b { font-weight: 800; font-variant-numeric: tabular-nums; }
-
 /* ── Smart "Mangler" ─────────────────────────────────── */
 .ll-struct-ok { font-size:var(--fs-sm); font-weight: 800; color: var(--ok); }
 .ll-missing-list { display: flex; flex-direction: column; gap: 6px; }
@@ -928,16 +907,30 @@ select.ll-status-pill option{ color: var(--text); background: var(--surface-1); 
 .ll-stage-ctl{ display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
 .ll-stage-pct{ font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* ── Verktøy-panelet: samler alt som ikke er selve skrivingen ── */
-.ll-tools{ border: 1px solid var(--line); border-radius: 14px; background: rgb(var(--ink-rgb) / .02); }
-.ll-tools-sum{ list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 14px;
-  font-weight: 700; color: var(--text); border-radius: 14px; }
-.ll-tools-sum::-webkit-details-marker{ display: none; }
-.ll-tools-sum::after{ content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
-  transform: rotate(45deg) translateY(-2px); transition: transform .2s var(--mv-ease-out, ease-out); align-self: center; }
-.ll-tools[open] > .ll-tools-sum::after{ transform: rotate(-135deg) translateY(-2px); }
-.ll-tools-sum:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
-.ll-tools-hint{ font-size: 12px; font-weight: 400; color: var(--muted); }
-.ll-tools-body{ display: grid; gap: 12px; padding: 0 10px 10px; }
-.ll-tools-body > .ll-card{ margin: 0; }
-@media (prefers-reduced-motion: reduce){ .ll-tools-sum::after{ transition: none; } }
+/* ── Høyrekolonnen: to faner (Skriv / Spill inn) ── */
+.ll-rail-tabs{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: rgb(var(--ink-rgb) / .03); }
+.ll-rail-tab{ font: inherit; font-size: 13px; font-weight: 700; color: var(--muted); background: none; border: 0; border-radius: 9px; padding: 8px 10px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: background-color .18s var(--mv-ease-out, ease-out), color .18s var(--mv-ease-out, ease-out); }
+.ll-rail-tab:hover{ color: var(--text); }
+.ll-rail-tab[aria-selected="true"]{ color: var(--text); background: var(--surface-1); box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / calc(.18 * var(--shadow-k))); }
+.ll-rail-tab:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.ll-rail-tab .ll-count-badge:empty{ display: none; }
+.ll-rail-panel{ display: flex; flex-direction: column; gap: var(--space-3, 12px); }
+.ll-rail-panel[hidden]{ display: none !important; }
+#llRecTools{ display: contents; }
+
+/* Steg-velgeren ved låttittelen, ikke ved sidetittelen */
+.ll-song-stage{ margin: 2px 0 6px; }
+
+/* Fargemarkering: én «Farge»-knapp som åpner prøvene */
+html body .ll-v2 details.ll-color-pop{ position: relative; display: inline-block !important; padding: 0 !important; border: 0 !important; background: none !important; }
+.ll-color-sum{ list-style: none; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
+.ll-color-sum::-webkit-details-marker{ display: none; }
+.ll-color-sum-dot{ width: 12px; height: 12px; border-radius: 50%; background: conic-gradient(var(--accent) 0 25%, var(--ok) 0 50%, #ec4899 0 75%, var(--accent2) 0); }
+html body .ll-v2 details.ll-color-pop > .ll-color-row{ position: absolute !important; top: calc(100% + 6px); left: 0; z-index: 40; display: flex !important; flex-wrap: wrap !important; gap: 8px !important;
+  width: max-content; max-width: 260px; padding: 10px 12px !important; background: var(--surface-1); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 12px 28px rgb(var(--shadow-rgb) / calc(.28 * var(--shadow-k))); }
+html body .ll-v2 details.ll-color-pop .ll-color-hint{ display: block !important; flex-basis: 100%; margin-top: 2px !important; white-space: normal; }
+@media (prefers-reduced-motion: no-preference){ details.ll-color-pop[open] > .ll-color-row{ animation: llPopIn .16s var(--mv-ease-out, ease-out); } }
+@keyframes llPopIn{ from{ opacity: 0; transform: translateY(-4px); } to{ opacity: 1; transform: none; } }
+
