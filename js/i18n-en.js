@@ -2015,4 +2015,15 @@
   I.pat([
     ['✓ «{0}» lastet opp', '✓ “{0}” uploaded'],
   ]);
+
+  // Kritikk 4: neste steg følger steget, med grunn under
+  I.add({ 'Start på teksten': 'Start the lyrics', 'Spill inn vokal': 'Record vocals', 'mangler lydfil': 'no audio file', 'mangler tekst': 'no lyrics' });
+  I.pat([
+    ['tekst {#0} %', 'lyrics {0}%'],
+    ['tekst {#0} % · mangler lydfil', 'lyrics {0}% · no audio file'],
+    ['mangler lydfil · tekst {#0} %', 'no audio file · lyrics {0}%'],
+    ['mangler lydfil · mangler tekst', 'no audio file · no lyrics'],
+  ]);
+
+  I.add({ 'Skriv': 'Write', 'Spill inn': 'Record', 'Verktøy i Lyric Lab': 'Lyric Lab tools', 'Velg farge for markert tekst': 'Pick a colour for the selected text', 'Fargemarkering av tekst': 'Colour-mark text' });
 })(window.mvI18n);

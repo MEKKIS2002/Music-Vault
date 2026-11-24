@@ -70,19 +70,30 @@
     return i >= 5 ? 'done' : i >= 1 ? 'inprogress' : 'todo';
   }
 
-  // The single most important next step for a beat.
-  // The done-slider is the artist's explicit "finished" signal: a song at 100%
-  // gets no task, regardless of audio/lyrics metadata flags.
+  // Neste steg for en låt. STEGET bestemmer rådet (en låt i Master får aldri «Skriv tekst»);
+  // det som mangler fra tidligere steg vises som en grunn under rådet (why).
+  function lyricsPct(b){
+    const secs = (b.lyricSections || []).filter(Boolean);
+    if (!secs.length) return hasLyrics(b) ? 100 : 0;
+    return Math.round(secs.filter(s => s.done || (s.text && s.text.trim())).length / secs.length * 100);
+  }
   function nextStep(b) {
-    const pct = clamp(b.done || 0);
-    if (pct >= 100)                         return null;  // Ferdig — ingen oppgave
-    if (!hasAudio(b))                       return { txt: 'Last opp lydfil',        kind: 'audio'  };
-    if (!hasLyrics(b))                      return { txt: 'Skriv tekst',            kind: 'lyrics' };
-    if ((b.lyricSections||[]).length && !sectionsDone(b))
-                                            return { txt: 'Ferdigstill seksjoner',  kind: 'lyrics' };
-    if (pct < 50)                           return { txt: 'Spill inn / skisse',     kind: 'record' };
-    if (pct < 75)                           return { txt: 'Miks ferdig',            kind: 'mix'    };
-    return { txt: 'Master & sett til 100%', kind: 'master' };
+    const i = flowIndex(b);
+    if (i >= 5) return null;                                            // Ferdig — ingen oppgave
+    const audio = hasAudio(b), lyr = hasLyrics(b), lp = lyricsPct(b);
+    const gaps = [];
+    if (!audio) gaps.push('mangler lydfil');
+    if (i >= 2 && (!lyr || lp < 100)) gaps.push(lyr ? `tekst ${lp} %` : 'mangler tekst');
+    const why = gaps.join(' · ');
+    if (i === 0) return audio ? { txt: 'Start på teksten', kind: 'lyrics', why: '' } : { txt: 'Last opp lydfil', kind: 'audio', why: '' };
+    if (i === 1){
+      if (!lyr) return { txt: 'Skriv tekst', kind: 'lyrics', why };
+      if (lp < 100 || ((b.lyricSections || []).length && !sectionsDone(b))) return { txt: 'Ferdigstill seksjoner', kind: 'lyrics', why: `tekst ${lp} %` + (audio ? '' : ' · mangler lydfil') };
+      return { txt: 'Spill inn / skisse', kind: 'record', why };
+    }
+    if (i === 2) return { txt: 'Spill inn vokal', kind: 'record', why };
+    if (i === 3) return { txt: 'Miks ferdig',     kind: 'mix',    why };
+    return { txt: 'Master & sett til 100%',     kind: 'master', why };
   }
 
   // ── Per-project metrics ──────────────────────────────────────────────────────
@@ -288,7 +299,7 @@
           <span class="pl3-focus-icn">${icnMap[f.step.kind] || '→'}</span>
           <span class="pl3-focus-txt">
             <b>${esc(f.step.txt)}</b>
-            <span>${esc(f.b.name || 'Uten navn')} · ${f.pct}%</span>
+            <span><span data-no-i18n>${esc(f.b.name || 'Uten navn')}</span> · ${f.pct}%${f.step.why ? ` · <span class="pl3-why">${esc(f.step.why)}</span>` : ''}</span>
           </span>
           <span class="pl3-focus-go">→</span>
         </button>`).join('');
@@ -378,7 +389,7 @@
           ${hasLyrics(b) ? '<span class="pl3-tag ok">Tekst ✓</span>' : '<span class="pl3-tag mut">Ingen tekst</span>'}
         </div>
 
-        ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b></div>`
+        ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b>${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>`
                : `<div class="pl3-card-next done"><span>Status</span><b>Ferdig</b></div>`}
 
         <div class="pl3-card-slider">
@@ -420,10 +431,10 @@
       <div class="pl3-bcard" draggable="true" data-beat-id="${esc(b.id)}">
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-name">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct" style="color:${col}">${window.mvStages ? mvStages.of(b).label + ' · ' : ''}${pct} %</span>
+          <span class="pl3-bcard-pct" style="color:${col}">${pct} %</span>
         </div>
         <div class="pl3-bcard-bar"><i style="width:${pct}%;background:${col}"></i></div>
-        ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
+        ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
       </div>`;
   }
 

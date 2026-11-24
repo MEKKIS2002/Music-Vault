@@ -168,6 +168,35 @@
 
 
   // ── Section HTML ──────────────────────────────────────────────────────────
+
+  // ── Høyrekolonnen: Skriv / Spill inn ────────────────────────────────────────
+  function llRailPref(){ try { return localStorage.getItem('mv_ll_rail') === 'rec' ? 'rec' : 'write'; } catch(e){ return 'write'; } }
+  function llSetRail(which, silent){
+    which = which === 'rec' ? 'rec' : 'write';
+    const tw = document.getElementById('llRailTabWrite'), tr = document.getElementById('llRailTabRec');
+    const pw = document.getElementById('llRailWrite'),    pr = document.getElementById('llRailRec');
+    if (!tw || !tr || !pw || !pr) return;
+    tw.setAttribute('aria-selected', String(which === 'write')); tr.setAttribute('aria-selected', String(which === 'rec'));
+    tw.tabIndex = which === 'write' ? 0 : -1; tr.tabIndex = which === 'rec' ? 0 : -1;
+    pw.hidden = which !== 'write'; pr.hidden = which !== 'rec';
+    if (!silent){ try { localStorage.setItem('mv_ll_rail', which); } catch(e){} }
+  }
+  function llRecCount(){
+    const n = ['llTakeCount', 'llMemoCount'].reduce((s, id) => s + (parseInt((document.getElementById(id) || {}).textContent, 10) || 0), 0);
+    const el = document.getElementById('llRecCount'); if (el) el.textContent = n ? String(n) : '';
+  }
+  window.llSetRail = llSetRail; window.llRecCount = llRecCount;
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('llColorPop'); if (!pop || !pop.open) return;
+    if (e.target.closest('.ll-color-dot') || !pop.contains(e.target)) pop.open = false;
+  });
+  document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; const pop = document.getElementById('llColorPop'); if (pop && pop.open){ pop.open = false; pop.querySelector('summary')?.focus(); } });
+  // Piltaster mellom fanene (vanlig tablist-mønster)
+  document.addEventListener('keydown', e => {
+    const t = e.target.closest && e.target.closest('.ll-rail-tab'); if (!t || !/^Arrow(Left|Right)$/.test(e.key)) return;
+    e.preventDefault(); const next = t.dataset.rail === 'write' ? 'rec' : 'write'; llSetRail(next); document.querySelector(`.ll-rail-tab[data-rail="${next}"]`)?.focus();
+  });
+
   function sectionHTML(sec, beat) {
     const typeClass = `ll-type-${sec.type}`;
     const lineNums  = sec.text.split('\n').map((_,i)=>i+1).join('\n');
@@ -264,12 +293,6 @@
 <div class="ll-wrap ll-v2">
 <div class="ll-header">
   <h1 class="ll-page-title">Lyric Lab</h1>
-  <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
-    <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
-      ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
-    </select>
-    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.pct(beat) : 0} %</span>
-  </span>
   <span class="ll-header-spacer"></span>
   <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>
   <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>
@@ -287,6 +310,14 @@
       </div>
       <div class="ll-song-info">
         <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
+        <div class="ll-song-stage">
+          <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
+    <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
+      ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
+    </select>
+    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.pct(beat) : 0} %</span>
+  </span>
+        </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
         <div class="ll-song-controls">
           <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
@@ -337,9 +368,9 @@
         <div class="ll-progbar"><div class="ll-progbar-fill" id="llProgFill" style="width:${prog}%"></div></div>
         <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
       </div>
-      <div class="ll-color-tools" role="group" aria-label="Fargemarkering av tekst">
-        <span class="ll-color-lbl">Farge</span>
-        <div class="ll-color-row">
+      <details class="ll-color-tools ll-color-pop" id="llColorPop">
+        <summary class="ll-tool-btn ll-color-sum" onmousedown="event.preventDefault()" aria-label="Fargemarkering av tekst"><span class="ll-color-sum-dot" aria-hidden="true"></span>Farge</summary>
+        <div class="ll-color-row" role="group" aria-label="Velg farge for markert tekst">
           <button class="ll-color-dot" style="background:var(--accent)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" title="Kobber" aria-label="Farge: Kobber"></button>
           <button class="ll-color-dot" style="background:var(--ok)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" title="Grønn" aria-label="Farge: Grønn"></button>
           <button class="ll-color-dot" style="background:var(--muted)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" title="Grå" aria-label="Farge: Grå"></button>
@@ -347,9 +378,9 @@
           <button class="ll-color-dot" style="background:var(--danger)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
           <button class="ll-color-dot" style="background:var(--accent2)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
           <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge" aria-label="Farge: Fjern farge">✕</button>
+          <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
         </div>
-        <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
-      </div>
+      </details>
       <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
     </div>
     <div id="llInspirasjonBox" style="display:none;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px"></div>
@@ -371,51 +402,18 @@
 
   <!-- HØYRE: notater, takes, memoer, verktøy -->
   <div class="ll-right">
+    <!-- To faner: Skriv (det du trenger mens du skriver) og Spill inn (takes, memoer, metronom, akkorder). Husker valget. -->
+    <div class="ll-rail-tabs" role="tablist" aria-label="Verktøy i Lyric Lab">
+      <button type="button" role="tab" class="ll-rail-tab" id="llRailTabWrite" data-rail="write" aria-controls="llRailWrite" onclick="llSetRail('write')">Skriv</button>
+      <button type="button" role="tab" class="ll-rail-tab" id="llRailTabRec" data-rail="rec" aria-controls="llRailRec" onclick="llSetRail('rec')">Spill inn <span class="ll-count-badge" id="llRecCount"></span></button>
+    </div>
+    <div class="ll-rail-panel" id="llRailWrite" role="tabpanel" aria-labelledby="llRailTabWrite">
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Notater</h3><button class="ll-side-icon" onclick="document.getElementById('llNotes').focus()" title="Skriv notat" aria-label="Skriv notat"><span class="ic ic-pen" aria-hidden="true"></span></button></div>
       <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva sangen handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
     </div>
 
-    <div class="ll-card ll-side-card">
-      <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
-      <div class="ll-mic">
-        <label class="ll-mic-row"><span class="ic ic-mic" aria-hidden="true"></span>
-          <select id="llMicSelect" aria-label="Mikrofon" onchange="llMicChanged(this)"><option value="">Standardmikrofon</option></select>
-        </label>
-        <button type="button" class="ll-mic-access" id="llMicAccess" onclick="llMicGrant()">Vis mikrofonene mine</button>
-        <label class="ll-sync" title="Flytt vokalen i forhold til beaten. Høyere tall = vokalen trekkes tidligere.">
-          <span>Synk</span>
-          <input type="range" id="llSyncMs" min="-150" max="400" step="5" value="${Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0}" oninput="llSyncChanged(this)">
-          <output id="llSyncVal">${(()=>{const v=Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0;return (v>0?'+':'')+v+' ms';})()}</output>
-        </label>
-        <p class="ll-mic-hint">Bruk hodetelefoner. Havner vokalen litt sent, dra «Synk» mot høyre (Bluetooth trenger ofte +150–250 ms).</p>
-      </div>
-      <div id="llTakeList" class="ll-take-list"></div>
-    </div>
-
-    <div class="ll-card ll-side-card">
-      <div class="ll-side-hd"><h3 class="ll-side-title">Memoer <span class="ll-count-badge" id="llMemoCount"></span></h3><button class="ll-side-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo"><span class="ic ic-mic" aria-hidden="true"></span> Memo</button></div>
-      <div id="llMemoList" class="ll-take-list"></div>
-    </div>
-
     <div class="ll-card ll-stat-card" id="llMissingCard">${missingCardHTML(beat)}</div>
-
-    <!-- Verktøy: alt som ikke er selve skrivingen, samlet og sammenleggbart (husker valget) -->
-    <details class="ll-tools" id="llTools" ${(()=>{try{return localStorage.getItem('mv_ll_tools_open')==='0'?'':'open'}catch(e){return 'open'}})()} ontoggle="try{localStorage.setItem('mv_ll_tools_open',this.open?'1':'0')}catch(e){}">
-      <summary class="ll-tools-sum"><span>Verktøy</span><span class="ll-tools-hint">Metronom · akkorder · rimbank · tags · statistikk</span></summary>
-      <div class="ll-tools-body" id="llToolsBody">
-    <div class="ll-card ll-progress-card">
-      <div class="ll-ring-wrap">
-        <div class="ll-ring" id="llRing" style="--pct:${prog}"></div>
-        <span class="ll-ring-val" id="llRingVal">${prog}%</span>
-      </div>
-      <div class="ll-progress-meta">
-        <div class="ll-pm-row"><span>Ord</span><b id="llRightWords">${words}</b></div>
-        <div class="ll-pm-row"><span>Linjer</span><b id="llRightLines">${lines}</b></div>
-        <div class="ll-pm-row"><span>Seksjoner</span><b id="llRightSecs">${sections.filter(s=>s.text.trim()).length}</b></div>
-        <div class="ll-pm-row"><span>Est. tid</span><b id="llRightDur">${estimateDuration(words)}</b></div>
-      </div>
-    </div>
 
     <div class="ll-card ll-stat-card" id="llRhymeCard">
       <div class="ll-stat-title">Rimbank</div>
@@ -438,19 +436,43 @@
     <div class="ll-card ll-stat-card">
       <div class="ll-stat-title">Gjentagende ord</div>
       <div class="ll-repeated-list">
-        ${repeated.map(([w,n])=>`<span class="ll-word-chip">${esc(w)} ×${n}</span>`).join('')}
+        ${repeated.map(([w,n])=>`<span class="ll-word-chip" data-no-i18n>${esc(w)} ×${n}</span>`).join('')}
       </div>
     </div>` : ''}
+    </div>
+    <div class="ll-rail-panel" id="llRailRec" role="tabpanel" aria-labelledby="llRailTabRec">
+      <div id="llRecTools"></div>
+    <div class="ll-card ll-side-card">
+      <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
+      <div class="ll-mic">
+        <label class="ll-mic-row"><span class="ic ic-mic" aria-hidden="true"></span>
+          <select id="llMicSelect" aria-label="Mikrofon" onchange="llMicChanged(this)"><option value="">Standardmikrofon</option></select>
+        </label>
+        <button type="button" class="ll-mic-access" id="llMicAccess" onclick="llMicGrant()">Vis mikrofonene mine</button>
+        <label class="ll-sync" title="Flytt vokalen i forhold til beaten. Høyere tall = vokalen trekkes tidligere.">
+          <span>Synk</span>
+          <input type="range" id="llSyncMs" min="-150" max="400" step="5" value="${Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0}" oninput="llSyncChanged(this)">
+          <output id="llSyncVal">${(()=>{const v=Number((()=>{try{return localStorage.getItem('mv_rec_sync_ms')}catch(e){return 0}})())||0;return (v>0?'+':'')+v+' ms';})()}</output>
+        </label>
+        <p class="ll-mic-hint">Bruk hodetelefoner. Havner vokalen litt sent, dra «Synk» mot høyre (Bluetooth trenger ofte +150–250 ms).</p>
       </div>
-    </details>
+      <div id="llTakeList" class="ll-take-list"></div>
+    </div>
 
+    <div class="ll-card ll-side-card">
+      <div class="ll-side-hd"><h3 class="ll-side-title">Memoer <span class="ll-count-badge" id="llMemoCount"></span></h3><button class="ll-side-btn" id="llMemoBtn" onclick="llRecordMemo()" title="Rask idé-memo"><span class="ic ic-mic" aria-hidden="true"></span> Memo</button></div>
+      <div id="llMemoList" class="ll-take-list"></div>
+    </div>
+
+    </div>
   </div>
 
 </div>
 </div><!-- /.ll-wrap -->
 `;
     _lastSaved = null;
-    setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); }, 100);
+    llSetRail(llRailPref(), true);
+    setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); llRecCount(); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
       const emptyTa = Array.from(container.querySelectorAll('.ll-textarea')).find(el=>!(el.value||el.textContent||'').trim());
@@ -754,6 +776,7 @@
     if(!el || !beat) return;
     const memos = beat.memos || [];
     const badge = document.getElementById('llMemoCount');
+    queueMicrotask(()=>{ try{ llRecCount(); }catch(e){} });
     if (badge) badge.textContent = memos.length || '';
     el.innerHTML = memos.length
       ? memos.map((m,i) => `
@@ -1011,9 +1034,7 @@
     setTxt('llStatWords',  w);
     setTxt('llStatLines',  l);
     setTxt('llStatDur',    estimateDuration(w));
-    // progress ring + center bar
-    const ring = document.getElementById('llRing'); if (ring) ring.style.setProperty('--pct', prog);
-    setTxt('llRingVal', prog + '%');
+    // tekstfremdrift (linja over seksjonene)
     setTxt('llProgPct', prog + '%');
     const fill = document.getElementById('llProgFill'); if (fill) fill.style.width = prog + '%';
     refreshMissing(beat);
@@ -1256,6 +1277,7 @@
     if(!el || !beat) return;
     const takes = beat.takes || [];
     const badge = document.getElementById('llTakeCount');
+    queueMicrotask(()=>{ try{ llRecCount(); }catch(e){} });
     if (badge) badge.textContent = takes.length || '';
     el.innerHTML = takes.length
       ? takes.map((t,i) => ({t,i})).reverse().map(({t,i}) => {
@@ -1631,7 +1653,7 @@
       if (!word || word.length < 2) return;
 
       // Update side panel input too
-      const tools = document.getElementById('llTools'); if (tools && !tools.open) tools.open = true;
+      if (window.llSetRail) llSetRail('write');
       const inp = document.getElementById('llRhymeInput');
       if (inp) inp.value = word;
 
