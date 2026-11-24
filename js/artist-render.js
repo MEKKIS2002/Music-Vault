@@ -38,6 +38,7 @@
           const c = img(d.cover);
           return `<div class="ap-track" data-token="${esc(t)}">${c ? `<img src="${esc(c)}" alt="">` : '<span class="ap-ph" aria-hidden="true"></span>'}
             <div class="ap-meta"><div class="ap-t">${esc(d.title || 'Uten tittel')}</div><div class="ap-s">${esc([d.artist, d.bpm ? d.bpm + ' BPM' : ''].filter(Boolean).join(' · '))}</div></div>
+            <span class="mv-eq" aria-hidden="true"><i></i><i></i><i></i></span>
             <button class="ap-play" data-token="${esc(t)}" aria-label="Spill ${esc(d.title || '')}">▶</button></div>`;
         }).join('')}</div></section>`;
       }
@@ -79,7 +80,7 @@
     const icons = () => root.querySelectorAll('.ap-play').forEach(b => {
       const on = b.dataset.token === current && !audio.paused;
       b.textContent = on ? '❚❚' : '▶';
-      b.closest('.ap-track')?.classList.toggle('is-playing', b.dataset.token === current);
+      const row = b.closest('.ap-track'); if (row){ row.classList.toggle('is-playing', b.dataset.token === current); row.classList.toggle('is-paused', b.dataset.token === current && audio.paused); }
     });
     root.addEventListener('click', e => {
       const b = e.target.closest && e.target.closest('.ap-play'); if (!b) return;

@@ -104,6 +104,7 @@
         <span class="ex-cover">${cover ? `<img src="${esc(cover)}" alt="" loading="lazy">` : '<span class="ic ic-music" aria-hidden="true"></span>'}</span>
         <span class="ex-main"><span class="ex-title" title="${esc(d.title || '')}">${esc(d.title || 'Uten tittel')}</span>
           <span class="ex-meta">${artist}<span aria-hidden="true"> · </span>${esc(ago(t.published_at))}</span></span>
+        <span class="mv-eq" aria-hidden="true"><i></i><i></i><i></i></span>
         <button class="ex-play" type="button" data-token="${esc(t.token)}" aria-label="Spill ${esc(d.title || '')}"><span class="ic ic-play" aria-hidden="true"></span></button>
       </li>`;
   }
@@ -161,8 +162,9 @@
   }
   function paintPlaying(){
     document.querySelectorAll('#homeExplore .ex-track').forEach(c => {
-      const on = c.dataset.token === current && audio && !audio.paused;
-      c.classList.toggle('is-playing', !!on);
+      const isCur = c.dataset.token === current && !!audio, on = isCur && !audio.paused;
+      c.classList.toggle('is-playing', isCur);
+      c.classList.toggle('is-paused', isCur && audio.paused);
       const ic = c.querySelector('.ex-play .ic'); if (ic) ic.className = 'ic ' + (on ? 'ic-pause' : 'ic-play');
     });
   }

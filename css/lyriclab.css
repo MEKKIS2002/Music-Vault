@@ -882,7 +882,7 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-sync{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
 .ll-sync input{ flex:1; accent-color:var(--accent); }
 .ll-sync output{ min-width:56px; text-align:right; font-variant-numeric:tabular-nums; color:var(--text); }
-.ll-mic-hint{ margin:0; font-size:11px; line-height:1.4; color:var(--faint); }
+.ll-mic-hint{ margin:0; font-size:12px; line-height:1.45; color:var(--muted); }
 .ll-sync input[type="range"]{ background:none !important; border:0 !important; box-shadow:none !important; padding:0 !important; height:auto !important; min-height:0 !important; }
 
 /* Steg-merket ved tittelen (felles stegmodell, js/stages.js) */
@@ -892,3 +892,15 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-stage-mix     { background: rgb(var(--accent2-rgb) / .16); color: var(--accent2);    border-color: rgb(var(--accent2-rgb) / .34); }
 .ll-stage-master  { background: rgb(var(--accent2-rgb) / .20); color: var(--accent2);    border-color: rgb(var(--accent2-rgb) / .40); }
 .ll-stage-done    { background: rgb(var(--ok-rgb) / .16);      color: var(--ok);         border-color: rgb(var(--ok-rgb) / .34); }
+
+/* Inspirasjonspanelet: knapper med tokens (før: faste hvite farger → usynlige i lys modus) */
+.ll-insp-btn{ background: none; border: 0; padding: 0; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700;
+  color: var(--muted); transition: color .15s ease; }
+.ll-insp-btn:hover{ color: var(--text); }
+.ll-insp-btn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* Steg-merket pulser kort når steget endres */
+.ll-status-pill{ transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.ll-status-pill.is-changed{ animation: llStagePulse .5s var(--mv-ease-out, ease-out); }
+@keyframes llStagePulse{ 0%{ background-color: color-mix(in srgb, currentColor 32%, transparent); transform: scale(1.06); } 100%{ transform: none; } }
+@media (prefers-reduced-motion: reduce){ .ll-status-pill.is-changed{ animation: none; } }

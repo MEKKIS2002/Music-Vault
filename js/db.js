@@ -2006,12 +2006,12 @@ let _tt;
 function showToast(msg,ms,actionFn){
   const actionLabel = typeof ms==='string' && typeof actionFn==='function' ? ms : null; if(actionLabel) ms=7000;
   let t=document.getElementById("_toast");
-  if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
+  if(!t){t=document.createElement("div");t.id="_toast";t.setAttribute("role","status");t.setAttribute("aria-live","polite");t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);void t.offsetWidth;}   /* første toast: registrer starttilstanden så den glir inn */
   t.textContent=String(msg||'').replace(/^(?:[\u{1F000}-\u{1FAFF}☀-➿⏩-⏺⬆⬇▶]️?\s*)+/u,'');
   t.style.pointerEvents=actionLabel?'auto':'none'; t.style.display='flex'; t.style.alignItems='center'; t.style.gap='10px';
-  if(actionLabel){ const b=document.createElement('button'); b.type='button'; b.id='toastActionBtn'; b.className='toast-action'; b.textContent=actionLabel; b.onclick=()=>{ clearTimeout(_tt); t.style.transform='translateY(60px)'; t.style.opacity='0'; actionFn(); }; t.appendChild(b); } // ingen emojier i varsler
-  t.style.transform="translateY(0)";t.style.opacity="1";   // (sto tidligere inne i kommentaren over → toastene var usynlige)
-  clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
+  if(actionLabel){ const b=document.createElement('button'); b.type='button'; b.id='toastActionBtn'; b.className='toast-action'; b.textContent=actionLabel; b.onclick=()=>{ clearTimeout(_tt); t.classList.add('is-hiding'); t.style.transform='translateY(60px)'; t.style.opacity='0'; actionFn(); }; t.appendChild(b); } // ingen emojier i varsler
+  t.classList.remove("is-hiding");t.style.transform="translateY(0)";t.style.opacity="1";   // (sto tidligere inne i kommentaren over → toastene var usynlige)
+  clearTimeout(_tt);_tt=setTimeout(()=>{t.classList.add("is-hiding");t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
 }
 
 function makeMixtapeCover(file,cb){
