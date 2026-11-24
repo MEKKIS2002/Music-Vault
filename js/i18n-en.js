@@ -1508,7 +1508,7 @@
   });
   I.pat([
     ['Lagret {0}', s => `Saved ${s}`],
-    ['Skriv {0} her...', s => `Write the ${I.t(s).toLowerCase()} here…`],
+    ['Skriv {0} her...', s => `Write the ${I.t(String(s).charAt(0).toUpperCase() + String(s).slice(1)).toLowerCase()} here…`],   // «vers 1» → Vers 1 → verse 1
     ['{0} — skriv for å rette', '{0} — type to correct'],
     ['BPM for {0}', 'BPM for {0}'],
     ['Toneart for {0}', 'Key for {0}'],

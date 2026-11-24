@@ -25,13 +25,6 @@
     { key: 'done',    label: 'Ferdig',       color: 'var(--ok)' },
   ];
 
-  // Board buckets (coarse, drag & drop)
-  const BOARD = [
-    { id: 'todo',       label: 'Idé',          color: 'rgb(var(--ink-rgb) / .05)' },
-    { id: 'inprogress', label: 'I arbeid',     color: 'rgb(var(--accent-rgb) / .10)'  },
-    { id: 'done',       label: 'Ferdig',       color: 'rgb(var(--ok-rgb) / .10)'  },
-  ];
-
   // Samme ord som låtstegene (js/stages.js); eldre «Mixing»/«Mastering» leses som «Miks»/«Master»
   const ALBUM_STATUS = window.mvStages ? window.mvStages.album : ['Idé', 'Skriving', 'Innspilling', 'Miks', 'Master', 'Klar for release'];
 
@@ -71,7 +64,7 @@
     return pct >= 100 ? 5 : pct >= 75 ? 4 : pct >= 50 ? 3 : pct >= 25 ? 2 : pct > 0 ? 1 : 0;
   }
   // Coarse board bucket
-  // Grove kolonner på boardet, regnet ut fra samme steg: Idé | Skriving–Master | Ferdig
+  // Grov inndeling for nøkkeltallene «ferdig · i arbeid · ikke startet» (samme steg som boardet)
   function boardBucket(b) {
     const i = flowIndex(b);
     return i >= 5 ? 'done' : i >= 1 ? 'inprogress' : 'todo';
