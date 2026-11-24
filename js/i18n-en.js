@@ -1923,4 +1923,30 @@
   I.pat([['Gå til albumet «{0}»', 'Go to the album “{0}”'], ['Gå til mixtapen «{0}»', 'Go to the mixtape “{0}”'], ['Skriv {0} …', 'Write {0} …']]);
   // Versjonen i innloggingsfoten endres ved hver utgivelse — mønster i stedet for én nøkkel per versjon
   I.pat([['Kun for autoriserte brukere · {0}', 'Authorised users only · {0}']]);
+
+  // ── Sikre handlinger og felles stegmodell ────────────────────────────────
+  I.add({
+    'Offentlig': 'Public',
+    'Offentlig: På': 'Public: On',
+    'Offentlig: Av': 'Public: Off',
+    'Synlig for alle med Music Vault-konto i Explore': 'Visible on Explore to everyone with a Music Vault account',
+    'Låten vises i Explore, og alle med en Music Vault-konto kan finne og høre den. Den kan også legges på artistsiden din.': 'The song shows up on Explore, and anyone with a Music Vault account can find and play it. You can also add it to your artist page.',
+    'Du kan gjøre den privat igjen når som helst med den samme bryteren.': 'You can make it private again at any time with the same switch.',
+    'Ikke spør igjen på denne enheten': 'Don’t ask again on this device',
+    'Gjør offentlig': 'Make public',
+    'Slett memo': 'Delete memo',
+    'Steg': 'Stage',
+    'Låtens steg': 'Song stage',
+    'Låtens steg — samme som i Pipeline og album': 'The song’s stage — the same as in Pipeline and albums',
+    'Skriving': 'Writing', 'Innspilling': 'Recording', 'Miks': 'Mix', 'Master': 'Master',
+    'Idé / Skriving': 'Idea / Writing',
+    'Albumstatus': 'Album status',
+  });
+  I.pat([
+    ['Gjøre «{0}» offentlig?', 'Make “{0}” public?'],
+    ['Take {#0} slettet', 'Take {0} deleted'],
+    ['Memo {#0} slettet', 'Memo {0} deleted'],
+    ['Slett memo {#0}', 'Delete memo {0}'],
+    ['✓ Steg: {0} ({#1} %)', (s, n) => `✓ Stage: ${I.t(s)} (${n}%)`],
+  ]);
 })(window.mvI18n);

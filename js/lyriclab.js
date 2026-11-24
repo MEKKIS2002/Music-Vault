@@ -3,7 +3,7 @@
 //
 // DATAMODELL per beat:
 //   beat.lyricSections: Array<{id, type, title, text, collapsed, order}>
-//   beat.lyricLabStatus: 'utkast' | 'skriver' | 'demo' | 'revisjon' | 'ferdig'
+//   beat.lyricLabStatus: eldre felt (utkast/skriver/…) — vises ikke lenger; låtens steg kommer fra js/stages.js
 //   beat.lyrics: eksisterende felt — brukes som fallback, aldri slettet
 //
 // INNGANGER:
@@ -24,7 +24,6 @@
     { id: 'verse2', type: 'verse',  title: 'Vers 2', text: '', collapsed: false, done: false, order: 3 },
     { id: 'outro',  type: 'outro',  title: 'Outro',  text: '', collapsed: true,  done: false, order: 4 },
   ];
-  const STATUS_OPTIONS = ['utkast','skriver','demo','revisjon','ferdig'];
   const TYPE_LABELS    = { hook:'Hook', verse:'Vers', bridge:'Bro', outro:'Outro', custom:'Custom' };
 
   let _lastSaved = null;
@@ -252,7 +251,8 @@
     const repeated = repeatedWords(txt);
     const missing  = missingSections(beat);
     const prog     = writingProgress(beat);
-    const status   = beat.lyricLabStatus || 'utkast';
+    // Status = låtens steg i den felles modellen (js/stages.js), ikke et eget Lyric Lab-felt
+    const stage    = window.mvStages ? mvStages.of(beat) : { key: 'idea', label: 'Idé' };
     const dur      = fmtDur(beat.duration);
     const coverEl  = beat.cover
       ? `<img class="ll-cover-img" src="${esc(beat.cover)}" alt="${esc(beat.name)}">`
@@ -264,7 +264,7 @@
 <div class="ll-wrap ll-v2">
 <div class="ll-header">
   <h1 class="ll-page-title">Lyric Lab</h1>
-  <span class="ll-status-pill ll-status-${status}">${esc(status)}</span>
+  <span class="ll-status-pill ll-stage-${stage.key}" title="Låtens steg — samme som i Pipeline og album">${esc(stage.label)}</span>
   <span class="ll-header-spacer"></span>
   <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>
   <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>
@@ -281,19 +281,20 @@
         </div>
       </div>
       <div class="ll-song-info">
-        <h2 class="ll-beat-title">${esc(beat.name)}</h2>
+        <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
         <div class="ll-song-controls">
           <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
           <button class="ll-ctrl-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på"><span class="ic ic-refresh" aria-hidden="true"></span> Loop</button>
+          ${window.mvSetSongPublic && !beat._shared ? (() => { const on = window.mvIsSongPublic(beat.id); return `<button class="ll-ctrl-btn mv-public-toggle${on ? ' is-on' : ''}" role="switch" aria-checked="${on}" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${on ? 'Offentlig: På' : 'Offentlig: Av'}</button>`; })() : ''}
           <label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label>
           <label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label>
           <details class="mv-proj-menu ll-more-menu">
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
-              <label class="ll-menu-field">Status
-                <select class="ll-status-select" onchange="llSetStatus(this.value)">
-                  ${STATUS_OPTIONS.map(s=>`<option value="${s}"${s===status?' selected':''}>${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('')}
+              <label class="ll-menu-field">Steg
+                <select class="ll-status-select" onchange="llSetStatus(this.value)" aria-label="Låtens steg">
+                  ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
                 </select>
               </label>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
@@ -301,7 +302,6 @@
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>
-              ${window.mvSetSongPublic && !beat._shared ? `<button class="ghost-btn" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beat.id) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
               <button class="ghost-btn" onclick="llShowBeatPicker()">⇄ Bytt låt</button>
             </div>
           </details>
@@ -757,25 +757,40 @@
             <span class="ll-take-name">Memo ${i+1}</span>
             <audio preload="none" src="${m.url}" hidden></audio>
             <span class="ll-memo-ts">${new Date(m.ts).toLocaleTimeString('no-NO',{hour:'2-digit',minute:'2-digit'})}</span>
-            <button class="ll-memo-del" onclick="llDeleteMemo('${esc(beat.id)}',${i})" title="Slett">✕</button>
+            <button class="ll-memo-del" onclick="llDeleteMemo('${esc(beat.id)}',${i})" title="Slett memo" aria-label="Slett memo ${i+1}">✕</button>
           </div>`).join('')
       : '<p style="font-size:11px;color:var(--muted);margin:0">Ingen memoer ennå</p>';
   }
 
+  // Sletting av opptak kan ikke gjøres om på annen måte — derfor «Angre» i 7 s
+  // før slettingen lagres (en vokaltake kan ikke spilles inn på nytt likt).
+  function softDelete(list, idx, label, rerender){
+    const item = list[idx]; if (!item) return;
+    list.splice(idx, 1); rerender();
+    let undone = false;
+    const commit = setTimeout(() => { if (!undone && typeof saveState === 'function') saveState(); }, 7600);
+    if (typeof showToast === 'function') showToast(label + ' slettet', 'Angre', () => {
+      undone = true; clearTimeout(commit);
+      list.splice(Math.min(idx, list.length), 0, item);
+      if (typeof saveState === 'function') saveState();          // i tilfelle noe annet lagret imens
+      rerender();
+    });
+  }
   window.llDeleteMemo = function(beatId, idx) {
     const beat = getBeat(beatId); if(!beat||!beat.memos) return;
-    beat.memos.splice(idx, 1);
-    if(typeof saveState==='function') saveState();
-    renderMemoList();
+    softDelete(beat.memos, idx, 'Memo ' + (idx + 1), renderMemoList);
   };
 
-  window.llSetStatus = function(val) {
+  // Velg låtens steg (felles modell, js/stages.js): setter «Ferdig %» inn i stegets område
+  window.llSetStatus = function(key) {
     const beat = getBeat(window.currentLyricLabBeatId);
-    if (!beat) return;
-    beat.lyricLabStatus = val;
+    if (!beat || !window.mvStages) return;
+    mvStages.set(beat, key);
+    const s = mvStages.of(beat);
     const pill = document.querySelector('.ll-status-pill');
-    if (pill) { pill.className = 'll-status-pill ll-status-' + val; pill.textContent = val; }
+    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.textContent = s.label; }
     if (typeof saveState === 'function') saveState();
+    if (typeof showToast === 'function') showToast('✓ Steg: ' + s.label + ' (' + mvStages.pct(beat) + ' %)');
   };
 
   // ── Notater (debounced autosave) ──────────────────────────────────────────
@@ -853,7 +868,7 @@
           ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}
           <div class="ll-picker-info">
             <div class="ll-picker-name">${esc(b.name)}</div>
-            <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
+            <div class="ll-picker-meta">${window.mvStages ? mvStages.of(b).label : ''}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
           </div>
           ${b.favorite ? '<span style="color:var(--accent-ink);font-size:14px">★</span>' : ''}
         </div>`).join('');
@@ -927,7 +942,7 @@
             ${b.cover ? `<img class="ll-picker-thumb" src="${esc(b.cover)}" alt="">` : '<div class="ll-picker-thumb ll-picker-ph"><span class="ic ic-music" aria-hidden="true"></span></div>'}
             <div class="ll-picker-info">
               <div class="ll-picker-name">${esc(b.name)}</div>
-              <div class="ll-picker-meta">${b.lyricLabStatus || 'utkast'}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
+              <div class="ll-picker-meta">${window.mvStages ? mvStages.of(b).label : ''}${b.bpm ? ' · ' + b.bpm + ' bpm' : ''}</div>
             </div>
             ${b.favorite ? '<span style="color:var(--accent-ink);font-size:14px">★</span>' : ''}
           </div>`).join('')
@@ -1251,9 +1266,7 @@
   }
   window.llDeleteTake = function(beatId, idx) {
     const beat = getBeat(beatId); if(!beat||!beat.takes) return;
-    beat.takes.splice(idx, 1);
-    if(typeof saveState==='function') saveState();
-    renderTakeList();
+    softDelete(beat.takes, idx, 'Take ' + (idx + 1), renderTakeList);
   };
 
   window.renderInlineSections = renderInlineSections;

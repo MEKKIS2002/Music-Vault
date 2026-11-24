@@ -210,16 +210,12 @@
         </div>
 
         <aside class="album-detail-side">
-          <div class="meta-row"><span>Status</span><strong>${esc(album.status||'Idé')}</strong></div>
+          ${(()=>{ const cur = window.mvStages ? mvStages.normalizeAlbum(album.status) : (album.status||'Idé'); const list = window.mvStages ? mvStages.album : ['Idé','Skriving','Innspilling','Miks','Master','Klar for release']; return `
+          <div class="meta-row"><span>Status</span><strong>${esc(cur)}</strong></div>
           <div class="progress-bar"><div style="width:${avg}%"></div></div>
-          <select class="ux-input" onchange="albumStatusChange('${album.id}',this.value)">
-            <option ${album.status==='Idé'?'selected':''}>Idé</option>
-            <option ${album.status==='Demo'?'selected':''}>Demo</option>
-            <option ${album.status==='Valgt'?'selected':''}>Valgt</option>
-            <option ${album.status==='Miks'?'selected':''}>Miks</option>
-            <option ${album.status==='Master'?'selected':''}>Master</option>
-            <option ${album.status==='Klar for release'?'selected':''}>Klar for release</option>
-          </select>
+          <select class="ux-input" aria-label="Albumstatus" onchange="albumStatusChange('${album.id}',this.value)">
+            ${list.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('')}
+          </select>`; })()}
         </aside>
       </div>`;
   }
@@ -298,7 +294,7 @@
     const beats = beatsFromIds(album.beatIds);
     const totalSec = beats.reduce((s,b)=>s+Number(b.duration||0),0);
     const dur = totalSec>0 ? Math.floor(totalSec/60)+':'+String(Math.floor(totalSec%60)).padStart(2,'0') : null;
-    const STATUS_COLORS = {'Idé':'#f0a579','Skriving':'#bfb2a6','Innspilling':'#d68155','Mixing':'#d68155','Ferdig':'#a6be8b'};
+    const STATUS_COLORS = {'Idé':'#f0a579','Skriving':'#bfb2a6','Innspilling':'#d68155','Mixing':'#d68155','Miks':'#d68155','Master':'#d68155','Klar for release':'#a6be8b','Ferdig':'#a6be8b'};
     const stCol = STATUS_COLORS[album.status||'Idé'] || '#d68155';
     const mid = Math.ceil(beats.length/2);
     const coverUrl = album.cover || '';
