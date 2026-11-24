@@ -264,7 +264,12 @@
 <div class="ll-wrap ll-v2">
 <div class="ll-header">
   <h1 class="ll-page-title">Lyric Lab</h1>
-  <span class="ll-status-pill ll-stage-${stage.key}" title="Låtens steg — samme som i Pipeline og album">${esc(stage.label)}</span>
+  <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
+    <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
+      ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
+    </select>
+    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.pct(beat) : 0} %</span>
+  </span>
   <span class="ll-header-spacer"></span>
   <button class="ll-back-btn" onclick="llGoBack()">← Tilbake</button>
   <button class="ll-change-beat-btn" onclick="llShowBeatPicker()" title="Velg annen låt">⇄ Bytt låt</button>
@@ -292,17 +297,11 @@
           <details class="mv-proj-menu ll-more-menu">
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
-              <label class="ll-menu-field">Steg
-                <select class="ll-status-select" onchange="llSetStatus(this.value)" aria-label="Låtens steg">
-                  ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
-                </select>
-              </label>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
               <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>
-              <button class="ghost-btn" onclick="llShowBeatPicker()">⇄ Bytt låt</button>
             </div>
           </details>
         </div>
@@ -399,6 +398,12 @@
       <div id="llMemoList" class="ll-take-list"></div>
     </div>
 
+    <div class="ll-card ll-stat-card" id="llMissingCard">${missingCardHTML(beat)}</div>
+
+    <!-- Verktøy: alt som ikke er selve skrivingen, samlet og sammenleggbart (husker valget) -->
+    <details class="ll-tools" id="llTools" ${(()=>{try{return localStorage.getItem('mv_ll_tools_open')==='0'?'':'open'}catch(e){return 'open'}})()} ontoggle="try{localStorage.setItem('mv_ll_tools_open',this.open?'1':'0')}catch(e){}">
+      <summary class="ll-tools-sum"><span>Verktøy</span><span class="ll-tools-hint">Metronom · akkorder · rimbank · tags · statistikk</span></summary>
+      <div class="ll-tools-body" id="llToolsBody">
     <div class="ll-card ll-progress-card">
       <div class="ll-ring-wrap">
         <div class="ll-ring" id="llRing" style="--pct:${prog}"></div>
@@ -411,8 +416,6 @@
         <div class="ll-pm-row"><span>Est. tid</span><b id="llRightDur">${estimateDuration(words)}</b></div>
       </div>
     </div>
-
-    <div class="ll-card ll-stat-card" id="llMissingCard">${missingCardHTML(beat)}</div>
 
     <div class="ll-card ll-stat-card" id="llRhymeCard">
       <div class="ll-stat-title">Rimbank</div>
@@ -438,6 +441,8 @@
         ${repeated.map(([w,n])=>`<span class="ll-word-chip">${esc(w)} ×${n}</span>`).join('')}
       </div>
     </div>` : ''}
+      </div>
+    </details>
 
   </div>
 
@@ -788,7 +793,8 @@
     mvStages.set(beat, key);
     const s = mvStages.of(beat);
     const pill = document.querySelector('.ll-status-pill');
-    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.textContent = s.label; void pill.offsetWidth; pill.classList.add('is-changed'); }
+    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.value = s.key; void pill.offsetWidth; pill.classList.add('is-changed'); }
+    const pct = document.getElementById('llStagePct'); if (pct) pct.textContent = mvStages.pct(beat) + ' %';
     if (typeof saveState === 'function') saveState();
     if (typeof showToast === 'function') showToast('✓ Steg: ' + s.label + ' (' + mvStages.pct(beat) + ' %)');
   };
@@ -1625,6 +1631,7 @@
       if (!word || word.length < 2) return;
 
       // Update side panel input too
+      const tools = document.getElementById('llTools'); if (tools && !tools.open) tools.open = true;
       const inp = document.getElementById('llRhymeInput');
       if (inp) inp.value = word;
 

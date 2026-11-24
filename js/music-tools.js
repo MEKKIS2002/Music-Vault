@@ -166,8 +166,10 @@
   // ═════════════════════════════ KORT I LYRIC LAB ═════════════════════════
   function addCards(){
     const right = document.querySelector('#lyriclabTab .ll-right'); if (!right || document.getElementById('llMetroCard')) return;
-    const after = right.querySelector('#llMemoList')?.closest('.ll-card') || right.firstElementChild;
-    after.insertAdjacentHTML('afterend', `
+    // Inne i «Verktøy»-panelet når det finnes (Lyric Lab), ellers etter Memoer
+    const toolsBody = right.querySelector('#llToolsBody');
+    const after = toolsBody ? null : (right.querySelector('#llMemoList')?.closest('.ll-card') || right.firstElementChild);
+    (toolsBody || after).insertAdjacentHTML(toolsBody ? 'afterbegin' : 'afterend', `
       <div class="ll-card ll-side-card" id="llMetroCard">
         <div class="ll-side-hd"><h3 class="ll-side-title">Metronom</h3><button type="button" class="ll-side-btn mv-metro-toggle" aria-pressed="false"></button></div>
         <div class="mv-metro-row">

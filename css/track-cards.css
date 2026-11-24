@@ -1468,3 +1468,16 @@
   height:3px; border-radius:var(--r-flat); margin:1px 2px;
   background:var(--s,var(--accent)); box-shadow:0 0 9px var(--s,var(--accent));
 }
+
+/* ── Studio = de seks stegene (samme som Pipeline-boardet) ───────────────── */
+.studio-board{ display: flex !important; gap: 12px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+.studio-board .studio-col{ flex: 1 1 0; min-width: 190px; scroll-snap-align: start; }
+.studio-board .studio-col:has(.studio-empty){ flex: 0 0 132px; min-width: 132px; }
+.studio-col.s-idea   { --s: var(--stage-idea, #7f9cc9); }
+.studio-col.s-writing{ --s: var(--stage-writing, #a78bfa); }
+.studio-col.s-record { --s: var(--muted); }
+.studio-col.s-mix    { --s: var(--accent-ink); }
+.studio-col.s-master { --s: var(--accent2, var(--accent)); }
+.studio-col.s-done   { --s: var(--ok); }
+.studio-col-name::before{ box-shadow: none !important; }   /* ingen glorie rundt steg-prikken */
+@media (max-width: 900px){ .studio-board .studio-col{ min-width: 220px; } }

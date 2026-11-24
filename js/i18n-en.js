@@ -1949,4 +1949,53 @@
     ['Slett memo {#0}', 'Delete memo {0}'],
     ['✓ Steg: {0} ({#1} %)', (s, n) => `✓ Stage: ${I.t(s)} (${n}%)`],
   ]);
+
+  // ── Lekkasjer funnet i engelsk modus + stegvisning og Lyric Lab-verktøy ────
+  const capFirst = x => String(x || '').charAt(0).toUpperCase() + String(x || '').slice(1);
+  I.add({
+    'Vis cover stort': 'Show cover large',
+    'Flow-analyse': 'Flow analysis',
+    'Release-klar': 'Release-ready',
+    'Release-sjekkliste': 'Release checklist',
+    'Snittet av låtenes fremdrift (steg og %)': 'Average song progress (stage and %)',
+    'Verktøy': 'Tools',
+    'Metronom · akkorder · rimbank · tags · statistikk': 'Metronome · chords · rhyme bank · tags · stats',
+    'Master & sett til 100%': 'Master and set to 100%',
+    'Idé': 'Idea', 'Album-pipeline': 'Album pipeline',
+  });
+  I.pat([
+    ['{#0} albumer', '{0} albums'],
+    ['{0} · Lyd', s => `${I.t(s)} · Audio`],
+    ['→ {0}', s => `→ ${I.t(s)}`],
+    ['Spill {0}', 'Play {0}'],
+    ['Legg til favoritt: {0}', 'Add to favourites: {0}'],
+    ['Fjern favoritt: {0}', 'Remove from favourites: {0}'],
+    ['Jevn lydstyrke: {0} ({1})', (a, b) => `Even volume: ${a === 'på' ? 'on' : a === 'av' ? 'off' : a} (${b})`],
+    ['Navn på seksjon: {0}', 'Section name: {0}'],
+    ['Gå til tom seksjon: {0}', s => `Go to empty section: ${I.t(capFirst(s))}`],
+    ['Skriv {0} her...', s => `Write the ${I.t(capFirst(s)).toLowerCase()} here…`],
+    ['{0}-moll', n => /^[A-G][#b♯♭]?$/.test(n) ? `${n} minor` : `${n}-moll`],
+    ['{0}-dur', n => /^[A-G][#b♯♭]?$/.test(n) ? `${n} major` : `${n}-dur`],
+    ['{#0} av {#1} oppgaver før release er gjort', '{0} of {1} release tasks done'],
+    ['{0} · {#1} %', (a, n) => `${I.t(a)} · ${n}%`],
+  ]);
+
+  I.add({
+    'Ingen tilbakemeldinger ennå.': 'No feedback yet.',
+    'Kunne ikke laste.': 'Couldn’t load.',
+    'A–Å': 'A–Z', 'Å–A': 'Z–A',
+    'låten': 'the song', 'Låten': 'The song',
+    'R2 ikke klar': 'Cloud storage isn’t ready',
+    'R2 feilet — lydfil lagret lokalt': 'Couldn’t upload to the cloud — the audio file is saved on this device',
+    'R2 feilet — ny lydfil lagret lokalt': 'Couldn’t upload to the cloud — the new audio file is saved on this device',
+    'R2 Worker URL ikke konfigurert': 'Cloud storage isn’t configured',
+    'Worker URL ikke konfigurert': 'Cloud storage isn’t configured',
+    'Supabase er ikke klar.': 'The database isn’t ready yet.',
+    'Supabase ikke konfigurert.': 'The database isn’t configured.',
+    'Supabase ikke konfigurert': 'The database isn’t configured',
+    'Supabase svarte ikke innen 25 sekunder': 'The database didn’t respond within 25 seconds',
+    'ingen Range-støtte': 'no range support',
+  });
+
+  I.add({ 'Supabase er ikke konfigurert.': 'The database isn’t configured.' });
 })(window.mvI18n);

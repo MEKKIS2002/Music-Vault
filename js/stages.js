@@ -46,8 +46,9 @@
     return true;
   }
   // Albumstatus brukte «Mixing»/«Mastering» enkelte steder og «Miks»/«Master» andre
-  const ALBUM = ['Idé', 'Skriving', 'Innspilling', 'Miks', 'Master', 'Klar for release'];
-  const ALBUM_ALIASES = { 'Mixing': 'Miks', 'Mastering': 'Master', 'Demo': 'Innspilling', 'Valgt': 'Skriving' };
+  // Samme seks ord som låtstegene — også siste steg («Ferdig», før «Klar for release»)
+  const ALBUM = ['Idé', 'Skriving', 'Innspilling', 'Miks', 'Master', 'Ferdig'];
+  const ALBUM_ALIASES = { 'Mixing': 'Miks', 'Mastering': 'Master', 'Demo': 'Innspilling', 'Valgt': 'Skriving', 'Klar for release': 'Ferdig' };
   function normalizeAlbum(s){ return ALBUM_ALIASES[s] || s || 'Idé'; }
 
   window.mvStages = { list: LIST, of, index, set, pct, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum };

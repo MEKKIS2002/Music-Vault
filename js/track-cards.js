@@ -171,7 +171,8 @@ document.documentElement.classList.add('mv-mixed-ui');
 
   // Studio kanban board
   // Kolonner = stegene i js/stages.js slått sammen: Idé+Skriving | Innspilling | Miks+Master | Ferdig
-  function studioCol(b){ const i=window.mvStages?mvStages.index(b):(Number(b.done||0)>=100?5:Number(b.done||0)>=50?3:Number(b.done||0)>=25?2:0); return i>=5?'Ferdig':i>=3?'Miks/Master':i>=2?'Spilt inn':'Idé/Skriver'; }
+  // Kolonne = låtens steg i js/stages.js (samme seks som Pipeline-boardet)
+  function studioCol(b){ return window.mvStages ? mvStages.of(b).key : (Number(b.done||0)>=100?'done':Number(b.done||0)>0?'writing':'idea'); }
   function renderStudioBoard(el, mode){
     if(!el) return;
     let beats = Array.from(el.querySelectorAll('.album-beat-card')).map(c=>getBeat(c.dataset.beatId)).filter(Boolean);
@@ -185,12 +186,8 @@ document.documentElement.classList.add('mv-mixed-ui');
       beats.forEach(b=>{ if(!seen.has(b.id)){ ordered.push(b); seen.add(b.id); } });
       beats = ordered;
     }
-    const cols = [
-      {key:'Idé/Skriver', label:'Idé / Skriving', cls:'s-idea'},
-      {key:'Spilt inn',   label:'Innspilling',   cls:'s-rec'},
-      {key:'Miks/Master', label:'Miks / Master', cls:'s-mix'},
-      {key:'Ferdig',      label:'Ferdig',        cls:'s-done'}
-    ];
+    const cols = (window.mvStages ? mvStages.list : [{key:'idea',label:'Idé'},{key:'writing',label:'Skriving'},{key:'record',label:'Innspilling'},{key:'mix',label:'Miks'},{key:'master',label:'Master'},{key:'done',label:'Ferdig'}])
+      .map(s => ({ key: s.key, label: s.label, cls: 's-' + s.key }));
     const by = Object.fromEntries(cols.map(c=>[c.key,[]]));
     beats.forEach(b=>by[studioCol(b)].push(b));
     el.innerHTML = `<div class="studio-board">${cols.map(c=>`
@@ -217,10 +214,10 @@ document.documentElement.classList.add('mv-mixed-ui');
   // Dropping into another column snaps the song's `done%` into that stage's range;
   // dropping within the same column just reorders. A gold drop-line shows the target.
   let studioDrag = null;
-  const STAGE_VAL = { 's-idea':10, 's-rec':30, 's-mix':55, 's-done':100 };   // = stegets «set»-verdi i js/stages.js
-  const STAGE_KEY = { 's-idea':'Idé/Skriver', 's-rec':'Spilt inn', 's-mix':'Miks/Master', 's-done':'Ferdig' };
-  const STAGE_LBL = { 's-idea':'Idé / Skriving', 's-rec':'Innspilling', 's-mix':'Miks / Master', 's-done':'Ferdig' };
-  function colClass(col){ return ['s-idea','s-rec','s-mix','s-done'].find(c=>col.classList.contains(c)); }
+  // Kolonnene er stegene i js/stages.js: klassen er «s-<steg>»
+  const STAGE_KEYS = ['idea','writing','record','mix','master','done'];
+  const STAGE_LBL = Object.fromEntries(STAGE_KEYS.map(k => ['s-' + k, (window.mvStages && mvStages.list.find(s => s.key === k) || {}).label || k]));
+  function colClass(col){ return STAGE_KEYS.map(k => 's-' + k).find(c=>col.classList.contains(c)); }
   function clearStudioDnD(board){
     if(!board) return;
     board.querySelectorAll('.studio-col-over').forEach(c=>c.classList.remove('studio-col-over'));
@@ -271,7 +268,7 @@ document.documentElement.classList.add('mv-mixed-ui');
     const cls = colClass(col); if(!cls) return;
 
     // 1) Change stage only when crossing into a different column (preserve % on reorder).
-    if(studioCol(beat) !== STAGE_KEY[cls]) beat.done = STAGE_VAL[cls];
+    if(window.mvStages) mvStages.set(beat, cls.slice(2));
 
     // 2) Reorder ONLY the studio-specific order (col.studioOrder). The album/mixtape
     //    beatIds is left untouched so studio order is independent of the track order (F2).
