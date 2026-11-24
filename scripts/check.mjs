@@ -73,6 +73,12 @@ for (const f of [...css, ...js, ...['index.html', 'share.html', 'mixtape.html', 
   for (const m of s.matchAll(/^(<{7}|={7}|>{7})( |$)/gm)) fail('konfliktmarkør', f, lineOf(s, m.index), 'uløst merge-konflikt');
 }
 
+// 5c) Norsk standardtekst uten engelsk oversettelse (advarsel — se scripts/i18n-coverage.mjs --list)
+try {
+  const n = Number(execFileSync(process.execPath, [join(root, 'scripts/i18n-coverage.mjs')], { encoding: 'utf8' }).trim().split('\n').pop());
+  if (n > 0) console.warn(`⚠ ${n} norske tekster mangler engelsk i js/i18n-en.js — kjør \`node scripts/i18n-coverage.mjs --list\`.`);
+} catch (e) { console.warn('⚠ i18n-dekning kunne ikke sjekkes:', String(e.message || e).split('\n')[0]); }
+
 // 6) ?v= i HTML skal være oppdatert (deploy setter det uansett, men lokalt bør det stemme)
 try { execFileSync(process.execPath, [join(root, 'scripts/version-assets.mjs'), '--check'], { stdio: 'pipe' }); }
 catch (e) { console.warn('⚠ ?v= er ikke oppdatert lokalt — kjør `node scripts/version-assets.mjs` (deploy gjør det automatisk).'); }

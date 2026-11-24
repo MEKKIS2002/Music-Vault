@@ -25,13 +25,6 @@
     { key: 'done',    label: 'Ferdig',       color: 'var(--ok)' },
   ];
 
-  // Board buckets (coarse, drag & drop)
-  const BOARD = [
-    { id: 'todo',       label: 'Idé',          color: 'rgb(var(--ink-rgb) / .05)' },
-    { id: 'inprogress', label: 'I arbeid',     color: 'rgb(var(--accent-rgb) / .10)'  },
-    { id: 'done',       label: 'Ferdig',       color: 'rgb(var(--ok-rgb) / .10)'  },
-  ];
-
   // Samme ord som låtstegene (js/stages.js); eldre «Mixing»/«Mastering» leses som «Miks»/«Master»
   const ALBUM_STATUS = window.mvStages ? window.mvStages.album : ['Idé', 'Skriving', 'Innspilling', 'Miks', 'Master', 'Klar for release'];
 
@@ -71,7 +64,7 @@
     return pct >= 100 ? 5 : pct >= 75 ? 4 : pct >= 50 ? 3 : pct >= 25 ? 2 : pct > 0 ? 1 : 0;
   }
   // Coarse board bucket
-  // Grove kolonner på boardet, regnet ut fra samme steg: Idé | Skriving–Master | Ferdig
+  // Grov inndeling for nøkkeltallene «ferdig · i arbeid · ikke startet» (samme steg som boardet)
   function boardBucket(b) {
     const i = flowIndex(b);
     return i >= 5 ? 'done' : i >= 1 ? 'inprogress' : 'todo';
@@ -261,13 +254,13 @@
               <div class="pl3-ring" style="background:conic-gradient(${avgCol} ${m.avg*3.6}deg, rgba(255,255,255,.08) 0)">
                 <div class="pl3-ring-hole"><b style="color:${avgCol}">${m.avg}%</b></div>
               </div>
-              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av «Ferdig %» på hver låt</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
+              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric">
               <div class="pl3-ring" style="background:conic-gradient(${readyCol} ${r.pct*3.6}deg, rgba(255,255,255,.08) 0)">
-                <div class="pl3-ring-hole"><b style="color:${readyCol}">${r.pct}%</b></div>
+                <div class="pl3-ring-hole"><b style="color:${readyCol}">${r.passed}/${r.total}</b></div>
               </div>
-              <div class="pl3-metric-lbl"><b>Release-klar</b><span>${r.passed} av ${r.total} krav i sjekklisten er oppfylt</span></div>
+              <div class="pl3-metric-lbl"><b>Release-sjekkliste</b><span>${r.passed} av ${r.total} oppgaver før release er gjort</span></div>
             </div>
           </div>
         </div>
@@ -401,18 +394,20 @@
   }
 
   // 4b ── Board (kanban) ───────────────────────────────────────────────────────
+  // Board = de seks stegene (js/stages.js), samme kolonner som Studio-visningen.
+  // Tomme kolonner smalnes inn, men stegene slås aldri sammen.
   function renderBoard(project, beats) {
     if (!beats.length) return `<div class="pl3-pane-empty">Ingen låter å vise på boardet.</div>`;
-    const buckets = { todo: [], inprogress: [], done: [] };
-    beats.forEach(b => buckets[boardBucket(b)].push(b));
-
+    const stages = window.mvStages ? mvStages.list : FLOW.map(f => ({ key: f.key, label: f.label }));
+    const buckets = Object.fromEntries(stages.map(s => [s.key, []]));
+    beats.forEach(b => buckets[stages[flowIndex(b)].key].push(b));
     return `
       <div class="pl3-board">
-        ${BOARD.map(col => `
-          <div class="pl3-col" data-stage="${col.id}" style="background:${col.color}">
-            <div class="pl3-col-hd"><span>${col.label}</span><span class="pl3-col-count">${buckets[col.id].length}</span></div>
+        ${stages.map((s, i) => `
+          <div class="pl3-col${buckets[s.key].length ? '' : ' is-empty'}" data-stage="${s.key}" style="--stage-c:${FLOW[i] ? FLOW[i].color : 'var(--muted)'}">
+            <div class="pl3-col-hd"><span>${s.label}</span><span class="pl3-col-count">${buckets[s.key].length}</span></div>
             <div class="pl3-col-list">
-              ${buckets[col.id].map(b => renderBoardCard(b)).join('') || '<div class="pl3-col-empty">Dra låter hit</div>'}
+              ${buckets[s.key].map(b => renderBoardCard(b)).join('') || '<div class="pl3-col-empty">Dra låter hit</div>'}
             </div>
           </div>`).join('')}
       </div>`;
@@ -425,7 +420,7 @@
       <div class="pl3-bcard" draggable="true" data-beat-id="${esc(b.id)}">
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-name">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct" style="color:${col}">${pct}%</span>
+          <span class="pl3-bcard-pct" style="color:${col}">${window.mvStages ? mvStages.of(b).label + ' · ' : ''}${pct} %</span>
         </div>
         <div class="pl3-bcard-bar"><i style="width:${pct}%;background:${col}"></i></div>
         ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
@@ -511,10 +506,7 @@
         const beat = (st().beats || []).find(b => b.id === _dragBeatId);
         _dragBeatId = null;
         if (!beat) return;
-        const stage = col.dataset.stage;
-        if (stage === 'done') beat.done = 100;
-        else if (stage === 'inprogress') { if (!beat.done || beat.done === 0) beat.done = 10; else if (beat.done >= 100) beat.done = 60; }
-        else beat.done = 0;
+        if (window.mvStages) mvStages.set(beat, col.dataset.stage);
         save();
         render();
       });

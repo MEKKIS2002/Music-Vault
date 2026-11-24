@@ -316,3 +316,12 @@
   .pl3-hero-title { font-size:var(--fs-lg); }
   .pl3-hero-metrics { gap: 16px; }
 }
+
+/* ── Board = de seks stegene (js/stages.js) ─────────────────────────────────
+   Side om side, ruller vannrett ved behov; tomme steg smalnes inn. */
+.pl3-board{ display: flex !important; gap: 10px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
+.pl3-board .pl3-col{ flex: 1 1 0; min-width: 168px; scroll-snap-align: start; background: rgb(var(--ink-rgb) / .03); border-top: 2px solid var(--stage-c, var(--line)); }
+.pl3-board .pl3-col.is-empty{ flex: 0 0 116px; min-width: 116px; }
+.pl3-board .pl3-col.is-empty .pl3-col-empty{ padding: 22px 6px; }
+.pl3-bcard-pct{ font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 820px){ .pl3-board .pl3-col{ min-width: 220px; } .pl3-board .pl3-col.is-empty{ min-width: 116px; } }

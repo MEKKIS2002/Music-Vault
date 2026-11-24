@@ -904,3 +904,27 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-status-pill.is-changed{ animation: llStagePulse .5s var(--mv-ease-out, ease-out); }
 @keyframes llStagePulse{ 0%{ background-color: color-mix(in srgb, currentColor 32%, transparent); transform: scale(1.06); } 100%{ transform: none; } }
 @media (prefers-reduced-motion: reduce){ .ll-status-pill.is-changed{ animation: none; } }
+
+/* ── Steget i hodet er selve kontrollen (felles stegmodell) ── */
+.ll-stage-ctl{ display: inline-flex; align-items: center; gap: 8px; }
+select.ll-status-pill{ appearance: none; -webkit-appearance: none; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; padding: 3px 26px 3px 10px; border-radius: 999px; border: 1px solid;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%) !important;
+  background-position: calc(100% - 13px) 55%, calc(100% - 9px) 55%; background-size: 4px 4px; background-repeat: no-repeat; }
+select.ll-status-pill:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+select.ll-status-pill option{ color: var(--text); background: var(--surface-1); text-transform: none; }
+.ll-stage-pct{ font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* ── Verktøy-panelet: samler alt som ikke er selve skrivingen ── */
+.ll-tools{ border: 1px solid var(--line); border-radius: 14px; background: rgb(var(--ink-rgb) / .02); }
+.ll-tools-sum{ list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 14px;
+  font-weight: 700; color: var(--text); border-radius: 14px; }
+.ll-tools-sum::-webkit-details-marker{ display: none; }
+.ll-tools-sum::after{ content: ""; margin-left: auto; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg) translateY(-2px); transition: transform .2s var(--mv-ease-out, ease-out); align-self: center; }
+.ll-tools[open] > .ll-tools-sum::after{ transform: rotate(-135deg) translateY(-2px); }
+.ll-tools-sum:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.ll-tools-hint{ font-size: 12px; font-weight: 400; color: var(--muted); }
+.ll-tools-body{ display: grid; gap: 12px; padding: 0 10px 10px; }
+.ll-tools-body > .ll-card{ margin: 0; }
+@media (prefers-reduced-motion: reduce){ .ll-tools-sum::after{ transition: none; } }

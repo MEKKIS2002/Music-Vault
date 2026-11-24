@@ -68,12 +68,14 @@
   }
 
   // ── DOM ──────────────────────────────────────────────────────────────────
-  const ATTRS = ['placeholder', 'title', 'aria-label', 'alt', 'data-tip', 'data-ph'];
+  const ATTRS = ['placeholder', 'title', 'aria-label', 'alt', 'data-tip', 'data-ph', 'data-placeholder'];
   const SKIP_SEL = 'script,style,textarea,code,pre,[contenteditable=""],[contenteditable="true"],[data-no-i18n]';
   const orig = new WeakMap();          // tekstnode → original norsk tekst
   const last = new WeakMap();          // tekstnode → det vi satte sist
   const origAttr = new WeakMap();      // element → { attr: original, _attr: oversatt }
   const skipped = el => !!(el && el.closest && el.closest(SKIP_SEL));
+  // Selve redigerbare element (f.eks. Lyric Lab-seksjonen) kan ha oversettbar data-placeholder; elementer INNI redigerbart innhold aldri
+  const skippedAttr = el => !!(el && el.closest && (el.closest('[data-no-i18n],script,style') || (el.parentElement && el.parentElement.closest(SKIP_SEL))));
 
   function doText(node){
     if (last.get(node) === node.data) return;                     // vår egen endring
@@ -82,7 +84,7 @@
     if (out !== src){ orig.set(node, src); last.set(node, out); node.data = out; }
   }
   function doAttrs(el){
-    if (skipped(el)) return;
+    if (skippedAttr(el)) return;
     let o = origAttr.get(el);
     for (const a of ATTRS){
       if (!el.hasAttribute(a)) continue;
@@ -97,9 +99,9 @@
     if (!root) return;
     if (root.nodeType === 3){ doText(root); return; }
     if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) return;
-    if (root.nodeType === 1){ if (skipped(root)) return; doAttrs(root); }
+    if (root.nodeType === 1){ if (root.matches('textarea,[contenteditable]')) doAttrs(root); if (skipped(root)) return; doAttrs(root); }
     const tw = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
-      acceptNode: n => n.nodeType === 1 && n.matches(SKIP_SEL) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+      acceptNode: n => { if (n.nodeType === 1 && n.matches(SKIP_SEL)){ if (n.matches('textarea,[contenteditable]')) doAttrs(n); return NodeFilter.FILTER_REJECT; } return NodeFilter.FILTER_ACCEPT; }
     });
     let n; while ((n = tw.nextNode())){ if (n.nodeType === 3) doText(n); else doAttrs(n); }
   }
