@@ -895,7 +895,7 @@ function renderAlbums(){
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
           <span style="font-size:11px;color:var(--muted)">${n} sang${n===1?'':'er'}</span>
           ${(()=>{const totalSec=(a.beatIds||[]).reduce((s,id)=>{const b=state.beats.find(x=>x.id===id);return s+(b&&!b.archived?Number(b.duration||0):0);},0);const m=Math.floor(totalSec/60),sec=Math.floor(totalSec%60);return totalSec>0?`<span style="font-size:11px;color:var(--faint)">•</span><span style="font-size:11px;color:var(--muted)">${m}:${String(sec).padStart(2,'0')}</span>`:'';})()}
-          ${(()=>{const STATUS_COLORS={'Idé':'rgba(214,129,85,.6)','Skriving':'rgba(191,178,166,.6)','Innspilling':'rgba(214,129,85,.7)','Mixing':'rgba(214,129,85,.7)','Ferdig':'rgba(166,190,139,.7)'};const s=a.status||'Idé';const c=STATUS_COLORS[s]||'rgba(244,234,220,.7)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
+          ${(()=>{const STATUS_COLORS={'Idé':'rgba(214,129,85,.6)','Skriving':'rgba(191,178,166,.6)','Innspilling':'rgba(214,129,85,.7)','Miks':'rgba(214,129,85,.7)','Master':'rgba(214,129,85,.7)','Klar for release':'rgba(166,190,139,.7)','Ferdig':'rgba(166,190,139,.7)'};const s=window.mvStages?mvStages.normalizeAlbum(a.status):(a.status||'Idé');const c=STATUS_COLORS[s]||'rgba(244,234,220,.7)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
         </div>
       </div>
       <button class="small-btn" style="margin-top:8px;padding:7px 12px" onclick="event.stopPropagation();playAlbumFromStart('${a.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
@@ -2001,10 +2001,16 @@ const _lrt={};
 
 // ── TOAST ──
 let _tt;
-function showToast(msg,ms){
+// showToast(melding[, ms]) eller showToast(melding, knappetekst, handling) — f.eks. «Angre».
+// (Denne lastes etter app.js og er den som faktisk gjelder, så knappen må støttes her.)
+function showToast(msg,ms,actionFn){
+  const actionLabel = typeof ms==='string' && typeof actionFn==='function' ? ms : null; if(actionLabel) ms=7000;
   let t=document.getElementById("_toast");
   if(!t){t=document.createElement("div");t.id="_toast";t.style.cssText="position:fixed;bottom:22px;right:22px;background:rgb(var(--panel-rgb) / .96);backdrop-filter:blur(16px);border:1px solid rgb(var(--ink-rgb) / .2);border-radius:12px;padding:11px 18px;font-size:13px;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:min(420px,90vw)";document.body.appendChild(t);}
-  t.textContent=String(msg||'').replace(/^(?:[\u{1F000}-\u{1FAFF}☀-➿⏩-⏺⬆⬇▶]️?\s*)+/u,''); // ingen emojier i varslert.style.transform="translateY(0)";t.style.opacity="1";
+  t.textContent=String(msg||'').replace(/^(?:[\u{1F000}-\u{1FAFF}☀-➿⏩-⏺⬆⬇▶]️?\s*)+/u,'');
+  t.style.pointerEvents=actionLabel?'auto':'none'; t.style.display='flex'; t.style.alignItems='center'; t.style.gap='10px';
+  if(actionLabel){ const b=document.createElement('button'); b.type='button'; b.id='toastActionBtn'; b.className='toast-action'; b.textContent=actionLabel; b.onclick=()=>{ clearTimeout(_tt); t.style.transform='translateY(60px)'; t.style.opacity='0'; actionFn(); }; t.appendChild(b); } // ingen emojier i varsler
+  t.style.transform="translateY(0)";t.style.opacity="1";   // (sto tidligere inne i kommentaren over → toastene var usynlige)
   clearTimeout(_tt);_tt=setTimeout(()=>{t.style.transform="translateY(60px)";t.style.opacity="0";},ms||2500);
 }
 

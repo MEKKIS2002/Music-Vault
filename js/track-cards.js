@@ -170,7 +170,8 @@ document.documentElement.classList.add('mv-mixed-ui');
   }
 
   // Studio kanban board
-  function studioCol(b){ const d=Number(b.done||0); if(d>=100)return 'Ferdig'; if(d>=70)return 'Miks/Master'; if(d>=30)return 'Spilt inn'; return 'Idé/Skriver'; }
+  // Kolonner = stegene i js/stages.js slått sammen: Idé+Skriving | Innspilling | Miks+Master | Ferdig
+  function studioCol(b){ const i=window.mvStages?mvStages.index(b):(Number(b.done||0)>=100?5:Number(b.done||0)>=50?3:Number(b.done||0)>=25?2:0); return i>=5?'Ferdig':i>=3?'Miks/Master':i>=2?'Spilt inn':'Idé/Skriver'; }
   function renderStudioBoard(el, mode){
     if(!el) return;
     let beats = Array.from(el.querySelectorAll('.album-beat-card')).map(c=>getBeat(c.dataset.beatId)).filter(Boolean);
@@ -185,8 +186,8 @@ document.documentElement.classList.add('mv-mixed-ui');
       beats = ordered;
     }
     const cols = [
-      {key:'Idé/Skriver', label:'Idé / Skriver', cls:'s-idea'},
-      {key:'Spilt inn',   label:'Spilt inn',     cls:'s-rec'},
+      {key:'Idé/Skriver', label:'Idé / Skriving', cls:'s-idea'},
+      {key:'Spilt inn',   label:'Innspilling',   cls:'s-rec'},
       {key:'Miks/Master', label:'Miks / Master', cls:'s-mix'},
       {key:'Ferdig',      label:'Ferdig',        cls:'s-done'}
     ];
@@ -216,9 +217,9 @@ document.documentElement.classList.add('mv-mixed-ui');
   // Dropping into another column snaps the song's `done%` into that stage's range;
   // dropping within the same column just reorders. A gold drop-line shows the target.
   let studioDrag = null;
-  const STAGE_VAL = { 's-idea':10, 's-rec':40, 's-mix':80, 's-done':100 };
+  const STAGE_VAL = { 's-idea':10, 's-rec':30, 's-mix':55, 's-done':100 };   // = stegets «set»-verdi i js/stages.js
   const STAGE_KEY = { 's-idea':'Idé/Skriver', 's-rec':'Spilt inn', 's-mix':'Miks/Master', 's-done':'Ferdig' };
-  const STAGE_LBL = { 's-idea':'Idé / Skriver', 's-rec':'Spilt inn', 's-mix':'Miks / Master', 's-done':'Ferdig' };
+  const STAGE_LBL = { 's-idea':'Idé / Skriving', 's-rec':'Innspilling', 's-mix':'Miks / Master', 's-done':'Ferdig' };
   function colClass(col){ return ['s-idea','s-rec','s-mix','s-done'].find(c=>col.classList.contains(c)); }
   function clearStudioDnD(board){
     if(!board) return;

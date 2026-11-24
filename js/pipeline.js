@@ -20,19 +20,20 @@
     { key: 'idea',    label: 'Idé',          color: 'var(--stage-idea)' },
     { key: 'writing', label: 'Skriving',     color: 'var(--stage-writing)' },
     { key: 'record',  label: 'Innspilling',  color: 'var(--muted)' },
-    { key: 'mix',     label: 'Mixing',       color: 'var(--accent-ink)' },
-    { key: 'master',  label: 'Mastering',    color: 'var(--accent2)' },
+    { key: 'mix',     label: 'Miks',         color: 'var(--accent-ink)' },
+    { key: 'master',  label: 'Master',       color: 'var(--accent2)' },
     { key: 'done',    label: 'Ferdig',       color: 'var(--ok)' },
   ];
 
   // Board buckets (coarse, drag & drop)
   const BOARD = [
-    { id: 'todo',       label: 'Ikke startet', color: 'rgb(var(--ink-rgb) / .05)' },
+    { id: 'todo',       label: 'Idé',          color: 'rgb(var(--ink-rgb) / .05)' },
     { id: 'inprogress', label: 'I arbeid',     color: 'rgb(var(--accent-rgb) / .10)'  },
     { id: 'done',       label: 'Ferdig',       color: 'rgb(var(--ok-rgb) / .10)'  },
   ];
 
-  const ALBUM_STATUS = ['Idé', 'Skriving', 'Innspilling', 'Mixing', 'Mastering', 'Klar for release'];
+  // Samme ord som låtstegene (js/stages.js); eldre «Mixing»/«Mastering» leses som «Miks»/«Master»
+  const ALBUM_STATUS = window.mvStages ? window.mvStages.album : ['Idé', 'Skriving', 'Innspilling', 'Miks', 'Master', 'Klar for release'];
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   function st()     { return typeof state !== 'undefined' ? state : window.state; }
@@ -63,22 +64,17 @@
   }
 
   // Fine-grained flow stage for a beat
+  // Felles stegmodell (js/stages.js) — samme grenser som Lyric Lab og Studio
   function flowIndex(b) {
+    if (window.mvStages) return window.mvStages.index(b);
     const pct = clamp(b.done || 0);
-    if (pct >= 100) return 5;            // Ferdig
-    if (pct >= 76)  return 4;            // Mastering
-    if (pct >= 51)  return 3;            // Mixing
-    if (pct >= 26)  return 2;            // Innspilling
-    if (pct > 0 || hasAudio(b)) return 1;// Skriving / skisse
-    if (hasLyrics(b)) return 1;          // har tekst → skriving
-    return 0;                            // Idé
+    return pct >= 100 ? 5 : pct >= 75 ? 4 : pct >= 50 ? 3 : pct >= 25 ? 2 : pct > 0 ? 1 : 0;
   }
   // Coarse board bucket
+  // Grove kolonner på boardet, regnet ut fra samme steg: Idé | Skriving–Master | Ferdig
   function boardBucket(b) {
-    const pct = clamp(b.done || 0);
-    if (pct >= 100) return 'done';
-    if (pct > 0 || hasAudio(b) || hasLyrics(b)) return 'inprogress';
-    return 'todo';
+    const i = flowIndex(b);
+    return i >= 5 ? 'done' : i >= 1 ? 'inprogress' : 'todo';
   }
 
   // The single most important next step for a beat.
@@ -92,7 +88,7 @@
     if ((b.lyricSections||[]).length && !sectionsDone(b))
                                             return { txt: 'Ferdigstill seksjoner',  kind: 'lyrics' };
     if (pct < 50)                           return { txt: 'Spill inn / skisse',     kind: 'record' };
-    if (pct < 76)                           return { txt: 'Miks ferdig',            kind: 'mix'    };
+    if (pct < 75)                           return { txt: 'Miks ferdig',            kind: 'mix'    };
     return { txt: 'Master & sett til 100%', kind: 'master' };
   }
 
@@ -239,7 +235,7 @@
     const cover = a.cover
       ? `<img class="pl3-hero-cover" src="${esc(a.cover)}" alt="">`
       : `<div class="pl3-hero-cover pl3-hero-cover-ph">${project.type === 'mixtape' ? '<span class="ic ic-cassette" aria-hidden="true"></span>' : '<span class="ic ic-music" aria-hidden="true"></span>'}</div>`;
-    const status = a.status || (project.type === 'mixtape' ? 'Mixtape' : 'Idé');
+    const status = project.type === 'mixtape' && !a.status ? 'Mixtape' : (window.mvStages ? window.mvStages.normalizeAlbum(a.status) : (a.status || 'Idé'));
 
     return `
       <div class="pl3-hero">

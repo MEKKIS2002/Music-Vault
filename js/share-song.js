@@ -119,11 +119,49 @@ window.mvLoadShareStats = async function(kind, token, el){
     const b = getState()?.beats?.find(x=>x.id===beatId);
     return !!(b && b.isPublic && b.shareEnabled !== false);
   };
+  // Første gang en låt gjøres offentlig: forklar hvem som ser den (appens egen
+  // dialog, ikke nettleserens confirm). Valget «ikke spør igjen» huskes per enhet.
+  const CONFIRM_KEY = 'mv_explore_confirmed';
+  function confirmPublic(name){
+    try { if (localStorage.getItem(CONFIRM_KEY) === '1') return Promise.resolve(true); } catch(e){}
+    return new Promise(resolve => {
+      const prev = document.activeElement;
+      const wrap = document.createElement('div');
+      wrap.className = 'mv-pub-dialog'; wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-labelledby', 'mvPubTitle');
+      wrap.innerHTML = `<div class="mv-pub-card">
+          <div class="mv-pub-ic"><span class="ic ic-globe" aria-hidden="true"></span></div>
+          <h2 id="mvPubTitle">Gjøre «${esc(name || 'låten')}» offentlig?</h2>
+          <p>Låten vises i Explore, og alle med en Music Vault-konto kan finne og høre den. Den kan også legges på artistsiden din.</p>
+          <p class="mv-pub-sub">Du kan gjøre den privat igjen når som helst med den samme bryteren.</p>
+          <label class="mv-pub-remember"><input type="checkbox" id="mvPubRemember"> Ikke spør igjen på denne enheten</label>
+          <div class="mv-pub-actions">
+            <button type="button" class="ghost-btn" data-v="0">Avbryt</button>
+            <button type="button" class="mv-pub-yes" data-v="1">Gjør offentlig</button>
+          </div>
+        </div>`;
+      const done = ok => {
+        if (ok && wrap.querySelector('#mvPubRemember').checked){ try { localStorage.setItem(CONFIRM_KEY, '1'); } catch(e){} }
+        document.removeEventListener('keydown', onKey, true); wrap.remove();
+        try { prev && prev.focus && prev.focus({ preventScroll: true }); } catch(e){}
+        resolve(ok);
+      };
+      const onKey = e => { if (e.key === 'Escape'){ e.preventDefault(); done(false); } };
+      wrap.addEventListener('click', e => {
+        if (e.target === wrap) return done(false);
+        const b = e.target.closest('button[data-v]'); if (b) done(b.dataset.v === '1');
+      });
+      document.addEventListener('keydown', onKey, true);
+      document.body.appendChild(wrap);
+      wrap.querySelector('.mv-pub-yes').focus();
+    });
+  }
+
   window.mvSetSongPublic = async function(beatId, makePublic){
     const b = getState()?.beats?.find(x=>x.id===beatId);
     if(!b){ toast('Fant ikke sangen'); return false; }
     if(makePublic){
       if(!publicAudioUrl(b)){ toast('Last opp lydfilen først — en offentlig låt trenger en publisert lydfil.'); return false; }
+      if(!(await confirmPublic(b.name))) return false;
       const extra = { is_public:true };
       if(!b.isPublic) extra.published_at = new Date().toISOString();
       const r = await upsertShare(b, isSong(b)?'song':'beat', extra);
@@ -140,6 +178,7 @@ window.mvLoadShareStats = async function(kind, token, el){
     toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
     const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
     if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'hjem') window.mvExplore.refresh();
+    if(document.querySelector('.tab-btn.active')?.dataset?.tab === 'beats' && window.beatsTab?.renderBeatsTab) window.beatsTab.renderBeatsTab();   // «Offentlig»-merket
     return true;
   };
 
