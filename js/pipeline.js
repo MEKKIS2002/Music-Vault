@@ -96,6 +96,8 @@
     return { txt: 'Master & sett til 100%',     kind: 'master', why };
   }
 
+  window.mvNextStep = nextStep;
+
   // ── Per-project metrics ──────────────────────────────────────────────────────
   function metrics(beats) {
     const n = beats.length;
@@ -224,7 +226,7 @@
               <span class="pl3-projchip-cover">${cover}</span>
               <span class="pl3-projchip-meta">
                 <span class="pl3-projchip-name">${esc(p.obj.name || 'Uten navn')}</span>
-                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album'} · ${avg} % ferdig</span>
+                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album'} · ${window.mvStages ? mvStages.fmt(avg) : avg + ' %'} ferdig</span>
               </span>
             </button>`;
         }).join('')}
@@ -423,17 +425,20 @@
           </div>`).join('')}
       </div>`;
   }
+  // Samme kort som Studio-visningen (js/track-cards.js): cover · tittel · prosent · linje i stegets farge · neste steg
   function renderBoardCard(b) {
     const pct = clamp(b.done||0);
-    const col = pctColor(pct);
     const step = nextStep(b);
+    const fmt = window.mvStages ? mvStages.fmt : (n => n + ' %');
+    const thumb = b.cover ? `<img src="${esc(b.cover)}" alt="" draggable="false" loading="lazy">` : '<span class="ic ic-music" aria-hidden="true"></span>';
     return `
       <div class="pl3-bcard" draggable="true" data-beat-id="${esc(b.id)}">
         <div class="pl3-bcard-top">
-          <span class="pl3-bcard-name">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct" style="color:${col}">${pct} %</span>
+          <span class="pl3-bcard-thumb">${thumb}</span>
+          <span class="pl3-bcard-name" data-no-i18n>${esc(b.name || 'Uten navn')}</span>
+          <span class="pl3-bcard-pct">${fmt(pct)}</span>
         </div>
-        <div class="pl3-bcard-bar"><i style="width:${pct}%;background:${col}"></i></div>
+        <div class="pl3-bcard-bar"><i style="width:${pct}%"></i></div>
         ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
       </div>`;
   }

@@ -51,6 +51,7 @@
       page: { slug: p.slug || '', display_name: p.display_name || '', photo_url: p.photo_url || '', banner_url: p.banner_url || '',
               accent: HEX.test(p.accent || '') ? p.accent : '#d68155', blocks, published: !!p.published },
     };
+    window.mvArtistName = p.display_name || '';   // brukes som kreditering når låter deles
     S.saved = snap();
     return S;
   }

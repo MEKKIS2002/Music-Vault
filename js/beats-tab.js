@@ -117,11 +117,11 @@
           </button>`;
         }).join('')}` : ''}
       ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
-      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
       ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
       ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
       ${admin && !beat._shared && window.mvSetSongPublic ? `<button onclick="beatsTab.togglePublic('${beatId}')"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beatId) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
       ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Arkiver sang'}</button>` : ''}
+      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
       ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')"><span class="ic ic-trash" aria-hidden="true"></span> Slett permanent</button>` : ''}
     `;
 

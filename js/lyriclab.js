@@ -197,6 +197,21 @@
     e.preventDefault(); const next = t.dataset.rail === 'write' ? 'rec' : 'write'; llSetRail(next); document.querySelector(`.ll-rail-tab[data-rail="${next}"]`)?.focus();
   });
 
+  // Standard seksjonsnavn («Vers 1», «Bro» …) vises på valgt språk. Det lagrede navnet endres ikke,
+  // og et navn brukeren har skrevet selv vises alltid som det er.
+  const SEC_EN = { 'vers': 'Verse', 'bro': 'Bridge', 'refreng': 'Chorus', 'hook': 'Hook', 'outro': 'Outro', 'intro': 'Intro', 'pre-refreng': 'Pre-chorus', 'ny seksjon': 'New section' };
+  function llSecTitle(t){
+    if (!(window.mvI18n && mvI18n.lang === 'en')) return t;
+    const m = String(t || '').match(/^(vers|bro|refreng|hook|outro|intro|pre-refreng|ny seksjon)(\s+\d+)?$/i);
+    return m ? SEC_EN[m[1].toLowerCase()] + (m[2] || '') : t;
+  }
+  window.llSecTitle = llSecTitle;
+  document.addEventListener('mv:lang', () => {
+    document.querySelectorAll('#lyriclabTab .ll-section-title-input[data-orig]').forEach(inp => {
+      if (document.activeElement !== inp) inp.value = llSecTitle(inp.dataset.orig);
+    });
+  });
+
   function sectionHTML(sec, beat) {
     const typeClass = `ll-type-${sec.type}`;
     const lineNums  = sec.text.split('\n').map((_,i)=>i+1).join('\n');
@@ -205,7 +220,7 @@
     <div class="ll-section${sec.collapsed?' collapsed':''}" data-section-id="${esc(sec.id)}" id="llsec-${esc(sec.id)}">
       <div class="ll-section-header" onclick="llToggleSection('${esc(sec.id)}')">
         <span class="ll-section-type ${typeClass}">${esc(TYPE_LABELS[sec.type]||sec.type)}</span>
-        <input class="ll-section-title-input" value="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(sec.title)}" spellcheck="false" onclick="event.stopPropagation()"
+        <input class="ll-section-title-input" value="${esc(llSecTitle(sec.title))}" data-orig="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(llSecTitle(sec.title))}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llRenameSection('${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
         <button class="ll-section-menu-btn" onclick="event.stopPropagation();llToggleSectionMenu('${esc(sec.id)}')">⋯</button>
@@ -315,7 +330,7 @@
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
     </select>
-    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.pct(beat) : 0} %</span>
+    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span>
   </span>
         </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
@@ -612,7 +627,10 @@
   window.llRenameSection = function(id, title) {
     const beat = getBeat(window.currentLyricLabBeatId);
     const sec  = getSections(beat||{}).find(s=>s.id===id);
-    if (sec) { sec.title = title; saveSections(beat); }
+    if (!sec) return;
+    if (title === llSecTitle(sec.title)) return;   // bare vist på et annet språk — ikke et nytt navn
+    sec.title = title; saveSections(beat);
+    const inp = document.querySelector(`#llsec-${CSS.escape(id)} .ll-section-title-input`); if (inp) inp.dataset.orig = title;
   };
 
   window.llToggleSectionMenu = function(id) {
@@ -817,7 +835,7 @@
     const s = mvStages.of(beat);
     const pill = document.querySelector('.ll-status-pill');
     if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.value = s.key; void pill.offsetWidth; pill.classList.add('is-changed'); }
-    const pct = document.getElementById('llStagePct'); if (pct) pct.textContent = mvStages.pct(beat) + ' %';
+    const pct = document.getElementById('llStagePct'); if (pct) pct.textContent = mvStages.fmt(mvStages.pct(beat));
     if (typeof saveState === 'function') saveState();
     if (typeof showToast === 'function') showToast('✓ Steg: ' + s.label + ' (' + mvStages.pct(beat) + ' %)');
   };
@@ -1063,7 +1081,7 @@
     return `<div class="ll-section${sec.collapsed?' collapsed':''}" id="llins-sec-${esc(beatId)}-${esc(sec.id)}" style="margin-bottom:8px">
       <div class="ll-section-header" onclick="llInlineToggle('${esc(beatId)}','${esc(sec.id)}')">
         <span class="ll-section-type ${typeClass}">${esc(TYPE_LABELS[sec.type]||sec.type)}</span>
-        <input class="ll-section-title-input" value="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(sec.title)}" spellcheck="false" onclick="event.stopPropagation()"
+        <input class="ll-section-title-input" value="${esc(llSecTitle(sec.title))}" data-orig="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(llSecTitle(sec.title))}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llInlineRename('${esc(beatId)}','${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
         <button class="ll-section-toggle">${sec.collapsed?'▸':'▾'}</button>

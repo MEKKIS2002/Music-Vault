@@ -201,21 +201,29 @@
           </p>
           <div class="album-detail-actions">
             <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn mv-mob-hide" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0])"></label>` : ''}
-            <button class="ghost-btn mv-mob-hide" onclick="albumToggleABSide('${album.id}')" id="abSideBtn" title="A/B-side visning"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
-            ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn mv-mob-hide" onclick="window.albumPitchMode('${album.id}')" title="Artist one-pager"><span class="ic ic-file" aria-hidden="true"></span> Pitch</button>` : ''}
-            ${!album._shared ? `<button class="ghost-btn mv-mob-hide" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)"><span class="ic ic-user" aria-hidden="true"></span> Del med bruker</button>` : ''}
+            ${!album._shared ? `<button class="ghost-btn" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)"><span class="ic ic-user" aria-hidden="true"></span> Del med bruker</button>` : ''}
+            <!-- Alt annet i én meny: albumbilde, A/B-side, pitch, arkiver og slett (før 9 knapper, «Bytt albumbilde» to ganger) -->
+            <details class="mv-proj-menu album-more-menu">
+              <summary class="ghost-btn" aria-label="Flere valg for albumet">⋯ Album</summary>
+              <div class="mv-proj-menu-panel">
+                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0]);this.closest('details').open=false"></label>` : ''}
+                <button class="ghost-btn" onclick="albumToggleABSide('${album.id}');this.closest('details').open=false" id="abSideBtn" title="Vis låtene som A- og B-side, som på en vinylplate"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
+                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Én side som presenterer albumet for label eller samarbeidspartnere"><span class="ic ic-file" aria-hidden="true"></span> Pitch-side</button>` : ''}
+                ${!album._shared ? `<button class="ghost-btn" onclick="archiveCurrentCollection('album')"><span class="ic ic-archive" aria-hidden="true"></span> Arkiver album</button>` : ''}
+                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn danger" onclick="document.getElementById('deleteAlbumBtn')?.click()"><span class="ic ic-trash" aria-hidden="true"></span> Slett album</button>` : ''}
+              </div>
+            </details>
             <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()"><span class="ic ic-stop" aria-hidden="true"></span> Stopp</button>
           </div>
         </div>
 
         <aside class="album-detail-side">
           ${(()=>{ const cur = window.mvStages ? mvStages.normalizeAlbum(album.status) : (album.status||'Idé'); const list = window.mvStages ? mvStages.album : ['Idé','Skriving','Innspilling','Miks','Master','Klar for release']; return `
-          <div class="meta-row"><span>Status</span><strong>${esc(cur)}</strong></div>
-          <div class="progress-bar"><div style="width:${avg}%"></div></div>
-          <select class="ux-input" aria-label="Albumstatus" onchange="albumStatusChange('${album.id}',this.value)">
+          <label class="meta-row album-status-row" for="albumStatusSel"><span>Status</span></label>
+          <select class="ux-input" id="albumStatusSel" aria-label="Albumstatus" onchange="albumStatusChange('${album.id}',this.value)">
             ${list.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('')}
-          </select>`; })()}
+          </select>
+          <div class="progress-bar" title="${avg}% ferdig i snitt"><div style="width:${avg}%"></div></div>`; })()}
         </aside>
       </div>`;
   }

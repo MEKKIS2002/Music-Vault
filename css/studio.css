@@ -354,10 +354,10 @@ html body .mv-gear-dropdown, html body .mv-row-menu, html body .mv-proj-menu-pan
   box-shadow: var(--shadow-float) !important;
   font-family: var(--body) !important;
 }
-html body .mv-gear-item, html body .mv-row-menu button, html body .mv-proj-menu-panel button, html body .bt-dropdown button{
+html body .mv-gear-item, html body .mv-row-menu button, html body .mv-proj-menu-panel button, html body .mv-proj-menu-panel label, html body .bt-dropdown button{
   color: var(--text) !important; border-radius: var(--radius) !important;
 }
-html body .mv-gear-item:hover, html body .mv-row-menu button:hover, html body .mv-proj-menu-panel button:hover, html body .bt-dropdown button:hover{
+html body .mv-gear-item:hover, html body .mv-row-menu button:hover, html body .mv-proj-menu-panel button:hover, html body .mv-proj-menu-panel label:hover, html body .bt-dropdown button:hover{
   background: var(--raised) !important;
 }
 html body #_toast{
@@ -1056,7 +1056,7 @@ html body .ll-v2 .ll-wave.ll-wave-unavailable{ background: repeating-linear-grad
   html body .ll-v2 .ll-song-controls{ gap: .4rem !important; }
   html body .ll-v2 .ll-ctrl-btn{ padding: .4rem .7rem !important; }
   html body .ll-v2 .ll-ctrl-field input.ll-bpm-input{ width: 3.6rem !important; }
-  html body .ll-v2 .ll-ctrl-field select.ll-key-select{ max-width: 7rem !important; padding-right: 1.6rem !important; }
+  html body .ll-v2 .ll-ctrl-field select.ll-key-select{ max-width: 10rem !important; padding-right: 1.6rem !important; field-sizing: content; }   /* «A minor» skal ikke kuttes */
 }
 
 /* ── 26. Arkivert: ryddig søkerad + demo-kasse-vindu i ny stil ──────────── */

@@ -376,10 +376,12 @@ function injectUserCorner(role){
         <div class="mv-gear-divider"></div>
         <div id="mvGearAppearance" class="mv-gear-appearance"></div>
         <div class="mv-gear-divider"></div>
+        <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
+        <!-- «Forlat label» er en alvorlig handling: egen seksjon nederst, adskilt fra «Logg ut» -->
         <div id="mvGearLabelItem" style="display:none">
+          <div class="mv-gear-divider"></div>
           <button class="mv-gear-item mv-gear-danger" onclick="mvGearLeaveLabel()">Forlat label</button>
         </div>
-        <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
       </div>
     </div>`);
 
@@ -447,6 +449,15 @@ window.mvToggleGearMenu = function(e){
   }
   set('overflow-y', 'auto');
 };
+
+// Tannhjul-menyen lukkes med Escape (fokus tilbake til knappen) og ved klikk utenfor
+(function(){
+  const menu = () => document.getElementById('mvGearMenu');
+  const isOpen = () => { const m = menu(); return !!m && m.style.display !== 'none'; };
+  const close = focusBtn => { const m = menu(); if (!m) return; m.style.display = 'none'; if (focusBtn) document.getElementById('mvGearBtn')?.focus(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && isOpen()){ e.stopPropagation(); close(true); } }, true);
+  document.addEventListener('click', e => { if (!isOpen()) return; if (e.target.closest('#mvGearMenu') || e.target.closest('#mvGearBtn')) return; close(false); });
+})();
 
 // Oppdater gear-menyen med "Forlat label" hvis artisten er i et label
 window.mvUpdateGearMenu = function(labelId, labelName){
