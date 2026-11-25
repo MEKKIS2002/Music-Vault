@@ -1493,6 +1493,6 @@
 .studio-fav{ position:absolute; right:0; bottom:0; font-size:var(--fs-xs); color:var(--accent-ink); }
 
 /* Albumhodet: «⋯ Album»-menyen, valgene på rad som i de andre menyene */
-.album-more-menu .mv-proj-menu-panel > .ghost-btn{ display: flex; align-items: center; gap: 8px; width: 100%; justify-content: flex-start; border: 0; background: none; }
-.album-more-menu .mv-proj-menu-panel > .ghost-btn.danger{ color: var(--danger) !important; }
+.album-more-menu .mv-proj-menu-panel > .ghost-btn, .mv-album-menu-float > .ghost-btn{ display: flex; align-items: center; gap: 8px; width: 100%; justify-content: flex-start; border: 0; background: none; }
+.album-more-menu .mv-proj-menu-panel > .ghost-btn.danger, .mv-album-menu-float > .ghost-btn.danger{ color: var(--danger) !important; }
 .album-status-row{ margin-bottom: 6px !important; }
