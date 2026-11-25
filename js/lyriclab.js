@@ -221,6 +221,80 @@
     });
   });
 
+
+  // ── Analog kanalstripe i låthodet (vintage-miksepult) ───────────────────────
+  // VU-meteret leser bølgeformens ferdig utregnede topper ved avspillingstiden —
+  // det kobler seg aldri på selve lyden, så avspillingen påvirkes ikke.
+  const KEY_ORDER = ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  function knobRot(kind, beat){
+    if (kind === 'bpm'){ const n = Number(beat.bpm); return n > 0 ? Math.round(-135 + 270 * Math.max(0, Math.min(1, (n - 60) / 140))) : -135; }
+    const m = /^([A-G][#b]?)/.exec(String(beat.key || '')); const i = m ? KEY_ORDER.indexOf(m[1]) : -1;
+    return i < 0 ? -135 : Math.round(-135 + 270 * (i / 11));
+  }
+  function vuScale(){
+    const cx = 60, cy = 66, r = 46, out = [];
+    for (let k = 0; k <= 10; k++){
+      const a = (-50 + k * 10) * Math.PI / 180, long = k % 2 === 0, r2 = r - (long ? 8 : 5);
+      out.push(`<line x1="${(cx + r * Math.sin(a)).toFixed(1)}" y1="${(cy - r * Math.cos(a)).toFixed(1)}" x2="${(cx + r2 * Math.sin(a)).toFixed(1)}" y2="${(cy - r2 * Math.cos(a)).toFixed(1)}" class="${k >= 8 ? 'is-red' : ''}"/>`);
+    }
+    const arc = (a0, a1) => { const p = a => [(cx + r * Math.sin(a * Math.PI / 180)).toFixed(1), (cy - r * Math.cos(a * Math.PI / 180)).toFixed(1)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`; };
+    return `<path d="${arc(-50, 30)}" class="ll-vu-arc"/><path d="${arc(30, 50)}" class="ll-vu-arc is-red"/>${out.join('')}`;
+  }
+  function consoleHTML(beat){
+    const bpm = Number(beat.bpm) > 0 ? String(beat.bpm) : '–';
+    const key = beat.key ? llKeyLabel(beat.key) : '–';
+    return `<div class="ll-console" role="group" aria-label="Kanalstripe">
+        <span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span>
+        <div class="ll-vu" aria-hidden="true">
+          <svg viewBox="0 0 120 74" class="ll-vu-face">${vuScale()}<text x="60" y="52" class="ll-vu-mark">VU</text>
+            <g class="ll-vu-needle" id="llVuNeedle" transform="rotate(-48 60 66)"><line x1="60" y1="66" x2="60" y2="16"/></g><circle cx="60" cy="66" r="4.5" class="ll-vu-pivot"/></svg>
+        </div>
+        <button type="button" class="ll-knob" id="llKnobBpm" onclick="llOpenSongInfo('bpm')" title="Endre BPM" aria-label="BPM: ${esc(bpm)} — endre">
+          <span class="ll-knob-cap" style="--rot:${knobRot('bpm', beat)}deg"></span><span class="ll-knob-lbl">BPM</span><span class="ll-knob-val" data-no-i18n>${esc(bpm)}</span></button>
+        <button type="button" class="ll-knob" id="llKnobKey" onclick="llOpenSongInfo('key')" title="Endre toneart" aria-label="Toneart: ${esc(key)} — endre">
+          <span class="ll-knob-cap" style="--rot:${knobRot('key', beat)}deg"></span><span class="ll-knob-lbl">Toneart</span><span class="ll-knob-val">${esc(key)}</span></button>
+      </div>`;
+  }
+  function refreshConsole(beat){
+    if (!beat) return;
+    [['bpm', 'llKnobBpm', Number(beat.bpm) > 0 ? String(beat.bpm) : '–'], ['key', 'llKnobKey', beat.key ? llKeyLabel(beat.key) : '–']].forEach(([k, id, v]) => {
+      const b = document.getElementById(id); if (!b) return;
+      b.querySelector('.ll-knob-cap').style.setProperty('--rot', knobRot(k, beat) + 'deg');
+      b.querySelector('.ll-knob-val').textContent = v;
+      b.setAttribute('aria-label', (k === 'bpm' ? 'BPM: ' : 'Toneart: ') + v + ' — endre');
+    });
+  }
+  let _meterPeaks = null, _meterRaf = 0, _meterLevel = 0, _meterLast = 0;
+  const REST = -48;
+  function meterPeaks(){
+    if (_meterPeaks || !_ws) return _meterPeaks;
+    try { const p = _ws.exportPeaks({ maxLength: 1600, precision: 1000 }), d = _ws.getDuration(); if (p && p[0] && p[0].length && d > 0) _meterPeaks = { arr: p[0], d }; } catch(e){}
+    return _meterPeaks;
+  }
+  function setNeedle(deg, smooth){
+    const g = document.getElementById('llVuNeedle'); if (!g) return;
+    g.classList.toggle('is-resting', !!smooth);
+    g.setAttribute('transform', `rotate(${deg.toFixed(1)} 60 66)`);
+  }
+  function meterFrame(ts){
+    _meterRaf = 0;
+    if (!_ws || !_ws.isPlaying || !_ws.isPlaying() || document.hidden){ meterStop(); return; }
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce || ts - _meterLast > 250){
+      _meterLast = ts;
+      const pk = meterPeaks(); let target = 0;
+      if (pk){ const t = _ws.getCurrentTime(), i = Math.floor(t / pk.d * pk.arr.length), w = Math.max(2, Math.round(pk.arr.length * 0.12 / pk.d));
+        for (let k = Math.max(0, i - w); k < Math.min(pk.arr.length, i + w); k++) target = Math.max(target, Math.abs(pk.arr[k])); }
+      // VU-ballistikk: rask nok til å følge musikken, treg nok til å se analog ut
+      _meterLevel = reduce ? target : _meterLevel + (target - _meterLevel) * (target > _meterLevel ? 0.35 : 0.12);
+      setNeedle(REST + 96 * Math.pow(Math.min(1, _meterLevel), 0.7), false);
+    }
+    _meterRaf = requestAnimationFrame(meterFrame);
+  }
+  function meterStart(){ if (!_meterRaf) _meterRaf = requestAnimationFrame(meterFrame); }
+  function meterStop(){ if (_meterRaf){ cancelAnimationFrame(_meterRaf); _meterRaf = 0; } _meterLevel = 0; setNeedle(REST, true); }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && _ws && _ws.isPlaying && _ws.isPlaying()) meterStart(); });
+
   function sectionHTML(sec, beat) {
     const typeClass = `ll-type-${sec.type}`;
     const lineNums  = sec.text.split('\n').map((_,i)=>i+1).join('\n');
@@ -271,6 +345,7 @@
   };
   window.llRefreshMeta = function(){
     const beat = getBeat(window.currentLyricLabBeatId); const el = document.getElementById('llSongMeta');
+    try { refreshConsole(beat); } catch(e) {}
     if(!beat || !el) return;
     const bits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', fmtDur(beat.duration), beat.mood ? esc(beat.mood) : ''].filter(Boolean);
     el.innerHTML = bits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>');
@@ -352,14 +427,15 @@
             <div class="mv-proj-menu-panel">
               <div class="ll-more-fields" role="group" aria-label="Låtinfo"><span class="ll-more-lbl">Låtinfo</span><label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label><label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
-              <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
-              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Lag offentlig delingslenke som alle med lenken kan åpne"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>
+              <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Alle med lenken kan åpne låten — den vises ikke på Explore"><span class="ic ic-link" aria-hidden="true"></span> Lag delingslenke</button>
+              <hr class="ll-more-sep" aria-hidden="true"><button class="ghost-btn" onclick="llClearFlow(true)" title="Fjerner fargene fra flow-analysen — kan angres">Fjern flow-farger</button>
             </div>
           </details>
         </div>
       </div>
+      ${consoleHTML(beat)}
     </div>
 
     <div class="ll-player ll-wave-panel">
@@ -394,14 +470,14 @@
       <details class="ll-color-tools ll-color-pop" id="llColorPop">
         <summary class="ll-tool-btn ll-color-sum" onmousedown="event.preventDefault()" aria-label="Fargemarkering av tekst"><span class="ll-color-sum-dot" aria-hidden="true"></span>Farge</summary>
         <div class="ll-color-row" role="group" aria-label="Velg farge for markert tekst">
-          <button class="ll-color-dot" style="background:var(--accent)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" title="Kobber" aria-label="Farge: Kobber"></button>
-          <button class="ll-color-dot" style="background:var(--ok)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" title="Grønn" aria-label="Farge: Grønn"></button>
-          <button class="ll-color-dot" style="background:var(--muted)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" title="Grå" aria-label="Farge: Grå"></button>
-          <button class="ll-color-dot" style="background:#ec4899" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" title="Rosa" aria-label="Farge: Rosa"></button>
-          <button class="ll-color-dot" style="background:var(--danger)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" title="Rød" aria-label="Farge: Rød"></button>
-          <button class="ll-color-dot" style="background:var(--accent2)" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" title="Lys kobber" aria-label="Farge: Lys kobber"></button>
-          <button class="ll-color-dot ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" title="Fjern farge" aria-label="Farge: Fjern farge">✕</button>
-          <span id="llColorHint" class="ll-color-hint">Marker tekst, klikk så farge</span>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" aria-label="Farge: Kobber"><i style="background:var(--accent)"></i>Kobber</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" aria-label="Farge: Grønn"><i style="background:var(--ok)"></i>Grønn</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" aria-label="Farge: Grå"><i style="background:var(--muted)"></i>Grå</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" aria-label="Farge: Rosa"><i style="background:#ec4899"></i>Rosa</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" aria-label="Farge: Rød"><i style="background:var(--danger)"></i>Rød</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" aria-label="Farge: Lys kobber"><i style="background:var(--accent2)"></i>Lys kobber</button>
+          <button class="ll-color-dot ll-color-named ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" aria-label="Fjern farge"><i aria-hidden="true">✕</i>Ingen</button>
+          <span id="llColorHint" class="ll-color-hint">Marker tekst, velg så farge. Bruk dem som du vil — f.eks. rim, ad-libs eller det som skal kuttes.</span>
         </div>
       </details>
       <button class="ll-tool-btn primary" onclick="llAddSection()">+ Seksjon</button>
@@ -1434,6 +1510,7 @@
     const container = document.getElementById('llWaveSurfer');
     if (!container) return;
     if (_ws) { try { _ws.destroy(); } catch(e) {} _ws = null; _wsRegion = null; _wsRegions = null; _wsLooping = false; }
+    meterStop(); _meterPeaks = null;
 
     const audioUrl = beat.audio_url || beat.url || null;
     if (!audioUrl) {
@@ -1529,6 +1606,9 @@
 
       const setTot = () => { const t=document.getElementById('llWaveTot'); if(t) t.textContent = fmtT(_ws.getDuration()); };
       _ws.on('decode', setTot);
+      _meterPeaks = null;
+      _ws.on('play', meterStart); _ws.on('pause', meterStop); _ws.on('finish', meterStop);
+      if (media && !media.paused) meterStart();
       if (beat && !cached) _ws.once('decode', () => savePeaks(beat, _ws));
       _ws.on('ready',  setTot);
       // Lydfila kan spilles, men ikke leses for bølgeform (typisk CORS: R2-workeren
@@ -1805,7 +1885,8 @@
     }
   };
 
-  window.llClearFlow = function() {
+  window.llClearFlow = function(withUndo) {
+    if (withUndo && typeof showToast === 'function') setTimeout(() => showToast('Flow-fargene er fjernet', 'Angre', () => window.llAnalyzeFlow && llAnalyzeFlow()), 0);
     // Restore plain line numbers
     document.querySelectorAll('[id^="llnums-"]').forEach(el => {
       const count = el.textContent.replace(/\D/g,'').length > 0

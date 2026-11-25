@@ -119,7 +119,7 @@
   ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}
   ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
   ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
-  ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+  ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Lag delingslenke</button>` : ''}
       </div></details>` : ''}
       ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0"><button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Flytt til arkivet'}</button>` : ''}
     `;

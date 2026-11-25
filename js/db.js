@@ -852,7 +852,7 @@ window.mvTrackMenu=function(btn,beatId,listMode){
     item("Legg i kø",()=>window.mvQueueAdd&&mvQueueAdd(beatId)),
     document.createElement("hr"),
     item("Åpne i Lyric Lab",()=>window.openInLyricLab&&openInLyricLab(beatId)),
-    item("Del offentlig lenke",()=>window.shareSong&&shareSong(beatId)),
+    item("Lag delingslenke",()=>window.shareSong&&shareSong(beatId)),
     item("Gi nytt navn",()=>window.renameBeatInline&&renameBeatInline(beatId)),
     document.createElement("hr"),
     item("✕ Fjern fra "+where,()=>removeFromCollection(beatId,listMode),"danger"));

@@ -337,36 +337,40 @@
       </div>`;
   }
 
-  // 4a ── Oversikt: tracklist + song cards ─────────────────────────────────────
+  // Åpne rader i oversikten huskes, så de ikke lukker seg når Pipeline tegnes på nytt (f.eks. etter glidebryteren)
+  const OPEN_ROWS = new Set();
+  document.addEventListener('toggle', e => {
+    const d = e.target; if (!(d instanceof HTMLDetailsElement) || !d.classList.contains('pl3-songrow')) return;
+    if (d.open) OPEN_ROWS.add(d.dataset.beatId); else OPEN_ROWS.delete(d.dataset.beatId);
+  }, true);
+
+  // 4a ── Oversikt: én sporliste, hver rad åpnes til låtkortet ─────────────────
   function renderOversikt(project, beats) {
     if (!beats.length) return `<div class="pl3-pane-empty">Ingen låter i dette prosjektet ennå.</div>`;
 
-    // sorted: most complete first
-    const sorted = beats.slice().sort((a,b) => clamp(b.done||0) - clamp(a.done||0));
-
-    const rows = sorted.map((b, i) => {
+    // Én liste i albumrekkefølge (før: sporliste OG kort med de samme låtene, sortert etter %).
+    // Hver rad åpnes til kortet med glidebryteren — du stiller fremdrift selv, men den ligger ikke åpen overalt.
+    const fmt = window.mvStages ? mvStages.fmt : (n => n + ' %');
+    const rows = beats.map((b, i) => {
       const pct = clamp(b.done||0);
-      const fi  = flowIndex(b);
-      const stage = FLOW[fi];
-      const col = pctColor(pct);
+      const stage = FLOW[flowIndex(b)];
       return `
-        <div class="pl3-trow" onclick="plScrollToCard('${esc(b.id)}')">
-          <span class="pl3-trow-idx">${String(i+1).padStart(2,'0')}</span>
-          <span class="pl3-trow-name">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-trow-stage" style="color:${stage.color}">● ${stage.label}</span>
-          <span class="pl3-trow-bar"><i style="width:${pct}%;background:${col}"></i></span>
-          <span class="pl3-trow-pct" style="color:${col}">${pct}%</span>
-        </div>`;
+        <details class="pl3-songrow" id="plrow-${esc(b.id)}" data-beat-id="${esc(b.id)}"${OPEN_ROWS.has(b.id) ? ' open' : ''}>
+          <summary class="pl3-trow">
+            <span class="pl3-trow-idx">${String(i+1).padStart(2,'0')}</span>
+            <span class="pl3-trow-name" data-no-i18n>${esc(b.name || 'Uten navn')}</span>
+            <span class="pl3-trow-stage" style="color:${stage.color}">● ${stage.label}</span>
+            <span class="pl3-trow-bar"><i style="width:${pct}%;background:${stage.color}"></i></span>
+            <span class="pl3-trow-pct">${fmt(pct)}</span>
+          </summary>
+          ${renderSongCard(b)}
+        </details>`;
     }).join('');
-
-    const cards = sorted.map(b => renderSongCard(b)).join('');
 
     return `
       <div class="pl3-oversikt">
-        <div class="pl3-section-lbl">Tracklist</div>
+        <div class="pl3-section-lbl">Sporliste <span class="pl3-section-hint">— åpne en låt for å endre steg og fremdrift</span></div>
         <div class="pl3-tracklist">${rows}</div>
-        <div class="pl3-section-lbl" style="margin-top:22px">Låter</div>
-        <div class="pl3-cards">${cards}</div>
       </div>`;
   }
 
@@ -395,7 +399,7 @@
 
         <div class="pl3-card-tags">
           ${hasAudio(b)  ? '<span class="pl3-tag ok">Lyd ✓</span>'  : '<span class="pl3-tag no">Mangler lyd</span>'}
-          ${hasLyrics(b) ? '<span class="pl3-tag ok">Tekst ✓</span>' : '<span class="pl3-tag mut">Ingen tekst</span>'}
+          ${(() => { const lp = lyricsPct(b); return lp >= 100 ? '<span class="pl3-tag ok">Tekst ✓</span>' : lp > 0 ? `<span class="pl3-tag">Tekst ${lp} %</span>` : '<span class="pl3-tag mut">Ingen tekst</span>'; })()}
         </div>
 
         ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b>${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>`
@@ -445,6 +449,8 @@
           <span class="pl3-bcard-name" data-no-i18n lang="nb">${esc(b.name || 'Uten navn')}</span>
           <span class="pl3-bcard-pct">${fmt(pct)}</span>
         </div>
+        <button type="button" class="pl3-bcard-play" draggable="false" title="Spill" aria-label="Spill ${esc(b.name || '')}"
+          onclick="event.stopPropagation();if(typeof playSingleBeat==='function')playSingleBeat('${esc(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>
         <div class="pl3-bcard-bar"><i style="width:${pct}%"></i></div>
         ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
       </div>`;
@@ -606,6 +612,7 @@
   };
 
   window.plScrollToCard = function (beatId) {
+    const row = document.getElementById('plrow-' + beatId); if (row) row.open = true;
     const card = document.getElementById('plcard-' + beatId);
     if (!card) return;
     card.scrollIntoView({ behavior:'smooth', block:'center' });

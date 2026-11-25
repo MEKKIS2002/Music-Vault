@@ -80,8 +80,8 @@ AKTIVE BRUKERE:
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
   <link rel="stylesheet" href="css/icons.css?v=b67086befd">
-  <link rel="stylesheet" href="css/lyriclab.css?v=c399c550db">
-  <link rel="stylesheet" href="css/pipeline.css?v=869f07362b">
+  <link rel="stylesheet" href="css/lyriclab.css?v=9f2c1176c7">
+  <link rel="stylesheet" href="css/pipeline.css?v=226106da70">
   <link rel="stylesheet" href="css/main.css?v=da15a934d1">
   <link rel="stylesheet" href="css/ui.css?v=d826190a9c">
   <link rel="stylesheet" href="css/track-cards.css?v=5bf2a47614">
@@ -475,7 +475,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
         <div class="track-view-toggle" id="mixtapeViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
-          <button type="button" data-track-view="studio" onclick="event.stopPropagation();advancedSetTrackViewMode('studio')">▤ Studio</button>
+          <button type="button" onclick="event.stopPropagation();mvOpenProjectBoard()" title="Åpne i Pipeline-boardet — flytt låter mellom steg">▤ Board ›</button>
         </div>
       </div>
       <div id="mixtapeDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMixtapeDrop(event)">
@@ -514,7 +514,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
         <div class="track-view-toggle" id="albumViewToggle" style="margin-left:auto">
           <button type="button" data-track-view="list" onclick="event.stopPropagation();setTrackViewMode('list')">☰ Rader</button>
           <button type="button" data-track-view="cards" onclick="event.stopPropagation();setTrackViewMode('cards')">▦ Kort</button>
-          <button type="button" data-track-view="studio" onclick="event.stopPropagation();advancedSetTrackViewMode('studio')">▤ Studio</button>
+          <button type="button" onclick="event.stopPropagation();mvOpenProjectBoard()" title="Åpne i Pipeline-boardet — flytt låter mellom steg">▤ Board ›</button>
         </div>
       </div>
       <div id="albumDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleAlbumDrop(event)">
@@ -1011,7 +1011,7 @@ window.addEventListener('load', () => {
 
   <!-- Supabase CDN -->
   <script src="js/i18n.js?v=63ab828394"></script>
-  <script src="js/i18n-en.js?v=4efe6971b6"></script>
+  <script src="js/i18n-en.js?v=4d6fcd7886"></script>
   <script src="js/config.js?v=a6abb28894"></script>
   <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
@@ -1022,18 +1022,18 @@ window.addEventListener('load', () => {
   <script src="js/audio-compress.js?v=e3a053c571"></script>
   <script src="js/lock.js?v=3f3ebd2a38"></script>
   <script src="js/stages.js?v=cf5bd6f94a"></script>
-  <script src="js/pipeline.js?v=99bb657e15"></script>
-  <script src="js/lyriclab.js?v=d90f00208d"></script>
+  <script src="js/pipeline.js?v=92318ccdd7"></script>
+  <script src="js/lyriclab.js?v=da85fff875"></script>
   <script src="js/app.js?v=174f208cfd"></script>
-  <script src="js/track-cards.js?v=74b0e8f78d"></script>
+  <script src="js/track-cards.js?v=67fcabe635"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
   <script src="js/archive.js?v=3b4f9aa59a"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
   <script src="js/changelog.js?v=f3b9fb9ced"></script>
-  <script src="js/beats-tab.js?v=2b39c9b09d"></script>
+  <script src="js/beats-tab.js?v=4259af12f8"></script>
   <script src="js/supabase.js?v=5488a4587c"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=6ccea7fe08"></script>
+  <script src="js/db.js?v=a86899a3da"></script>
   <script src="js/home-comments.js?v=1832b8cc40"></script>
   <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=b11dcaf7b9"></script>
@@ -1041,14 +1041,14 @@ window.addEventListener('load', () => {
   <script src="js/notifications.js?v=f64a07780c"></script>
   <script src="js/mini-player.js?v=4027371703"></script>
   <script src="js/queue.js?v=64d1bdf0d1"></script>
-  <script src="js/context-menu.js?v=a5244b29ba"></script>
+  <script src="js/context-menu.js?v=8c4751748a"></script>
   <script src="js/writing-tools.js?v=f6f7f4e118"></script>
-  <script src="js/router.js?v=769132de89"></script>
+  <script src="js/router.js?v=9333c9fcbe"></script>
   <script src="js/player-extras.js?v=9a8247056a"></script>
   <script src="js/search.js?v=80e399c4f2"></script>
   <script src="js/audio-tools.js?v=7a8509a1d2"></script>
   <script src="js/analysis.js?v=70dc8461d7"></script>
-  <script src="js/music-tools.js?v=84eddc55eb"></script>
+  <script src="js/music-tools.js?v=02ba14b30b"></script>
   <script src="js/touch-reorder.js?v=ffdfdec57a"></script>
   <script src="js/now-playing.js?v=7e0e7416cf"></script>
 

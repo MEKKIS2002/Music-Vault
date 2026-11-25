@@ -184,6 +184,9 @@
         <div class="ll-side-hd"><h3 class="ll-side-title">Akkorder</h3><span class="mv-chords-key"></span></div>
         <div class="mv-chords-body"></div>
       </div>`);
+    // Akkordene hjelper når du skriver — de står i «Skriv»-fanen, under «Mangler tekst»; metronomen blir i «Spill inn»
+    const chordEl = document.getElementById('llChordCard'), writePanel = document.getElementById('llRailWrite');
+    if (chordEl && writePanel){ const anchor = writePanel.querySelector('#llMissingCard'); anchor ? anchor.after(chordEl) : writePanel.appendChild(chordEl); }
     const mc = document.getElementById('llMetroCard');
     mc.querySelector('.mv-metro-toggle').addEventListener('click', () => metroOn ? stopMetro() : startMetro().catch(() => toast('Kunne ikke starte metronomen')));
     mc.querySelector('.mv-countin input').addEventListener('change', e => LS.set('mv_countin', e.target.checked ? '1' : '0'));
