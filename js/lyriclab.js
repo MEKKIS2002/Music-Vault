@@ -455,7 +455,6 @@
     </div>` : ''}
     </div>
     <div class="ll-rail-panel" id="llRailRec" role="tabpanel" aria-labelledby="llRailTabRec">
-      <div id="llRecTools"></div>
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
       <div class="ll-mic">
@@ -478,6 +477,7 @@
       <div id="llMemoList" class="ll-take-list"></div>
     </div>
 
+      <div id="llRecTools"></div>
     </div>
   </div>
 
