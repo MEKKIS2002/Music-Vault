@@ -197,7 +197,7 @@ document.documentElement.classList.add('mv-mixed-ui');
           const cov=coverForBeat(b,mode);
           const pct=Math.max(0,Math.min(100,Number(b.done||0)));
           return `<div class="studio-track" data-beat-id="${safe(b.id)}" title="Åpne i Lyric Lab" onclick="if(typeof openInLyricLab==='function')openInLyricLab('${safe(b.id)}')">
-            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'<span class="ic ic-music" aria-hidden="true"></span>'}${b.favorite ? '<span class="studio-fav" title="Favoritt" aria-label="Favoritt">★</span>' : ''}</div>
+            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'<span class="ic ic-music" aria-hidden="true"></span>'}</div>
             <div class="studio-main">
               <div class="studio-title-row"><div class="studio-title" data-no-i18n>${safe(b.name)}</div><span class="studio-pct">${window.mvStages ? mvStages.fmt(pct) : pct + ' %'}</span></div>
               <div class="studio-prog"><span style="width:${pct}%"></span></div>
@@ -205,7 +205,7 @@ document.documentElement.classList.add('mv-mixed-ui');
                 return st ? `<div class="studio-next">→ ${safe(st.txt)}${st.why ? `<small class="pl3-why">${safe(st.why)}</small>` : ''}</div>`
                           : (pct >= 100 ? '<div class="studio-next done">✓ Ferdig</div>' : (hasAudio(b) ? '' : '<div class="studio-next"><small class="pl3-why">Mangler lyd</small></div>')); })()}
             </div>
-            <button class="studio-play" title="Spill" onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>
+            <div class="studio-side"><button class="studio-play" title="Spill" onclick="event.stopPropagation();if(typeof playCollectionFromBeat==='function')playCollectionFromBeat('${safe(b.id)}','${mode||'album'}');else if(typeof playSingleBeat==='function')playSingleBeat('${safe(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>${b.favorite ? '<span class="studio-fav" title="Favoritt" aria-label="Favoritt">★</span>' : ''}</div>
           </div>`;
         }).join('')||'<div class="studio-empty">Ingen sanger her</div>'}</div>
       </div>`).join('')}</div>`;
