@@ -92,3 +92,17 @@
 .bp-vol{ width:96px !important; }
 .bp-close{ color:rgb(var(--ink-rgb) / calc(.5 + (1 - .5) * var(--ink-boost))) !important; font-size:var(--fs-md)!important; }
 .bp-close:hover{ color:#fff !important; background:transparent !important; }
+
+/* Lyst tema (også med pastell-tone fra coveret): hvit fyll og hvitt grep forsvant — bruk tekstfargen */
+:root[data-theme="light"] #bottomPlayer .bp-seek,
+:root[data-theme="light"] #bottomPlayer .bp-vol{
+  background:linear-gradient(to right, var(--text) 0, var(--text) var(--pct,0%), rgb(var(--ink-rgb) / .22) var(--pct,0%), rgb(var(--ink-rgb) / .22) 100%) !important;
+}
+:root[data-theme="light"] #bottomPlayer .bp-seek:hover{
+  background:linear-gradient(to right, var(--accent) 0, var(--accent) var(--pct,0%), rgb(var(--ink-rgb) / .22) var(--pct,0%), rgb(var(--ink-rgb) / .22) 100%) !important;
+}
+:root[data-theme="light"] #bottomPlayer .bp-seek::-webkit-slider-thumb,
+:root[data-theme="light"] #bottomPlayer .bp-vol::-webkit-slider-thumb{ background: var(--text); }
+:root[data-theme="light"] #bottomPlayer .bp-seek::-moz-range-thumb,
+:root[data-theme="light"] #bottomPlayer .bp-vol::-moz-range-thumb{ background: var(--text); }
+
