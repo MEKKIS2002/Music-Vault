@@ -2044,4 +2044,12 @@
 
   I.add({ 'Legg til i album/mixtape': 'Add to album/mixtape', 'Mer': 'More', 'Flytt til arkivet': 'Move to archive', '✓ Flyttet til arkivet': '✓ Moved to the archive',
     'Slett for godt': 'Delete for good', 'Sletter låten og lydfila for godt — kan ikke angres': 'Deletes the song and its audio file for good — this can’t be undone' });
+
+  // Kritikk 6 P2: Pipeline-språk
+  I.add({ 'Master låten': 'Master the song', 'Start med': 'Start with', 'Pipeline': 'Pipeline' });
+  I.pat([['+{#0} til', '+{0} more'], ['Start med {0}', 'Start with {0}']]);
+
+  I.add({ 'Neste steg': 'Next steps', 'ikke startet': 'not started' });
+  I.pat([['«{0}» venter på deg', '“{0}” is waiting for you'], ['Sist jobbet med for {#0} dager siden', 'Last worked on {0} days ago'],
+    ['{#0} låter', '{0} songs'], ['{#0} låt', '{0} song']]);
 })(window.mvI18n);
