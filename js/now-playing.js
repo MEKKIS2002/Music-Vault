@@ -47,7 +47,7 @@
     if (String(b.lyrics || '').trim()) return [{ title: '', lines: clean(b.lyrics).replace(/<[^>]+>/g, '').split('\n') }];
     return [];
   }
-  const sub = b => [b.bpm ? b.bpm + ' BPM' : '', keyLabel(b.key), b.uploadedBy || ''].filter(Boolean).join(' · ');
+  const sub = b => [b.bpm ? b.bpm + ' BPM' : '', keyLabel(b.key), (window.mvUploaderName ? mvUploaderName(b) : b.uploadedBy) || ''].filter(Boolean).join(' · ');
   const coverHTML = (b, cls) => {
     const src = b.cover || collection()?.cover || '';
     return src ? `<img class="${cls}" src="${esc(src)}" alt="">` : `<div class="${cls} np-cover-ph">${ICON.note}</div>`;

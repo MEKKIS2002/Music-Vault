@@ -48,7 +48,7 @@
       const exact = beats.filter(b =>
         (b.name||'').toLowerCase().includes(q) ||
         (b.source||'').toLowerCase().includes(q) ||
-        (b.uploadedBy||'').toLowerCase().includes(q) ||
+        ((window.mvUploaderName?mvUploaderName(b):b.uploadedBy)||'').toLowerCase().includes(q) ||
         (Number(b.bpm)>0 && String(b.bpm)===q.replace(/\s*bpm$/,'').trim()) ||   // «140» eller «140 bpm»
         getCollections(b.id).some(c => c.name.toLowerCase().includes(q))
       );
@@ -260,7 +260,7 @@
                   ${b.rating ? `<span class="bl-rating">${'★'.repeat(Math.round(b.rating/2))}</span>` : ''}
                 </span>
                 <span class="bl-collections">${colChips}</span>
-                <span class="bl-uploader">${b.uploadedBy ? `<span class="bl-uploader-tag"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>` : '<span style="color:var(--muted)">—</span>'}</span>
+                <span class="bl-uploader">${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy) ? `<span class="bl-uploader-tag"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span>` : '<span style="color:var(--muted)">—</span>'}</span>
                 <span class="bl-date">${fmtDate(b.createdAt)}</span>
                 <span class="bl-dur">${fmtDur(b.duration)}</span>
                 <span class="bl-actions">

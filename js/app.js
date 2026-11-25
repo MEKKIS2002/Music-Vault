@@ -206,8 +206,8 @@
             <details class="mv-proj-menu album-more-menu">
               <summary class="ghost-btn" aria-label="Flere valg for albumet">⋯ Album</summary>
               <div class="mv-proj-menu-panel">
-                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0]);this.closest('details').open=false"></label>` : ''}
-                <button class="ghost-btn" onclick="albumToggleABSide('${album.id}');this.closest('details').open=false" id="abSideBtn" title="Vis låtene som A- og B-side, som på en vinylplate"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
+                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<label class="ghost-btn" style="cursor:pointer"><span class="ic ic-image" aria-hidden="true"></span> Bytt albumbilde<input type="file" accept="image/*" hidden onchange="setAlbumCover('${album.id}',this.files[0]);mvCloseAlbumMenu()"></label>` : ''}
+                <button class="ghost-btn" onclick="albumToggleABSide('${album.id}');mvCloseAlbumMenu()" id="abSideBtn" title="Vis låtene som A- og B-side, som på en vinylplate"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
                 ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Én side som presenterer albumet for label eller samarbeidspartnere"><span class="ic ic-file" aria-hidden="true"></span> Pitch-side</button>` : ''}
                 ${!album._shared ? `<button class="ghost-btn" onclick="archiveCurrentCollection('album')"><span class="ic ic-archive" aria-hidden="true"></span> Arkiver album</button>` : ''}
                 ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn danger" onclick="document.getElementById('deleteAlbumBtn')?.click()"><span class="ic ic-trash" aria-hidden="true"></span> Slett album</button>` : ''}
@@ -1023,3 +1023,37 @@ loadComments();
 //   Varsler          → js/notifications.js
 //   Del med bruker   → window.mvShare i db.js (nå også med «Fjern tilgang»)
 //   Mixtape-deling   → js/mixtape-share.js
+
+// «⋯ Album»-menyen ligger i albumhodet, som har overflow:hidden og transform (vinylen glir ut av
+// coveret). Panelet blir derfor klippet og feilplassert der. Når menyen åpnes flyttes panelet til
+// <body> og plasseres fast under knappen; når den lukkes flyttes det tilbake.
+(function(){
+  let open = null;   // { d, p, home }
+  function close(focus){
+    if (!open) return; const { d, p, home } = open; open = null;
+    p.removeAttribute('style'); p.classList.remove('mv-album-menu-float'); home.appendChild(p);
+    if (d.open) d.open = false; if (focus) d.querySelector('summary')?.focus();
+  }
+  window.mvCloseAlbumMenu = () => close(false);
+  document.addEventListener('toggle', e => {
+    const d = e.target; if (!(d instanceof HTMLDetailsElement) || !d.classList.contains('album-more-menu')) return;
+    if (!d.open){ if (open && open.d === d) close(false); return; }
+    const p = d.querySelector('.mv-proj-menu-panel'), s = d.querySelector('summary'); if (!p || !s) return;
+    close(false); open = { d, p, home: d };
+    document.body.appendChild(p); p.classList.add('mv-album-menu-float');
+    const r = s.getBoundingClientRect(), w = Math.max(p.offsetWidth, 220), h = p.offsetHeight;
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8));
+    const top = (r.bottom + 6 + h <= window.innerHeight - 8) ? r.bottom + 6 : Math.max(8, r.top - 6 - h);
+    Object.assign(p.style, { position: 'fixed', left: left + 'px', top: top + 'px', right: 'auto', zIndex: '10040' });
+    p.querySelector('button, label')?.focus?.();
+  }, true);
+  window.addEventListener('scroll', () => close(false), { passive: true });
+  window.addEventListener('resize', () => close(false));
+  document.addEventListener('click', e => {
+    if (!open) return;
+    if (e.target.closest('.mv-album-menu-float')){ if (e.target.closest('button')) setTimeout(() => close(false), 0); return; }
+    if (e.target.closest('details.album-more-menu')) return;
+    close(false);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && open) close(true); });
+})();
