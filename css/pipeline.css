@@ -352,3 +352,13 @@
 .pl3-songrow > .pl3-card{ margin: 8px 0 14px; }
 .pl3-section-hint{ text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--muted); }
 .pl3-trow-pct{ color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* «← Tilbake til albumet» når du kom fra «Board ›» */
+.pl3-back{ font: inherit; font-size: var(--fs-sm); font-weight: 700; color: var(--text); background: none; border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 12px; margin: 0 0 12px; cursor: pointer; }
+.pl3-back:hover{ background: rgb(var(--ink-rgb) / .05); }
+.pl3-back:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.pl3-card-slider{ display: flex; align-items: center; gap: 10px; }
+.pl3-card-slider input[type=range]{ flex: 1; }
+.pl3-slider-val{ min-width: 3.2em; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
+

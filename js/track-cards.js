@@ -87,6 +87,7 @@ document.documentElement.classList.add('mv-mixed-ui');
     const id = t === 'mixtape' ? (typeof currentMixtapeId !== 'undefined' && currentMixtapeId) : (typeof currentAlbumId !== 'undefined' && currentAlbumId);
     if(!t || !id) return;
     try{ localStorage.setItem('mv_pl_project', t + ':' + id); localStorage.setItem('mv_pl_subtab', 'board'); }catch(e){}
+    window.__plFrom = { ref: t + ':' + id, type: t, id, scroll: true };   // Pipeline viser «← Tilbake» og scroller til boardet
     document.querySelector('.tab-btn[data-tab="pipeline"]')?.click();
   }
   window.mvOpenProjectBoard = openBoard;
@@ -104,7 +105,8 @@ document.documentElement.classList.add('mv-mixed-ui');
 // ── 3. renderAlbumBeats HOOK — apply view class + enhance cards ───────────────
 (function(){
   const KEY = 'musicVaultTrackViewMode';
-  function getView(){ if(window.innerWidth<=768) return 'list'; const v=localStorage.getItem(KEY); return ['list','cards','studio'].includes(v)?v:'list'; }
+  // «studio» er erstattet av Pipeline-boardet — et gammelt lagret valg blir «Rader» (og skrives tilbake)
+  function getView(){ if(window.innerWidth<=768) return 'list'; let v=localStorage.getItem(KEY); if(v==='studio'){ v='list'; try{ localStorage.setItem(KEY,v); }catch(e){} } return ['list','cards'].includes(v)?v:'list'; }
 
   function safe(s){ return (window.esc ? esc : String)(s || ''); }
   function getBeat(id){ return ((typeof state!=='undefined'?state:window.state)?.beats||[]).find(b=>b.id===id); }

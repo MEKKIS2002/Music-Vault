@@ -111,7 +111,8 @@
     const acts = document.querySelector('#bottomPlayer .bp-actions'); if (!acts || document.getElementById('mvNormBtn')) return;
     const b = document.createElement('button'); b.type = 'button'; b.id = 'mvNormBtn'; b.className = 'bp-btn mv-norm-btn';
     b.setAttribute('aria-label', 'Jevn lydstyrke');
-    b.innerHTML = '<span class="ic ic-sliders" aria-hidden="true"></span>';
+    // Eget ikon (ikke glidebryterne fra «Innstillinger») + en prikk som viser at den er på
+    b.innerHTML = '<span class="ic ic-level" aria-hidden="true"></span><span class="mv-norm-dot" aria-hidden="true"></span>';
     b.addEventListener('click', () => toggleNormalize());
     acts.insertBefore(b, acts.querySelector('.bp-vol-ico') || acts.firstChild);
     syncBtn();

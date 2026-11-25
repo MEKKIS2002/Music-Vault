@@ -53,7 +53,7 @@
 
   // Stegfargen (samme i Pipeline, Studio og Lyric Lab) og ett prosentformat:
   // «18 %» på norsk (mellomrom etter tallet), «18%» på engelsk
-  const COLOR = { idea: 'var(--stage-idea)', writing: 'var(--stage-writing)', record: 'var(--muted)', mix: 'var(--accent-ink)', master: 'var(--accent2)', done: 'var(--ok)' };
+  const COLOR = { idea: 'var(--stage-idea)', writing: 'var(--stage-writing)', record: 'var(--muted)', mix: 'var(--accent-ink)', master: 'var(--stage-master)', done: 'var(--ok)' };
   LIST.forEach(s => { s.color = COLOR[s.key]; });
   function fmt(n){ const v = Math.round(Number(n) || 0); return (window.mvI18n && window.mvI18n.lang === 'en') ? v + '%' : v + '\u00a0%'; }
 

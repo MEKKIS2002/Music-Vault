@@ -21,7 +21,7 @@
     { key: 'writing', label: 'Skriving',     color: 'var(--stage-writing)' },
     { key: 'record',  label: 'Innspilling',  color: 'var(--muted)' },
     { key: 'mix',     label: 'Miks',         color: 'var(--accent-ink)' },
-    { key: 'master',  label: 'Master',       color: 'var(--accent2)' },
+    { key: 'master',  label: 'Master',       color: 'var(--stage-master)' },
     { key: 'done',    label: 'Ferdig',       color: 'var(--ok)' },
   ];
 
@@ -216,7 +216,22 @@
       </div>`;
 
     wireBoardDrag(board, project);
+
+    // Kom du fra «Board ›» i et album/mixtape? Vis veien tilbake, og start ved boardet (Pipeline er ellers en rapport)
+    const from = window.__plFrom;
+    if (from && from.ref === project.ref && subtab === 'board'){
+      const wrap = board.querySelector('.pl3-tabwrap');
+      if (wrap && !wrap.querySelector('.pl3-back')){
+        wrap.insertAdjacentHTML('afterbegin', `<button type="button" class="pl3-back" onclick="plBackToCollection()">← Tilbake til ${from.type === 'mixtape' ? 'mixtapen' : 'albumet'}</button>`);
+      }
+      if (from.scroll){ from.scroll = false; setTimeout(() => board.querySelector('.pl3-tabs, .pl3-tabwrap')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); }
+    } else if (from && from.ref !== project.ref) window.__plFrom = null;
   }
+  window.plBackToCollection = function(){
+    const f = window.__plFrom; window.__plFrom = null; if (!f) return;
+    document.querySelector(`.tab-btn[data-tab="${f.type === 'mixtape' ? 'mixtapes' : 'albums'}"]`)?.click();
+    setTimeout(() => (f.type === 'mixtape' ? window.openMixtape : window.openAlbum)?.(f.id), 80);
+  };
 
   // 1 ── Project selector ───────────────────────────────────────────────────────
   function renderProjectSelector(projects, activeRef) {
@@ -369,7 +384,7 @@
 
     return `
       <div class="pl3-oversikt">
-        <div class="pl3-section-lbl">Sporliste <span class="pl3-section-hint">— åpne en låt for å endre steg og fremdrift</span></div>
+        <div class="pl3-section-lbl">Sporliste <span class="pl3-section-hint">— åpne en låt for å endre fremdriften</span></div>
         <div class="pl3-tracklist">${rows}</div>
       </div>`;
   }
@@ -403,12 +418,13 @@
         </div>
 
         ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b>${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>`
-               : `<div class="pl3-card-next done"><span>Status</span><b>Ferdig</b></div>`}
+               : `<div class="pl3-card-next done"><span>Steg</span><b>Ferdig</b></div>`}
 
         <div class="pl3-card-slider">
-          <input type="range" min="0" max="100" value="${pct}" style="accent-color:${col}"
+          <input type="range" min="0" max="100" value="${pct}" style="accent-color:${col}" aria-label="Fremdrift for ${esc(b.name || 'låten')}"
             oninput="plLiveBeat('${esc(b.id)}',this.value,this)"
             onchange="plSaveBeat('${esc(b.id)}',this.value)">
+          <output class="pl3-slider-val">${pct}%</output>
         </div>
         <div class="pl3-card-actions">
           <button class="pl3-cardbtn" onclick="plOpenLyric('${esc(b.id)}')"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
@@ -579,6 +595,7 @@
     const pct = clamp(Number(val));
     const col = pctColor(pct);
     slider.style.accentColor = col;
+    const out = slider.parentElement?.querySelector('.pl3-slider-val'); if (out) out.textContent = pct + '%';
     const card = document.getElementById('plcard-' + beatId);
     if (card) {
       const hole = card.querySelector('.pl3-ring.sm .pl3-ring-hole b');

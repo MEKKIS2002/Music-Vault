@@ -136,9 +136,11 @@
     const demoCount=raw.filter(x=>x.__type==='beat').length;
     const demoCrates=items.filter(x=>x.__type==='demo-crate').length;
     const collectionCount=raw.filter(x=>x.__type==='album'||x.__type==='mixtape').length;
-    let parts=[`${raw.length} arkivert`];
-    if(demoCount) parts.push(`${demoCount} demoer i ${demoCrates} demo-kasse${demoCrates===1?'':'r'}`);
-    if(collectionCount) parts.push(`${collectionCount} samlinger`);
+    // Hver del i sitt eget element, så oversettelsen treffer; tallene er de samme som i hodet
+    const en=window.mvI18n&&mvI18n.lang==='en';
+    let parts=[en?`${items.length} archived`:`${items.length} arkivert`];
+    if(demoCount) parts.push(en?`${demoCount} demo${demoCount===1?'':'s'} in ${demoCrates} demo crate${demoCrates===1?'':'s'}`:`${demoCount} demo${demoCount===1?'':'er'} i ${demoCrates} demo-kasse${demoCrates===1?'':'r'}`);
+    if(collectionCount) parts.push(en?`${collectionCount} collection${collectionCount===1?'':'s'}`:`${collectionCount} samling${collectionCount===1?'':'er'}`);
     return parts.join(' · ');
   }
   function modalMarkup(){ return `<div class="fa-demo-modal" id="faDemoModal" hidden><div class="fa-demo-modal-card"><div class="fa-demo-modal-top"><div><div class="fa-kicker"><span class="ic ic-archive" aria-hidden="true"></span> Arkivert</div><h3 id="faDemoModalTitle">Demo-kasse</h3><p id="faDemoModalSub">Arkiverte single demoer ligger samlet her.</p><div class="fa-demo-modal-actions"><button class="fa-btn" type="button" id="faDemoRestoreAll"><span class="ic ic-restore" aria-hidden="true"></span> Gjenopprett alle</button></div></div><button class="fa-demo-modal-close" type="button" id="faDemoClose" aria-label="Lukk" title="Lukk">✕</button></div><div class="fa-demo-list" id="faDemoList"></div></div></div>`; }

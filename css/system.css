@@ -481,3 +481,45 @@ html body #_toast.is-hiding{ transition: transform .18s cubic-bezier(.4,0,1,1), 
 
 /* Liten tekst løftet til minst 12 px i kjerneflyten */
 .mv-public-badge{ font-size: 12px; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Låter som CD (album = vinyl, mixtape = kassett, arkiv = kasse)
+   Sølvplate med svak regnbueglans, gjennomsiktig nav og hull i midten.
+   ════════════════════════════════════════════════════════════════════════════ */
+.mv-cd{
+  display: block; aspect-ratio: 1; border-radius: 50%;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / .55) 0 15.5%, rgb(190 198 206 / .55) 16% 22%, transparent 22.5%),
+    radial-gradient(circle, transparent 0 46%, rgb(255 255 255 / .18) 46.5% 47.5%, transparent 48% 97%, rgb(0 0 0 / .18) 98%),
+    conic-gradient(from 25deg, #dfe3e7, #c3cad1 7%, #efe1ea 12%, #d5e4f1 17%, #e8efd9 22%, #c7ced5 30%, #f3f5f7 42%, #c4cbd2 52%, #ecdde8 59%, #d3e3f0 64%, #e6eed6 69%, #c6cdd4 78%, #f0f2f4 90%, #dfe3e7);
+  -webkit-mask: radial-gradient(circle, transparent 0 6.5%, #000 7%);
+          mask: radial-gradient(circle, transparent 0 6.5%, #000 7%);
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / .45);
+}
+@keyframes mvCdSpin{ to{ transform: rotate(360deg); } }
+@keyframes mvCdOut{ from{ transform: translateX(-34%) rotate(-40deg); } to{ transform: none; } }
+
+/* Lyric Lab: CD-en glir ut bak coveret når låten åpnes, og snurrer mens den spilles */
+html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem, 16.5vw, 14.5rem) minmax(0,1fr) !important; }
+.ll-cd-stage{ position: relative; width: 100%; padding-right: 22%; box-sizing: border-box; }
+.ll-cd-stage .ll-cover-wrap{ position: relative; z-index: 1; box-shadow: 6px 0 14px -6px rgb(0 0 0 / .45) !important; }
+.ll-cd{ position: absolute; right: 0; top: 3.9%; width: 72%; z-index: 0; animation: mvCdOut .7s cubic-bezier(.16, 1, .3, 1) .12s both; }
+.ll-cd.is-spinning{ animation: mvCdSpin 2.4s linear infinite; }
+@media (max-width: 768px){
+  html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: 7.5rem minmax(0,1fr) !important; }
+}
+
+/* Beats: en liten CD stikker ut bak coveret på raden du holder over, og på den som spilles */
+.bl-cover{ position: relative; }
+.bl-cover .bl-cover-img, .bl-cover .bl-cover-ph{ position: relative; z-index: 1; }
+.bl-cd{ position: absolute; left: 1px; top: 1px; width: 34px; z-index: 0; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.bl-row:hover .bl-cd, .bl-row:focus-within .bl-cd{ transform: translateX(16px); }
+.bl-row.now-playing-glow .bl-cd{ transform: translateX(16px); animation: mvCdSpinOut 2.4s linear infinite; }
+@keyframes mvCdSpinOut{ from{ transform: translateX(16px) rotate(0); } to{ transform: translateX(16px) rotate(360deg); } }
+@media (max-width: 768px){ .bl-cd{ width: 40px; } .bl-row:hover .bl-cd{ transform: none; } }
+
+@media (prefers-reduced-motion: reduce){
+  .ll-cd, .ll-cd.is-spinning{ animation: none; }
+  .bl-cd{ transition: none; }
+  .bl-row.now-playing-glow .bl-cd{ animation: none; }
+}
