@@ -210,7 +210,7 @@
                 <button class="ghost-btn" onclick="albumToggleABSide('${album.id}');mvCloseAlbumMenu()" id="abSideBtn" title="Vis låtene som A- og B-side, som på en vinylplate"><span class="ic ic-disc" aria-hidden="true"></span> A/B-side</button>
                 ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn" onclick="window.albumPitchMode('${album.id}')" title="Én side som presenterer albumet for label eller samarbeidspartnere"><span class="ic ic-file" aria-hidden="true"></span> Pitch-side</button>` : ''}
                 ${!album._shared ? `<button class="ghost-btn" onclick="archiveCurrentCollection('album')"><span class="ic ic-archive" aria-hidden="true"></span> Arkiver album</button>` : ''}
-                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<button class="ghost-btn danger" onclick="document.getElementById('deleteAlbumBtn')?.click()"><span class="ic ic-trash" aria-hidden="true"></span> Slett album</button>` : ''}
+                ${window.isOwnerOrEditor && window.isOwnerOrEditor(album) ? `<hr class="album-menu-sep" aria-hidden="true"><button class="ghost-btn danger" onclick="document.getElementById('deleteAlbumBtn')?.click()"><span class="ic ic-trash" aria-hidden="true"></span> Slett album</button>` : ''}
               </div>
             </details>
             <button class="small-btn danger hidden" id="stopAlbumBtn" onclick="stopCollectionPlayback()"><span class="ic ic-stop" aria-hidden="true"></span> Stopp</button>

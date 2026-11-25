@@ -91,38 +91,37 @@
     menu.className = 'bt-dropdown';
     const mixtapes = (typeof state !== 'undefined' ? state.mixtapes : window.state?.mixtapes || []).filter(m=>!m.archived);
     const albums   = (typeof state !== 'undefined' ? state.albums   : window.state?.albums   || []).filter(a=>!a.archived);
+    // Kort meny (kritikk 6): det du gjør ofte øverst, resten i «Mer», og ingen permanent sletting her —
+    // «Flytt til arkivet» kan angres, og permanent sletting skjer fra arkivet.
     menu.innerHTML = `
-      <button onclick="beatsTab.playBeat('${beatId}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
       <button onclick="window.mvQueuePlayNext&&mvQueuePlayNext('${beatId}')"><span class="ic ic-list" aria-hidden="true"></span> Spill neste</button>
       <button onclick="window.mvQueueAdd&&mvQueueAdd('${beatId}')"><span class="ic ic-plus" aria-hidden="true"></span> Legg i kø</button>
       <button onclick="beatsTab.openLyricLab('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
-      ${admin ? `<button onclick="downloadBeat('${beatId}')"><span class="ic ic-download" aria-hidden="true"></span> Last ned</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}
-      ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.toggleFav('${beatId}')">${beat.favorite ? '★ Fjern favoritt' : '☆ Legg til favoritt'}</button>` : ''}
-      ${admin && mixtapes.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i mixtape</div>
+      ${admin && (mixtapes.length || albums.length) ? `<details class="bt-sub"><summary><span class="ic ic-disc" aria-hidden="true"></span> Legg til i album/mixtape</summary><div class="bt-sub-list">
+      ${admin && mixtapes.length ? `        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i mixtape</div>
         ${mixtapes.map(m=>{
           const inIt=(m.beatIds||[]).includes(beatId);
           return `<button onclick="beatsTab.addToCollection('${beatId}','mixtape','${m.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${m.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
-      ${admin && albums.length ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">
-        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i album</div>
+      ${admin && albums.length ? `        <div style="padding:4px 10px 2px;font-size:9px;font-weight:900;letter-spacing:.1em;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));text-transform:uppercase">Legg i album</div>
         ${albums.map(a=>{
           const inIt=(a.beatIds||[]).includes(beatId);
           return `<button onclick="beatsTab.addToCollection('${beatId}','album','${a.id}')" style="${inIt?'color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));':''}">
             ${inIt?'✓ ':''}<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:130px">${a.name.replace(/</g,'&lt;')}</span>
           </button>`;
         }).join('')}` : ''}
-      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
-      ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+      </div></details>` : ''}
       ${admin && !beat._shared && window.mvSetSongPublic ? `<button onclick="beatsTab.togglePublic('${beatId}')"><span class="ic ic-globe" aria-hidden="true"></span> ${window.mvIsSongPublic(beatId) ? 'Fjern fra Explore' : 'Gjør offentlig på Explore'}</button>` : ''}
-      ${admin ? `<button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Arkiver sang'}</button>` : ''}
-      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0">` : ''}
-      ${admin ? `<button class="danger" onclick="beatsTab.deleteBeat('${beatId}')"><span class="ic ic-trash" aria-hidden="true"></span> Slett permanent</button>` : ''}
+      ${admin ? `<details class="bt-sub"><summary><span class="ic ic-sliders" aria-hidden="true"></span> Mer</summary><div class="bt-sub-list">
+  ${admin ? `<button onclick="downloadBeat('${beatId}')"><span class="ic ic-download" aria-hidden="true"></span> Last ned</button>` : ''}
+  ${admin ? `<button onclick="beatsTab.swapAudio('${beatId}')" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil</button>` : ''}
+  ${admin ? `<button onclick="renameBeat('${beatId}')"><span class="ic ic-pen" aria-hidden="true"></span> Gi nytt navn</button>` : ''}
+  ${admin && !beat._shared ? `<button onclick="openShareDirect('beat','${beatId}','${(beat.name||'Beat').replace(/["']/g,"")}')"><span class="ic ic-link" aria-hidden="true"></span> Del med bruker</button>` : ''}
+  ${admin ? `<button onclick="beatsTab.shareLink('${beatId}')"><span class="ic ic-link" aria-hidden="true"></span> Del offentlig lenke</button>` : ''}
+      </div></details>` : ''}
+      ${admin ? `<hr style="border:none;border-top:1px solid rgb(var(--ink-rgb) / .08);margin:4px 0"><button onclick="beatsTab.archiveBeat('${beatId}')">${isArch ? '<span class="ic ic-refresh" aria-hidden="true"></span> Gjenopprett' : '<span class="ic ic-archive" aria-hidden="true"></span> Flytt til arkivet'}</button>` : ''}
     `;
 
     // Position relative to trigger
@@ -178,7 +177,12 @@
   function archiveBeat(beatId) {
     closeDropdown();
     if (typeof toggleArchiveItem === 'function') toggleArchiveItem('beat', beatId);
-    setTimeout(renderBeatsTab, 50);
+    setTimeout(() => {
+      renderBeatsTab();
+      const b = (window.state?.beats || []).find(x => x.id === beatId);
+      if (b && typeof showToast === 'function')
+        showToast(b.archived ? '✓ Flyttet til arkivet' : '✓ Gjenopprettet', 'Angre', () => { toggleArchiveItem('beat', beatId); setTimeout(renderBeatsTab, 50); });
+    }, 50);
   }
 
   function deleteBeat(beatId) {
@@ -202,7 +206,7 @@
             <span class="beats-count" aria-live="polite">${searchQ ? `${beats.length} av ${total}` : `${total} sanger`}</span>
           </div>
           <div class="beats-tab-controls">
-            <button type="button" class="primary-btn beats-upload-btn" onclick="dashUploadTrigger()" title="Last opp lydfiler — eller slipp dem på siden"><span class="ic ic-upload" aria-hidden="true"></span> Last opp</button>
+            <button type="button" class="primary-btn beats-upload-btn" onclick="dashUploadTrigger()" title="Last opp lydfiler — eller slipp dem på siden"><span class="ic ic-upload" aria-hidden="true"></span> Last opp låt</button>
             <div class="beats-search-wrap">
               <span class="beats-search-icon"><span class="ic ic-search" aria-hidden="true"></span></span>
               <input
@@ -424,6 +428,15 @@
       .bt-dropdown button:hover { background: rgb(var(--ink-rgb) / .08); }
       .bt-dropdown button.danger { color: var(--danger); }
       .bt-dropdown button.danger:hover { background: rgb(var(--danger-rgb) / .12); }
+      /* Undermenyer («Legg til i album/mixtape», «Mer») — lukket som standard, åpnes på stedet */
+      .bt-dropdown .bt-sub > summary { list-style: none; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700;
+        padding: 8px 12px; border-radius: 8px; cursor: pointer; color: var(--text); }
+      .bt-dropdown .bt-sub > summary::-webkit-details-marker { display: none; }
+      .bt-dropdown .bt-sub > summary::after { content: '›'; margin-left: auto; color: var(--muted); transition: transform .15s; }
+      .bt-dropdown .bt-sub[open] > summary::after { transform: rotate(90deg); }
+      .bt-dropdown .bt-sub > summary:hover { background: rgb(var(--ink-rgb) / .08); }
+      .bt-dropdown .bt-sub > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+      .bt-dropdown .bt-sub-list { display: flex; flex-direction: column; gap: 2px; padding: 2px 0 4px 12px; max-height: 260px; overflow: auto; }
 
       /* Now-playing equalizer keyframes (self-contained for the injected sheet) */
       @keyframes mvEqBl {

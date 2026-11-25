@@ -203,7 +203,7 @@
     document.getElementById('faDemoModalTitle').textContent = crate.id==='demo-crate-1' ? 'Demo-kasse' : titleOf(crate);
     document.getElementById('faDemoModalSub').textContent = `${crate.beats.length} ${crate.beats.length===1?'demo ligger':'demoer ligger'} i denne kassen. Maks 25 demoer per kasse.`;
     const list=document.getElementById('faDemoList');
-    list.innerHTML = crate.beats.map(b=>`<div class="fa-demo-row"><div class="fa-demo-row-thumb">${coverOf(b)?`<img src="${safe(coverOf(b))}" alt="">`:'<span class="fa-vinyl"></span>'}</div><div class="fa-demo-row-main"><h4>${safe(titleOf(b))}</h4><p>${safe(dateLabel(b))} · ${safe(genreOf(b))} · Demo</p></div><div class="fa-demo-row-actions"><button class="fa-mini play" type="button" data-demo-play="${safe(b.id)}" aria-label="Spill ${safe(titleOf(b))}" title="Spill"><span class="ic ic-play" aria-hidden="true"></span></button><button class="fa-mini" type="button" data-demo-open="${safe(b.id)}">Åpne</button><button class="fa-mini restore" type="button" data-demo-restore="${safe(b.id)}"><span class="ic ic-restore" aria-hidden="true"></span> Gjenopprett</button></div></div>`).join('');
+    list.innerHTML = crate.beats.map(b=>`<div class="fa-demo-row"><div class="fa-demo-row-thumb">${coverOf(b)?`<img src="${safe(coverOf(b))}" alt="">`:'<span class="fa-vinyl"></span>'}</div><div class="fa-demo-row-main"><h4>${safe(titleOf(b))}</h4><p>${safe(dateLabel(b))} · ${safe(genreOf(b))} · Demo</p></div><div class="fa-demo-row-actions"><button class="fa-mini play" type="button" data-demo-play="${safe(b.id)}" aria-label="Spill ${safe(titleOf(b))}" title="Spill"><span class="ic ic-play" aria-hidden="true"></span></button><button class="fa-mini" type="button" data-demo-open="${safe(b.id)}">Åpne</button><button class="fa-mini restore" type="button" data-demo-restore="${safe(b.id)}"><span class="ic ic-restore" aria-hidden="true"></span> Gjenopprett</button>${window.isAdminMode ? `<button class="fa-mini fa-mini-danger" type="button" data-demo-delete="${safe(b.id)}" title="Sletter låten og lydfila for godt — kan ikke angres"><span class="ic ic-trash" aria-hidden="true"></span> Slett for godt</button>` : ''}</div></div>`).join('');
     document.getElementById('faDemoRestoreAll').onclick=()=>restoreAllInDemoCrate(id);
     bindDemoModal();
   }
@@ -214,6 +214,12 @@
     document.querySelectorAll('[data-demo-play]').forEach(btn=>btn.addEventListener('click',()=>window.playSingleBeat?.(btn.dataset.demoPlay)));
     document.querySelectorAll('[data-demo-open]').forEach(btn=>btn.addEventListener('click',()=>openRef('beat:'+btn.dataset.demoOpen)));
     document.querySelectorAll('[data-demo-restore]').forEach(btn=>btn.addEventListener('click',()=>restoreRef('beat:'+btn.dataset.demoRestore)));
+    // Permanent sletting skjer bare her, fra arkivet (deleteBeat spør om bekreftelse først)
+    document.querySelectorAll('[data-demo-delete]').forEach(btn=>btn.addEventListener('click',async()=>{
+      const id=btn.dataset.demoDelete; if(typeof window.deleteBeat!=='function') return;
+      await window.deleteBeat(id);
+      if(!(window.state?.beats||[]).some(b=>b.id===id)){ closeDemoModal(); render(); }
+    }));
   }
   function bind(tab){
     const track=tab.querySelector('[data-fa-track]');

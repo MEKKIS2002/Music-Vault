@@ -750,6 +750,13 @@ window.dashNewAlbum=function(){document.querySelector('.tab-btn[data-tab="albums
 window.dashNewMixtape=function(){document.querySelector('.tab-btn[data-tab="mixtapes"]')?.click();setTimeout(()=>document.getElementById('newMixtapeBtn')?.click(),80);};
 window.dashOpenLyricLab=function(){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();};
 window.dashUploadTrigger=function(){document.getElementById('dashUploadInput')?.click();};
+// Felles melding etter opplasting (Hjem, Beats, album, mixtape): én låt → «Skriv tekst» åpner den i Lyric Lab
+window.mvUploadedToast=function(beats){
+  beats=(beats||[]).filter(Boolean);
+  if(!beats.length){showToast('Kunne ikke laste opp — prøv igjen');return;}
+  if(beats.length===1&&typeof openInLyricLab==='function'){const id=beats[0].id;showToast('✓ «'+beats[0].name+'» lastet opp','Skriv tekst',()=>{document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>openInLyricLab(id),60);});}
+  else showToast('✓ '+beats.length+' låt'+(beats.length>1?'er':'')+' lastet opp');
+};
 // Opplasting fra Hjem, Beats-siden og mobilknappen: legg låten(e) i biblioteket og lagre
 // (før ble lydfila bare lagret lokalt og låten aldri lagt til). Én låt → «Skriv tekst».
 window.dashUpload=async function(files){
@@ -765,8 +772,7 @@ window.dashUpload=async function(files){
   saveState();
   try{renderDashboard();}catch(e){}
   try{window.beatsTab&&beatsTab.renderBeatsTab();}catch(e){}
-  if(added.length===1&&typeof openInLyricLab==='function'){const id=added[0].id;showToast('✓ «'+added[0].name+'» lastet opp','Skriv tekst',()=>{document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>openInLyricLab(id),60);});}
-  else showToast('✓ '+added.length+' sang'+(added.length>1?'er':'')+' lastet opp');
+  mvUploadedToast(added);
 };
 
 
@@ -2171,21 +2177,21 @@ async function handleMixtapeDrop(e){
   e.preventDefault();document.getElementById("mixtapeDrop").classList.remove("drag-over");
   const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
   if(!files.length){showToast("Ingen lydfiler funnet");return;}
-  for(const f of files){const b=await createBeatFromFile(f);addBeatToMixtape(b);uploadBeatToR2(b,f);}
-  renderMixtapeDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
+  const added=[];for(const f of files){const b=await createBeatFromFile(f);addBeatToMixtape(b);uploadBeatToR2(b,f);added.push(b);}
+  renderMixtapeDetail();mvUploadedToast(added);
 }
 async function handleAlbumDrop(e){
   e.preventDefault();document.getElementById("albumDrop").classList.remove("drag-over");
   const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
   if(!files.length){showToast("Ingen lydfiler funnet");return;}
-  for(const f of files){const b=await createBeatFromFile(f);addBeatToAlbum(b);uploadBeatToR2(b,f);}
-  renderAlbumDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
+  const added=[];for(const f of files){const b=await createBeatFromFile(f);addBeatToAlbum(b);uploadBeatToR2(b,f);added.push(b);}
+  renderAlbumDetail();mvUploadedToast(added);
 }
 document.getElementById("mixtapeUploadInput").addEventListener("change",async e=>{
   if(!window.isAdminMode){showToast("Kun admin kan laste opp lydfiler");e.target.value="";return;}
   const files=[...e.target.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
-  for(const f of files){const b=await createBeatFromFile(f);addBeatToMixtape(b);uploadBeatToR2(b,f);}
-  renderMixtapeDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
+  const added=[];for(const f of files){const b=await createBeatFromFile(f);addBeatToMixtape(b);uploadBeatToR2(b,f);added.push(b);}
+  renderMixtapeDetail();mvUploadedToast(added);
   e.target.value="";
 });
 document.getElementById("mixtapeCoverInput").addEventListener("change",e=>{
@@ -2201,8 +2207,8 @@ document.getElementById("mixtapeCoverInput").addEventListener("change",e=>{
 document.getElementById("albumUploadInput").addEventListener("change",async e=>{
   if(!window.isAdminMode){showToast("Kun admin kan laste opp lydfiler");e.target.value="";return;}
   const files=[...e.target.files].filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
-  for(const f of files){const b=await createBeatFromFile(f);addBeatToAlbum(b);uploadBeatToR2(b,f);}
-  renderAlbumDetail();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
+  const added=[];for(const f of files){const b=await createBeatFromFile(f);addBeatToAlbum(b);uploadBeatToR2(b,f);added.push(b);}
+  renderAlbumDetail();mvUploadedToast(added);
   e.target.value="";
 });
 // Show drop zones when in detail views

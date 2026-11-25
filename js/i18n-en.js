@@ -2034,4 +2034,14 @@
     'Vis låtene som A- og B-side, som på en vinylplate': 'Show the songs as side A and B, like a vinyl record',
     'Én side som presenterer albumet for label eller samarbeidspartnere': 'One page presenting the album to a label or collaborators' });
   I.pat([['{#0}% ferdig i snitt', '{0}% done on average']]);
+
+  // Kritikk 6: ett navn for opplasting
+  I.add({ 'Last opp låt': 'Upload song', 'Last opp låter': 'Upload songs', 'Slipp lydfiler her for å laste opp låter': 'Drop audio files here to upload songs' });
+  I.pat([['✓ {#0} låter lastet opp', '✓ {0} songs uploaded'], ['✓ {#0} låt lastet opp', '✓ {0} song uploaded']]);
+
+  I.add({ 'Steg': 'Stage', 'Låtinfo': 'Song info', 'Valg for seksjonen': 'Section options', 'Vis seksjonen': 'Show section', 'Skjul seksjonen': 'Hide section' });
+  I.pat([['Valg for seksjonen {0}', s => `Options for section ${s}`]]);
+
+  I.add({ 'Legg til i album/mixtape': 'Add to album/mixtape', 'Mer': 'More', 'Flytt til arkivet': 'Move to archive', '✓ Flyttet til arkivet': '✓ Moved to the archive',
+    'Slett for godt': 'Delete for good', 'Sletter låten og lydfila for godt — kan ikke angres': 'Deletes the song and its audio file for good — this can’t be undone' });
 })(window.mvI18n);

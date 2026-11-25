@@ -80,12 +80,12 @@ AKTIVE BRUKERE:
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
   <link rel="stylesheet" href="css/icons.css?v=b67086befd">
-  <link rel="stylesheet" href="css/lyriclab.css?v=75bb181def">
+  <link rel="stylesheet" href="css/lyriclab.css?v=436223c7e9">
   <link rel="stylesheet" href="css/pipeline.css?v=cf5d543125">
   <link rel="stylesheet" href="css/main.css?v=da15a934d1">
   <link rel="stylesheet" href="css/ui.css?v=d826190a9c">
-  <link rel="stylesheet" href="css/track-cards.css?v=b761a26bf3">
-  <link rel="stylesheet" href="css/archive.css?v=0f0efa6777">
+  <link rel="stylesheet" href="css/track-cards.css?v=a1b5a02927">
+  <link rel="stylesheet" href="css/archive.css?v=52ebc5d6ca">
   <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
   <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
   <link rel="stylesheet" href="css/player.css?v=eaa75d553a">
@@ -366,7 +366,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
           <div id="dashSub"></div>
         </div>
         <div class="dash-quick">
-          <button class="dq-btn accent" onclick="dashUploadTrigger()">+ Ny sang</button>
+          <button class="dq-btn accent" onclick="dashUploadTrigger()"><span class="ic ic-upload" aria-hidden="true"></span> Last opp låt</button>
           <button class="dq-btn" onclick="dashNewAlbum()">+ Nytt album</button>
           <button class="dq-btn" onclick="dashNewMixtape()">+ Ny mixtape</button>
           <button class="dq-btn mv-mob-hide" onclick="dashOpenLyricLab()">Lyric Lab</button>
@@ -456,7 +456,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
       <div class="album-detail-hd" id="mixtapeDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
         <button class="ghost-btn" id="addBeatsToMixtapeBtn">+ Legg til eksisterende</button>
-        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-folder" aria-hidden="true"></span> Last opp filer<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-upload" aria-hidden="true"></span> Last opp låter<input id="mixtapeUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <select id="mixtapeSortSelect" class="mixtape-sort-select" title="Sorter beats">
           <option value="custom">Sorter: Egen rekkefølge</option>
           <option value="favorite">Favoritter først</option>
@@ -479,7 +479,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
         </div>
       </div>
       <div id="mixtapeDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMixtapeDrop(event)">
-        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å legge til beats</div>
+        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å laste opp låter</div>
       </div>
       <div id="mixtapeBeatList" class="beat-list"></div>
       <div id="mixtapeComments" class="collection-comments"></div>
@@ -502,7 +502,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
       <div class="album-detail-hd" id="albumDetailHd"></div>
       <div class="toolbar" style="margin-bottom:18px">
         <button class="ghost-btn" id="addBeatsToAlbumBtn">+ Legg til eksisterende</button>
-        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-folder" aria-hidden="true"></span> Last opp filer<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
+        <label class="ghost-btn" style="cursor:pointer"><span class="ic ic-upload" aria-hidden="true"></span> Last opp låter<input id="albumUploadInput" type="file" accept="audio/*" multiple hidden /></label>
         <!-- Albumbilde, arkiver og slett ligger i «⋯ Album» i albumhodet; menyen her er skjult (knappene brukes fortsatt av koden) -->
         <details class="mv-proj-menu" hidden>
           <summary class="ghost-btn" aria-label="Flere valg for albumet">⋯ Prosjekt</summary>
@@ -518,7 +518,7 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
         </div>
       </div>
       <div id="albumDrop" class="drop-zone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleAlbumDrop(event)">
-        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å legge til beats</div>
+        <div class="drop-hint"><span class="ic ic-music" aria-hidden="true"></span> Slipp lydfiler her for å laste opp låter</div>
       </div>
       <div id="albumBeatList" class="beat-list"></div>
       <div id="albumComments" class="collection-comments"></div>
@@ -1010,7 +1010,7 @@ window.addEventListener('load', () => {
 
   <!-- Supabase CDN -->
   <script src="js/i18n.js?v=63ab828394"></script>
-  <script src="js/i18n-en.js?v=e5ecc24254"></script>
+  <script src="js/i18n-en.js?v=6fa86578b4"></script>
   <script src="js/config.js?v=a6abb28894"></script>
   <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
@@ -1022,17 +1022,17 @@ window.addEventListener('load', () => {
   <script src="js/lock.js?v=3f3ebd2a38"></script>
   <script src="js/stages.js?v=cf5bd6f94a"></script>
   <script src="js/pipeline.js?v=4c31bbaf39"></script>
-  <script src="js/lyriclab.js?v=8a3dda96f4"></script>
-  <script src="js/app.js?v=8b88d00826"></script>
+  <script src="js/lyriclab.js?v=044f78ac97"></script>
+  <script src="js/app.js?v=bd175c9599"></script>
   <script src="js/track-cards.js?v=34a5e9e292"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
-  <script src="js/archive.js?v=f3caaed387"></script>
+  <script src="js/archive.js?v=3b4f9aa59a"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
   <script src="js/changelog.js?v=f3b9fb9ced"></script>
-  <script src="js/beats-tab.js?v=6604598cd8"></script>
+  <script src="js/beats-tab.js?v=2b39c9b09d"></script>
   <script src="js/supabase.js?v=5488a4587c"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=6d7031fe9b"></script>
+  <script src="js/db.js?v=125f72a41c"></script>
   <script src="js/home-comments.js?v=1832b8cc40"></script>
   <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=b11dcaf7b9"></script>
@@ -1069,6 +1069,6 @@ window.addEventListener('load', () => {
   <script src="js/explore.js?v=db84de95c9"></script>
   <script src="js/docs.js?v=32506992ac"></script>
 
-<button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp ny sang" title="Ny sang">＋</button>
+<button id="mvMobFab" class="mv-fab" onclick="dashUploadTrigger()" aria-label="Last opp låt" title="Last opp låt">＋</button>
 </body>
 </html>
