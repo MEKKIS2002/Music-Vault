@@ -6,6 +6,24 @@
 
   const VERSIONS = [
     {
+      version: 'v2.19',
+      date: '25. november 2026',
+      label: 'Lyric Lab som miksepult og en ryddigere app',
+      color: '#d68155',
+      changes: [
+        'Lyric Lab: avspilleren er et mørkt dekk med VU-meter og knapper for BPM og toneart',
+        'Lyric Lab: verktøyene er delt i «Skriv» og «Spill inn», med navngitte farger og «Sett toneart» rett fra akkordene',
+        'Én stegmodell overalt (Idé → Ferdig); «Neste steg» følger steget og viser hva som mangler',
+        'Pipeline-boardet er den eneste kanban-visningen — «Board» i albumet åpner den, med avspilling på kortene',
+        'Pipeline-oversikten er én sporliste der hver låt åpnes for å endre fremdrift',
+        'Tryggere sletting: «Flytt til arkivet» med Angre — permanent sletting bare fra arkivet',
+        '«Last opp låt» overalt, med «Skriv tekst» rett etter opplasting',
+        'Hjem: kommentarer, riktige varsler og fargede ruter for prosjekter uten cover',
+        'Navnet ditt hentes fra profilen, og artistsiden krediterer artistnavnet',
+        'Engelsk uten norske lekkasjer, bedre kontrast og Lyric Lab i bunnmenyen på mobil',
+      ]
+    },
+    {
       version: 'v2.18',
       date: '21. november 2026',
       label: 'Vinyl og covervisning',
