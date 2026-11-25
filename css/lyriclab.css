@@ -1035,3 +1035,14 @@ html body .ll-v2 .ll-wave-panel.ll-deck .ll-loop-bar, html body .ll-v2 .ll-wave-
   .ll-vu{ width: 108px; } .ll-knobs{ justify-self: end; gap: 10px; }
 }
 
+
+/* Lyst tema: dekket i valnøtt i stedet for nesten svart, så det glir inn i den kremfargede siden —
+   fortsatt mørkt studioutstyr, men varmere og mykere skygge */
+:root[data-theme="light"] .ll-v2 .ll-wave-panel.ll-deck{
+  background: linear-gradient(180deg, #6e523c 0%, #574030 55%, #46331f 100%) !important;
+  border-color: #3a2a1c !important; border-radius: var(--radius-panel, 14px) !important;
+  box-shadow: inset 0 1px 0 rgb(255 236 205 / .14), inset 0 -1px 0 rgb(0 0 0 / .3), 0 10px 22px -14px rgb(74 52 32 / .55) !important;
+}
+:root[data-theme="light"] .ll-v2 .ll-wave-panel.ll-deck .ll-wave{ background: rgb(30 20 12 / .32) !important; border-color: rgb(30 20 12 / .45) !important; }
+:root[data-theme="light"] .ll-deck .ll-vu{ background: linear-gradient(180deg, #2c1f15, #1b120c); }
+:root[data-theme="light"] .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-slider{ background: rgb(30 20 12 / .35) !important; }
