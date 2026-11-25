@@ -974,18 +974,18 @@ html body .ll-v2 .ll-wave-panel.ll-deck{
 .ll-deck .ll-wave-col{ grid-area: wave; }
 .ll-deck .ll-knobs{ grid-area: knobs; }
 /* Tekst og kontroller inne i dekket */
-html body .ll-v2 .ll-deck .ll-player-row, html body .ll-v2 .ll-deck .ll-player-hint, html body .ll-v2 .ll-deck .ll-zoom-val, html body .ll-v2 .ll-deck .ll-zoom-ico{ color: var(--deck-muted) !important; }
-html body .ll-v2 .ll-deck .ll-time{ color: var(--deck-ink) !important; }
-html body .ll-v2 .ll-deck .ll-play-main{ color: var(--deck-ink) !important; border-color: rgb(234 220 196 / .3) !important; background: rgb(255 240 215 / .04) !important; }
-html body .ll-v2 .ll-deck .ll-play-main:hover{ background: var(--accent) !important; color: var(--on-accent) !important; border-color: transparent !important; }
-html body .ll-v2 .ll-deck .ll-play-main:focus-visible{ outline: 2px solid var(--accent) !important; outline-offset: 2px; }
-html body .ll-v2 .ll-deck .ll-wave{ border-radius: 6px; background: rgb(0 0 0 / .22) !important; box-shadow: inset 0 1px 3px rgb(0 0 0 / .5); }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-player-row, html body .ll-v2 .ll-wave-panel.ll-deck .ll-player-hint, html body .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-val, html body .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-ico{ color: var(--deck-muted) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-time{ color: var(--deck-ink) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-play-main{ color: var(--deck-ink) !important; border-color: rgb(234 220 196 / .3) !important; background: rgb(255 240 215 / .04) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-play-main:hover{ background: var(--accent) !important; color: var(--on-accent) !important; border-color: transparent !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-play-main:focus-visible{ outline: 2px solid var(--accent) !important; outline-offset: 2px; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-wave{ border-radius: 6px; background: rgb(0 0 0 / .22) !important; box-shadow: inset 0 1px 3px rgb(0 0 0 / .5); }
 /* Dekket er mørkt også i lyst tema — overstyr lyse temaets farger på ikon, kanter og glider */
-html body .ll-v2 .ll-deck .ll-play-main .ic, html body .ll-v2 .ll-deck .ll-zoom-ico .ic{ background-color: currentColor !important; color: inherit !important; }
-html body .ll-v2 .ll-deck .ll-wave{ border: 1px solid rgb(0 0 0 / .55) !important; }
-html body .ll-v2 .ll-deck .ll-time-sep{ color: var(--deck-muted) !important; }
-html body .ll-v2 .ll-deck .ll-zoom-slider{ background: rgb(0 0 0 / .35) !important; border: 1px solid rgb(234 220 196 / .18) !important; box-shadow: none !important; }
-html body .ll-v2 .ll-deck .ll-loop-bar, html body .ll-v2 .ll-deck .ll-loop-bar *{ color: var(--deck-ink) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-play-main .ic, html body .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-ico .ic{ background-color: currentColor !important; color: inherit !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-wave{ border: 1px solid rgb(0 0 0 / .55) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-time-sep{ color: var(--deck-muted) !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-slider{ background: rgb(0 0 0 / .35) !important; border: 1px solid rgb(234 220 196 / .18) !important; box-shadow: none !important; }
+html body .ll-v2 .ll-wave-panel.ll-deck .ll-loop-bar, html body .ll-v2 .ll-wave-panel.ll-deck .ll-loop-bar *{ color: var(--deck-ink) !important; }
 
 /* Skruer i hjørnene */
 .ll-screw{ position: absolute; width: 9px; height: 9px; border-radius: 50%; z-index: 1;
