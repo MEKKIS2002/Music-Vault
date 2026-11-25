@@ -665,7 +665,11 @@ function renderDashboard(){
     const inAlbum=new Set(albums.flatMap(a=>a.beatIds||[]));
     const doneNotIn=beats.filter(b=>Number(b.done||0)>=100&&!inAlbum.has(b.id));
     if(doneNotIn.length) alerts.push({type:'info',icon:'<span class="ic ic-music" aria-hidden="true"></span>',msg:`${doneNotIn.length} sang${doneNotIn.length>1?'er er':'en er'} 100% ferdig men ikke i noe album`,detail:doneNotIn.slice(0,2).map(b=>esc(b.name)).join(', ')+(doneNotIn.length>2?' ...':''),tab:'albums'});
-    albums.forEach(a=>{const lu=a.updatedAt||a.createdAt||0;if(lu&&now-lu>14*DAY)alerts.push({type:'warn',icon:'<span class="ic ic-clock" aria-hidden="true"></span>',msg:`\u00ab${esc(a.name)}\u00bb ikke oppdatert p\u00e5 ${Math.floor((now-lu)/DAY)} dager`,detail:'',tab:'albums'});});
+    // Siste aktivitet i et album = albumet selv eller noen av låtene i det (før så det dødt ut selv om låtene ble jobbet med daglig)
+    albums.forEach(a=>{const aB=(a.beatIds||[]).map(id=>beats.find(b=>b.id===id)).filter(Boolean);
+      const lu=Math.max(a.updatedAt||a.createdAt||0,...aB.map(b=>b.updatedAt||b.createdAt||0));
+      const avg=aB.length?aB.reduce((s,b)=>s+Number(b.done||0),0)/aB.length:0;
+      if(lu&&now-lu>14*DAY&&avg<100)alerts.push({type:'info',icon:'<span class="ic ic-clock" aria-hidden="true"></span>',msg:`\u00ab${esc(a.name)}\u00bb venter p\u00e5 deg`,detail:`Sist jobbet med for ${Math.floor((now-lu)/DAY)} dager siden`,tab:'albums'});});
     if(noAudio.length) alerts.push({type:'warn',icon:'<span class="ic ic-mute" aria-hidden="true"></span>',msg:`${noAudio.length} sang${noAudio.length>1?'er mangler':'en mangler'} lydfil`,detail:noAudio.slice(0,2).map(b=>esc(b.name)).join(', ')+(noAudio.length>2?' ...':''),tab:'beats'});
     if(!alerts.length) saEl.innerHTML='<div class="sa-empty">Ingen varsler akkurat n\u00e5 \u2713</div>';
     else saEl.innerHTML=alerts.map(a=>`<div class="smart-alert smart-alert-${a.type}" onclick="document.querySelector('.tab-btn[data-tab=\\'${a.tab}\\']')?.click()"><span class="sa-icon">${a.icon}</span><div class="sa-body"><div class="sa-msg">${a.msg}</div>${a.detail?`<div class="sa-detail">${a.detail}</div>`:''}</div><span class="sa-arrow">\u2192</span></div>`).join('');
@@ -685,7 +689,12 @@ function renderDashboard(){
       const col=mvPctColor(pct);
       const count=pB.length;
       const cover=p.cover?`<img src="${esc(p.cover)}" alt="" style="width:100%;height:100%;object-fit:cover">`:`<span style="font-size:28px">${isAlbum?'<span class="ic ic-disc" aria-hidden="true"></span>':'<span class="ic ic-cassette" aria-hidden="true"></span>'}</span>`;
-      return `<div class="dash-proj-card" onclick="dashOpenProject('${esc(p.id)}','${p._type}')" data-cm-type="${p._type}" data-cm-id="${esc(p.id)}"><div class="dash-proj-cover">${cover}<div class="dash-proj-prog-bar"><div style="width:${pct}%;background:${col};height:100%;border-radius:2px"></div></div></div><div class="dash-proj-footer"><div class="dash-proj-name">${esc(p.name)}</div><div class="dash-proj-meta">${count} sang${count===1?'':'er'} &middot; <span style="color:${col};font-weight:700">${pct}%</span></div></div></div>`;
+      // Uten cover: prosjektets egen farge (kassettfargen for mixtapes) i stedet for en grå rute
+      const tint=!p.cover&&p.color?` style="background:linear-gradient(135deg,${esc(p.color)},color-mix(in srgb,${esc(p.color)} 55%,#000))"`:'';
+      // Mixtapes har ingen steg → ingen prosent. Album på 0 % sier «ikke startet», ikke «0%».
+      const showPct=isAlbum&&count>0;
+      const pctLbl=!showPct?'':pct>0?`<span style="color:${col};font-weight:700">${window.mvStages?mvStages.fmt(pct):pct+'%'}</span>`:'<span class="dash-proj-new">ikke startet</span>';
+      return `<div class="dash-proj-card" onclick="dashOpenProject('${esc(p.id)}','${p._type}')" data-cm-type="${p._type}" data-cm-id="${esc(p.id)}"><div class="dash-proj-cover${tint?' is-tinted':''}"${tint}>${cover}${showPct&&pct>0?`<div class="dash-proj-prog-bar"><div style="width:${pct}%;background:${col};height:100%;border-radius:2px"></div></div>`:''}</div><div class="dash-proj-footer"><div class="dash-proj-name" data-no-i18n>${esc(p.name)}</div><div class="dash-proj-meta"><span>${isAlbum?'Album':'Mixtape'}</span> &middot; <span>${count} låt${count===1?'':'er'}</span>${pctLbl?' &middot; '+pctLbl:''}</div></div></div>`;
     }).join('');}
   }
   const lastEl=document.getElementById('dashLastBeat');

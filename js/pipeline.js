@@ -93,7 +93,7 @@
     }
     if (i === 2) return { txt: 'Spill inn vokal', kind: 'record', why };
     if (i === 3) return { txt: 'Miks ferdig',     kind: 'mix',    why };
-    return { txt: 'Master & sett til 100%',     kind: 'master', why };
+    return { txt: 'Master låten',               kind: 'master', why };   // en studiooppgave, ikke «sett prosent»
   }
 
   window.mvNextStep = nextStep;
@@ -140,7 +140,14 @@
       if (ka !== kc) return ka - kc;
       return c.pct - a.pct; // higher % first within same kind
     });
-    return cand.slice(0, 3);
+    // Like oppgaver slås sammen til én linje («Master låten — start med X, +5 til»),
+    // så de tre plassene viser ulike typer arbeid i stedet for samme oppgave tre ganger
+    const groups = [];
+    for (const c of cand){
+      const g = groups.find(x => x.step.txt === c.step.txt);
+      if (g) g.more++; else groups.push({ ...c, more: 0 });
+    }
+    return groups.slice(0, 3);
   }
 
   // ── Streak (kept, lightweight) ──────────────────────────────────────────────
@@ -301,7 +308,7 @@
           <span class="pl3-focus-icn">${icnMap[f.step.kind] || '→'}</span>
           <span class="pl3-focus-txt">
             <b>${esc(f.step.txt)}</b>
-            <span><span data-no-i18n>${esc(f.b.name || 'Uten navn')}</span> · ${f.pct}%${f.step.why ? ` · <span class="pl3-why">${esc(f.step.why)}</span>` : ''}</span>
+            <span>${f.more ? 'Start med ' : ''}<span data-no-i18n>${esc(f.b.name || 'Uten navn')}</span> · ${f.pct}%${f.step.why ? ` · <span class="pl3-why">${esc(f.step.why)}</span>` : ''}${f.more ? ` · <span class="pl3-more">+${f.more} til</span>` : ''}</span>
           </span>
           <span class="pl3-focus-go">→</span>
         </button>`).join('');

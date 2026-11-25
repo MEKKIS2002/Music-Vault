@@ -361,3 +361,7 @@
   .dash-quick{ display:grid; grid-template-columns:1fr 1fr; }
   .dq-btn{ height:44px; }        /* touch-mål */
 }
+
+/* Hjem: prosjekter uten cover får sin egen farge; nye album sier «ikke startet» */
+.dash-proj-cover.is-tinted{ color: rgb(255 255 255 / .85); }
+.dash-proj-new{ color: var(--muted); font-style: italic; }
