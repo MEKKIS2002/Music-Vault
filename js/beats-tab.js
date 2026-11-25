@@ -278,6 +278,9 @@
         </div>
       </div>
     `;
+    // Lista tegnes på nytt (f.eks. når du kommer tilbake til fanen) — legg på «spilles nå» igjen,
+    // ellers mister raden markeringen og CD-en slutter å snurre
+    try { window.updatePlayingAnimations && window.updatePlayingAnimations(); } catch(e) {}
   }
 
   // ── Event handlers ─────────────────────────────────────────────────────────
