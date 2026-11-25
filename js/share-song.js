@@ -65,8 +65,10 @@ window.mvLoadShareStats = async function(kind, token, el){
   function isSong(b){ return !!(b&&(String(b.lyrics||'').trim() || (b.lyricSections||[]).some(s=>String(s&&s.text||'').trim()))); }
   function artistOf(b){
     const st=getState();
-    return b.artist || b.producer || b.uploadedBy
-      || st?.settings?.artistName || sessionStorage.getItem('mv_username') || '';
+    // Artistnavnet (fra artistsiden/innstillinger) før kontonavn og opplaster; aldri en rolle som «Admin»
+    const role = s => /^(admin|producer|label)$/i.test(String(s || '').trim());
+    const cands = [b.artist, window.mvArtistName, st?.settings?.artistName, b.producer, b.uploadedBy, sessionStorage.getItem('mv_username')];
+    return cands.find(c => c && String(c).trim() && !role(c)) || '';
   }
   function shareUrlFor(token){ return new URL('share.html?s='+encodeURIComponent(token), location.href).href; }
 

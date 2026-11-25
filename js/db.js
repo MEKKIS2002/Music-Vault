@@ -1919,14 +1919,16 @@ document.getElementById("exportBtn").addEventListener("click",()=>{const b=new B
 document.getElementById("importInput").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const imp=migrate(JSON.parse(r.result));Object.keys(state).forEach(k=>delete state[k]);Object.assign(state,imp);currentAlbumId=null;saveState();renderAll();showToast("✓ Backup importert");}catch{alert("Ugyldig fil.")}};r.readAsText(f);});
 
 // ── TABS ──
-// Tab switching: preserve scroll position (double-rAF wins over any render() scroll)
+// Fanebytte: en NY side starter øverst; klikk på fanen du allerede er på beholder posisjonen
+// (double-rAF vinner over scroll fra render())
 // Logo → Hjem (klikk på "Music Vault"-merket i headeren går til Hjem-fanen)
 document.querySelector(".mv-logo")?.addEventListener("click",()=>document.querySelector('.tab-btn[data-tab="hjem"]')?.click());
 document.querySelector(".mv-logo")?.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();document.querySelector('.tab-btn[data-tab="hjem"]')?.click();}});
 
 document.querySelectorAll(".tab-btn").forEach(btn=>btn.addEventListener("click",()=>{
   if(isProducerUser()&&!["mixtapes","pipeline","docs"].includes(btn.dataset.tab)){showToast("Produsentmodus har tilgang til mixtapes og pipeline");return;}
-  const y=window.scrollY||document.documentElement.scrollTop||0;
+  const sameTab=btn.classList.contains("active");
+  const y=sameTab?(window.scrollY||document.documentElement.scrollTop||0):0;
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
 

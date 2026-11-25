@@ -51,5 +51,11 @@
   const ALBUM_ALIASES = { 'Mixing': 'Miks', 'Mastering': 'Master', 'Demo': 'Innspilling', 'Valgt': 'Skriving', 'Klar for release': 'Ferdig' };
   function normalizeAlbum(s){ return ALBUM_ALIASES[s] || s || 'Idé'; }
 
-  window.mvStages = { list: LIST, of, index, set, pct, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum };
+  // Stegfargen (samme i Pipeline, Studio og Lyric Lab) og ett prosentformat:
+  // «18 %» på norsk (mellomrom etter tallet), «18%» på engelsk
+  const COLOR = { idea: 'var(--stage-idea)', writing: 'var(--stage-writing)', record: 'var(--muted)', mix: 'var(--accent-ink)', master: 'var(--accent2)', done: 'var(--ok)' };
+  LIST.forEach(s => { s.color = COLOR[s.key]; });
+  function fmt(n){ const v = Math.round(Number(n) || 0); return (window.mvI18n && window.mvI18n.lang === 'en') ? v + '%' : v + '\u00a0%'; }
+
+  window.mvStages = { list: LIST, of, index, set, pct, fmt, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum };
 })();

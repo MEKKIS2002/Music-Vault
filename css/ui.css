@@ -1433,7 +1433,7 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
 .hjem-progress-card{background:rgb(var(--ink-rgb) / .03);border:1px solid var(--line);border-radius:var(--r-sm);padding:16px 18px;}
 
 /* ── General ── */
-.dash-empty{font-size:var(--fs-xs);color:rgb(var(--ink-rgb) / calc(.22 + (1 - .22) * var(--ink-boost)));padding:4px 0;grid-column:1/-1;}
+.dash-empty{font-size:var(--fs-sm);color:var(--muted);padding:4px 0;grid-column:1/-1;}
 #beatCount,#favCount,#demoCount,#avgDone{display:none!important;}
 .bp-cover::before,.bp-cover::after{display:none!important;}
 
@@ -1518,7 +1518,7 @@ nav.tabs::-webkit-scrollbar{display:none!important;}
 }
 .cf-loading, .cf-empty {
   font-size:var(--fs-sm);
-  color: rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));
+  color: var(--muted);
   padding: 16px 18px;
   font-style: italic;
 }

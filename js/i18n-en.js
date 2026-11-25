@@ -2026,4 +2026,12 @@
   ]);
 
   I.add({ 'Skriv': 'Write', 'Spill inn': 'Record', 'Verktøy i Lyric Lab': 'Lyric Lab tools', 'Velg farge for markert tekst': 'Pick a colour for the selected text', 'Fargemarkering av tekst': 'Colour-mark text' });
+
+  // Kritikk 5: progresjonsnavn og kort
+  I.add({ 'Moll-pop': 'Minor pop', '50-talls': '50s', 'Favoritt': 'Favourite', 'Hovednavigasjon': 'Main navigation', 'Music Vault – gå til Hjem': 'Music Vault – go to Home' });
+
+  I.add({ 'ny seksjon': 'new section', '⋯ Album': '⋯ Album', 'Pitch-side': 'Pitch page', 'Arkiver album': 'Archive album', 'Slett album': 'Delete album',
+    'Vis låtene som A- og B-side, som på en vinylplate': 'Show the songs as side A and B, like a vinyl record',
+    'Én side som presenterer albumet for label eller samarbeidspartnere': 'One page presenting the album to a label or collaborators' });
+  I.pat([['{#0}% ferdig i snitt', '{0}% done on average']]);
 })(window.mvI18n);

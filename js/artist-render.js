@@ -26,6 +26,11 @@
   }
 
   function block(b, page){
+    // Låter på artistens egen side krediteres artistnavnet — ikke kontonavnet eller en rolle («Admin»)
+    // som ble lagret da låten ble delt. Ekte samarbeid («X feat. Y», «X & Y») vises som det er.
+    const pageName = (page && (page.display_name || page.slug)) || '';
+    const credit = a => { const s = String(a || '').trim(); if (!pageName) return /^admin$/i.test(s) ? '' : s;
+      return /(\bfeat\b|\bft\b|&|\bx\b|\bmed\b|\bwith\b)/i.test(s) && s.toLowerCase().includes(pageName.toLowerCase()) ? s : pageName; };
     const title = b.title != null && b.title !== '' ? b.title : TITLES[b.type];
     const head = title ? `<h2 class="ap-section-title">${esc(title)}</h2>` : '';
     switch (b.type){
@@ -37,7 +42,7 @@
         return `<section class="ap-section">${head}<div class="ap-tracks">${list.map(({ t, d }) => {
           const c = img(d.cover);
           return `<div class="ap-track" data-token="${esc(t)}">${c ? `<img src="${esc(c)}" alt="">` : '<span class="ap-ph" aria-hidden="true"></span>'}
-            <div class="ap-meta"><div class="ap-t">${esc(d.title || 'Uten tittel')}</div><div class="ap-s">${esc([d.artist, d.bpm ? d.bpm + ' BPM' : ''].filter(Boolean).join(' · '))}</div></div>
+            <div class="ap-meta"><div class="ap-t">${esc(d.title || 'Uten tittel')}</div><div class="ap-s">${esc([credit(d.artist), d.bpm ? d.bpm + ' BPM' : ''].filter(Boolean).join(' · '))}</div></div>
             <span class="mv-eq" aria-hidden="true"><i></i><i></i><i></i></span>
             <button class="ap-play" data-token="${esc(t)}" aria-label="Spill ${esc(d.title || '')}">▶</button></div>`;
         }).join('')}</div></section>`;
