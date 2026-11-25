@@ -362,3 +362,12 @@
 .pl3-card-slider input[type=range]{ flex: 1; }
 .pl3-slider-val{ min-width: 3.2em; text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
 
+/* Pipeline er en rapport: albumets steg som etikett (endres i albumet) */
+.pl3-stagechip{ font: inherit; font-size: var(--fs-sm); font-weight: 700; color: var(--text); background: rgb(var(--ink-rgb) / .05);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.pl3-stagechip:hover{ background: rgb(var(--ink-rgb) / .09); }
+.pl3-stagechip:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Albumtittelen i samme serif som på albumsiden */
+.pl3-hero-title{ font-family: var(--font-display, var(--display, Georgia, serif)) !important; font-weight: 400 !important; letter-spacing: -.01em; }
+

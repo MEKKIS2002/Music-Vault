@@ -358,7 +358,7 @@
     const beat = getBeat(window.currentLyricLabBeatId); const el = document.getElementById('llSongMeta');
     try { refreshConsole(beat); } catch(e) {}
     if(!beat || !el) return;
-    const bits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', fmtDur(beat.duration), beat.mood ? esc(beat.mood) : ''].filter(Boolean);
+    const bits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', (/\d/.test(fmtDur(beat.duration)||'') ? fmtDur(beat.duration) : ''), beat.mood ? esc(beat.mood) : ''].filter(Boolean);
     el.innerHTML = bits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>');
   };
   // Spill/pause en take eller memo (én om gangen)
@@ -398,7 +398,7 @@
       : `<div class="ll-cover-ph"><span class="ic ic-music" aria-hidden="true"></span></div>`;
 
     const keyOpts = (()=>{ const notes=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B']; const list=[]; notes.forEach(n=>{ list.push([n+'m', n+'-moll']); list.push([n, n+'-dur']); }); if(beat.key && !list.some(o=>o[0]===beat.key)) list.unshift([beat.key, beat.key]); return list; })();
-    const metaBits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', dur, beat.mood ? esc(beat.mood) : ''].filter(Boolean);
+    const metaBits = [beat.source ? 'prod. '+esc(beat.source) : '', Number(beat.bpm)>0 ? esc(String(beat.bpm))+' BPM' : '', beat.key ? esc(llKeyLabel(beat.key)) : '', /\d/.test(dur || '') ? dur : '', beat.mood ? esc(beat.mood) : ''].filter(Boolean);
     container.innerHTML = `
 <div class="ll-wrap ll-v2">
 <div class="ll-header">
@@ -433,14 +433,12 @@
         </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
         <div class="ll-song-controls">
-          <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
-          <button class="ll-ctrl-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på"><span class="ic ic-refresh" aria-hidden="true"></span> Loop</button>
           ${window.mvSetSongPublic && !beat._shared ? (() => { const on = window.mvIsSongPublic(beat.id); return `<button class="ll-ctrl-btn mv-public-toggle${on ? ' is-on' : ''}" role="switch" aria-checked="${on}" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${on ? 'Offentlig: På' : 'Offentlig: Av'}</button>`; })() : ''}
           <details class="mv-proj-menu ll-more-menu">
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
-              <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
-              <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
+              <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer"><span class="ic ic-wave" aria-hidden="true"></span> Flow-analyse</button>
+              <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger"><span class="ic ic-pen" aria-hidden="true"></span> Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Alle med lenken kan åpne låten — den vises ikke på Explore"><span class="ic ic-link" aria-hidden="true"></span> Lag delingslenke</button>
             </div>
@@ -451,7 +449,10 @@
 
     <div class="ll-player ll-wave-panel ll-deck">
       ${vuHTML()}
-      <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
+      <div class="ll-deck-transport">
+        <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause" title="Spill av — fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span></button>
+        <button class="ll-deck-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på — dra over bølgeformen for å markere"><span class="ic ic-refresh" aria-hidden="true"></span> Loop</button>
+      </div>
       <div class="ll-wave-col">
         <div id="llWaveSurfer" class="ll-wave"></div>
         <div class="ll-player-row">

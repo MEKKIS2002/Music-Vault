@@ -119,7 +119,7 @@
             { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
             window.mvAudioTools ? (mvAudioTools.isOffline(beatId)
               ? (mvAudioTools.canRemove(beatId) ? { text:'Fjern fra enheten', icon:'cloud', run:()=>mvAudioTools.removeOffline(beatId) } : { text:'Lagret på enheten', icon:'check', disabled:true })
-              : { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
+              : { text:'Lagre offline', icon:'cloud', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
             (admin || inCollection) ? { text:'Gi nytt navn', icon:'pen', run:rename } : null,
             (admin && window.mvAnalysis) ? { text:'Finn toneart og BPM', icon:'wave', run:()=>mvAnalysis.reanalyse(beatId) } : null,
             admin ? { text:'Bytt lydfil', icon:'music', run:()=>window.beatsTab?.swapAudio ? beatsTab.swapAudio(beatId) : null } : null,
@@ -140,7 +140,7 @@
       { text:'Spill', icon:'play', run:()=> type==='album' ? (typeof playAlbumFromStart==='function' && playAlbumFromStart(id)) : (typeof playMixtapeFromStart==='function' && playMixtapeFromStart(id)) },
       { text:'Åpne', icon: type==='album' ? 'disc' : 'cassette', run:()=>{ document.querySelector(`.tab-btn[data-tab="${type==='album'?'albums':'mixtapes'}"]`)?.click(); setTimeout(()=> type==='album' ? window.openAlbum?.(id) : window.openMixtape?.(id), 60); } },
       '-',
-      window.mvAudioTools ? { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveCollection(type, id) } : null,
+      window.mvAudioTools ? { text:'Lagre offline', icon:'cloud', run:()=>mvAudioTools.saveCollection(type, id) } : null,
       '-',
       type==='album' && admin ? { text:'Pitch-side', icon:'file', run:()=>window.albumPitchMode && albumPitchMode(id) } : null,
       type==='mixtape' ? { text:'Del lenke', icon:'globe', run:()=>window.mixtapeShareMode && mixtapeShareMode(id) } : null,
