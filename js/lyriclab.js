@@ -188,8 +188,12 @@
   window.llSetRail = llSetRail; window.llRecCount = llRecCount;
   window.llOpenSongInfo = function(field){
     const d = document.querySelector('#lyriclabTab .ll-more-menu'); if (!d) return;
-    d.open = true;
-    setTimeout(() => { const el = d.querySelector(field === 'bpm' ? '.ll-bpm-input' : '.ll-key-select'); el?.focus(); }, 30);
+    // Etter at klikket er ferdig — ellers lukker «klikk utenfor»-lytteren menyen i samme klikk
+    setTimeout(() => {
+      d.open = true;
+      d.scrollIntoView({ block: 'nearest' });
+      setTimeout(() => d.querySelector(field === 'bpm' ? '.ll-bpm-input' : '.ll-key-select')?.focus(), 30);
+    }, 0);
   };
   document.addEventListener('click', e => {
     const pop = document.getElementById('llColorPop'); if (!pop || !pop.open) return;
