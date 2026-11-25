@@ -2083,4 +2083,7 @@
   I.add({ 'Steg': 'Stage', 'Albumets steg': 'Album stage', '— åpne en låt for å endre fremdriften': '— open a song to change its progress',
     'Fjern flow-farger': 'Clear flow colours', 'Låtinfo': 'Song info' });
   I.pat([['← Tilbake til {0}', s => `← Back to the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['Fremdrift for {0}', 'Progress for {0}']]);
+
+  // Masterbånd og prøvepressing (js/tape-pressing.js)
+  I.add({ 'Prøvepressing — siden er ikke publisert ennå': 'Test pressing — the page isn’t published yet', 'Publisert — den ferdige pressingen': 'Published — the finished pressing' });
 })(window.mvI18n);
