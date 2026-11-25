@@ -240,15 +240,18 @@
     const arc = (a0, a1) => { const p = a => [(cx + r * Math.sin(a * Math.PI / 180)).toFixed(1), (cy - r * Math.cos(a * Math.PI / 180)).toFixed(1)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1}`; };
     return `<path d="${arc(-50, 30)}" class="ll-vu-arc"/><path d="${arc(30, 50)}" class="ll-vu-arc is-red"/>${out.join('')}`;
   }
-  function consoleHTML(beat){
+  // Dekket: VU-meter til venstre og knapper til høyre i bølgeformpanelet — én enhet, ikke en løs boks
+  function vuHTML(){
+    return `<span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span>
+      <div class="ll-vu" aria-hidden="true">
+        <svg viewBox="0 0 120 74" class="ll-vu-face">${vuScale()}<text x="60" y="52" class="ll-vu-mark">VU</text>
+          <g class="ll-vu-needle is-resting" id="llVuNeedle" transform="rotate(-48 60 66)"><line x1="60" y1="66" x2="60" y2="16"/></g><circle cx="60" cy="66" r="4.5" class="ll-vu-pivot"/></svg>
+      </div>`;
+  }
+  function knobsHTML(beat){
     const bpm = Number(beat.bpm) > 0 ? String(beat.bpm) : '–';
     const key = beat.key ? llKeyLabel(beat.key) : '–';
-    return `<div class="ll-console" role="group" aria-label="Kanalstripe">
-        <span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span><span class="ll-screw" aria-hidden="true"></span>
-        <div class="ll-vu" aria-hidden="true">
-          <svg viewBox="0 0 120 74" class="ll-vu-face">${vuScale()}<text x="60" y="52" class="ll-vu-mark">VU</text>
-            <g class="ll-vu-needle" id="llVuNeedle" transform="rotate(-48 60 66)"><line x1="60" y1="66" x2="60" y2="16"/></g><circle cx="60" cy="66" r="4.5" class="ll-vu-pivot"/></svg>
-        </div>
+    return `<div class="ll-knobs" role="group" aria-label="Låtinfo">
         <button type="button" class="ll-knob" id="llKnobBpm" onclick="llOpenSongInfo('bpm')" title="Endre BPM" aria-label="BPM: ${esc(bpm)} — endre">
           <span class="ll-knob-cap" style="--rot:${knobRot('bpm', beat)}deg"></span><span class="ll-knob-lbl">BPM</span><span class="ll-knob-val" data-no-i18n>${esc(bpm)}</span></button>
         <button type="button" class="ll-knob" id="llKnobKey" onclick="llOpenSongInfo('key')" title="Endre toneart" aria-label="Toneart: ${esc(key)} — endre">
@@ -435,10 +438,10 @@
           </details>
         </div>
       </div>
-      ${consoleHTML(beat)}
     </div>
 
-    <div class="ll-player ll-wave-panel">
+    <div class="ll-player ll-wave-panel ll-deck">
+      ${vuHTML()}
       <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
       <div class="ll-wave-col">
         <div id="llWaveSurfer" class="ll-wave"></div>
@@ -459,6 +462,7 @@
           </span>
         </div>
       </div>
+      ${knobsHTML(beat)}
     </div>
 
     <div class="ll-editor-header">
