@@ -5,16 +5,16 @@
 
 /* Masterbånd: to spoler, båndet går fra venstre til høyre etter hvert som albumet blir ferdig */
 .pl3-hero-metrics .pl3-ring[hidden]{ display: none !important; }
-.mt-tape-wrap{ display: grid !important; justify-items: center; gap: 2px; width: 104px !important; min-width: 104px; flex-shrink: 0; }
-.mt-reels{ width: 104px !important; height: auto !important; max-width: none !important; display: block; }
+.mt-tape-wrap{ display: grid !important; justify-items: center; gap: 2px; width: 112px !important; min-width: 112px; flex-shrink: 0; }
+.mt-reels{ width: 112px !important; height: auto !important; max-width: none !important; display: block; }
 .mt-flange{ fill: rgb(var(--ink-rgb) / .035); stroke: rgb(var(--ink-rgb) / .22); stroke-width: 1; }
 .mt-tape{ fill: #3d2b1f; stroke: rgb(255 240 215 / .1); stroke-width: .6; transition: r .6s cubic-bezier(.16, 1, .3, 1); }
-.mt-path{ fill: none; stroke: #3d2b1f; stroke-width: 1.4; stroke-linejoin: round; }
+.mt-path{ stroke: #3d2b1f; stroke-width: 1.6; }
 .mt-hub{ fill: #ede1c9; stroke: rgb(0 0 0 / .25); stroke-width: .6; }
 .mt-hole{ fill: #3d2b1f; }
 .mt-pct{ font-size: var(--fs-sm); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
-:root:not([data-theme="light"]) .mt-tape, :root:not([data-theme="light"]) .mt-path{ fill: #5a4231; stroke: rgb(255 240 215 / .18); }
-:root:not([data-theme="light"]) .mt-path{ fill: none; stroke: #7a5b43; }
+:root:not([data-theme="light"]) .mt-tape{ fill: #6a4e3a; stroke: rgb(255 240 215 / .2); }
+:root:not([data-theme="light"]) .mt-path{ stroke: #8a6a50; }
 
 /* Prøvepressing: en liten vinyl ved «Artistside» — hvit etikett («TP») som utkast, aksentfarge når publisert */
 .tp-disc{ position: relative; display: inline-grid; place-items: center; width: .82em; height: .82em; margin-left: .25em; vertical-align: -.08em;

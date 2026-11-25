@@ -14,14 +14,15 @@
   // ── Masterbånd ────────────────────────────────────────────────────────────
   function reelsSVG(p){
     const k = Math.max(0, Math.min(1, p / 100));
-    const rL = 9 + 13 * (1 - k), rR = 9 + 13 * k;          // båndet ligger på venstre spole før, høyre etter
-    const hub = (cx) => `<circle cx="${cx}" cy="30" r="6.5" class="mt-hub"/>` +
-      [0, 120, 240].map(a => { const t = a * Math.PI / 180; return `<circle cx="${(cx + 3.6 * Math.cos(t)).toFixed(1)}" cy="${(30 + 3.6 * Math.sin(t)).toFixed(1)}" r="1.2" class="mt-hole"/>`; }).join('');
-    return `<svg viewBox="0 0 100 60" class="mt-reels" aria-hidden="true">
-      <circle cx="27" cy="30" r="24" class="mt-flange"/><circle cx="73" cy="30" r="24" class="mt-flange"/>
-      <circle cx="27" cy="30" r="${rL.toFixed(1)}" class="mt-tape"/><circle cx="73" cy="30" r="${rR.toFixed(1)}" class="mt-tape"/>
-      <path d="M${(27).toFixed(1)} ${(30 + rL).toFixed(1)} L44 57 L56 57 L73 ${(30 + rR).toFixed(1)}" class="mt-path"/>
-      ${hub(27)}${hub(73)}</svg>`;
+    const L = 26, Rx = 84, cy = 26, F = 22, rMin = 7.5, rMax = 20;
+    const rL = rMin + (rMax - rMin) * (1 - k), rR = rMin + (rMax - rMin) * k;   // båndet ligger på venstre spole før, høyre etter
+    const hub = (cx) => `<circle cx="${cx}" cy="${cy}" r="5.5" class="mt-hub"/>` +
+      [0, 120, 240].map(a => { const t = (a - 90) * Math.PI / 180; return `<circle cx="${(cx + 3 * Math.cos(t)).toFixed(1)}" cy="${(cy + 3 * Math.sin(t)).toFixed(1)}" r="1.05" class="mt-hole"/>`; }).join('');
+    return `<svg viewBox="0 0 110 54" class="mt-reels" aria-hidden="true">
+      <circle cx="${L}" cy="${cy}" r="${F}" class="mt-flange"/><circle cx="${Rx}" cy="${cy}" r="${F}" class="mt-flange"/>
+      <line x1="${L}" y1="${(cy + rL).toFixed(1)}" x2="${Rx}" y2="${(cy + rR).toFixed(1)}" class="mt-path"/>
+      <circle cx="${L}" cy="${cy}" r="${rL.toFixed(1)}" class="mt-tape"/><circle cx="${Rx}" cy="${cy}" r="${rR.toFixed(1)}" class="mt-tape"/>
+      ${hub(L)}${hub(Rx)}</svg>`;
   }
   function decoratePipeline(){
     const metric = document.querySelector('#pipelineTab .pl3-hero-metrics .pl3-metric');
