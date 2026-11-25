@@ -50,6 +50,7 @@
   --info:            #bfb2a6;
   --stage-idea:      #8b8794;   /* pipeline-stadier med egen farge */
   --stage-writing:   #a78bfa;
+  --stage-master:    #d4a94e;   /* messinggull — skiller Master fra Mix (rust) */
 
   /* ── RGB-tripler for gjennomsiktighet: rgb(var(--ink-rgb) / .12) ───── */
   /* --ink-rgb = «forgrunn»: hvit i mørk modus, mørk brun i lys modus.    */
@@ -167,6 +168,7 @@
   --info:            #5e5148;
   --stage-idea:      #625f6b;
   --stage-writing:   #6247b8;
+  --stage-master:    #8a6416;
   --warn:            #a65a1e;
 
   --ink-rgb:         43 34 28;

@@ -869,7 +869,7 @@ audio::-webkit-media-controls-panel { background: rgb(var(--ink-rgb) / .08); }
 .ll-stage-writing { background: rgb(var(--accent-rgb) / .12);  color: var(--accent-ink); border-color: rgb(var(--accent-rgb) / .30); }
 .ll-stage-record  { background: rgb(var(--accent-rgb) / .16);  color: var(--accent-ink); border-color: rgb(var(--accent-rgb) / .36); }
 .ll-stage-mix     { background: rgb(var(--accent2-rgb) / .16); color: var(--accent2);    border-color: rgb(var(--accent2-rgb) / .34); }
-.ll-stage-master  { background: rgb(var(--accent2-rgb) / .20); color: var(--accent2);    border-color: rgb(var(--accent2-rgb) / .40); }
+.ll-stage-master  { background: color-mix(in srgb, var(--stage-master) 18%, transparent); color: var(--stage-master); border-color: color-mix(in srgb, var(--stage-master) 40%, transparent); }
 .ll-stage-done    { background: rgb(var(--ok-rgb) / .16);      color: var(--ok);         border-color: rgb(var(--ok-rgb) / .34); }
 
 /* Inspirasjonspanelet: knapper med tokens (før: faste hvite farger → usynlige i lys modus) */
@@ -900,7 +900,7 @@ select.ll-status-pill.ll-stage-idea    { --pill-c: var(--muted);      --pill-b: 
 select.ll-status-pill.ll-stage-writing { --pill-c: var(--accent-ink); --pill-b: rgb(var(--accent-rgb) / .30);  --pill-bg: rgb(var(--accent-rgb) / .12); }
 select.ll-status-pill.ll-stage-record  { --pill-c: var(--accent-ink); --pill-b: rgb(var(--accent-rgb) / .36);  --pill-bg: rgb(var(--accent-rgb) / .16); }
 select.ll-status-pill.ll-stage-mix     { --pill-c: var(--accent2);    --pill-b: rgb(var(--accent2-rgb) / .34); --pill-bg: rgb(var(--accent2-rgb) / .16); }
-select.ll-status-pill.ll-stage-master  { --pill-c: var(--accent2);    --pill-b: rgb(var(--accent2-rgb) / .40); --pill-bg: rgb(var(--accent2-rgb) / .20); }
+select.ll-status-pill.ll-stage-master  { --pill-c: var(--stage-master); --pill-b: color-mix(in srgb, var(--stage-master) 40%, transparent); --pill-bg: color-mix(in srgb, var(--stage-master) 18%, transparent); }
 select.ll-status-pill.ll-stage-done    { --pill-c: var(--ok);         --pill-b: rgb(var(--ok-rgb) / .34);      --pill-bg: rgb(var(--ok-rgb) / .16); }
 select.ll-status-pill:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
 select.ll-status-pill option{ color: var(--text); background: var(--surface-1); text-transform: none; }
@@ -1046,3 +1046,44 @@ html body .ll-v2 .ll-wave-panel.ll-deck .ll-loop-bar, html body .ll-v2 .ll-wave-
 :root[data-theme="light"] .ll-v2 .ll-wave-panel.ll-deck .ll-wave{ background: rgb(30 20 12 / .32) !important; border-color: rgb(30 20 12 / .45) !important; }
 :root[data-theme="light"] .ll-deck .ll-vu{ background: linear-gradient(180deg, #2c1f15, #1b120c); }
 :root[data-theme="light"] .ll-v2 .ll-wave-panel.ll-deck .ll-zoom-slider{ background: rgb(30 20 12 / .35) !important; }
+
+/* Dekket som fast spiller i Lyric Lab: festet øverst når du skriver lenger ned (ikke på mobil) */
+.ll-deck-sentinel{ height: 1px; margin-bottom: -1px; }
+@media (min-width: 769px){
+  html body .ll-v2 .ll-wave-panel.ll-deck{ position: sticky !important; top: 10px; z-index: 30; transition: padding .25s cubic-bezier(.16,1,.3,1), box-shadow .25s ease; }
+  html body .ll-v2 .ll-wave-panel.ll-deck.is-stuck{ padding-top: 10px !important; padding-bottom: 10px !important;
+    box-shadow: inset 0 1px 0 rgb(255 240 215 / .08), 0 14px 28px -12px rgb(0 0 0 / .55) !important; }
+  .ll-deck.is-stuck .ll-player-hint{ display: none !important; }
+  .ll-deck.is-stuck .ll-vu{ width: 104px; }
+  .ll-deck.is-stuck .ll-knob-cap{ width: 32px; height: 32px; }
+  .ll-deck.is-stuck .ll-knob-lbl{ display: none; }
+}
+@media (prefers-reduced-motion: reduce){ html body .ll-v2 .ll-wave-panel.ll-deck{ transition: none; } }
+
+/* Mørkt tema: dekket fikk ingen kant mot den mørke siden — en lys messingkant gjør det til en gjenstand igjen */
+:root:not([data-theme="light"]) .ll-v2 .ll-wave-panel.ll-deck{
+  border-color: rgb(214 185 140 / .22) !important;
+  background: linear-gradient(180deg, #3a2d22 0%, #2a2019 55%, #211913 100%) !important;
+  box-shadow: inset 0 1px 0 rgb(255 236 205 / .12), inset 0 -1px 0 rgb(0 0 0 / .5), 0 0 0 1px rgb(0 0 0 / .6), 0 14px 30px -14px rgb(0 0 0 / .8) !important;
+}
+
+
+/* BPM/toneart-boble ved knappene i dekket */
+.ll-knob-pop{ position: absolute; right: 14px; top: calc(100% + 8px); z-index: 60; min-width: 220px; padding: 12px 14px;
+  background: var(--surface-1); color: var(--text); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 16px 34px -12px rgb(var(--shadow-rgb) / calc(.5 * var(--shadow-k))); }
+.ll-knob-pop[hidden]{ display: none !important; }
+.ll-knob-pop .ll-more-lbl{ display: block; margin-bottom: 8px; }
+.ll-knob-pop .ll-more-fields{ display: grid; gap: 8px; padding: 0; margin: 0; border: 0; }
+.ll-knob-pop .ll-ctrl-field{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ll-knob-pop::before{ content: ""; position: absolute; top: -6px; right: 52px; width: 10px; height: 10px; background: var(--surface-1);
+  border-left: 1px solid var(--line); border-top: 1px solid var(--line); transform: rotate(45deg); }
+@media (prefers-reduced-motion: no-preference){ .ll-knob-pop:not([hidden]){ animation: llPopIn .16s var(--mv-ease-out, ease-out); } }
+
+/* Fargevelgeren: navn på én linje, hjelpeteksten under rutenettet, «Fjern flow-farger» nederst */
+html body .ll-v2 details.ll-color-pop > .ll-color-row{ max-width: 300px !important; }
+html body .ll-v2 .ll-color-named{ white-space: nowrap; min-width: 0; }
+html body .ll-v2 details.ll-color-pop .ll-color-hint{ grid-column: 1 / -1 !important; order: 99; margin-top: 4px !important; line-height: 1.4; }
+.ll-color-clearflow{ grid-column: 1 / -1; order: 98; justify-self: start; margin-top: 4px; padding: 6px 8px; font: inherit; font-size: 13px;
+  color: var(--muted); background: none; border: 0; border-top: 1px solid var(--line); width: 100%; text-align: left; cursor: pointer; border-radius: 0; }
+.ll-color-clearflow:hover{ color: var(--text); }

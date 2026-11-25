@@ -257,7 +257,7 @@
             return `
               <div class="bl-row" data-beat-id="${b.id}" onclick="mvTapPlay(event,'${b.id}','beat')">
                 <span class="bl-num">${i + 1}</span>
-                <span class="bl-cover">${coverHtml}</span>
+                <span class="bl-cover"><span class="mv-cd bl-cd" aria-hidden="true"></span>${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>${window.mvIsSongPublic && window.mvIsSongPublic(b.id) ? '<span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(b.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}
                   <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
@@ -340,7 +340,7 @@
 
       .beats-list-header {
         display: grid;
-        grid-template-columns: 32px 40px minmax(160px,2fr) minmax(120px,1.5fr) 110px 90px 60px 72px;
+        grid-template-columns: 32px 52px minmax(160px,2fr) minmax(120px,1.5fr) 110px 90px 60px 72px;
         gap: 0 10px; padding: 0 12px 8px; border-bottom: 1px solid rgb(var(--ink-rgb) / .07);
         font-size: 11px; font-weight: 800; letter-spacing: .08em;
         color: var(--muted); text-transform: uppercase;
@@ -350,7 +350,7 @@
 
       .bl-row {
         display: grid;
-        grid-template-columns: 32px 40px minmax(160px,2fr) minmax(120px,1.5fr) 110px 90px 60px 72px;
+        grid-template-columns: 32px 52px minmax(160px,2fr) minmax(120px,1.5fr) 110px 90px 60px 72px;
         gap: 0 10px; align-items: center;
         padding: 5px 12px; border-radius: 10px;
         transition: background .12s; cursor: default;

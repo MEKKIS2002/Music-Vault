@@ -2078,4 +2078,9 @@
 
   I.add({ 'Kanalstripe': 'Channel strip', 'Toneart': 'Key', 'Endre BPM': 'Change BPM', 'Endre toneart': 'Change key' });
   I.pat([['BPM: {0} — endre', 'BPM: {0} — change'], ['Toneart: {0} — endre', s => `Key: ${I.t(s)} — change`]]);
+
+  // Kritikk 9
+  I.add({ 'Steg': 'Stage', 'Albumets steg': 'Album stage', '— åpne en låt for å endre fremdriften': '— open a song to change its progress',
+    'Fjern flow-farger': 'Clear flow colours', 'Låtinfo': 'Song info' });
+  I.pat([['← Tilbake til {0}', s => `← Back to the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['Fremdrift for {0}', 'Progress for {0}']]);
 })(window.mvI18n);

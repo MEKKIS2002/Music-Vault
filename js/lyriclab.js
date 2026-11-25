@@ -186,15 +186,23 @@
     const el = document.getElementById('llRecCount'); if (el) el.textContent = n ? String(n) : '';
   }
   window.llSetRail = llSetRail; window.llRecCount = llRecCount;
+  // BPM/toneart redigeres i en liten boble rett ved knappene i dekket (før: i ⋯-menyen langt unna)
   window.llOpenSongInfo = function(field){
-    const d = document.querySelector('#lyriclabTab .ll-more-menu'); if (!d) return;
-    // Etter at klikket er ferdig — ellers lukker «klikk utenfor»-lytteren menyen i samme klikk
-    setTimeout(() => {
-      d.open = true;
-      d.scrollIntoView({ block: 'nearest' });
-      setTimeout(() => d.querySelector(field === 'bpm' ? '.ll-bpm-input' : '.ll-key-select')?.focus(), 30);
+    const pop = document.getElementById('llKnobPop'); if (!pop) return;
+    setTimeout(() => {                                  // etter klikket, så «klikk utenfor» ikke lukker den med en gang
+      pop.hidden = false;
+      pop.querySelector(field === 'bpm' ? '.ll-bpm-input' : '.ll-key-select')?.focus();
     }, 0);
   };
+  window.llCloseSongInfo = function(){ const pop = document.getElementById('llKnobPop'); if (pop) pop.hidden = true; };
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('llKnobPop'); if (!pop || pop.hidden) return;
+    if (!e.target.closest('#llKnobPop') && !e.target.closest('.ll-knob')) pop.hidden = true;
+  });
+  document.addEventListener('keydown', e => {
+    const pop = document.getElementById('llKnobPop'); if (e.key !== 'Escape' || !pop || pop.hidden) return;
+    pop.hidden = true; document.getElementById('llKnobBpm')?.focus();
+  });
   document.addEventListener('click', e => {
     const pop = document.getElementById('llColorPop'); if (!pop || !pop.open) return;
     if (e.target.closest('.ll-color-dot') || !pop.contains(e.target)) pop.open = false;
@@ -294,8 +302,8 @@
     }
     _meterRaf = requestAnimationFrame(meterFrame);
   }
-  function meterStart(){ if (!_meterRaf) _meterRaf = requestAnimationFrame(meterFrame); }
-  function meterStop(){ if (_meterRaf){ cancelAnimationFrame(_meterRaf); _meterRaf = 0; } _meterLevel = 0; setNeedle(REST, true); }
+  function meterStart(){ document.getElementById('llCd')?.classList.add('is-spinning'); if (!_meterRaf) _meterRaf = requestAnimationFrame(meterFrame); }
+  function meterStop(){ document.getElementById('llCd')?.classList.remove('is-spinning'); if (_meterRaf){ cancelAnimationFrame(_meterRaf); _meterRaf = 0; } _meterLevel = 0; setNeedle(REST, true); }
   document.addEventListener('visibilitychange', () => { if (!document.hidden && _ws && _ws.isPlaying && _ws.isPlaying()) meterStart(); });
 
   function sectionHTML(sec, beat) {
@@ -404,11 +412,14 @@
   <!-- HOVEDKOLONNE: låt, bølgeform, tekst -->
   <div class="ll-main">
     <div class="ll-song-head">
+      <div class="ll-cd-stage">
+      <span class="mv-cd ll-cd" id="llCd" aria-hidden="true"></span>
       <div class="ll-cover-wrap">
         ${coverEl}
         <div class="ll-play-overlay" onclick="llWavePlay()">
           <button class="ll-play-overlay-btn" id="llPlayBtn" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
         </div>
+      </div>
       </div>
       <div class="ll-song-info">
         <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) && (beat._shared || !window.mvSetSongPublic) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
@@ -428,18 +439,17 @@
           <details class="mv-proj-menu ll-more-menu">
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
-              <div class="ll-more-fields" role="group" aria-label="Låtinfo"><span class="ll-more-lbl">Låtinfo</span><label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label><label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Alle med lenken kan åpne låten — den vises ikke på Explore"><span class="ic ic-link" aria-hidden="true"></span> Lag delingslenke</button>
-              <hr class="ll-more-sep" aria-hidden="true"><button class="ghost-btn" onclick="llClearFlow(true)" title="Fjerner fargene fra flow-analysen — kan angres">Fjern flow-farger</button>
             </div>
           </details>
         </div>
       </div>
     </div>
 
+    <div class="ll-deck-sentinel" aria-hidden="true"></div>
     <div class="ll-player ll-wave-panel ll-deck">
       ${vuHTML()}
       <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
@@ -463,6 +473,7 @@
         </div>
       </div>
       ${knobsHTML(beat)}
+      <div class="ll-knob-pop" id="llKnobPop" role="dialog" aria-label="Låtinfo" hidden><span class="ll-more-lbl">Låtinfo</span><div class="ll-more-fields"><label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label><label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div></div>
     </div>
 
     <div class="ll-editor-header">
@@ -481,6 +492,7 @@
           <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" aria-label="Farge: Rød"><i style="background:var(--danger)"></i>Rød</button>
           <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" aria-label="Farge: Lys kobber"><i style="background:var(--accent2)"></i>Lys kobber</button>
           <button class="ll-color-dot ll-color-named ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" aria-label="Fjern farge"><i aria-hidden="true">✕</i>Ingen</button>
+          <button type="button" class="ll-color-clearflow" onmousedown="event.preventDefault()" onclick="llClearFlow(true)" title="Fjerner fargene fra flow-analysen — kan angres">Fjern flow-farger</button>
           <span id="llColorHint" class="ll-color-hint">Marker tekst, velg så farge. Bruk dem som du vil — f.eks. rim, ad-libs eller det som skal kuttes.</span>
         </div>
       </details>
@@ -575,6 +587,15 @@
 `;
     _lastSaved = null;
     llSetRail(llRailPref(), true);
+    // Dekket er den faste spilleren: når det er festet øverst (du skriver lenger ned), blir det kompakt
+    try {
+      const sent = container.querySelector('.ll-deck-sentinel'), deck = container.querySelector('.ll-deck');
+      if (sent && deck && 'IntersectionObserver' in window){
+        if (window.__llDeckObs) window.__llDeckObs.disconnect();
+        window.__llDeckObs = new IntersectionObserver(([e]) => deck.classList.toggle('is-stuck', !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
+        window.__llDeckObs.observe(sent);
+      }
+    } catch(e) {}
     setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); llRecCount(); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
