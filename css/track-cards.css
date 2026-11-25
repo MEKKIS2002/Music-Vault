@@ -1489,8 +1489,8 @@
 .studio-pct{ flex-shrink:0; font-size:var(--fs-sm); font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
 .studio-next{ font-size:var(--fs-xs); font-weight:700; color:rgb(var(--accent-ink-rgb) / calc(.8 + (1 - .8) * var(--ink-boost))); }
 .studio-next.done{ color:var(--ok); }
-.studio-main{ position:relative; }
-.studio-fav{ position:absolute; right:0; bottom:0; font-size:var(--fs-xs); color:var(--accent-ink); }
+/* Favorittstjernen står i tittelraden (før prosenten), ikke oppå «neste steg»-linja */
+.studio-fav{ flex-shrink:0; font-size:var(--fs-xs); line-height:1.6; color:var(--accent-ink); }
 
 /* Albumhodet: «⋯ Album»-menyen, valgene på rad som i de andre menyene */
 .album-more-menu .mv-proj-menu-panel > .ghost-btn, .mv-album-menu-float > .ghost-btn{ display: flex; align-items: center; gap: 8px; width: 100%; justify-content: flex-start; border: 0 !important; background: none !important; box-shadow: none !important; }
