@@ -58,4 +58,19 @@
   function fmt(n){ const v = Math.round(Number(n) || 0); return (window.mvI18n && window.mvI18n.lang === 'en') ? v + '%' : v + '\u00a0%'; }
 
   window.mvStages = { list: LIST, of, index, set, pct, fmt, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum };
+
+  // ── Hver låt sin egen CD ───────────────────────────────────────────────────
+  // Små, faste forskjeller regnet ut fra låtens ID (samme låt = samme plate):
+  // hvor regnbueglansen står, en svak fargetone (sølv, varm, gull, blå, grønn — som CD-R),
+  // klart eller frostet nav, og hvor den svake brennringen ligger.
+  const TINTS = ['transparent', 'rgb(255 232 196 / .10)', 'rgb(236 200 120 / .16)', 'rgb(150 190 235 / .13)', 'rgb(160 210 180 / .12)', 'rgb(235 205 230 / .10)'];
+  function hash(str){ let h = 2166136261; for (const ch of String(str || '')) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  window.mvCdStyle = function(id){
+    const h = hash(id);
+    const from = h % 360;
+    const tint = TINTS[(h >>> 9) % TINTS.length];
+    const hub = ((h >>> 13) & 1) ? 'rgb(255 255 255 / .62)' : 'rgb(214 220 226 / .4)';
+    const burn = 58 + ((h >>> 17) % 30);                 // 58–87 %
+    return `--cd-from:${from}deg;--cd-tint:${tint};--cd-hub:${hub};--cd-burn:${burn}%`;
+  };
 })();
