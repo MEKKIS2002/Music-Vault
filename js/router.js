@@ -20,6 +20,8 @@
   const TAB = {};
   Object.keys(SLUG).forEach(t => { TAB[SLUG[t]] = t; });
   TAB.albums = 'albums'; TAB.lyriclab = 'lyriclab'; TAB.archive = 'archive'; TAB.home = 'hjem'; TAB.explore = 'hjem';
+  // Engelske adresser virker også (#archived, #artist-page …) — ellers havnet man stille på Hjem
+  Object.assign(TAB, { archived:'archive', 'artist-page':'artistpage', artist:'artistpage', integrations:'integrations', album:'albums', 'lyric-lab':'lyriclab', lyrics:'lyriclab', settings:'hjem' });
   const TITLE = 'Music Vault';
 
   let current = null;        // fanen adressen viser nå
@@ -70,7 +72,9 @@
 
   function onPop(){
     if (!unlocked()) return;
+    const raw = (location.hash || '').replace(/^#\/?/, '');
     const tab = tabFromHash() || 'hjem';
+    if (raw && !tabFromHash() && typeof window.showToast === 'function') window.showToast('Fant ikke siden — viser Hjem');
     goTo(tab);
   }
 

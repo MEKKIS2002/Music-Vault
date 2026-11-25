@@ -89,7 +89,7 @@
     const b = beat(); const key = parseKey(b?.key);
     const body = card.querySelector('.mv-chords-body');
     if (!key){
-      body.innerHTML = `<p class="ll-muted-hint">Velg toneart øverst, eller høyreklikk låten › Mer › «Finn toneart og BPM».</p>`;
+      body.innerHTML = `<p class="ll-muted-hint">Akkordene følger låtens toneart.</p><button type="button" class="ll-side-btn mv-set-key" onclick="window.llOpenSongInfo&&llOpenSongInfo('key')">Sett toneart</button>`;
       card.querySelector('.mv-chords-key').textContent = '';
       return;
     }
@@ -158,7 +158,9 @@
     btn.classList.toggle('is-on', metroOn); btn.setAttribute('aria-pressed', metroOn);
     btn.innerHTML = metroOn ? '<span class="ic ic-stop" aria-hidden="true"></span> Stopp' : '<span class="ic ic-play" aria-hidden="true"></span> Start';
     card.querySelector('.mv-metro-bpm').textContent = bpmNow();
-    card.querySelector('.mv-metro-bpm-src').textContent = Number(beat()?.bpm) > 0 ? 'BPM' : 'BPM (standard)';
+    const src = card.querySelector('.mv-metro-bpm-src');
+    if (Number(beat()?.bpm) > 0) src.textContent = 'BPM';
+    else src.innerHTML = 'BPM · <button type="button" class="mv-link-btn" onclick="window.llOpenSongInfo&&llOpenSongInfo(\'bpm\')">sett låtens BPM</button>';
     const ci = card.querySelector('.mv-countin input'); if (ci) ci.checked = countInOn();
     if (!metroOn) card.querySelectorAll('.mv-metro-dot').forEach(x => x.classList.remove('on'));
   }

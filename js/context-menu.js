@@ -27,7 +27,7 @@
 
   function render(page){
     const items = page.items.filter(Boolean);
-    menu.innerHTML = (page.title ? `<button type="button" class="mv-cm-item mv-cm-back" role="menuitem" data-back>‹ ${E(page.title)}</button><div class="mv-cm-sep" role="separator"></div>` : '')
+    menu.innerHTML = (page.title ? `<button type="button" class="mv-cm-item mv-cm-back" role="menuitem" data-back><span aria-hidden="true">‹</span> <span>${E(page.title)}</span></button><div class="mv-cm-sep" role="separator"></div>` : '')
       + items.map((it,i)=> it === '-' ? '<div class="mv-cm-sep" role="separator"></div>'
         : it.label ? `<div class="mv-cm-label">${E(it.label)}</div>`
         : `<button type="button" class="mv-cm-item${it.danger?' is-danger':''}${it.checked?' is-checked':''}" role="menuitem" data-i="${i}" ${it.sub?'aria-haspopup="menu"':''} ${it.disabled?'disabled':''}>
@@ -100,33 +100,33 @@
     const canShare = inCollection || admin;
     return {
       aria: 'Valg for ' + (b.name||'sang'),
+      // Kort meny: det du gjør ofte øverst, sjeldne valg i «Mer». Ingen permanent sletting her —
+      // «Flytt til arkivet» kan angres, og «Slett for godt» finnes bare i arkivet.
       items: [
         { text:'Spill neste', icon:'list', run:()=>window.mvQueuePlayNext && mvQueuePlayNext(beatId) },
         { text:'Legg i kø', icon:'plus', run:()=>window.mvQueueAdd && mvQueueAdd(beatId) },
         '-',
-        admin ? { text:'Legg til i mixtape', icon:'cassette', sub:addTo('mixtape', mixtapes) } : null,
-        admin ? { text:'Legg til i album', icon:'disc', sub:addTo('album', albums) } : null,
-        { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
-        window.mvAudioTools ? (mvAudioTools.isOffline(beatId)
-          ? (mvAudioTools.canRemove(beatId) ? { text:'Fjern fra enheten', icon:'cloud', run:()=>mvAudioTools.removeOffline(beatId) } : { text:'Lagret på enheten', icon:'check', disabled:true })
-          : { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
-        '-',
         { text:'Åpne i Lyric Lab', icon:'pen', run:()=>window.openInLyricLab && openInLyricLab(beatId) },
+        admin ? { text:'Legg til i album/mixtape', icon:'disc', sub:()=>{ const a = addTo('album', albums)().items, m = addTo('mixtape', mixtapes)().items;
+            return { title:'Legg til i album/mixtape', items:[ { label:'Album' }, ...a, '-', { label:'Mixtaper' }, ...m ] }; } } : null,
         (canShare && !b._shared && window.mvSetSongPublic) ? (window.mvIsSongPublic(beatId)
           ? { text:'Fjern fra Explore', icon:'globe', run:()=>mvSetSongPublic(beatId, false) }
           : { text:'Gjør offentlig på Explore', icon:'globe', run:()=>mvSetSongPublic(beatId, true) }) : null,
         canShare ? { text:'Del', icon:'link', sub:()=>({ title:'Del', items:[
             (admin && !b._shared) ? { text:'Del med bruker', icon:'user', run:shareUser } : null,
-            { text:'Del offentlig lenke', icon:'globe', run:sharePublic } ] }) } : null,
-        (admin || inCollection) ? { text:'Mer', icon:'more', sub:()=>({ title:'Mer', items:[
-            { text:'Gi nytt navn', icon:'pen', run:rename },
+            { text:'Del offentlig lenke', icon:'globe', run:sharePublic } ].filter(Boolean) }) } : null,
+        { text:'Mer', icon:'more', sub:()=>({ title:'Mer', items:[
+            { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
+            window.mvAudioTools ? (mvAudioTools.isOffline(beatId)
+              ? (mvAudioTools.canRemove(beatId) ? { text:'Fjern fra enheten', icon:'cloud', run:()=>mvAudioTools.removeOffline(beatId) } : { text:'Lagret på enheten', icon:'check', disabled:true })
+              : { text:'Lagre offline', icon:'download', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
+            (admin || inCollection) ? { text:'Gi nytt navn', icon:'pen', run:rename } : null,
             (admin && window.mvAnalysis) ? { text:'Finn toneart og BPM', icon:'wave', run:()=>mvAnalysis.reanalyse(beatId) } : null,
             admin ? { text:'Bytt lydfil', icon:'music', run:()=>window.beatsTab?.swapAudio ? beatsTab.swapAudio(beatId) : null } : null,
-            admin ? { text:'Last ned', icon:'download', run:()=>window.downloadBeat && downloadBeat(beatId) } : null,
-            admin ? { text: b.archived ? 'Gjenopprett' : 'Arkiver sang', icon: b.archived ? 'restore' : 'archive', run:()=>window.beatsTab?.archiveBeat && beatsTab.archiveBeat(beatId) } : null ] }) } : null,
-        (inCollection || (admin && listMode==='beats')) ? '-' : null,
+            admin ? { text:'Last ned', icon:'download', run:()=>window.downloadBeat && downloadBeat(beatId) } : null ].filter(Boolean) }) },
+        (inCollection || admin) ? '-' : null,
         inCollection ? { text:'Fjern fra '+where, icon:'trash', danger:true, run:()=>typeof removeFromCollection==='function' && removeFromCollection(beatId, listMode) } : null,
-        (listMode==='beats' && admin) ? { text:'Slett permanent', icon:'trash', danger:true, run:()=>window.beatsTab?.deleteBeat && beatsTab.deleteBeat(beatId) } : null,
+        (admin && !inCollection) ? { text: b.archived ? 'Gjenopprett' : 'Flytt til arkivet', icon: b.archived ? 'restore' : 'archive', run:()=>window.beatsTab?.archiveBeat && beatsTab.archiveBeat(beatId) } : null,
       ].filter((x,i,a)=> x!==null && !(x==='-' && (i===0 || a[i-1]==='-')))
     };
   }

@@ -233,7 +233,7 @@
               <span class="pl3-projchip-cover">${cover}</span>
               <span class="pl3-projchip-meta">
                 <span class="pl3-projchip-name">${esc(p.obj.name || 'Uten navn')}</span>
-                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album'} · ${window.mvStages ? mvStages.fmt(avg) : avg + ' %'} ferdig</span>
+                <span class="pl3-projchip-sub">${p.type === 'mixtape' ? 'Mixtape' : 'Album · ' + (window.mvStages ? mvStages.fmt(avg) : avg + ' %') + ' ferdig'}</span>
               </span>
             </button>`;
         }).join('')}
@@ -442,7 +442,7 @@
       <div class="pl3-bcard" draggable="true" data-beat-id="${esc(b.id)}">
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-thumb">${thumb}</span>
-          <span class="pl3-bcard-name" data-no-i18n>${esc(b.name || 'Uten navn')}</span>
+          <span class="pl3-bcard-name" data-no-i18n lang="nb">${esc(b.name || 'Uten navn')}</span>
           <span class="pl3-bcard-pct">${fmt(pct)}</span>
         </div>
         <div class="pl3-bcard-bar"><i style="width:${pct}%"></i></div>

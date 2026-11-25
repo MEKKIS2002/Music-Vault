@@ -2052,4 +2052,12 @@
   I.add({ 'Neste steg': 'Next steps', 'ikke startet': 'not started' });
   I.pat([['«{0}» venter på deg', '“{0}” is waiting for you'], ['Sist jobbet med for {#0} dager siden', 'Last worked on {0} days ago'],
     ['{#0} låter', '{0} songs'], ['{#0} låt', '{0} song']]);
+
+  // Kritikk 7
+  I.add({ 'Mixtaper': 'Mixtapes' });
+
+  I.add({ 'Kan legges til': 'Could add', 'Akkordene følger låtens toneart.': 'The chords follow the song’s key.', 'Sett toneart': 'Set key',
+    'sett låtens BPM': 'set the song’s BPM', 'Dra låter hit': 'Drag songs here' });
+
+  I.add({ 'Fant ikke siden — viser Hjem': 'Page not found — showing Home' });
 })(window.mvI18n);

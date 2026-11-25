@@ -186,6 +186,15 @@
     const el = document.getElementById('llRecCount'); if (el) el.textContent = n ? String(n) : '';
   }
   window.llSetRail = llSetRail; window.llRecCount = llRecCount;
+  window.llOpenSongInfo = function(field){
+    const d = document.querySelector('#lyriclabTab .ll-more-menu'); if (!d) return;
+    // Etter at klikket er ferdig — ellers lukker «klikk utenfor»-lytteren menyen i samme klikk
+    setTimeout(() => {
+      d.open = true;
+      d.scrollIntoView({ block: 'nearest' });
+      setTimeout(() => d.querySelector(field === 'bpm' ? '.ll-bpm-input' : '.ll-key-select')?.focus(), 30);
+    }, 0);
+  };
   document.addEventListener('click', e => {
     const pop = document.getElementById('llColorPop'); if (!pop || !pop.open) return;
     if (e.target.closest('.ll-color-dot') || !pop.contains(e.target)) pop.open = false;
@@ -324,7 +333,7 @@
         </div>
       </div>
       <div class="ll-song-info">
-        <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
+        <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) && (beat._shared || !window.mvSetSongPublic) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
         <div class="ll-song-stage"><span class="ll-stage-lbl" aria-hidden="true">Steg</span>
           <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
@@ -1008,19 +1017,20 @@
     }
     // Skill «finnes ikke» fra «finnes, men er tom»: llAddMissing hopper allerede
     // til en tom seksjon av typen i stedet for å lage en duplikat.
+    // To grupper, så kortet ikke motsier «Tekst 100 %»: tomme seksjoner du HAR («Mangler tekst»)
+    // og vanlige deler låten ikke har ennå («Kan legges til»). llAddMissing hopper til en tom seksjon.
     const secs = getSections(beat) || [];
-    return `<div class="ll-stat-title">Mangler tekst</div>
-      <div class="ll-missing-list">
-        ${missing.map(t=>{
-          const empty = secs.find(s => s.type === t && !(s.text || '').trim());
-          const exists = !!empty || secs.some(s => s.type === t);
-          const name = esc(empty ? llSecTitle(empty.title) : (TYPE_LABELS[t]||t));
-          return `<button class="ll-missing-item" onclick="llAddMissing('${t}')" aria-label="${exists ? `Gå til tom seksjon: ${name}` : `Legg til seksjon: ${name}`}">
+    const row = (t, empty) => { const name = esc(empty ? llSecTitle(empty.title) : (TYPE_LABELS[t]||t));
+      return `<button class="ll-missing-item" onclick="llAddMissing('${t}')" aria-label="${empty ? `Gå til tom seksjon: ${name}` : `Legg til seksjon: ${name}`}">
           <span class="ll-missing-dot ll-type-${t}"></span>
           <span class="ll-missing-name">${name}</span>
-          <span class="ll-missing-add">${exists ? 'Tom – gå til' : '+ Legg til'}</span>
-        </button>`;}).join('')}
-      </div>`;
+          <span class="ll-missing-add">${empty ? 'Tom – gå til' : '+ Legg til'}</span>
+        </button>`; };
+    const empties = [], absent = [];
+    missing.forEach(t => { const e = secs.find(s => s.type === t && !(s.text || '').trim()); if (e) empties.push(row(t, e)); else if (!secs.some(s => s.type === t)) absent.push(row(t, null)); });
+    return (empties.length ? `<div class="ll-stat-title">Mangler tekst</div><div class="ll-missing-list">${empties.join('')}</div>` : '')
+      + (absent.length ? `<div class="ll-stat-title"${empties.length ? ' style="margin-top:12px"' : ''}>Kan legges til</div><div class="ll-missing-list">${absent.join('')}</div>` : '')
+      || `<div class="ll-stat-title">Struktur</div><div class="ll-struct-ok">✓ Alle hoveddeler er med</div>`;
   }
   function refreshMissing(beat) {
     const card = document.getElementById('llMissingCard');
