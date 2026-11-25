@@ -2086,4 +2086,6 @@
 
   // Kritikk 10
   I.pat([['✓ Albumets steg: {0}', s => `✓ Album stage: ${I.t(s)}`], ['Endre steget på {0}', s => `Change the stage on the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['✓ {0}: {#1}%', '✓ {0}: {1}%']]);
+
+  I.add({ 'Loop av/på — dra over bølgeformen for å markere': 'Loop on/off — drag across the waveform to mark it', 'Spill av — fra starten av markeringen når loop er på': 'Play — from the start of the selection when loop is on' });
 })(window.mvI18n);
