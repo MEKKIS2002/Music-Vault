@@ -934,3 +934,10 @@ html body .ll-v2 details.ll-color-pop .ll-color-hint{ display: block !important;
 @media (prefers-reduced-motion: no-preference){ details.ll-color-pop[open] > .ll-color-row{ animation: llPopIn .16s var(--mv-ease-out, ease-out); } }
 @keyframes llPopIn{ from{ opacity: 0; transform: translateY(-4px); } to{ opacity: 1; transform: none; } }
 
+
+/* Kritikk 6: steg-velgeren får etikett, BPM/toneart ligger i ⋯-menyen */
+.ll-song-stage{ display: inline-flex; align-items: center; gap: 8px; }
+.ll-stage-lbl{ font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ll-more-fields{ display: grid; gap: 8px; padding: 6px 6px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.ll-more-lbl{ font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ll-more-fields .ll-ctrl-field{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }

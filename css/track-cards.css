@@ -1498,3 +1498,4 @@
 .mv-album-menu-float > .ghost-btn:hover{ background: var(--raised) !important; }
 .album-more-menu .mv-proj-menu-panel > .ghost-btn.danger, .mv-album-menu-float > .ghost-btn.danger{ color: var(--danger) !important; }
 .album-status-row{ margin-bottom: 6px !important; }
+.album-menu-sep{ border: 0; border-top: 1px solid var(--line); margin: 4px 0; width: 100%; }

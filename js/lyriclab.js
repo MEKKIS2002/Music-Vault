@@ -223,11 +223,11 @@
         <input class="ll-section-title-input" value="${esc(llSecTitle(sec.title))}" data-orig="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(llSecTitle(sec.title))}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llRenameSection('${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
-        <button class="ll-section-menu-btn" onclick="event.stopPropagation();llToggleSectionMenu('${esc(sec.id)}')">⋯</button>
+        <button class="ll-section-menu-btn" onclick="event.stopPropagation();llToggleSectionMenu('${esc(sec.id)}')" title="Valg for seksjonen" aria-label="Valg for seksjonen ${esc(llSecTitle(sec.title))}">⋯</button>
         <button class="ll-section-done-btn${sec.done?' done':''}" onclick="event.stopPropagation();llToggleSectionDone('${esc(sec.id)}')" title="${sec.done?'Ferdig':'Merk som ferdig'}">
           ${sec.done?'✓':'○'}
         </button>
-        <button class="ll-section-toggle">${sec.collapsed?'▸':'▾'}</button>
+        <button class="ll-section-toggle" title="${sec.collapsed?'Vis seksjonen':'Skjul seksjonen'}" aria-label="${sec.collapsed?'Vis seksjonen':'Skjul seksjonen'}" aria-expanded="${!sec.collapsed}">${sec.collapsed?'▸':'▾'}</button>
       </div>
       <div class="ll-section-body">
         <div class="ll-line-numbers" id="llnums-${esc(sec.id)}">${sec.text.split('\n').map((_,i)=>i+1).join('\n')}</div>
@@ -325,7 +325,7 @@
       </div>
       <div class="ll-song-info">
         <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
-        <div class="ll-song-stage">
+        <div class="ll-song-stage"><span class="ll-stage-lbl" aria-hidden="true">Steg</span>
           <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
@@ -338,11 +338,10 @@
           <button class="ll-ctrl-btn" onclick="llWavePlay()" title="Spiller fra starten av markeringen når loop er på"><span class="ic ic-play" aria-hidden="true"></span> Spill av fra markering</button>
           <button class="ll-ctrl-btn" id="llWaveLoopBtn" onclick="llToggleLoop()" title="Loop av/på"><span class="ic ic-refresh" aria-hidden="true"></span> Loop</button>
           ${window.mvSetSongPublic && !beat._shared ? (() => { const on = window.mvIsSongPublic(beat.id); return `<button class="ll-ctrl-btn mv-public-toggle${on ? ' is-on' : ''}" role="switch" aria-checked="${on}" onclick="mvSetSongPublic('${esc(beat.id)}', !mvIsSongPublic('${esc(beat.id)}')).then(()=>window.renderLyricLab&&renderLyricLab())" title="Vis låten i Explore for alle med Music Vault-konto"><span class="ic ic-globe" aria-hidden="true"></span> ${on ? 'Offentlig: På' : 'Offentlig: Av'}</button>`; })() : ''}
-          <label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label>
-          <label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label>
           <details class="mv-proj-menu ll-more-menu">
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
+              <div class="ll-more-fields" role="group" aria-label="Låtinfo"><span class="ll-more-lbl">Låtinfo</span><label class="ll-ctrl-field" title="${beat.bpmSource==='fil'?'Hentet fra lydfilen':beat.bpmSource==='filnavn'?'Hentet fra filnavnet':beat.bpmSource==='manuell'?'Satt for hånd':'Ikke funnet'} — skriv for å rette"><span>BPM</span><input class="ll-bpm-input" type="number" inputmode="numeric" min="40" max="300" step="1" value="${Number(beat.bpm)>0?esc(String(beat.bpm)):''}" placeholder="–" aria-label="BPM for ${esc(beat.name)}" onchange="if(window.mvSetBpm&&mvSetBpm('${esc(beat.id)}',this.value)===false){this.value='${Number(beat.bpm)>0?esc(String(beat.bpm)):''}'}else{llRefreshMeta()}"></label><label class="ll-ctrl-field"><span>Toneart</span><select class="ll-key-select" aria-label="Toneart for ${esc(beat.name)}" onchange="llSetKey('${esc(beat.id)}',this.value)"><option value=""${beat.key?'':' selected'}>–</option>${keyOpts.map(([v,l])=>`<option value="${esc(v)}"${v===beat.key?' selected':''}>${esc(l)}</option>`).join('')}</select></label></div>
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer">Flow-analyse</button>
               <button class="ghost-btn" onclick="llClearFlow()" title="Fjern flow-fargene">Fjern flow</button>
               <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger">Inspirasjon</button>
@@ -456,7 +455,6 @@
     </div>` : ''}
     </div>
     <div class="ll-rail-panel" id="llRailRec" role="tabpanel" aria-labelledby="llRailTabRec">
-      <div id="llRecTools"></div>
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Takes <span class="ll-count-badge" id="llTakeCount"></span></h3><button class="ll-side-btn" id="llTakeBtn" onclick="llRecordTake()" title="Spill inn vokal over beaten"><span class="ic ic-plus" aria-hidden="true"></span> Ny take</button></div>
       <div class="ll-mic">
@@ -479,6 +477,7 @@
       <div id="llMemoList" class="ll-take-list"></div>
     </div>
 
+      <div id="llRecTools"></div>
     </div>
   </div>
 
@@ -1013,8 +1012,9 @@
     return `<div class="ll-stat-title">Mangler tekst</div>
       <div class="ll-missing-list">
         ${missing.map(t=>{
-          const exists = secs.some(s => s.type === t);
-          const name = esc(TYPE_LABELS[t]||t);
+          const empty = secs.find(s => s.type === t && !(s.text || '').trim());
+          const exists = !!empty || secs.some(s => s.type === t);
+          const name = esc(empty ? llSecTitle(empty.title) : (TYPE_LABELS[t]||t));
           return `<button class="ll-missing-item" onclick="llAddMissing('${t}')" aria-label="${exists ? `Gå til tom seksjon: ${name}` : `Legg til seksjon: ${name}`}">
           <span class="ll-missing-dot ll-type-${t}"></span>
           <span class="ll-missing-name">${name}</span>
@@ -1084,7 +1084,7 @@
         <input class="ll-section-title-input" value="${esc(llSecTitle(sec.title))}" data-orig="${esc(sec.title)}" title="Klikk for å gi seksjonen nytt navn" aria-label="Navn på seksjon: ${esc(llSecTitle(sec.title))}" spellcheck="false" onclick="event.stopPropagation()"
           onchange="llInlineRename('${esc(beatId)}','${esc(sec.id)}',this.value)">
         <span class="ll-section-line-count">${lineCount} ${lineCount===1?'linje':'linjer'}</span>
-        <button class="ll-section-toggle">${sec.collapsed?'▸':'▾'}</button>
+        <button class="ll-section-toggle" title="${sec.collapsed?'Vis seksjonen':'Skjul seksjonen'}" aria-label="${sec.collapsed?'Vis seksjonen':'Skjul seksjonen'}" aria-expanded="${!sec.collapsed}">${sec.collapsed?'▸':'▾'}</button>
       </div>
       <div class="ll-section-body">
         <div class="ll-line-numbers" id="llins-nums-${esc(beatId)}-${esc(sec.id)}">${sec.text.split('\n').map((_,i)=>i+1).join('\n')}</div>
