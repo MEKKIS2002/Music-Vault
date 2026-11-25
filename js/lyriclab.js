@@ -413,7 +413,7 @@
   <div class="ll-main">
     <div class="ll-song-head">
       <div class="ll-cd-stage">
-      <span class="mv-cd ll-cd" id="llCd" aria-hidden="true"></span>
+      <span class="mv-cd ll-cd" id="llCd" aria-hidden="true" style="${window.mvCdStyle ? mvCdStyle(beat.id) : ''}"></span>
       <div class="ll-cover-wrap">
         ${coverEl}
         <div class="ll-play-overlay" onclick="llWavePlay()">

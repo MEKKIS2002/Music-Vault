@@ -257,7 +257,7 @@
             return `
               <div class="bl-row" data-beat-id="${b.id}" onclick="mvTapPlay(event,'${b.id}','beat')">
                 <span class="bl-num">${i + 1}</span>
-                <span class="bl-cover"><span class="mv-cd bl-cd" aria-hidden="true"></span>${coverHtml}</span>
+                <span class="bl-cover"><span class="mv-cd bl-cd" aria-hidden="true" style="${window.mvCdStyle ? mvCdStyle(b.id) : ''}"></span>${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>${window.mvIsSongPublic && window.mvIsSongPublic(b.id) ? '<span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(b.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}
                   <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
@@ -278,6 +278,9 @@
         </div>
       </div>
     `;
+    // Lista tegnes på nytt (f.eks. når du kommer tilbake til fanen) — legg på «spilles nå» igjen,
+    // ellers mister raden markeringen og CD-en slutter å snurre
+    try { window.updatePlayingAnimations && window.updatePlayingAnimations(); } catch(e) {}
   }
 
   // ── Event handlers ─────────────────────────────────────────────────────────

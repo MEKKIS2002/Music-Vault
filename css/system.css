@@ -489,9 +489,11 @@ html body #_toast.is-hiding{ transition: transform .18s cubic-bezier(.4,0,1,1), 
 .mv-cd{
   display: block; aspect-ratio: 1; border-radius: 50%;
   background:
-    radial-gradient(circle, rgb(255 255 255 / .55) 0 15.5%, rgb(190 198 206 / .55) 16% 22%, transparent 22.5%),
+    radial-gradient(circle, rgb(255 255 255 / .55) 0 15.5%, var(--cd-hub, rgb(190 198 206 / .55)) 16% 22%, transparent 22.5%),
     radial-gradient(circle, transparent 0 46%, rgb(255 255 255 / .18) 46.5% 47.5%, transparent 48% 97%, rgb(0 0 0 / .18) 98%),
-    conic-gradient(from 25deg, #dfe3e7, #c3cad1 7%, #efe1ea 12%, #d5e4f1 17%, #e8efd9 22%, #c7ced5 30%, #f3f5f7 42%, #c4cbd2 52%, #ecdde8 59%, #d3e3f0 64%, #e6eed6 69%, #c6cdd4 78%, #f0f2f4 90%, #dfe3e7);
+    radial-gradient(circle, transparent 0 calc(var(--cd-burn, 72%) - .8%), rgb(0 0 0 / .07) var(--cd-burn, 72%), transparent calc(var(--cd-burn, 72%) + .8%)),
+    radial-gradient(circle, transparent 0 22.5%, var(--cd-tint, transparent) 23% 97%),
+    conic-gradient(from var(--cd-from, 25deg), #dfe3e7, #c3cad1 7%, #efe1ea 12%, #d5e4f1 17%, #e8efd9 22%, #c7ced5 30%, #f3f5f7 42%, #c4cbd2 52%, #ecdde8 59%, #d3e3f0 64%, #e6eed6 69%, #c6cdd4 78%, #f0f2f4 90%, #dfe3e7);
   -webkit-mask: radial-gradient(circle, transparent 0 6.5%, #000 7%);
           mask: radial-gradient(circle, transparent 0 6.5%, #000 7%);
   box-shadow: 0 6px 14px -6px rgb(0 0 0 / .45);
