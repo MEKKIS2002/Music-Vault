@@ -245,7 +245,7 @@ async function mvRestoreSession(){
     mvClearPersistentSession(); return false;
   }
 
-  const username = localStorage.getItem('mv_username') || '';
+  let username = localStorage.getItem('mv_username') || '';
   const uid      = session.user?.id || localStorage.getItem('mv_user_id') || '';
 
   // Rolle/pakke hentes FERSKT fra profiles, akkurat som ved vanlig innlogging.
@@ -258,10 +258,12 @@ async function mvRestoreSession(){
   try{
     // Maks 4 s — ellers brukes hurtiglageret, og rollen friskes opp ved neste lasting
     const {data: profile} = await mvWithTimeout(
-      client.from('profiles').select('role, package').eq('id', uid).maybeSingle(), 4000, {data:null});
+      client.from('profiles').select('role, package, username').eq('id', uid).maybeSingle(), 4000, {data:null});
     if(profile){
       role = profile.role === 'admin' ? 'admin' : 'user';
       pkg  = profile.package || (role === 'admin' ? 'admin' : 'artist');
+      // Brukernavnet i profilen er fasiten — et navnebytte skal slå igjennom ved neste lasting
+      if(profile.username){ username = profile.username; try{ localStorage.setItem('mv_username', username); }catch(e){} }
     }
   }catch(e){ console.warn('[Lock] Kunne ikke friske opp rolle — bruker hurtiglager:', e); }
 
@@ -485,7 +487,7 @@ window.mvLogout = async function(){
 
 // ── Innlogging med brukernavn ─────────────────────────────────────────────
 async function loginWithUsername(){
-  const username = (document.getElementById('adminUsername')?.value||'').trim().toLowerCase();
+  let username = (document.getElementById('adminUsername')?.value||'').trim().toLowerCase();
   const password = document.getElementById('adminPassword')?.value||'';
   const errEl = document.getElementById('lockError');
   const btn = document.getElementById('lockLoginBtn');
@@ -529,9 +531,11 @@ async function loginWithUsername(){
     // Hent rolle OG pakke fra profiles
     const {data: profile} = await window.supabaseClient
       .from('profiles')
-      .select('role, package')
+      .select('role, package, username')
       .eq('id', data.user.id)
       .maybeSingle();
+    // Vis navnet fra profilen, ikke det som ble skrevet i feltet (kan være e-post eller et gammelt navn)
+    if(profile && profile.username){ username = profile.username; try{ localStorage.setItem('mv_username', username); }catch(e){} }
 
     const role = profile?.role || 'user';
     const pkg  = profile?.package || (role === 'admin' ? 'admin' : 'artist');

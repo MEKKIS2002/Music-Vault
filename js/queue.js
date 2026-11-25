@@ -105,7 +105,7 @@
     return `<li class="mv-queue-row" data-qi="${i}" draggable="true" data-cm-beat="${E(b.id)}" data-cm-mode="queue">
       <button class="mv-queue-main" type="button" data-q="play" data-i="${i}" aria-label="Spill ${E(b.name)}">
         <span class="mv-queue-cover">${cover(b)}</span>
-        <span class="mv-queue-text"><b>${E(b.name||'Uten tittel')}</b><span>${E(b.uploadedBy||p.context?.label||'')}</span></span>
+        <span class="mv-queue-text"><b>${E(b.name||'Uten tittel')}</b><span>${E((window.mvUploaderName?mvUploaderName(b):b.uploadedBy)||p.context?.label||'')}</span></span>
         <span class="mv-queue-dur">${fmt(b.duration)}</span>
       </button>
       <span class="mv-queue-tools">
@@ -167,7 +167,7 @@
     const key = b.id+'|'+(p.context?.label||'');
     if (force || key !== lastMetaId){
       const art = b.cover ? [{ src:b.cover, sizes:'512x512' }] : [{ src:new URL('assets/favicon.png', location.href).href, sizes:'256x256', type:'image/png' }];
-      try { ms.metadata = new MediaMetadata({ title:b.name||'Uten tittel', artist:b.uploadedBy||'Music Vault', album:p.context?.label||'', artwork:art }); } catch(e){}
+      try { ms.metadata = new MediaMetadata({ title:b.name||'Uten tittel', artist:(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)||'Music Vault', album:p.context?.label||'', artwork:art }); } catch(e){}
       lastMetaId = key;
     }
     ms.playbackState = a && !a.paused ? 'playing' : 'paused';

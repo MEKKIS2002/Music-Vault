@@ -1151,7 +1151,7 @@ function renderAlbumBeats(beats,mode,customEl){
               <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" style="min-width:0">${esc(b.name)}</div>
             </div>
-            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${b.uploadedBy?`<span class="ab-uploader"> · <span style="color:var(--accent-ink);font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span></span>`:''}</div>
+            <div class="hint" style="margin-top:6px">${esc(b.source||"Opplastet beat")}${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)?`<span class="ab-uploader"> · <span style="color:var(--accent-ink);font-size:11px"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span></span>`:''}</div>
           </div>
         </div>
         <div class="ab-expand">
@@ -1178,7 +1178,7 @@ function renderAlbumBeats(beats,mode,customEl){
               <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
               <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
-              ${b.uploadedBy?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc(b.uploadedBy)}</span>`:''}
+              ${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:block;margin-right:2px"></span>'; return ''; })()}
@@ -1380,6 +1380,19 @@ window.renameBeatInline = function(id) {
   }
   inp.addEventListener('blur',commit);
   inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=old;inp.blur();}});
+};
+
+// ── Hvem lastet opp en låt ────────────────────────────────────────────────────
+// Navnet som ble lagret på låten er et øyeblikksbilde og følger ikke med når brukernavnet
+// endres. Derfor: dine egne låter (og låter med din bruker-ID) vises med navnet i profilen
+// din nå; delte låter fra andre beholder navnet som ble lagret.
+window.mvUploaderName = function(b){
+  if(!b) return '';
+  const me = sessionStorage.getItem('mv_username') || '';
+  const myId = window._mvCurrentUserId || sessionStorage.getItem('mv_user_id') || '';
+  if(b.uploadedById) return (b.uploadedById === myId && me) ? me : (b.uploadedBy || '');
+  if(!b._shared && me) return me;
+  return b.uploadedBy || '';
 };
 
 // ── downloadBeat ──────────────────────────────────────────────────────────────
@@ -2095,6 +2108,7 @@ async function createBeatFromFile(file){
   if(beat){
     // Store who uploaded this beat
     beat.uploadedBy = sessionStorage.getItem('mv_username') || '';
+    beat.uploadedById = window._mvCurrentUserId || sessionStorage.getItem('mv_user_id') || '';   // navnet slås opp fra ID-en ved visning
   }
   return beat;
 }
