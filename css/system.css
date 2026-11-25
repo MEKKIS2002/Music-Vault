@@ -512,10 +512,10 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 /* Beats: en liten CD stikker ut bak coveret på raden du holder over, og på den som spilles */
 .bl-cover{ position: relative; }
 .bl-cover .bl-cover-img, .bl-cover .bl-cover-ph{ position: relative; z-index: 1; }
-.bl-cd{ position: absolute; left: 3px; top: 3px; width: 30px; z-index: 0; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
-.bl-row:hover .bl-cd, .bl-row:focus-within .bl-cd{ transform: translateX(13px); }
-.bl-row.now-playing-glow .bl-cd{ transform: translateX(13px); animation: mvCdSpinOut 2.4s linear infinite; }
-@keyframes mvCdSpinOut{ from{ transform: translateX(13px) rotate(0); } to{ transform: translateX(13px) rotate(360deg); } }
+.bl-cd{ position: absolute; left: 1px; top: 1px; width: 34px; z-index: 0; transition: transform .35s cubic-bezier(.16, 1, .3, 1); }
+.bl-row:hover .bl-cd, .bl-row:focus-within .bl-cd{ transform: translateX(16px); }
+.bl-row.now-playing-glow .bl-cd{ transform: translateX(16px); animation: mvCdSpinOut 2.4s linear infinite; }
+@keyframes mvCdSpinOut{ from{ transform: translateX(16px) rotate(0); } to{ transform: translateX(16px) rotate(360deg); } }
 @media (max-width: 768px){ .bl-cd{ width: 40px; } .bl-row:hover .bl-cd{ transform: none; } }
 
 @media (prefers-reduced-motion: reduce){

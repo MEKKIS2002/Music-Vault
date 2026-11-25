@@ -1087,3 +1087,8 @@ html body .ll-v2 details.ll-color-pop .ll-color-hint{ grid-column: 1 / -1 !impor
 .ll-color-clearflow{ grid-column: 1 / -1; order: 98; justify-self: start; margin-top: 4px; padding: 6px 8px; font: inherit; font-size: 13px;
   color: var(--muted); background: none; border: 0; border-top: 1px solid var(--line); width: 100%; text-align: left; cursor: pointer; border-radius: 0; }
 .ll-color-clearflow:hover{ color: var(--text); }
+/* «Ingen» og «Fjern flow-farger» arvet gamle regler (sirkel, ramme) — samme rad-stil som de andre */
+html body .ll-v2 .ll-color-named.ll-color-clear{ display: flex !important; place-items: initial !important; background: none !important; width: auto !important; height: auto !important; color: var(--text) !important; font-size: 13px !important; }
+html body .ll-v2 .ll-color-named.ll-color-clear > i{ background: var(--raised) !important; color: var(--muted); }
+html body .ll-v2 .ll-color-clearflow{ border: 0 !important; border-top: 1px solid var(--line) !important; border-radius: 0 !important; background: none !important; box-shadow: none !important; padding: 8px 8px 4px !important; }
+

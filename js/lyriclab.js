@@ -485,12 +485,12 @@
       <details class="ll-color-tools ll-color-pop" id="llColorPop">
         <summary class="ll-tool-btn ll-color-sum" onmousedown="event.preventDefault()" aria-label="Fargemarkering av tekst"><span class="ll-color-sum-dot" aria-hidden="true"></span>Farge</summary>
         <div class="ll-color-row" role="group" aria-label="Velg farge for markert tekst">
-          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" aria-label="Farge: Kobber"><i style="background:var(--accent)"></i>Kobber</button>
-          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" aria-label="Farge: Grønn"><i style="background:var(--ok)"></i>Grønn</button>
-          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" aria-label="Farge: Grå"><i style="background:var(--muted)"></i>Grå</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#d68155')" aria-label="Farge: Kobber"><i style="background:#d68155"></i>Kobber</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#a6be8b')" aria-label="Farge: Grønn"><i style="background:#a6be8b"></i>Grønn</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#bfb2a6')" aria-label="Farge: Grå"><i style="background:#bfb2a6"></i>Grå</button>
           <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ec4899')" aria-label="Farge: Rosa"><i style="background:#ec4899"></i>Rosa</button>
-          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" aria-label="Farge: Rød"><i style="background:var(--danger)"></i>Rød</button>
-          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" aria-label="Farge: Lys kobber"><i style="background:var(--accent2)"></i>Lys kobber</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#ffaaa3')" aria-label="Farge: Rød"><i style="background:#ffaaa3"></i>Rød</button>
+          <button class="ll-color-dot ll-color-named" onmousedown="event.preventDefault()" onclick="llApplyColorActive('#f0a579')" aria-label="Farge: Lys kobber"><i style="background:#f0a579"></i>Lys kobber</button>
           <button class="ll-color-dot ll-color-named ll-color-clear" onmousedown="event.preventDefault()" onclick="llApplyColorActive(null)" aria-label="Fjern farge"><i aria-hidden="true">✕</i>Ingen</button>
           <button type="button" class="ll-color-clearflow" onmousedown="event.preventDefault()" onclick="llClearFlow(true)" title="Fjerner fargene fra flow-analysen — kan angres">Fjern flow-farger</button>
           <span id="llColorHint" class="ll-color-hint">Marker tekst, velg så farge. Bruk dem som du vil — f.eks. rim, ad-libs eller det som skal kuttes.</span>
