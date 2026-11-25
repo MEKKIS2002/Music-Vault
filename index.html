@@ -80,11 +80,11 @@ AKTIVE BRUKERE:
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=1b03f9922f">
   <link rel="stylesheet" href="css/icons.css?v=b67086befd">
-  <link rel="stylesheet" href="css/lyriclab.css?v=436223c7e9">
-  <link rel="stylesheet" href="css/pipeline.css?v=cf5d543125">
+  <link rel="stylesheet" href="css/lyriclab.css?v=c399c550db">
+  <link rel="stylesheet" href="css/pipeline.css?v=869f07362b">
   <link rel="stylesheet" href="css/main.css?v=da15a934d1">
   <link rel="stylesheet" href="css/ui.css?v=d826190a9c">
-  <link rel="stylesheet" href="css/track-cards.css?v=a1b5a02927">
+  <link rel="stylesheet" href="css/track-cards.css?v=5bf2a47614">
   <link rel="stylesheet" href="css/archive.css?v=52ebc5d6ca">
   <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
   <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
@@ -628,9 +628,10 @@ html[lang="no"] #lockScreen .lk-lang button[lang="no"], html[lang="en"] #lockScr
     <span class="mv-mob-icon"><span class="ic ic-music" aria-hidden="true"></span></span>
     <span class="mv-mob-lbl">Beats</span>
   </button>
-  <button class="mv-mob-btn" data-mob-tab="mixtapes" onclick="mvMobileTab('mixtapes')">
-    <span class="mv-mob-icon"><span class="ic ic-cassette" aria-hidden="true"></span></span>
-    <span class="mv-mob-lbl">Mixtapes</span>
+  <!-- Lyric Lab er andre halvdel av hovedoppgaven (last opp → skriv) — derfor i bunnmenyen; Mixtapes ligger i «Meny» -->
+  <button class="mv-mob-btn" data-mob-tab="lyriclab" onclick="mvMobileTab('lyriclab')">
+    <span class="mv-mob-icon"><span class="ic ic-pen" aria-hidden="true"></span></span>
+    <span class="mv-mob-lbl">Lyric Lab</span>
   </button>
   <button class="mv-mob-btn" data-mob-tab="albums" onclick="mvMobileTab('albums')">
     <span class="mv-mob-icon"><span class="ic ic-disc" aria-hidden="true"></span></span>
@@ -1010,7 +1011,7 @@ window.addEventListener('load', () => {
 
   <!-- Supabase CDN -->
   <script src="js/i18n.js?v=63ab828394"></script>
-  <script src="js/i18n-en.js?v=fa4d52211c"></script>
+  <script src="js/i18n-en.js?v=4efe6971b6"></script>
   <script src="js/config.js?v=a6abb28894"></script>
   <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
@@ -1021,10 +1022,10 @@ window.addEventListener('load', () => {
   <script src="js/audio-compress.js?v=e3a053c571"></script>
   <script src="js/lock.js?v=3f3ebd2a38"></script>
   <script src="js/stages.js?v=cf5bd6f94a"></script>
-  <script src="js/pipeline.js?v=7a6a16a161"></script>
-  <script src="js/lyriclab.js?v=ba05dd3f52"></script>
-  <script src="js/app.js?v=bd175c9599"></script>
-  <script src="js/track-cards.js?v=34a5e9e292"></script>
+  <script src="js/pipeline.js?v=99bb657e15"></script>
+  <script src="js/lyriclab.js?v=deb57b9d85"></script>
+  <script src="js/app.js?v=174f208cfd"></script>
+  <script src="js/track-cards.js?v=74b0e8f78d"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
   <script src="js/archive.js?v=3b4f9aa59a"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
@@ -1040,14 +1041,14 @@ window.addEventListener('load', () => {
   <script src="js/notifications.js?v=f64a07780c"></script>
   <script src="js/mini-player.js?v=4027371703"></script>
   <script src="js/queue.js?v=64d1bdf0d1"></script>
-  <script src="js/context-menu.js?v=76740b6015"></script>
+  <script src="js/context-menu.js?v=a5244b29ba"></script>
   <script src="js/writing-tools.js?v=f6f7f4e118"></script>
-  <script src="js/router.js?v=ff2ddabd20"></script>
+  <script src="js/router.js?v=769132de89"></script>
   <script src="js/player-extras.js?v=9a8247056a"></script>
   <script src="js/search.js?v=80e399c4f2"></script>
   <script src="js/audio-tools.js?v=7a8509a1d2"></script>
   <script src="js/analysis.js?v=70dc8461d7"></script>
-  <script src="js/music-tools.js?v=6fff711dfa"></script>
+  <script src="js/music-tools.js?v=84eddc55eb"></script>
   <script src="js/touch-reorder.js?v=ffdfdec57a"></script>
   <script src="js/now-playing.js?v=7e0e7416cf"></script>
 

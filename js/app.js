@@ -200,7 +200,7 @@
             <span>${avg}% ferdig</span>
           </p>
           <div class="album-detail-actions">
-            <button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>
+            ${beats.length ? `<button class="primary-btn" id="playAlbumBtn" onclick="playAlbumFromStart('${album.id}')"><span class="ic ic-play" aria-hidden="true"></span> Spill fra start</button>` : ''}
             ${!album._shared ? `<button class="ghost-btn" data-share="album|${album.id}|${esc(album.name)}" onclick="mvShare(this)"><span class="ic ic-user" aria-hidden="true"></span> Del med bruker</button>` : ''}
             <!-- Alt annet i én meny: albumbilde, A/B-side, pitch, arkiver og slett (før 9 knapper, «Bytt albumbilde» to ganger) -->
             <details class="mv-proj-menu album-more-menu">

@@ -941,3 +941,5 @@ html body .ll-v2 details.ll-color-pop .ll-color-hint{ display: block !important;
 .ll-more-fields{ display: grid; gap: 8px; padding: 6px 6px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
 .ll-more-lbl{ font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .ll-more-fields .ll-ctrl-field{ display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.mv-link-btn{ font: inherit; color: var(--accent-ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.mv-set-key{ margin-top: 8px; }

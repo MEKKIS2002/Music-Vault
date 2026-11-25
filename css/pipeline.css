@@ -332,3 +332,4 @@
 .pl3-board .pl3-col.is-empty .pl3-col-empty{ padding: 22px 6px; }
 .pl3-bcard-pct{ font-variant-numeric: tabular-nums; white-space: nowrap; }
 @media (max-width: 820px){ .pl3-board .pl3-col{ min-width: 220px; } .pl3-board .pl3-col.is-empty{ min-width: 116px; } }
+.pl3-bcard-name{ hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }
