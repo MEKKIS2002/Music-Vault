@@ -197,9 +197,9 @@ document.documentElement.classList.add('mv-mixed-ui');
           const cov=coverForBeat(b,mode);
           const pct=Math.max(0,Math.min(100,Number(b.done||0)));
           return `<div class="studio-track" data-beat-id="${safe(b.id)}" title="Åpne i Lyric Lab" onclick="if(typeof openInLyricLab==='function')openInLyricLab('${safe(b.id)}')">
-            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'<span class="ic ic-music" aria-hidden="true"></span>'}</div>
+            <div class="studio-thumb">${cov?`<img src="${safe(cov)}" alt="">`:'<span class="ic ic-music" aria-hidden="true"></span>'}${b.favorite ? '<span class="studio-fav" title="Favoritt" aria-label="Favoritt">★</span>' : ''}</div>
             <div class="studio-main">
-              <div class="studio-title-row"><div class="studio-title" data-no-i18n>${safe(b.name)}</div>${b.favorite ? '<span class="studio-fav" title="Favoritt" aria-label="Favoritt">★</span>' : ''}<span class="studio-pct">${window.mvStages ? mvStages.fmt(pct) : pct + ' %'}</span></div>
+              <div class="studio-title-row"><div class="studio-title" data-no-i18n>${safe(b.name)}</div><span class="studio-pct">${window.mvStages ? mvStages.fmt(pct) : pct + ' %'}</span></div>
               <div class="studio-prog"><span style="width:${pct}%"></span></div>
               ${(() => { const st = window.mvNextStep ? mvNextStep(b) : null;
                 return st ? `<div class="studio-next">→ ${safe(st.txt)}${st.why ? `<small class="pl3-why">${safe(st.why)}</small>` : ''}</div>`
