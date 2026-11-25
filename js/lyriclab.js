@@ -449,7 +449,6 @@
       </div>
     </div>
 
-    <div class="ll-deck-sentinel" aria-hidden="true"></div>
     <div class="ll-player ll-wave-panel ll-deck">
       ${vuHTML()}
       <button class="ll-play-main" id="llWavePlayBtn" onclick="llWavePlay()" aria-label="Spill av / pause"><span class="ic ic-play" aria-hidden="true"></span></button>
@@ -587,15 +586,6 @@
 `;
     _lastSaved = null;
     llSetRail(llRailPref(), true);
-    // Dekket er den faste spilleren: når det er festet øverst (du skriver lenger ned), blir det kompakt
-    try {
-      const sent = container.querySelector('.ll-deck-sentinel'), deck = container.querySelector('.ll-deck');
-      if (sent && deck && 'IntersectionObserver' in window){
-        if (window.__llDeckObs) window.__llDeckObs.disconnect();
-        window.__llDeckObs = new IntersectionObserver(([e]) => deck.classList.toggle('is-stuck', !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 });
-        window.__llDeckObs.observe(sent);
-      }
-    } catch(e) {}
     setTimeout(()=>{ renderMemoList(); renderTakeList(); fillMicSelect(); renderTags(beat); initWaveSurfer(beat); updateRightPanel(beat); llRecCount(); }, 100);
     // Focus first empty textarea
     setTimeout(() => {
