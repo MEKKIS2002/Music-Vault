@@ -2060,4 +2060,22 @@
     'sett låtens BPM': 'set the song’s BPM', 'Dra låter hit': 'Drag songs here' });
 
   I.add({ 'Fant ikke siden — viser Hjem': 'Page not found — showing Home' });
+
+  // Kritikk 8
+  I.add({ '▤ Board ›': '▤ Board ›', 'Åpne i Pipeline-boardet — flytt låter mellom steg': 'Open in the Pipeline board — move songs between stages' });
+
+  I.add({ 'Lag delingslenke': 'Create share link', 'Alle med lenken kan åpne låten — den vises ikke på Explore': 'Anyone with the link can open the song — it isn’t listed on Explore',
+    'Demo-kasse': 'Demo crate' });
+  I.pat([['Demo-kasse {#0}', 'Demo crate {0}']]);
+
+  I.add({ 'Fjern flow-farger': 'Clear flow colours', 'Fjerner fargene fra flow-analysen — kan angres': 'Removes the flow-analysis colours — can be undone',
+    'Flow-fargene er fjernet': 'Flow colours removed', 'Ingen': 'None', 'Kobber': 'Copper', 'Grønn': 'Green', 'Grå': 'Grey', 'Rosa': 'Pink', 'Rød': 'Red', 'Lys kobber': 'Light copper',
+    'Marker tekst, velg så farge. Bruk dem som du vil — f.eks. rim, ad-libs eller det som skal kuttes.': 'Select text, then pick a colour. Use them however you like — e.g. rhymes, ad-libs or lines to cut.' });
+  I.pat([['Farge: {0}', s => `Colour: ${I.t(s)}`]]);
+
+  I.add({ 'Sporliste': 'Tracklist', '— åpne en låt for å endre steg og fremdrift': '— open a song to change its stage and progress' });
+  I.pat([['Tekst {#0} %', 'Lyrics {0}%']]);
+
+  I.add({ 'Kanalstripe': 'Channel strip', 'Toneart': 'Key', 'Endre BPM': 'Change BPM', 'Endre toneart': 'Change key' });
+  I.pat([['BPM: {0} — endre', 'BPM: {0} — change'], ['Toneart: {0} — endre', s => `Key: ${I.t(s)} — change`]]);
 })(window.mvI18n);

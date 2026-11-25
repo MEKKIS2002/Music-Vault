@@ -30,7 +30,7 @@ document.documentElement.classList.add('mv-mixed-ui');
   function getView(){
     if(window.innerWidth<=768) return 'list';   // phones: rows only (toggle hidden — mobile redesign)
     const v = localStorage.getItem(KEY);
-    return ['list','cards','studio'].includes(v) ? v : 'list';
+    return ['list','cards'].includes(v) ? v : 'list';   // «studio» er erstattet av Pipeline-boardet
   }
 
   function applyViewClass(){
@@ -63,7 +63,8 @@ document.documentElement.classList.add('mv-mixed-ui');
   }
 
   function setView(mode){
-    if(!['list','cards','studio'].includes(mode)) mode = 'list';
+    if(mode === 'studio'){ openBoard(); return; }          // én kanban: Pipeline-boardet for samlingen
+    if(!['list','cards'].includes(mode)) mode = 'list';
     try{ localStorage.setItem(KEY, mode); } catch(e){}
     applyViewClass();
     syncBtns();
@@ -79,6 +80,16 @@ document.documentElement.classList.add('mv-mixed-ui');
     if(!btn) return;
     setView(btn.dataset.trackView);
   });
+
+  // Studio-visningen er slått sammen med Pipeline-boardet: åpne boardet for albumet/mixtapen du står i
+  function openBoard(){
+    const t = activeType();
+    const id = t === 'mixtape' ? (typeof currentMixtapeId !== 'undefined' && currentMixtapeId) : (typeof currentAlbumId !== 'undefined' && currentAlbumId);
+    if(!t || !id) return;
+    try{ localStorage.setItem('mv_pl_project', t + ':' + id); localStorage.setItem('mv_pl_subtab', 'board'); }catch(e){}
+    document.querySelector('.tab-btn[data-tab="pipeline"]')?.click();
+  }
+  window.mvOpenProjectBoard = openBoard;
 
   window.setTrackViewMode      = setView;
   window.advancedSetTrackViewMode = setView;

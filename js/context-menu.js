@@ -114,7 +114,7 @@
           : { text:'Gjør offentlig på Explore', icon:'globe', run:()=>mvSetSongPublic(beatId, true) }) : null,
         canShare ? { text:'Del', icon:'link', sub:()=>({ title:'Del', items:[
             (admin && !b._shared) ? { text:'Del med bruker', icon:'user', run:shareUser } : null,
-            { text:'Del offentlig lenke', icon:'globe', run:sharePublic } ].filter(Boolean) }) } : null,
+            { text:'Lag delingslenke', icon:'link', run:sharePublic } ].filter(Boolean) }) } : null,
         { text:'Mer', icon:'more', sub:()=>({ title:'Mer', items:[
             { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
             window.mvAudioTools ? (mvAudioTools.isOffline(beatId)

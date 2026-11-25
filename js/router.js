@@ -37,7 +37,9 @@
     const ls = document.getElementById('lockScreen');
     return !ls || getComputedStyle(ls).display === 'none';
   };
-  const urlFor = tab => location.pathname + location.search + '#' + (SLUG[tab] || tab);
+  const SLUG_EN = { hjem:'home', albums:'albums', lyriclab:'lyric-lab', archive:'archived', integrations:'integrations', artistpage:'artist-page' };
+  const slugFor = tab => (window.mvI18n && window.mvI18n.lang === 'en' && SLUG_EN[tab]) || SLUG[tab] || tab;
+  const urlFor = tab => location.pathname + location.search + '#' + slugFor(tab);
   const label = tab => (btnFor(tab)?.textContent || '').trim();
 
   function setTitle(tab){
