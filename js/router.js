@@ -48,11 +48,6 @@
     if (!unlocked()) return;
     const tab = activeTab(); if (!tab || tab === current) return;
     const prev = current; current = tab; setTitle(tab);
-    // En ny side starter øverst (før åpnet Beats der Hjem var scrollet). Tilbake/frem rører ikke scrollen.
-    if (!applying && prev !== null){
-      try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e){ window.scrollTo(0, 0); }
-      document.querySelectorAll('.main, .app-main, #mainContent').forEach(el => { if (el.scrollHeight > el.clientHeight) el.scrollTop = 0; });
-    }
     if (applying) return;
     const url = urlFor(tab);
     if (prev === null) history.replaceState({ mvTab: tab }, '', url);   // første side: ingen ekstra steg
