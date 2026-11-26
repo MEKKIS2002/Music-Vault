@@ -1192,7 +1192,7 @@ function renderAlbumBeats(beats,mode,customEl){
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
               <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
-              <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
+              <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-headphones" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
               ${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">

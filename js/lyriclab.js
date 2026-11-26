@@ -186,6 +186,13 @@
     const el = document.getElementById('llRecCount'); if (el) el.textContent = n ? String(n) : '';
   }
   window.llSetRail = llSetRail; window.llRecCount = llRecCount;
+  // I Lyric Lab er dekket avspilleren: spilleren nederst blir en smal «spilles nå»-stripe (body.mv-in-lyriclab)
+  (function(){
+    const sync = () => document.body.classList.toggle('mv-in-lyriclab', document.querySelector('.tab-btn.active')?.dataset?.tab === 'lyriclab');
+    const nav = document.querySelector('.mv-tabs') || document.body;
+    new MutationObserver(sync).observe(nav, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync); else sync();
+  })();
   // BPM/toneart redigeres i en liten boble rett ved knappene i dekket (før: i ⋯-menyen langt unna)
   window.llOpenSongInfo = function(field){
     const pop = document.getElementById('llKnobPop'); if (!pop) return;
@@ -428,7 +435,7 @@
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
     </select>
-    <span class="ll-stage-pct" id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span>
+    <span class="ll-stage-pct" title="Låtens fremdrift — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Låt</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>
   </span>
         </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>

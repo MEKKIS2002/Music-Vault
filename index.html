@@ -80,15 +80,15 @@ AKTIVE BRUKERE:
   <!-- tokens.css MAA lastes foerst: alle andre stilark bruker variablene derfra. -->
   <link rel="stylesheet" href="css/tokens.css?v=5b9c3068d5">
   <link rel="stylesheet" href="css/icons.css?v=ac1e03a377">
-  <link rel="stylesheet" href="css/lyriclab.css?v=2a03646d5d">
-  <link rel="stylesheet" href="css/pipeline.css?v=6f485a1fdf">
+  <link rel="stylesheet" href="css/lyriclab.css?v=18dd0dfbc8">
+  <link rel="stylesheet" href="css/pipeline.css?v=7e636739da">
   <link rel="stylesheet" href="css/main.css?v=da15a934d1">
   <link rel="stylesheet" href="css/ui.css?v=8d695cee74">
   <link rel="stylesheet" href="css/track-cards.css?v=5bf2a47614">
   <link rel="stylesheet" href="css/archive.css?v=52ebc5d6ca">
   <link rel="stylesheet" href="css/mixtape.css?v=b3fcaea4c5">
   <link rel="stylesheet" href="css/docs.css?v=bb0c945870">
-  <link rel="stylesheet" href="css/player.css?v=62ac1edbeb">
+  <link rel="stylesheet" href="css/player.css?v=f748501150">
   <!-- Mobile/phone layout — must load LAST so it overrides desktop rules -->
   <!-- refine.css nest sist: flat-uttrykket overstyrer de gamle rammene.
        mobile.css maa fortsatt vaere ALLER sist (FINDINGS 11). -->
@@ -97,10 +97,10 @@ AKTIVE BRUKERE:
        mobile.css er fortsatt aller sist (FINDINGS §11). -->
   <link rel="stylesheet" href="css/home.css?v=55be7d7c83">
   <!-- system.css: felles knapper, ikonknapper, felt, lister og flater (etter home.css, før mobile.css) -->
-  <link rel="stylesheet" href="css/system.css?v=875e4b38ae">
-  <link rel="stylesheet" href="css/mobile.css?v=b4b1c4246e">
+  <link rel="stylesheet" href="css/system.css?v=a7e75bafc9">
+  <link rel="stylesheet" href="css/mobile.css?v=380495f373">
   <link rel="stylesheet" href="css/studio.css?v=6e62fb3d60">
-  <link rel="stylesheet" href="css/artist-page.css?v=8d21e99ae0">
+  <link rel="stylesheet" href="css/artist-page.css?v=1ffc53bedd">
   <link rel="stylesheet" href="css/explore.css?v=3add49f6f6">
   <link rel="stylesheet" href="css/light.css?v=b2215184fc">
   <style>html,body{background:#090705 !important}
@@ -116,7 +116,7 @@ AKTIVE BRUKERE:
   body.pkg-label .beats-delete-btn,
   body.pkg-label .beats-archive-btn { display:none !important; }
   </style>
-  <link rel="stylesheet" href="css/tape-pressing.css?v=e02543df0c">
+  <link rel="stylesheet" href="css/tape-pressing.css?v=404eac6451">
 </head>
 <body>
 <!-- Viewer mode login shortcut -->
@@ -1012,7 +1012,7 @@ window.addEventListener('load', () => {
 
   <!-- Supabase CDN -->
   <script src="js/i18n.js?v=63ab828394"></script>
-  <script src="js/i18n-en.js?v=74a6394a54"></script>
+  <script src="js/i18n-en.js?v=b27baea476"></script>
   <script src="js/config.js?v=a6abb28894"></script>
   <script src="js/impersonate.js?v=59e3623bd6"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
@@ -1023,18 +1023,18 @@ window.addEventListener('load', () => {
   <script src="js/audio-compress.js?v=e3a053c571"></script>
   <script src="js/lock.js?v=3f3ebd2a38"></script>
   <script src="js/stages.js?v=1c6ed25fcc"></script>
-  <script src="js/pipeline.js?v=6303e70780"></script>
-  <script src="js/lyriclab.js?v=4921ed2cf2"></script>
+  <script src="js/pipeline.js?v=272d103563"></script>
+  <script src="js/lyriclab.js?v=ac47967bb5"></script>
   <script src="js/app.js?v=1151ff095e"></script>
   <script src="js/track-cards.js?v=dc488d6c25"></script>
   <script src="js/r2-storage.js?v=6192a354c8"></script>
   <script src="js/archive.js?v=4bb19795b8"></script>
   <script src="js/mixtape.js?v=5863630308"></script>
   <script src="js/changelog.js?v=ac4e846909"></script>
-  <script src="js/beats-tab.js?v=356e4f67ce"></script>
+  <script src="js/beats-tab.js?v=93c50a67b1"></script>
   <script src="js/supabase.js?v=5488a4587c"></script>
   <script src="js/bpm.js?v=4bfbb47164"></script>
-  <script src="js/db.js?v=a86899a3da"></script>
+  <script src="js/db.js?v=ace1d7fb6a"></script>
   <script src="js/home-comments.js?v=1832b8cc40"></script>
   <script src="js/cover-offload.js?v=297ea66969"></script>
   <script src="js/cover-viewer.js?v=b11dcaf7b9"></script>
@@ -1042,7 +1042,7 @@ window.addEventListener('load', () => {
   <script src="js/notifications.js?v=f64a07780c"></script>
   <script src="js/mini-player.js?v=4027371703"></script>
   <script src="js/queue.js?v=64d1bdf0d1"></script>
-  <script src="js/context-menu.js?v=9a39b39b18"></script>
+  <script src="js/context-menu.js?v=25cb17237d"></script>
   <script src="js/writing-tools.js?v=f6f7f4e118"></script>
   <script src="js/router.js?v=9333c9fcbe"></script>
   <script src="js/player-extras.js?v=9a8247056a"></script>
@@ -1069,7 +1069,7 @@ window.addEventListener('load', () => {
   <script src="js/artist-render.js?v=e81dc4857b"></script>
   <!-- Masterbånd (Pipeline) og prøvepressing (artistside) — kan fjernes sammen med fila -->
   <script src="js/tape-pressing.js?v=2e661c964c"></script>
-  <script src="js/artist-studio.js?v=bd8c034f2a"></script>
+  <script src="js/artist-studio.js?v=b182c01a01"></script>
   <script src="js/explore.js?v=db84de95c9"></script>
   <script src="js/docs.js?v=32506992ac"></script>
 

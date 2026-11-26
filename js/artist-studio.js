@@ -218,7 +218,8 @@
     const p = S.page, d = dirty();
     const st = document.getElementById('asStatus'), save = document.getElementById('asSave');
     if (!st) return;
-    st.textContent = busy ? 'Laster opp bilde …' : d ? 'Ulagrede endringer' : (p.published ? 'Publisert — synlig for alle med lenken' : 'Utkast — ikke synlig for andre');
+    // Bryteren og andre endringer gjelder først når du lagrer — si det tydelig
+    st.textContent = busy ? 'Laster opp bilde …' : d ? (p.published ? 'Ulagrede endringer — trykk Lagre for å publisere' : 'Ulagrede endringer — trykk Lagre') : (p.published ? 'Publisert — synlig for alle med lenken' : 'Utkast — ikke synlig for andre');
     st.classList.toggle('is-dirty', d || !!busy);
     save.disabled = !d || !!busy;
     document.getElementById('asPublished').checked = p.published;

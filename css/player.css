@@ -112,3 +112,12 @@ html body #bottomPlayer .mv-norm-btn{ position: relative; }
 #bottomPlayer .mv-norm-btn.is-on .mv-norm-dot{ opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce){ .mv-norm-dot{ transition: none; } }
 
+
+/* I Lyric Lab er dekket avspilleren: spilleren nederst viser bare hva som spilles (og volum) —
+   ingen egen avspillingsknapp eller tidslinje som konkurrerer med dekket (bare på datamaskin) */
+@media (min-width: 781px){
+  body.mv-in-lyriclab #bottomPlayer .bp-center{ display: none !important; }
+  body.mv-in-lyriclab #bottomPlayer{ grid-template-columns: minmax(0, 1fr) auto !important; min-height: 0 !important; padding-top: 8px !important; padding-bottom: 8px !important; }
+  body.mv-in-lyriclab #bottomPlayer .bp-sub::after{ content: " · spilles i dekket"; opacity: .8; }
+  :root[lang="en"] body.mv-in-lyriclab #bottomPlayer .bp-sub::after{ content: " · playing in the deck"; }
+}

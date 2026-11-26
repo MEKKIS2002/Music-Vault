@@ -1094,3 +1094,5 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(8.5rem
 
 /* Mørkt tema: aktiv fane i høyrekolonnen får samme hevede markering som i lyst tema */
 :root:not([data-theme="light"]) .ll-rail-tab[aria-selected="true"]{ background: rgb(255 240 215 / .09); color: var(--text); box-shadow: inset 0 0 0 1px rgb(255 240 215 / .12); }
+.ll-stage-pct-lbl{ font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+

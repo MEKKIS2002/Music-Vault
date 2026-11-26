@@ -371,3 +371,14 @@
 /* Albumtittelen i samme serif som på albumsiden */
 .pl3-hero-title{ font-family: var(--font-display, var(--display, Georgia, serif)) !important; font-weight: 400 !important; letter-spacing: -.01em; }
 
+/* Release-sjekkliste som avkrysningsliste (i stedet for en ring ved siden av masterbåndet) */
+#pipelineTab .pl3-cue{ display: grid !important; gap: 8px; align-content: start; }
+#pipelineTab .pl3-cue-list{ list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+#pipelineTab .pl3-cue-list li{ display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: center; font-size: 13px; line-height: 1.35; color: var(--muted); }
+#pipelineTab .pl3-cue-list li > .ic{ width: 16px; height: 16px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px rgb(var(--ink-rgb) / .3); background: none; -webkit-mask: none; mask: none; }
+#pipelineTab .pl3-cue-list li.ok{ color: var(--text); }
+#pipelineTab .pl3-cue-list li.ok > .ic{ box-shadow: none; background: var(--accent); }
+#pipelineTab .pl3-cue-list li.ok > .ic::after{ content: ""; display: block; width: 100%; height: 100%; background: var(--on-accent, #fff);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.2l2.6 2.6L12 5.4' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.2l2.6 2.6L12 5.4' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; }
+
