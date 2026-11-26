@@ -2090,3 +2090,13 @@ html body #albumDetailHd .album-detail-vinyl{ width: 236px !important; height: 2
 @media (max-width: 1180px){ html body #albumDetailHd .album-detail-vinyl{ width: 218px !important; height: 218px !important; } }
 @media (max-width: 780px){ html body #albumDetailHd .album-detail-vinyl{ width: 198px !important; height: 198px !important; } }
 @media (max-width: 480px){ html body #albumDetailHd .album-detail-vinyl{ width: 174px !important; height: 174px !important; } }
+
+/* Farlige menyvalg i faresfarge — regelen over (.mv-gear-item …{ color: var(--text) }) var sterkere
+   enn .mv-gear-danger, så «Forlat label» og røde valg i radmenyene ble kremfarget */
+html body .mv-gear-item.mv-gear-danger,
+html body .mv-row-menu button.danger, html body .mv-row-menu button.is-danger,
+html body .bt-dropdown button.danger,
+html body .mv-proj-menu-panel button.danger{ color: var(--danger) !important; font-weight: 700 !important; }
+html body .mv-gear-item.mv-gear-danger:hover,
+html body .bt-dropdown button.danger:hover,
+html body .mv-proj-menu-panel button.danger:hover{ background: rgb(var(--danger-rgb) / .1) !important; }

@@ -2084,6 +2084,10 @@
     'Fjern flow-farger': 'Clear flow colours', 'Låtinfo': 'Song info' });
   I.pat([['← Tilbake til {0}', s => `← Back to the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['Fremdrift for {0}', 'Progress for {0}']]);
 
+  // Kritikk 10
+  I.pat([['✓ Albumets steg: {0}', s => `✓ Album stage: ${I.t(s)}`], ['Endre steget på {0}', s => `Change the stage on the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['✓ {0}: {#1}%', '✓ {0}: {1}%']]);
+
+  I.add({ 'Loop av/på — dra over bølgeformen for å markere': 'Loop on/off — drag across the waveform to mark it', 'Spill av — fra starten av markeringen når loop er på': 'Play — from the start of the selection when loop is on' });
   // Masterbånd og prøvepressing (js/tape-pressing.js)
   I.add({ 'Prøvepressing — siden er ikke publisert ennå': 'Test pressing — the page isn’t published yet', 'Publisert — den ferdige pressingen': 'Published — the finished pressing' });
 })(window.mvI18n);

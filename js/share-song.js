@@ -185,7 +185,7 @@ window.mvLoadShareStats = async function(kind, token, el){
     if(!b){ toast('Fant ikke sangen'); return false; }
     if(makePublic){
       if(!publicAudioUrl(b)){ toast('Last opp lydfilen først — en offentlig låt trenger en publisert lydfil.'); return false; }
-      if(!(await confirmPublic(b.name))) return false;
+      if(!window.__mvSkipConfirm && !(await confirmPublic(b.name))) return false;
       const extra = { is_public:true };
       if(!b.isPublic) extra.published_at = new Date().toISOString();
       const r = await upsertShare(b, isSong(b)?'song':'beat', extra);
@@ -203,7 +203,10 @@ window.mvLoadShareStats = async function(kind, token, el){
     window.__mvJustPublic = makePublic ? { id: b.id, at: performance.now() } : null;
     setTimeout(() => { if (window.__mvJustPublic && window.__mvJustPublic.id === b.id) window.__mvJustPublic = null; }, 1500);
     if(typeof saveState==='function') saveState();
-    toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
+    // «Angre» setter synligheten tilbake (uten ny bekreftelse — angreknappen er bekreftelsen)
+    const undo = () => { if (makePublic) window.mvSetSongPublic(b.id, false); else { window.__mvSkipConfirm = true; window.mvSetSongPublic(b.id, true).finally(() => { window.__mvSkipConfirm = false; }); } };
+    if (typeof window.showToast === 'function') window.showToast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore', 'Angre', undo);
+    else toast(makePublic ? '✓ «'+(b.name||'Låten')+'» er nå offentlig på Explore' : '✓ Fjernet fra Explore');
     const cb = document.getElementById('_mvSS_public'); if(cb) cb.checked = !!makePublic;
     if(window.mvExplore && window.mvExplore.refresh && document.querySelector('.tab-btn.active')?.dataset?.tab === 'hjem') window.mvExplore.refresh();
     if(document.querySelector('.tab-btn.active')?.dataset?.tab === 'beats' && window.beatsTab?.renderBeatsTab) window.beatsTab.renderBeatsTab();   // «Offentlig»-merket

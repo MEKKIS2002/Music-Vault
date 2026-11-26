@@ -278,9 +278,7 @@
           </div>
 
           <div class="pl3-hero-statusrow">
-            <select class="pl3-statussel" onchange="plSetStatus('${esc(project.ref)}',this.value)">
-              ${ALBUM_STATUS.map(s => `<option value="${esc(s)}"${s===status?' selected':''}>${esc(s)}</option>`).join('')}
-            </select>
+            <button type="button" class="pl3-stagechip" onclick="plOpenProject('${esc(project.ref)}')" title="Endre steget på ${project.type === 'mixtape' ? 'mixtapen' : 'albumet'}">${esc(status)} <span aria-hidden="true">›</span></button>
             <span class="pl3-streak"><span class="ic ic-flame" aria-hidden="true"></span> ${streak} dag${streak!==1?'er':''} på rad</span>
           </div>
 
@@ -573,6 +571,13 @@
     render();
   };
 
+  // Åpne albumet/mixtapen (der steget endres)
+  window.plOpenProject = function (ref) {
+    const p = findProject(ref); if (!p) return;
+    document.querySelector(`.tab-btn[data-tab="${p.type === 'mixtape' ? 'mixtapes' : 'albums'}"]`)?.click();
+    setTimeout(() => (p.type === 'mixtape' ? window.openMixtape : window.openAlbum)?.(p.obj.id), 80);
+  };
+
   window.plSetStatus = function (ref, status) {
     const p = findProject(ref);
     if (p) { p.obj.status = status; save(); }
@@ -606,10 +611,13 @@
   };
 
   // Commit slider — persist + re-render (preserve scroll)
-  window.plSaveBeat = function (beatId, val) {
+  window.plSaveBeat = function (beatId, val, noUndo) {
     const beat = (st().beats || []).find(b => b.id === beatId);
     if (!beat) return;
+    const prev = clamp(beat.done || 0);
     beat.done = clamp(Number(val));
+    if (!noUndo && prev !== beat.done && typeof showToast === 'function')
+      setTimeout(() => showToast(`✓ ${beat.name || 'Låten'}: ${beat.done}%`, 'Angre', () => window.plSaveBeat(beatId, prev, true)), 0);
     save();
     const y = window.scrollY;
     render();
