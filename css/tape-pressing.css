@@ -1,0 +1,31 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   tape-pressing.css — masterbånd (Pipeline) og prøvepressing (artistside).
+   Kan fjernes helt sammen med js/tape-pressing.js (se kommentaren der).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Masterbånd: to spoler, båndet går fra venstre til høyre etter hvert som albumet blir ferdig */
+.pl3-hero-metrics .pl3-ring[hidden]{ display: none !important; }
+.mt-tape-wrap{ display: grid !important; justify-items: center; gap: 2px; width: 112px !important; min-width: 112px; flex-shrink: 0; }
+.mt-reels{ width: 112px !important; height: auto !important; max-width: none !important; display: block; }
+.mt-flange{ fill: rgb(var(--ink-rgb) / .035); stroke: rgb(var(--ink-rgb) / .22); stroke-width: 1; }
+.mt-tape{ fill: #3d2b1f; stroke: rgb(255 240 215 / .1); stroke-width: .6; transition: r .6s cubic-bezier(.16, 1, .3, 1); }
+.mt-path{ stroke: #3d2b1f; stroke-width: 1.6; }
+.mt-hub{ fill: #ede1c9; stroke: rgb(0 0 0 / .25); stroke-width: .6; }
+.mt-hole{ fill: #3d2b1f; }
+.mt-pct{ font-size: var(--fs-sm); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); }
+:root:not([data-theme="light"]) .mt-tape{ fill: #6a4e3a; stroke: rgb(255 240 215 / .2); }
+:root:not([data-theme="light"]) .mt-path{ stroke: #8a6a50; }
+
+/* Prøvepressing: en liten vinyl ved «Artistside» — hvit etikett («TP») som utkast, aksentfarge når publisert */
+.tp-disc{ position: relative; display: inline-grid; place-items: center; width: .82em; height: .82em; margin-left: .25em; vertical-align: -.08em;
+  border-radius: 50%; background: repeating-radial-gradient(circle, #1b1512 0 1.5%, #241c17 1.6% 3%), #1b1512;
+  box-shadow: 0 2px 6px -2px rgb(0 0 0 / .45); }
+.tp-label{ width: 44%; height: 44%; border-radius: 50%; display: grid; place-items: center;
+  background: #f4efe6; color: #6b6158; font: 700 .13em/1 var(--font-ui, system-ui), sans-serif; letter-spacing: .06em; }
+.tp-disc.is-published .tp-label{ background: var(--accent); color: var(--on-accent); }
+.tp-disc::after{ content: ""; position: absolute; width: 5%; height: 5%; border-radius: 50%; background: var(--bg, #f5efe4); }
+@media (prefers-reduced-motion: reduce){ .mt-tape{ transition: none; } }
+/* Mørkt tema: en svak lys kant og litt lysere riller, så platen ikke forsvinner mot bakgrunnen */
+:root:not([data-theme="light"]) .tp-disc{ background: repeating-radial-gradient(circle, #2a221d 0 1.5%, #352b24 1.6% 3%), #2a221d;
+  box-shadow: 0 0 0 1px rgb(255 240 215 / .16), 0 2px 6px -2px rgb(0 0 0 / .6); }
+.tp-disc{ margin-left: .18em; }
