@@ -2088,4 +2088,10 @@
   I.pat([['✓ Albumets steg: {0}', s => `✓ Album stage: ${I.t(s)}`], ['Endre steget på {0}', s => `Change the stage on the ${s === 'mixtapen' ? 'mixtape' : 'album'}`], ['✓ {0}: {#1}%', '✓ {0}: {1}%']]);
 
   I.add({ 'Loop av/på — dra over bølgeformen for å markere': 'Loop on/off — drag across the waveform to mark it', 'Spill av — fra starten av markeringen når loop er på': 'Play — from the start of the selection when loop is on' });
+
+  // Kritikk 11
+  I.add({ 'Låt': 'Song', 'Låtens fremdrift': 'Song progress', 'Låtens fremdrift — tekstens fremdrift står over seksjonene': 'Song progress — lyrics progress is shown above the sections' });
+
+  I.add({ 'Ulagrede endringer — trykk Lagre for å publisere': 'Unsaved changes — press Save to publish', 'Ulagrede endringer — trykk Lagre': 'Unsaved changes — press Save' });
+  I.add({ 'gjort': 'done', 'ikke gjort': 'not done' });
 })(window.mvI18n);

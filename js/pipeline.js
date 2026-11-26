@@ -259,7 +259,6 @@
   function renderHero(project, beats, m, r, streak) {
     const a = project.obj;
     const avgCol = pctColor(m.avg);
-    const readyCol = pctColor(r.pct);
     const cover = a.cover
       ? `<img class="pl3-hero-cover" src="${esc(a.cover)}" alt="">`
       : `<div class="pl3-hero-cover pl3-hero-cover-ph">${project.type === 'mixtape' ? '<span class="ic ic-cassette" aria-hidden="true"></span>' : '<span class="ic ic-music" aria-hidden="true"></span>'}</div>`;
@@ -289,11 +288,9 @@
               </div>
               <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
-            <div class="pl3-metric">
-              <div class="pl3-ring" style="background:conic-gradient(${readyCol} ${r.pct*3.6}deg, rgba(255,255,255,.08) 0)">
-                <div class="pl3-ring-hole"><b style="color:${readyCol}">${r.passed}/${r.total}</b></div>
-              </div>
+            <div class="pl3-metric pl3-cue">
               <div class="pl3-metric-lbl"><b>Release-sjekkliste</b><span>${r.passed} av ${r.total} oppgaver før release er gjort</span></div>
+              <ul class="pl3-cue-list">${r.gates.map(g => `<li class="${g.ok ? 'ok' : ''}"><span class="ic ${g.ok ? 'ic-check' : ''}" aria-hidden="true"></span><span>${esc(g.label)}</span><span class="sr-only">${g.ok ? 'gjort' : 'ikke gjort'}</span></li>`).join('')}</ul>
             </div>
           </div>
         </div>
@@ -405,9 +402,7 @@
             <div class="pl3-card-name">${esc(b.name || 'Uten navn')}</div>
             <div class="pl3-card-stage" style="color:${stage.color}">● ${stage.label}</div>
           </div>
-          <div class="pl3-ring sm" style="background:conic-gradient(${col} ${pct*3.6}deg, rgba(255,255,255,.08) 0)">
-            <div class="pl3-ring-hole"><b style="color:${col};font-size:11px">${pct}</b></div>
-          </div>
+
         </div>
 
         <div class="pl3-card-tags">
@@ -461,7 +456,7 @@
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-thumb">${thumb}</span>
           <span class="pl3-bcard-name" data-no-i18n lang="nb">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct">${fmt(pct)}</span>
+          <span class="pl3-bcard-pct" title="Låtens fremdrift">${fmt(pct)}</span>
         </div>
         <button type="button" class="pl3-bcard-play" draggable="false" title="Spill" aria-label="Spill ${esc(b.name || '')}"
           onclick="event.stopPropagation();if(typeof playSingleBeat==='function')playSingleBeat('${esc(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>

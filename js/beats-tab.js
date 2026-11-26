@@ -260,7 +260,7 @@
                 <span class="bl-cover"><span class="mv-cd bl-cd" aria-hidden="true" style="${window.mvCdStyle ? mvCdStyle(b.id) : ''}"></span>${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>${window.mvIsSongPublic && window.mvIsSongPublic(b.id) ? '<span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(b.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}
-                  <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-play" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
+                  <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-headphones" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
                   ${b.rating ? `<span class="bl-rating">${'★'.repeat(Math.round(b.rating/2))}</span>` : ''}
                 </span>
                 <span class="bl-collections">${colChips}</span>
@@ -269,7 +269,7 @@
                 <span class="bl-dur">${fmtDur(b.duration)}</span>
                 <span class="bl-actions">
                   <button class="bl-play" onclick="event.stopPropagation();beatsTab.playBeat('${b.id}')" title="Spill" aria-label="Spill ${esc(b.name)}"><span class="ic ic-play" aria-hidden="true"></span></button>
-                  <button class="bl-star${b.favorite?' active':''}" data-fav-id="${b.id}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}">${b.favorite?'★':'☆'}</button>
+                  <button class="bl-star${b.favorite?' active':''}" data-fav-id="${b.id}" onclick="event.stopPropagation();beatsTab.toggleFav('${b.id}')" title="${b.favorite?'Fjern favoritt':'Legg til favoritt'}" aria-label="${b.favorite?'Fjern favoritt':'Legg til favoritt'}: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}"><span class="ic ic-heart" aria-hidden="true"></span></button>
                   <button class="bl-menu" onclick="event.stopPropagation();beatsTab.openDropdown('${b.id}',this)" title="Mer" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
                 </span>
               </div>
@@ -608,4 +608,3 @@
     if (typeof window.dashUpload === 'function') window.dashUpload(e.dataTransfer.files);
   });
 })();
-

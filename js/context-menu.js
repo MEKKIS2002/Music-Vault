@@ -116,7 +116,6 @@
             (admin && !b._shared) ? { text:'Del med bruker', icon:'user', run:shareUser } : null,
             { text:'Lag delingslenke', icon:'link', run:sharePublic } ].filter(Boolean) }) } : null,
         { text:'Mer', icon:'more', sub:()=>({ title:'Mer', items:[
-            { text: b.favorite ? 'Fjern fra favoritter' : 'Legg til favoritt', icon:'star', run:fav },
             window.mvAudioTools ? (mvAudioTools.isOffline(beatId)
               ? (mvAudioTools.canRemove(beatId) ? { text:'Fjern fra enheten', icon:'cloud', run:()=>mvAudioTools.removeOffline(beatId) } : { text:'Lagret på enheten', icon:'check', disabled:true })
               : { text:'Lagre offline', icon:'cloud', run:()=>mvAudioTools.saveOffline(beatId) }) : null,
