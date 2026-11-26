@@ -270,7 +270,7 @@
     };
   }
 
-  window.albumStatusChange=function(id,val){const a=state.albums.find(x=>x.id===id);if(a){a.status=val;saveState();showToast('✓ Albumstatus oppdatert');renderAlbumDetail();}};
+  window.albumStatusChange=function(id,val){const a=state.albums.find(x=>x.id===id);if(!a)return;const prev=a.status;a.status=val;saveState();renderAlbumDetail();showToast('✓ Albumets steg: '+val,'Angre',()=>{a.status=prev;saveState();renderAlbumDetail();});};
 
   // ── A/B Side toggle ────────────────────────────────────────────────────────
   let _abSideActive = false;
