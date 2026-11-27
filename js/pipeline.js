@@ -7,7 +7,7 @@
 //   1. Project selector   — choose album/mixtape to focus on
 //   2. Project hero       — cover, title, total progress, release-readiness
 //   3. Dagens fokus       — 3 concrete, clickable tasks
-//   4. Tabbed workspace   — Oversikt | Board | Timeline | Sjekkliste
+//   4. Tabbed workspace   — Oversikt | Board | Timeline (kravet for release står øverst)
 //
 // db.js calls (window.renderPipelineV2 || renderPipeline) for the pipeline tab,
 // so defining window.renderPipelineV2 is all that's needed to take over.
@@ -109,23 +109,23 @@
   }
 
   // Release-readiness gates → drives Sjekkliste + hero "Release-klar"
-  // Klar for release (eierens definisjon): alle låter i prosjektet har ferdig tekst og ferdig miks
-  // (steget Master eller Ferdig). Hvert krav lister låtene som mangler, så listen kan følges opp.
+  // Klar for release (eierens definisjon): alle låter i prosjektet er 100 % ferdige — samme tall som
+  // telleverket viser. Kravet lister låtene som mangler (nærmest ferdig først), så det kan følges opp.
   function gates(project, beats) {
     const some = beats.length > 0;
-    const noLyr = beats.filter(b => lyricsPct(b) < 100);
-    const noMix = beats.filter(b => flowIndex(b) < 4);
+    const notDone = beats.filter(b => clamp(b.done || 0) < 100).sort((a, b) => clamp(b.done || 0) - clamp(a.done || 0));
     return [
-      { label: 'Alle låter har ferdig tekst', ok: some && !noLyr.length, missing: noLyr, kind: 'lyrics', hint: some ? '' : 'Legg til låter i prosjektet' },
-      { label: 'Alle låter er ferdig mikset', ok: some && !noMix.length, missing: noMix, kind: 'mix',    hint: some ? '' : 'Legg til låter i prosjektet' },
+      { label: 'Alle låter er 100 % ferdige', ok: some && !notDone.length, missing: notDone, kind: 'progress', hint: some ? '' : 'Legg til låter i prosjektet' },
     ];
   }
-  // Én rad i sjekklisten: krav + hvilke låter som mangler (åpnes for å se dem, hver låt er en lenke)
+  // Én rad i kravlisten: krav + låtene som mangler (åpnes for å se dem; de 5 første vises, resten bak «+N til»)
   function gateRow(g) {
+    const fmt = window.mvStages ? mvStages.fmt : (n => n + ' %');
     if (g.ok || !g.missing.length) return `<li class="${g.ok ? 'ok' : ''}"><span class="pl3-cue-mark" aria-hidden="true"></span><span>${esc(g.label)}${g.hint ? ` <small>${esc(g.hint)}</small>` : ''}</span><span class="sr-only">${g.ok ? 'gjort' : 'ikke gjort'}</span></li>`;
-    const what = g.kind === 'lyrics' ? b => `tekst ${lyricsPct(b)} %` : b => (window.mvStages ? mvStages.of(b).label : '');
+    const row = (b, i) => `<li${i >= 5 ? ' class="pl3-cue-extra"' : ''}><button type="button" onclick="plFocusGoto('${esc(b.id)}','progress')">${esc(b.name || 'Uten navn')}</button><span>${fmt(clamp(b.done || 0))}</span></li>`;
+    const extra = g.missing.length - 5;
     return `<li><details class="pl3-cue-more"><summary><span class="pl3-cue-mark" aria-hidden="true"></span><span>${esc(g.label)} <em>${g.missing.length} mangler</em></span><span class="sr-only">ikke gjort</span></summary>
-      <ul>${g.missing.map(b => `<li><button type="button" onclick="plFocusGoto('${esc(b.id)}','${g.kind}')">${esc(b.name || 'Uten navn')}</button><span>${esc(what(b))}</span></li>`).join('')}</ul></details></li>`;
+      <ul>${g.missing.map(row).join('')}${extra > 0 ? `<li class="pl3-cue-moreli"><button type="button" onclick="this.closest('ul').classList.add('all');this.parentNode.remove()">+${extra} til</button></li>` : ''}</ul></details></li>`;
   }
   function readiness(project, beats) {
     const g = gates(project, beats);
@@ -176,7 +176,8 @@
     return projects.length ? projects[0].ref : null;
   }
   function getSubtab() {
-    return localStorage.getItem('mv_pl_subtab') || 'oversikt';
+    const t = localStorage.getItem('mv_pl_subtab') || 'oversikt';
+    return t === 'checklist' ? 'oversikt' : t;   // Sjekkliste-fanen er fjernet (kravet står øverst)
   }
 
   // ── Drag state ──────────────────────────────────────────────────────────────
@@ -216,7 +217,6 @@
           ${subtab === 'oversikt'  ? renderOversikt(project, beats)      : ''}
           ${subtab === 'board'     ? renderBoard(project, beats)         : ''}
           ${subtab === 'timeline'  ? renderTimeline(project, beats, r)   : ''}
-          ${subtab === 'checklist' ? renderChecklist(project, beats, r)  : ''}
         </div>
       </div>`;
 
@@ -294,7 +294,7 @@
               <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric pl3-cue">
-              <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</b><span>Klar når alle låter har ferdig tekst og ferdig miks</span></div>
+              <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</b><span>Klar når alle låter er 100 % ferdige</span></div>
               <ul class="pl3-cue-list">${r.gates.map(gateRow).join('')}</ul>
             </div>
           </div>
@@ -341,7 +341,6 @@
       { id:'oversikt',  label:'Oversikt',  icn:'<span class="ic ic-grid" aria-hidden="true"></span>' },
       { id:'board',     label:'Board',     icn:'<span class="ic ic-list" aria-hidden="true"></span>' },
       { id:'timeline',  label:'Timeline',  icn:'<span class="ic ic-calendar" aria-hidden="true"></span>' },
-      { id:'checklist', label:'Sjekkliste',icn:'<span class="ic ic-clipboard" aria-hidden="true"></span>' },
     ];
     return `
       <div class="pl3-tabs">
@@ -419,6 +418,7 @@
                : `<div class="pl3-card-next done"><span>Steg</span><b>Ferdig</b></div>`}
 
         <div class="pl3-card-slider">
+          <span class="pl3-slider-lbl">Fremdrift</span>
           <input type="range" min="0" max="100" value="${pct}" style="accent-color:${col}" aria-label="Fremdrift for ${esc(b.name || 'låten')}"
             oninput="plLiveBeat('${esc(b.id)}',this.value,this)"
             onchange="plSaveBeat('${esc(b.id)}',this.value)">
@@ -461,7 +461,7 @@
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-thumb">${thumb}</span>
           <span class="pl3-bcard-name" data-no-i18n lang="nb">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct" title="Låtens fremdrift">${fmt(pct)}</span>
+          <span class="pl3-bcard-pct"><small>Fremdrift</small> ${fmt(pct)}</span>
         </div>
         <button type="button" class="pl3-bcard-play" draggable="false" title="Spill" aria-label="Spill ${esc(b.name || '')}"
           onclick="event.stopPropagation();if(typeof playSingleBeat==='function')playSingleBeat('${esc(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>
@@ -499,20 +499,6 @@
       <div class="pl3-timeline">
         <div class="pl3-tl-head">Hver låt plassert i produksjonsløpet — fra idé til ferdig. Klikk en låt for å åpne den.</div>
         <div class="pl3-tl-track">${lanes}</div>
-      </div>`;
-  }
-
-  // 4d ── Sjekkliste ───────────────────────────────────────────────────────────
-  function renderChecklist(project, beats, r) {
-    return `
-      <div class="pl3-checklist">
-        <div class="pl3-check-summary">
-          <div>
-            <div class="pl3-check-sumtitle">${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</div>
-            <div class="pl3-check-sumsub">Et album er klart når alle låtene har ferdig tekst og ferdig miks (steget Master eller Ferdig). Åpne et krav for å se låtene som mangler.</div>
-          </div>
-        </div>
-        <ul class="pl3-cue-list pl3-cue-lg">${r.gates.map(gateRow).join('')}</ul>
       </div>`;
   }
 

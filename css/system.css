@@ -527,11 +527,11 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 }
 
 /* Beats-rader: favoritt er et hjerte (stjernene er vurdering); fylt hjerte når den er favoritt */
-#beatsTab .bl-star .ic-heart{ width: 16px; height: 16px; background-color: currentColor; }
+#beatsTab .bl-star .ic-heart, .star-btn .ic-heart{ width: 16px; height: 16px; background-color: currentColor; }
 #beatsTab .bl-star{ color: var(--muted); }
 #beatsTab .bl-star.active{ color: var(--accent-ink); }
-#beatsTab .bl-star.active .ic-heart{ -webkit-mask: none; mask: none; background: none; }
-#beatsTab .bl-star.active .ic-heart::before{ content: ""; display: block; width: 100%; height: 100%; background: currentColor;
+#beatsTab .bl-star.active .ic-heart, .star-btn.active .ic-heart{ -webkit-mask: none; mask: none; background: none; }
+#beatsTab .bl-star.active .ic-heart::before, .star-btn.active .ic-heart::before{ content: ""; display: block; width: 100%; height: 100%; background: currentColor;
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.5s-7.5-4.6-9.3-9.1C1.5 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.9-1.8 4.5-9.3 9.1-9.3 9.1z'/%3E%3C/svg%3E") center/contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.5s-7.5-4.6-9.3-9.1C1.5 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.9 1.3-1.8 2.9-2.9 4.9-2.9 3.5 0 5.6 3.5 4.4 6.9-1.8 4.5-9.3 9.1-9.3 9.1z'/%3E%3C/svg%3E") center/contain no-repeat; }
 
@@ -552,4 +552,18 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 .bl-write:hover{ filter: brightness(1.08); }
 .bl-write:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce){ .bl-row.bl-arrive, .bl-row.bl-arrive .bl-cd{ animation: none; } }
+
+/* Albumkort: fremdrift låst til «Endre» */
+.progress-wrap .progress-label{ display: flex; align-items: center; gap: 8px; }
+.progress-wrap .progress-label strong{ margin-left: auto; }
+.ab-progress-edit{ all: unset; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--accent-ink); padding: 2px 4px; border-radius: 4px; }
+.ab-progress-edit:hover{ text-decoration: underline; }
+.ab-progress-edit:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.ab-progress-range:disabled{ opacity: 1; cursor: default; pointer-events: none; }
+.ab-progress-range:disabled::-webkit-slider-thumb{ opacity: 0; }
+.ab-progress-range:disabled::-moz-range-thumb{ opacity: 0; }
+
+/* Albumrader: favoritt er et hjerte som i Beats (stjernene er vurdering) */
+.star-btn{ color: var(--muted); }
+.star-btn.active{ color: var(--accent-ink); }
 

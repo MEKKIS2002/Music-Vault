@@ -435,7 +435,7 @@
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
     </select>
-    <span class="ll-stage-pct" title="Låtens fremdrift — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Låt</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>
+    <span class="ll-stage-pct" title="Låtens fremdrift (settes av deg) — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Fremdrift</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>
   </span>
         </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
@@ -998,6 +998,12 @@
     }, created ? 160 : 60);
   };
 
+  // Gå til en bestemt seksjon (fra «Mangler tekst»)
+  window.llGoSection = function(id) {
+    const ta = document.getElementById(`lltxt-${id}`);
+    if (ta) { ta.scrollIntoView({ behavior:'smooth', block:'center' }); ta.focus(); }
+  };
+
   // ── Empty state actions ────────────────────────────────────────────────────
   window.llPickBeat = function() {
     llShowBeatPicker();
@@ -1110,7 +1116,8 @@
   // ── Smart "Mangler"-panel ─────────────────────────────────────────────────
   function missingCardHTML(beat) {
     const missing = missingSections(beat);
-    if (!missing.length) {
+    const anyEmpty = (getSections(beat) || []).some(s => !(s.text || '').trim());
+    if (!missing.length && !anyEmpty) {
       return `<div class="ll-stat-title">Struktur</div>
         <div class="ll-struct-ok">✓ Alle hoveddeler er med</div>`;
     }
@@ -1125,8 +1132,14 @@
           <span class="ll-missing-name">${name}</span>
           <span class="ll-missing-add">${empty ? 'Tom – gå til' : '+ Legg til'}</span>
         </button>`; };
-    const empties = [], absent = [];
-    missing.forEach(t => { const e = secs.find(s => s.type === t && !(s.text || '').trim()); if (e) empties.push(row(t, e)); else if (!secs.some(s => s.type === t)) absent.push(row(t, null)); });
+    // Alle tomme seksjoner listes (også Vers 2, Outro osv.) — hver knapp går til akkurat den seksjonen
+    const emptyRow = s => { const name = esc(llSecTitle(s.title)); return `<button class="ll-missing-item" onclick="llGoSection('${esc(s.id)}')" aria-label="Gå til tom seksjon: ${name}">
+          <span class="ll-missing-dot ll-type-${esc(s.type)}"></span>
+          <span class="ll-missing-name">${name}</span>
+          <span class="ll-missing-add">Tom – gå til</span>
+        </button>`; };
+    const empties = secs.filter(s => !(s.text || '').trim()).map(emptyRow), absent = [];
+    missing.forEach(t => { if (!secs.some(s => s.type === t)) absent.push(row(t, null)); });
     return (empties.length ? `<div class="ll-stat-title">Mangler tekst</div><div class="ll-missing-list">${empties.join('')}</div>` : '')
       + (absent.length ? `<div class="ll-stat-title"${empties.length ? ' style="margin-top:12px"' : ''}>Kan legges til</div><div class="ll-missing-list">${absent.join('')}</div>` : '')
       || `<div class="ll-stat-title">Struktur</div><div class="ll-struct-ok">✓ Alle hoveddeler er med</div>`;

@@ -2100,4 +2100,10 @@
     'Et album er klart når alle låtene har ferdig tekst og ferdig miks (steget Master eller Ferdig). Åpne et krav for å se låtene som mangler.': 'An album is ready when every song has finished lyrics and a finished mix (the Master or Done stage). Open a requirement to see the songs that are missing.' });
   I.pat([['{0} mangler', '{0} missing'], ['tekst {0} %', 'lyrics {0}%']]);
   I.pat([['Skriv tekst til {0}', 'Write lyrics for {0}']]);
+  // Kritikk 13
+  I.add({ 'Låtens fremdrift (settes av deg) — tekstens fremdrift står over seksjonene': 'Song progress (set by you) — lyrics progress is shown above the sections',
+    'Alle låter er 100 % ferdige': 'All songs are 100% done', 'Klar når alle låter er 100 % ferdige': 'Ready when every song is 100% done',
+    'Et album er klart for release når alle låtene er 100 % ferdige. Åpne kravet for å se låtene som mangler.': 'An album is ready for release when every song is 100% done. Open the requirement to see the songs that are missing.',
+    'Fremdrift': 'Progress', 'Endre': 'Edit', 'OK': 'OK' });
+  I.pat([['+{0} til', '+{0} more'], ['Fremdrift for {0}', 'Progress for {0}'], ['Fremdrift {0}', 'Progress {0}']]);
 })(window.mvI18n);
