@@ -378,6 +378,7 @@ function injectUserCorner(role){
         <div class="mv-gear-divider"></div>
         <div id="mvGearAppearance" class="mv-gear-appearance"></div>
         <div class="mv-gear-divider"></div>
+        <button class="mv-gear-item" onclick="window.mvStartTour&&mvStartTour()"><span class="ic ic-bolt" aria-hidden="true"></span> Kom i gang</button>
         <button class="mv-gear-item" onclick="mvLogout()"><span class="ic ic-logout" aria-hidden="true"></span> Logg ut</button>
         <!-- «Forlat label» er en alvorlig handling: egen seksjon nederst, adskilt fra «Logg ut» -->
         <div id="mvGearLabelItem" style="display:none">

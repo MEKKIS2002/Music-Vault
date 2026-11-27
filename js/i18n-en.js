@@ -2116,4 +2116,17 @@
     ['Ingen låter matcher "{0}"', 'No songs match “{0}”'], ['Synket: {0} låter, {1} albumer, {2} mixtapes', 'Synced: {0} songs, {1} albums, {2} mixtapes'], ['✓ {0} låter lagt til', '✓ {0} songs added'], ['✓ {0} låt lagt til', '✓ {0} song added'],
     ['{0} låter mangler lydfil', '{0} songs are missing an audio file'], ['{0} låten mangler lydfil', '{0} song is missing an audio file'], ['Ingen låter i mixtapen ennå.', 'No songs in the mixtape yet.'], ['Ingen låter i albumet ennå.', 'No songs in the album yet.']]);
   I.add({ 'seksjoner ikke markert ferdig': 'sections not marked done' });
+  // Kom i gang + «?»
+  I.add({ 'Kom i gang': 'Get started', 'Last opp en låt': 'Upload a song', 'Trykk her og velg en lydfil. Låten havner i Beats.': 'Press here and choose an audio file. The song lands in Beats.',
+    'Skriv tekst': 'Write lyrics', 'Åpne Lyric Lab, velg låten og skriv teksten i seksjonene.': 'Open Lyric Lab, choose the song and write the lyrics in the sections.',
+    'Lag et album': 'Make an album', 'Samle låtene dine i et album her.': 'Collect your songs in an album here.',
+    'Følg med mot release': 'Track your release', 'I Pipeline ser du hvor langt albumet er kommet, og hvilke låter som ikke er ferdige.': 'Pipeline shows how far the album has come and which songs are not done.',
+    'Under Meny finner du Pipeline. Der ser du hvor langt albumet er kommet, og hvilke låter som ikke er ferdige.': 'Pipeline is under Menu. It shows how far the album has come and which songs are not done.',
+    'Trenger du hjelp?': 'Need help?', 'Trykk på ? der den står for en kort forklaring. Denne veiledningen finner du under Innstillinger → Kom i gang.': 'Press ? where you see it for a short explanation. You can find this guide again under Settings → Get started.',
+    'Hopp over': 'Skip', 'Neste': 'Next', 'Tilbake': 'Back', 'Ferdig': 'Done', 'Lukk veiledningen': 'Close the guide',
+    'Klar for release': 'Ready for release', 'Fremdrift er hvor ferdig en låt er, fra 0 til 100 %. Du setter den selv. Albumet er klart for release når alle låtene er 100 %. Båndet viser snittet.': 'Progress is how done a song is, from 0 to 100%. You set it yourself. The album is ready for release when every song is at 100%. The tape shows the average.',
+    'Steg og fremdrift': 'Stage and progress', 'Steg viser hvor låten er: idé, skriving, innspilling, miks, master eller ferdig. Fremdrift er hvor ferdig låten er i prosent, og den setter du selv. Tekst skrevet teller seksjonene som har tekst.': 'Stage shows where the song is: idea, writing, recording, mix, master or done. Progress is how done the song is in percent, and you set it yourself. Lyrics written counts the sections that have lyrics.',
+    'Albumets steg': 'Album stage', 'Steget viser hvor albumet er akkurat nå. Det endrer ikke låtene. Hver låt har sitt eget steg og sin egen fremdrift.': 'The stage shows where the album is right now. It does not change the songs. Each song has its own stage and progress.',
+    'Hva betyr klar for release?': 'What does ready for release mean?', 'Hva er steg og fremdrift?': 'What are stage and progress?', 'Hva er albumets steg?': 'What is the album stage?', 'Forklaring': 'Explanation' });
+  I.pat([['{0} av {1}', '{0} of {1}']]);
 })(window.mvI18n);

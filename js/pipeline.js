@@ -299,7 +299,7 @@
               <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric pl3-cue">
-              <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</b><span>Klar når alle låter er 100 % ferdige</span></div>
+              <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}${window.mvHelpBtn ? mvHelpBtn('release', 'Hva betyr klar for release?') : ''}</b><span>Klar når alle låter er 100 % ferdige</span></div>
               <ul class="pl3-cue-list">${r.gates.map(gateRow).join('')}</ul>
             </div>
           </div>

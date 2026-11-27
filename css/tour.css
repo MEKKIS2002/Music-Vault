@@ -1,0 +1,30 @@
+/* tour.css — «Kom i gang»-veiledning og «?»-forklaringer (js/tour.js) */
+#mvTour{ position: fixed; inset: 0; z-index: 9000; pointer-events: none; }
+.mv-tour-spot{ position: fixed; border: 2px solid var(--accent); border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / .62); pointer-events: none; transition: left .2s ease, top .2s ease, width .2s ease, height .2s ease; }
+.mv-tour-card{ position: fixed; pointer-events: auto; max-height: calc(100vh - 32px); overflow: auto; padding: 18px 20px;
+  background: var(--surface-1, var(--panel)); color: var(--text); border: 1px solid var(--line); border-radius: 14px;
+  box-shadow: 0 18px 50px rgb(0 0 0 / .45); }
+.mv-tour-head{ display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mv-tour-count{ font-size: 12px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mv-tour-x{ all: unset; cursor: pointer; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: var(--muted); }
+.mv-tour-x:hover{ background: rgb(var(--ink-rgb) / .08); color: var(--text); }
+.mv-tour-x:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.mv-tour-progress{ display: flex; gap: 4px; margin: 10px 0 14px; }
+.mv-tour-progress i{ flex: 1; height: 3px; border-radius: 2px; background: rgb(var(--ink-rgb) / .14); }
+.mv-tour-progress i.on{ background: var(--accent); }
+.mv-tour-card h2{ margin: 0 0 6px; font-family: var(--font-display, Georgia, serif); font-size: 22px; font-weight: 600; line-height: 1.2; }
+.mv-tour-card p{ margin: 0; font-size: 15px; line-height: 1.5; color: var(--text); }
+.mv-tour-nav{ display: flex; justify-content: space-between; gap: 8px; margin-top: 18px; }
+@media (prefers-reduced-motion: reduce){ .mv-tour-spot{ transition: none; } }
+
+/* «?»: liten rund knapp ved et begrep, og en kort forklaring */
+.mv-help-btn{ all: unset; box-sizing: border-box; position: relative; cursor: pointer; display: inline-grid; place-items: center; width: 20px; height: 20px; margin-left: 6px; vertical-align: middle;
+  border-radius: 50%; border: 1px solid rgb(var(--ink-rgb) / .3); color: var(--muted); font: 700 12px/1 var(--font-ui, system-ui), sans-serif; flex-shrink: 0; }
+.mv-help-btn:hover, .mv-help-btn[aria-expanded="true"]{ border-color: var(--accent); color: var(--accent-ink); }
+.mv-help-btn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+.mv-help-btn::after{ content: ""; position: absolute; inset: -12px; }   /* større trykkflate (44 px) */
+.mv-help-pop{ position: fixed; z-index: 8500; padding: 12px 14px; background: var(--surface-1, var(--panel)); color: var(--text);
+  border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 12px 34px rgb(0 0 0 / .35); }
+.mv-help-pop b{ display: block; font-size: 14px; margin-bottom: 4px; }
+.mv-help-pop p{ margin: 0; font-size: 14px; line-height: 1.5; color: var(--text); }
