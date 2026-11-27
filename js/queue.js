@@ -130,7 +130,7 @@
     const recent = recentIds.map(findBeat).filter(Boolean);
     document.getElementById('mvQueueRecent').innerHTML = recent.length
       ? recent.map(b=>`<button class="mv-queue-main mv-queue-recent" type="button" data-q="recent" data-id="${E(b.id)}" aria-label="Spill ${E(b.name)}"><span class="mv-queue-cover">${cover(b)}</span><span class="mv-queue-text"><b>${E(b.name||'Uten tittel')}</b><span>${fmt(b.duration)}</span></span></button>`).join('')
-      : `<p class="mv-queue-empty">Ingen nylig spilte sanger.</p>`;
+      : `<p class="mv-queue-empty">Ingen nylig spilte låter.</p>`;
   }
   function focusRow(i){ requestAnimationFrame(()=>document.querySelector(`#mvQueueNext [data-qi="${i}"] .mv-queue-main`)?.focus()); }
   let lastFocus = null;

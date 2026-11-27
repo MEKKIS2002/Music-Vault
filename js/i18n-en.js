@@ -2147,4 +2147,12 @@
     ['Fjerne tilgangen for {0}?', 'Remove access for {0}?'], ['De mister tilgangen til «{0}». Du kan dele på nytt senere.', 'They lose access to “{0}”. You can share again later.'], ['Slette brukeren «{0}»?', 'Delete the user “{0}”?'], ['Slette koden {0}?', 'Delete the code {0}?'],
     ['Fjerne {0} fra labelen?', 'Remove {0} from the label?'], ['Forlate {0}?', 'Leave {0}?'], ['Samlingen «{0}» er slettet', 'The collection “{0}” was deleted'], ['«{0}» er slettet', '“{0}” was deleted'], ['Seksjonen «{0}» er fjernet', 'The section “{0}” was removed'],
     ['Kunne ikke lagre i skyen (forsøk {0}). Endringene er trygge på denne enheten og lagres når du er på nett igjen.', 'Couldn’t save to the cloud (attempt {0}). Your changes are safe on this device and will be saved when you’re back online.']]);
+  // Kritikk 15
+  I.add({ 'Ingen låt valgt': 'No song selected', 'Ingen låter å spille': 'No songs to play', 'Albumet har ingen låter ennå': 'The album has no songs yet', 'Mixtapen har ingen låter ennå': 'The mixtape has no songs yet',
+    'Idéer, tema, referanser, hva låten handler om…': 'Ideas, themes, references, what the song is about…', 'Skriv tekst på andre låter for å få inspirasjon her': 'Write lyrics on other songs to get inspiration here',
+    'Ingen låter ennå': 'No songs yet', 'Ingen nylig spilte låter.': 'No recently played songs.', '17 sek per låt': '17 sec per song', 'Slett låt': 'Delete song', 'Spill låt': 'Play song',
+    'Kun admin kan slette låter': 'Only admins can delete songs', 'Inspirasjon fra andre låter': 'Inspiration from other songs', 'Snittet av låtenes fremdrift': 'Average of the songs’ progress',
+    'Marker som 100 % ferdig': 'Mark as 100% done', 'Taster': 'Keys', 'Låtens steg': 'Song stage', 'Låtens steg og fremdrift': 'Song stage and progress', 'Åpne mixtapen': 'Open the mixtape', ' · albumet er klart for release': ' · the album is ready for release' });
+  I.pat([['{0} av {1} låter er 100 % ferdige', '{0} of {1} songs are 100% done'], ['{0} på 100 % · {1} i arbeid · {2} ikke startet', '{0} at 100% · {1} in progress · {2} not started'],
+    ['✓ «{0}»: {1} % · {2} igjen før release', '✓ “{0}”: {1}% · {2} left before release'], ['✓ «{0}»: {1} % · albumet er klart for release', '✓ “{0}”: {1}% · the album is ready for release'], ['✓ «{0}»: {1} %', '✓ “{0}”: {1}%'], ['✓ «{0}»: {1}', '✓ “{0}”: {1}']]);
 })(window.mvI18n);

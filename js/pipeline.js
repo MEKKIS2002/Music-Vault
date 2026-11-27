@@ -89,7 +89,7 @@
     const audio = hasAudio(b), lyr = hasLyrics(b), lp = lyricsPct(b);
     const gaps = [];
     if (!audio) gaps.push('mangler lydfil');
-    if (i >= 2 && (!lyr || lp < 100)) gaps.push(lyr ? `tekst ${secTxt(b)}` : 'mangler tekst');
+    if (i >= 2 && lyr && lp < 100) gaps.push(`tekst ${secTxt(b)}`);
     const why = gaps.join(' · ');
     if (i === 0) return audio ? { txt: 'Start på teksten', kind: 'lyrics', why: '' } : { txt: 'Last opp lydfil', kind: 'audio', why: '' };
     if (i === 1){
@@ -121,7 +121,7 @@
     const some = beats.length > 0;
     const notDone = beats.filter(b => clamp(b.done || 0) < 100).sort((a, b) => clamp(b.done || 0) - clamp(a.done || 0));
     return [
-      { label: 'Alle låter er 100 % ferdige', ok: some && !notDone.length, missing: notDone, kind: 'progress', hint: some ? '' : 'Legg til låter i prosjektet' },
+      { label: some ? `${beats.length - notDone.length} av ${beats.length} låter er 100 % ferdige` : 'Ingen låter ennå', ok: some && !notDone.length, missing: notDone, kind: 'progress', hint: some ? '' : 'Legg til låter i prosjektet' },
     ];
   }
   // Én rad i kravlisten: krav + låtene som mangler (åpnes for å se dem; de 5 første vises, resten bak «+N til»)
@@ -181,6 +181,7 @@
     if (saved && projects.some(p => p.ref === saved)) return saved;
     return projects.length ? projects[0].ref : null;
   }
+  function currentProject() { const ps = getProjects(), ref = getSelectedRef(ps); return ps.find(p => p.ref === ref) || null; }
   function getSubtab() {
     const t = localStorage.getItem('mv_pl_subtab') || 'oversikt';
     return (t === 'checklist' || t === 'timeline') ? 'oversikt' : t;   // Sjekkliste og Timeline er fjernet
@@ -298,7 +299,7 @@
               <div class="pl3-ring" style="background:conic-gradient(${avgCol} ${m.avg*3.6}deg, rgba(255,255,255,.08) 0)">
                 <div class="pl3-ring-hole"><b style="color:${avgCol}">${m.avg}%</b></div>
               </div>
-              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
+              <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift</span><span>${m.done} på 100 % · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric pl3-cue">
               <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}${window.mvHelpBtn ? mvHelpBtn('release', 'Hva betyr klar for release?') : ''}</b><span>Klar når alle låter er 100 % ferdige</span></div>
@@ -410,14 +411,14 @@
           ${thumb}
           <div class="pl3-card-head">
             <div class="pl3-card-name">${esc(b.name || 'Uten navn')}</div>
-            <div class="pl3-card-stage" style="color:${stage.color}">● ${stage.label}</div>
+            <div class="pl3-card-stage">${window.mvStages && mvStages.pill ? mvStages.pill({ value: stage.key, label: 'Låtens steg', onchange: `plSongStage('${esc(b.id)}',this.value)` }) : `<span style="color:${stage.color}">● ${stage.label}</span>`}</div>
           </div>
 
         </div>
 
         <div class="pl3-card-tags">
           ${hasAudio(b)  ? '<span class="pl3-tag ok">Lyd ✓</span>'  : '<span class="pl3-tag no">Mangler lyd</span>'}
-          ${(() => { const lp = lyricsPct(b); return lp >= 100 ? '<span class="pl3-tag ok">Tekst ✓</span>' : lp > 0 ? `<span class="pl3-tag">Tekst ${secTxt(b)}</span>` : '<span class="pl3-tag mut">Ingen tekst</span>'; })()}
+          ${(() => { const lp = lyricsPct(b); return lp >= 100 ? '<span class="pl3-tag ok">Tekst ✓</span>' : lp > 0 ? `<span class="pl3-tag">Tekst ${secTxt(b)}</span>` : ''; })()}
         </div>
 
         ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b>${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>`
@@ -432,7 +433,7 @@
         </div>
         <div class="pl3-card-actions">
           <button class="pl3-cardbtn" onclick="plOpenLyric('${esc(b.id)}')"><span class="ic ic-pen" aria-hidden="true"></span> Lyric Lab</button>
-          ${pct < 100 ? `<button class="pl3-cardbtn ghost" onclick="plSaveBeat('${esc(b.id)}',100)">✓ Sett 100%</button>` : ''}
+          ${pct < 100 ? `<button class="pl3-textbtn" onclick="plSaveBeat('${esc(b.id)}',100)">Marker som 100 % ferdig</button>` : ''}
         </div>
       </div>`;
   }
@@ -563,7 +564,11 @@
     const prev = clamp(beat.done || 0);
     beat.done = clamp(Number(val));
     if (!noUndo && prev !== beat.done && typeof showToast === 'function')
-      setTimeout(() => showToast(`✓ ${beat.name || 'Låten'}: ${beat.done}%`, 'Angre', () => window.plSaveBeat(beatId, prev, true)), 0);
+      setTimeout(() => {
+        const p = currentProject(), bs = p ? projectBeats(p) : [], left = bs.filter(x => clamp(x.done || 0) < 100).length;
+        const tail = beat.done >= 100 && bs.length ? (left ? ` · ${left} igjen før release` : ' · albumet er klart for release') : '';
+        showToast(`✓ «${beat.name || 'Låten'}»: ${beat.done} %${tail}`, 'Angre', () => window.plSaveBeat(beatId, prev, true));
+      }, 0);
     save();
     const y = window.scrollY;
     render();
@@ -575,6 +580,14 @@
   };
 
   // Focus task → jump to the right place
+  // Låtens steg fra en åpen rad i Oversikt (samme velger som i Lyric Lab; steget setter fremdriften)
+  window.plSongStage = function (beatId, key) {
+    const b = (st().beats || []).find(x => x.id === beatId); if (!b || !window.mvStages) return;
+    const prev = b.done; mvStages.set(b, key); save(); render();
+    setTimeout(() => { const row = document.getElementById('plrow-' + beatId); if (row) row.open = true; }, 30);
+    if (typeof showToast === 'function') showToast(`✓ «${b.name || 'Låten'}»: ${mvStages.of(b).label}`, 'Angre', () => { b.done = prev; save(); render(); });
+  };
+
   // Albumets steg fra Pipeline (samme velger og samme «Angre» som på albumsiden)
   window.plAlbumStage = function (albumId, val) {
     const a = (st().albums || []).find(x => x.id === albumId); if (!a) return;

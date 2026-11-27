@@ -128,7 +128,7 @@
       const words = (body.innerText || '').trim().split(/\s+/).filter(Boolean).length;
       c.textContent = words ? `${words} ${words===1?'ord':'ord'} · ${Math.max(1, Math.round(words/200))} min lesing` : '0 ord';
       if (!bar.querySelector('.docs-help-btn')){
-        const h = document.createElement('button'); h.type='button'; h.className='docs-help-btn'; h.title='Hurtigtaster ('+MOD+'+/)'; h.setAttribute('aria-label','Vis hurtigtaster'); h.textContent='?';
+        const h = document.createElement('button'); h.type='button'; h.className='docs-help-btn'; h.title='Hurtigtaster ('+MOD+'+/)'; h.setAttribute('aria-label','Vis hurtigtaster'); h.textContent=MOD==='⌘'?'⌘':'Ctrl';
         h.addEventListener('click', ()=>showHelp('docs')); bar.insertBefore(h, bar.querySelector('.docs-del-btn'));
       }
     }
@@ -196,7 +196,7 @@
       <button type="button" class="ll-view-btn" data-v="syl" aria-pressed="${llPrefs.syl}" title="Vis omtrentlig antall stavelser per linje">Stavelser</button>
       <button type="button" class="ll-view-btn" data-v="spell" aria-pressed="${llPrefs.spell}" title="Stavekontroll av/på">Stavekontroll</button>
       <button type="button" class="ll-view-btn" data-v="focus" aria-pressed="${document.body.classList.contains('ll-focus')}" title="Fokusmodus (${MOD}+Shift+F)">Fokus</button>
-      <button type="button" class="ll-view-btn ll-view-help" data-v="help" title="Hurtigtaster (${MOD}+/)" aria-label="Vis hurtigtaster">?</button>`;
+      <button type="button" class="ll-view-btn ll-view-help" data-v="help" title="Hurtigtaster (${MOD}+/)" aria-label="Vis hurtigtaster"><span aria-hidden="true">${MOD === '⌘' ? '⌘' : 'Ctrl'}</span> Taster</button>`;
     const add = hd.querySelector('.ll-tool-btn.primary');
     hd.insertBefore(t, add || null);
     t.addEventListener('click', e=>{ const b = e.target.closest('[data-v]'); if (!b) return;

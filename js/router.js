@@ -80,17 +80,31 @@
     goTo(tab);
   }
 
+  // Albumet som er åpent står i adressen (#album/<id>), så oppdatering og lenker lander riktig.
+  // replaceState: ingen ekstra steg i historikken; «Tilbake» i appen gir #album igjen.
+  const albumFromHash = () => { const m = decodeURIComponent((location.hash || '').replace(/^#\/?/, '')).match(/^(?:album|albums)\/([^/?]+)/i); return m ? m[1] : null; };
+  function openAlbumFromHash(id){
+    if (!id) return;
+    setTimeout(()=>{ try{ if (typeof window.openAlbum === 'function') window.openAlbum(id); }catch(e){} }, 120);
+  }
+  function setAlbum(id){
+    if (!unlocked() || activeTab() !== 'albums') return;
+    const url = location.pathname + location.search + '#' + slugFor('albums') + (id ? '/' + encodeURIComponent(id) : '');
+    if (location.href.endsWith(url)) return;
+    history.replaceState({ mvTab: 'albums', album: id || null }, '', url);
+  }
+
   // Første visning etter innlogging: følg adressen hvis den peker på en side
   let started = false;
   function start(){
     if (started || !unlocked()) return;
     started = true;
-    const want = tabFromHash();
+    const want = tabFromHash(), albumId = albumFromHash();
     if (want && want !== activeTab()){
       // Vent litt så pakke/rolle har bestemt hvilke faner som vises
-      setTimeout(()=>{ current = null; goTo(want); current = activeTab(); history.replaceState({ mvTab: current }, '', urlFor(current)); setTitle(current); }, 350);
+      setTimeout(()=>{ current = null; goTo(want); current = activeTab(); history.replaceState({ mvTab: current }, '', urlFor(current)); setTitle(current); openAlbumFromHash(albumId); }, 350);
     } else {
-      onTabChanged();
+      onTabChanged(); openAlbumFromHash(albumId);
     }
   }
 
@@ -107,5 +121,5 @@
     start();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-  window.mvRouter = { goTo, slug: t => SLUG[t] };
+  window.mvRouter = { goTo, slug: t => SLUG[t], setAlbum };
 })();
