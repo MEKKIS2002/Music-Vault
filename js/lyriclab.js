@@ -445,7 +445,7 @@
             <summary class="ll-ctrl-btn ll-more-btn" aria-label="Flere valg for låten">⋯</summary>
             <div class="mv-proj-menu-panel">
               <button class="ghost-btn" onclick="llAnalyzeFlow()" title="Fargekod rimlinjer"><span class="ic ic-wave" aria-hidden="true"></span> Flow-analyse</button>
-              <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre sanger"><span class="ic ic-pen" aria-hidden="true"></span> Inspirasjon</button>
+              <button class="ghost-btn" onclick="llInspirasjon()" title="Inspirasjon fra andre låter"><span class="ic ic-pen" aria-hidden="true"></span> Inspirasjon</button>
               <button class="ghost-btn" onclick="llShare()" title="Åpner tekstarket i en ny fane. Kun lokalt — deles ikke."><span class="ic ic-file" aria-hidden="true"></span> Tekstark</button>
               <button class="ghost-btn" onclick="shareSong('${esc(beat.id)}','song')" title="Alle med lenken kan åpne låten — den vises ikke på Explore"><span class="ic ic-link" aria-hidden="true"></span> Lag delingslenke</button>
             </div>
@@ -532,7 +532,7 @@
     <div class="ll-rail-panel" id="llRailWrite" role="tabpanel" aria-labelledby="llRailTabWrite">
     <div class="ll-card ll-side-card">
       <div class="ll-side-hd"><h3 class="ll-side-title">Notater</h3><button class="ll-side-icon" onclick="document.getElementById('llNotes').focus()" title="Skriv notat" aria-label="Skriv notat"><span class="ic ic-pen" aria-hidden="true"></span></button></div>
-      <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva sangen handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
+      <textarea id="llNotes" class="ll-notes" placeholder="Idéer, tema, referanser, hva låten handler om…" oninput="llSaveNotes(this.value)">${esc(beat.lyricNotes||'')}</textarea>
     </div>
 
     <div class="ll-card ll-stat-card" id="llMissingCard">${missingCardHTML(beat)}</div>
@@ -2051,7 +2051,7 @@
     if (!el) return;
 
     if (beats.length === 0) {
-      el.innerHTML = '<p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin:0">Skriv tekst på andre sanger for å få inspirasjon her</p>';
+      el.innerHTML = '<p style="font-size:12px;color:rgb(var(--ink-rgb) / calc(.3 + (1 - .3) * var(--ink-boost)));margin:0">Skriv tekst på andre låter for å få inspirasjon her</p>';
       el.style.display = 'block';
       return;
     }

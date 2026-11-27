@@ -416,3 +416,8 @@
 #pipelineTab .pl3-bcard-meter .pl3-bcard-bar{ flex: 1; }
 #pipelineTab .pl3-bcard-meter .pl3-bcard-pct{ font-size: 12px; }
 
+/* «Marker som 100 % ferdig»: stille tekstknapp, så den ikke ser ut som en vanlig navigasjonsknapp */
+#pipelineTab .pl3-textbtn{ all: unset; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: underline; text-decoration-color: rgb(var(--ink-rgb) / .3); text-underline-offset: 3px; padding: 6px 2px; }
+#pipelineTab .pl3-textbtn:hover{ color: var(--text); text-decoration-color: currentColor; }
+#pipelineTab .pl3-textbtn:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+

@@ -99,7 +99,7 @@
     const fav = () => { if (typeof toggleFav === 'function'){ const btn=document.querySelector(`[data-fav-id="${CSS.escape(beatId)}"]`); toggleFav(beatId, btn); if (window.beatsTab?.renderBeatsTab && document.getElementById('beatsTab') && !document.getElementById('beatsTab').classList.contains('hidden')) beatsTab.renderBeatsTab(); } };
     const canShare = inCollection || admin;
     return {
-      aria: 'Valg for ' + (b.name||'sang'),
+      aria: 'Valg for ' + (b.name||'låt'),
       // Kort meny: det du gjør ofte øverst, sjeldne valg i «Mer». Ingen permanent sletting her —
       // «Flytt til arkivet» kan angres, og «Slett for godt» finnes bare i arkivet.
       items: [

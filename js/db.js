@@ -115,7 +115,7 @@ async function onBottomAudioError(){
   // Ignore spurious errors fired while stopping / clearing the source (no real src).
   if(!a.src||a.src===location.href)return;
   const beat=bottomPlayer.queue[bottomPlayer.index];
-  const name=beat?beat.name:'sangen';
+  const name=beat?beat.name:'låten';
   const src=a.currentSrc||a.src||'';
   const reason=describeMediaError(a.error);
   console.error('[player] Audio error',{beat:name,beatId:beat&&beat.id,src,code:a.error&&a.error.code,reason});
@@ -134,7 +134,7 @@ async function onBottomAudioError(){
 // No playable audio for THIS user/browser. Explain WHY instead of silently skipping ahead
 // (which previously walked off the end of the queue and falsely reported "Ferdigspilt").
 function reportUnplayableBeat(beat){
-  const name=beat?beat.name:'sangen';
+  const name=beat?beat.name:'låten';
   const localOnly=beat&&/:idb$/.test(String(beat.url||beat.audio_url||''));
   console.warn('[player] Unplayable beat',{name,id:beat&&beat.id,url:beat&&beat.url,audio_url:beat&&beat.audio_url});
   if(localOnly)showToast(`«${name}» finnes bare lokalt hos opplasteren – aldri lastet opp til skylagring (R2), så den kan ikke spilles her. Last den opp på nytt for å dele.`,7000);
@@ -161,7 +161,7 @@ function updateBottomUI(){
   const _bpWant=bottomPlayer.audio.paused?"play":"pause";
   if(_bpBtn.dataset.icon!==_bpWant){_bpBtn.dataset.icon=_bpWant;_bpBtn.innerHTML=MV_PLAYER_ICONS[_bpWant];}
   _bpBtn.setAttribute("aria-label",bottomPlayer.audio.paused?"Spill av":"Pause");
-  document.getElementById("bpTitle").textContent=beat?beat.name:"Ingen sang valgt";
+  document.getElementById("bpTitle").textContent=beat?beat.name:"Ingen låt valgt";
   const ctx=bottomPlayer.context?`${bottomPlayer.context.label||"Spiller"}${bottomPlayer.queue.length>1?` · ${bottomPlayer.index+1}/${bottomPlayer.queue.length}`:""}`:"Beat";
   document.getElementById("bpSub").textContent=beat?ctx:"Trykk play på en beat, et album eller en mixtape";
   const cover=document.getElementById("bpCover");
@@ -278,7 +278,7 @@ function updatePlayCountBadges(beatId){
   });
 }
 async function playQueue(queue,context){
-  if(!queue.length){showToast("Ingen sanger å spille");return;}
+  if(!queue.length){showToast("Ingen låter å spille");return;}
   bottomPlayer.queue=queue;bottomPlayer.index=0;bottomPlayer.context=context||null;
   await playBottomIndex(0);
 }
@@ -328,8 +328,8 @@ function bottomNext(auto=false){if(bottomPlayer.index+1<bottomPlayer.queue.lengt
 function bottomPrev(){if(bottomPlayer.audio.currentTime>3){bottomPlayer.audio.currentTime=0;return;}playBottomIndex(Math.max(0,bottomPlayer.index-1));}
 function bottomStop(silent=false){bottomPlayer.audio.pause();bottomPlayer.audio.removeAttribute("src");bottomPlayer.audio.load();if(bottomPlayer.objectUrl)URL.revokeObjectURL(bottomPlayer.objectUrl);bottomPlayer.objectUrl=null;bottomPlayer.queue=[];bottomPlayer.index=0;bottomPlayer.context=null;bottomPlayer.started=false;updateBottomUI();if(!silent)showToast("Avspilling stoppet");}
 function stopCollectionPlayback(silent=false){bottomStop(silent);}
-async function playAlbumFromStart(albumId){const album=state.albums.find(a=>a.id===albumId);if(!album)return;const queue=beatsFromIds(album.beatIds);if(!queue.length){showToast("Albumet har ingen sanger ennå");return;}await playQueue(queue,{type:"album",id:albumId,label:album.name});}
-async function playMixtapeFromStart(mixtapeId){const mt=state.mixtapes.find(m=>m.id===mixtapeId);if(!mt)return;const queue=beatsFromIds(mt.beatIds);if(!queue.length){showToast("Mixtapen har ingen sanger ennå");return;}await playQueue(queue,{type:"mixtape",id:mixtapeId,label:mt.name});}
+async function playAlbumFromStart(albumId){const album=state.albums.find(a=>a.id===albumId);if(!album)return;const queue=beatsFromIds(album.beatIds);if(!queue.length){showToast("Albumet har ingen låter ennå");return;}await playQueue(queue,{type:"album",id:albumId,label:album.name});}
+async function playMixtapeFromStart(mixtapeId){const mt=state.mixtapes.find(m=>m.id===mixtapeId);if(!mt)return;const queue=beatsFromIds(mt.beatIds);if(!queue.length){showToast("Mixtapen har ingen låter ennå");return;}await playQueue(queue,{type:"mixtape",id:mixtapeId,label:mt.name});}
 document.addEventListener("play",e=>{
   const el=e.target;
   if(el&&el.tagName==="AUDIO"&&el.id&&el.id.startsWith("au-")){
@@ -708,7 +708,7 @@ function renderDashboard(){
       const meta=[recent.bpm?recent.bpm+' BPM':'',recent.key||'',dur].filter(Boolean).join(' · ');
       lastEl.dataset.cmBeat=recent.id;
       lastEl.innerHTML=`<div class="last-beat-cover">${cover}</div><div class="last-beat-info"><div class="last-beat-name">${esc(recent.name)}</div>${meta?`<div class="last-beat-dur">${esc(meta)}</div>`:''}<div class="last-beat-actions"><button class="last-beat-play" aria-label="Spill ${esc(recent.name)}" title="Spill" onclick="event.stopPropagation();playSingleBeat('${recent.id}');sessionStorage.setItem('mv_last_beat','${recent.id}')"><span class="ic ic-play" aria-hidden="true"></span></button><button class="last-beat-lab" onclick="event.stopPropagation();openInLyricLab('${recent.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button></div></div>`;
-    } else {lastEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
+    } else {lastEl.innerHTML='<div class="dash-empty">Ingen låter enn\u00e5.</div>';}
   }
   const actEl=document.getElementById('dashActivity');
   const streakEl=document.getElementById('dashStreak');
@@ -734,7 +734,7 @@ function renderDashboard(){
   const recent2=beats.slice().sort((a,b)=>(b.createdAt||b.id||0)-(a.createdAt||a.id||0)).slice(0,4);
   const bEl=document.getElementById('dashBeats');
   if(bEl){
-    if(!recent2.length){bEl.innerHTML='<div class="dash-empty">Ingen sanger enn\u00e5.</div>';}
+    if(!recent2.length){bEl.innerHTML='<div class="dash-empty">Ingen låter enn\u00e5.</div>';}
     else{bEl.innerHTML=recent2.map(b=>{
       const cover=b.cover?`<img src="${esc(b.cover)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:`<span style="font-size:20px"><span class="ic ic-music" aria-hidden="true"></span></span>`;
       const dur=b.duration?Math.floor(b.duration/60)+':'+String(Math.floor(b.duration%60)).padStart(2,'0'):'';
@@ -839,8 +839,8 @@ function renderBeats(container,beats,albumMode){
           <button class="ghost-btn" onclick="openInLyricLab('${b.id}')"><span class="ic ic-pen" aria-hidden="true"></span> Åpne i Lyric Lab</button>
           ${albumMode
   ? `<button class="small-btn danger" onclick="removeFromCollection('${b.id}','${listMode}')">Fjern fra ${listMode==="mixtape"?"mixtape":"album"}</button>
-     ${isAdmin()?`<button class="small-btn danger" onclick="deleteBeat('${b.id}')">Slett sang</button>`:''}`
-  : isAdmin()?`<button class="small-btn danger" onclick="deleteBeat('${b.id}')">Slett sang</button>`:''}
+     ${isAdmin()?`<button class="small-btn danger" onclick="deleteBeat('${b.id}')">Slett låt</button>`:''}`
+  : isAdmin()?`<button class="small-btn danger" onclick="deleteBeat('${b.id}')">Slett låt</button>`:''}
         </div>
       </div>
     </div>`).join("");
@@ -891,7 +891,7 @@ function toggleFav(id,btn){
   showToast(b.favorite?"★ Lagt til som favoritt":"☆ Fjernet fra favoritter");
 }
 async function deleteBeat(id){
-  if(!window.isAdminMode){showToast("Kun admin kan slette sanger");return;}
+  if(!window.isAdminMode){showToast("Kun admin kan slette låter");return;}
   if(!(await mvConfirm({title:'Slette låten for godt?',body:'Låten og lydfilen slettes fra skyen og kan ikke hentes tilbake. Vil du bare ha den bort, kan du arkivere den i stedet.',ok:'Slett for godt',danger:true})))return;
   const beat = state.beats.find(b=>b.id===id);
   state.beats=state.beats.filter(b=>b.id!==id);
@@ -921,6 +921,7 @@ async function deleteBeat(id){
 // ── ALBUMS ──
 function renderAlbums(){
   if(currentAlbumId){renderAlbumDetail();return;}
+  window.mvRouter&&mvRouter.setAlbum&&mvRouter.setAlbum(null);
   document.getElementById("albumsListView").classList.remove("hidden");
   document.getElementById("albumDetailView").classList.add("hidden");
   const grid=document.getElementById("albumGrid");
@@ -944,7 +945,7 @@ function renderAlbums(){
       <div class="album-info">
         <strong>${esc(a.name)}</strong>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
-          <span style="font-size:11px;color:var(--muted)">${n} sang${n===1?'':'er'}</span>
+          <span style="font-size:11px;color:var(--muted)">${n} låt${n===1?'':'er'}</span>
           ${(()=>{const totalSec=(a.beatIds||[]).reduce((s,id)=>{const b=state.beats.find(x=>x.id===id);return s+(b&&!b.archived?Number(b.duration||0):0);},0);const m=Math.floor(totalSec/60),sec=Math.floor(totalSec%60);return totalSec>0?`<span style="font-size:11px;color:var(--faint)">•</span><span style="font-size:11px;color:var(--muted)">${m}:${String(sec).padStart(2,'0')}</span>`:'';})()}
           ${(()=>{const STATUS_COLORS={'Idé':'rgba(214,129,85,.6)','Skriving':'rgba(191,178,166,.6)','Innspilling':'rgba(214,129,85,.7)','Miks':'rgba(214,129,85,.7)','Master':'rgba(214,129,85,.7)','Klar for release':'rgba(166,190,139,.7)','Ferdig':'rgba(166,190,139,.7)'};const s=window.mvStages?mvStages.normalizeAlbum(a.status):(a.status||'Idé');const c=STATUS_COLORS[s]||'rgba(244,234,220,.7)';return`<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;background:${c.replace('.6','.15').replace('.7','.15')};color:${c};border:1px solid ${c.replace('.6','.3').replace('.7','.3')}">${s}</span>`;})()}
         </div>
@@ -1030,7 +1031,7 @@ function endCardDrag(){
   if(cardDrag.id&&!cardDrag.moved)cardDrag={type:null,id:null,moved:false};
 }
 
-function openAlbum(id){currentAlbumId=id;renderAlbumDetail();setTimeout(()=>showDropZone("albumDrop"),50);}
+function openAlbum(id){currentAlbumId=id;renderAlbumDetail();setTimeout(()=>showDropZone("albumDrop"),50);window.mvRouter&&mvRouter.setAlbum&&mvRouter.setAlbum(state.albums.some(a=>a.id===id)?id:null);}
 
 function renderAlbumDetail(){
   document.getElementById("albumsListView").classList.add("hidden");
@@ -1212,12 +1213,13 @@ function renderAlbumBeats(beats,mode,customEl){
             <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
               <span style="font-size:11px;color:rgb(var(--ink-rgb) / calc(.25 + (1 - .25) * var(--ink-boost)));font-variant-numeric:tabular-nums;font-weight:700;flex-shrink:0">${String(idx+1).padStart(2,'0')}</span>
               <div class="ab-title" id="abt-${b.id}" style="min-width:0;flex:1">${esc(b.name)}</div>
+              ${listMode==="album"&&window.mvStages?(()=>{const s=mvStages.of(b);return `<span class="ab-stage" style="--stage-c:${s.color}" title="Låtens steg og fremdrift"><i aria-hidden="true"></i>${esc(s.label)} · ${mvStages.fmt(mvStages.pct(b))}</span>`;})():""}
               <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(playCountTitle(b))}"><span class="ic ic-headphones" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
               ${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)?`<span class="ab-uploader" style="font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent-ink);opacity:.8;white-space:nowrap"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span>`:''}
             </div>
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:block;margin-right:2px"></span>'; return ''; })()}
-              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgb(var(--accent-rgb) / .18);border:1px solid rgb(var(--accent-rgb) / .4);color:var(--accent-ink);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
+              <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill låt" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgb(var(--accent-rgb) / .18);border:1px solid rgb(var(--accent-rgb) / .4);color:var(--accent-ink);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
               <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" title="Favoritt" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)"><span class="ic ic-heart" aria-hidden="true"></span></button>
               <button class="ab-more-btn" type="button" onclick="event.stopPropagation();mvTrackMenu(this,'${b.id}','${listMode}')" title="Flere valg" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
             </div>
@@ -2325,7 +2327,7 @@ function showRenameModal(label, currentName, onSave) {
 
 window.renameBeat = function(id) {
   const b = state.beats.find(x => x.id === id); if (!b) return;
-  showRenameModal('sang', b.name, val => {
+  showRenameModal('låt', b.name, val => {
     b.name = val; saveState();
     if (typeof window.beatsTab?.renderBeatsTab === 'function') window.beatsTab.renderBeatsTab();
     renderAll(); showToast('✓ Navn oppdatert');

@@ -582,3 +582,9 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 /* Én artist på kontoen: «Lastet opp av» sier ingenting — skjult i albumradene som i Beats */
 body.mv-solo .ab-uploader{ display: none !important; }
 
+/* Albumrader (Rader-visning): låtens steg og fremdrift ved tittelen — kortene har stolpen */
+.ab-stage{ display: none; align-items: center; gap: 6px; flex-shrink: 0; font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ab-stage i{ width: 7px; height: 7px; border-radius: 50%; background: var(--stage-c, var(--muted)); }
+.album-beat-listmode .ab-stage{ display: inline-flex; }
+@media (max-width: 768px){ .album-beat-listmode .ab-stage{ font-size: 12px; } }
+

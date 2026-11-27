@@ -431,7 +431,7 @@ button{font:inherit;color:inherit;cursor:pointer}
       <div class="controls">
         <button class="btn btn-primary" id="playAllBtn" onclick="togglePlayAll()"><span class="ic ic-play" aria-hidden="true"></span> Spill preview</button>
         <button class="btn btn-icon" onclick="stopAll()" aria-label="Stopp" title="Stopp"><span class="ic ic-stop" aria-hidden="true"></span></button>
-        <span class="preview-label" id="previewLabel">17 sek per sang</span>
+        <span class="preview-label" id="previewLabel">17 sek per låt</span>
       </div>
     </div>
   </div>
@@ -469,7 +469,7 @@ function stopAll(silent){
   document.getElementById('vinylWrap').classList.add('paused');
   const btn=document.getElementById('playAllBtn');
   btn.classList.remove('active-play');btn.innerHTML='<span class="ic ic-play" aria-hidden="true"></span> Spill preview';
-  document.getElementById('previewLabel').textContent='17 sek per sang';
+  document.getElementById('previewLabel').textContent='17 sek per låt';
   if(!silent)currentIdx=-1;
 }
 async function playPreview(idx){
