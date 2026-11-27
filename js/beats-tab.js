@@ -145,6 +145,8 @@
     if (typeof playSingleBeat === 'function') playSingleBeat(beatId);
   }
 
+  // Ny låt (lastet opp nylig i denne fanen) som ennå ikke har tekst
+  function fresh(b){ return !!(window.mvFresh && window.mvFresh.has(b.id)) && !((b.lyricSections||[]).some(s => s && s.text && s.text.trim()) || (b.lyrics||'').trim()); }
   function toggleFav(beatId) {
     closeDropdown();
     // NB: «toggleFav» her ville peke på denne funksjonen selv (uendelig rekursjon) — bruk den globale i db.js
@@ -255,13 +257,14 @@
               : `<span style="color:var(--muted);font-size:11px">—</span>`;
 
             return `
-              <div class="bl-row" data-beat-id="${b.id}" onclick="mvTapPlay(event,'${b.id}','beat')">
+              <div class="bl-row${fresh(b) ? ' bl-fresh' : ''}" data-beat-id="${b.id}" onclick="mvTapPlay(event,'${b.id}','beat')">
                 <span class="bl-num">${i + 1}</span>
                 <span class="bl-cover"><span class="mv-cd bl-cd" aria-hidden="true" style="${window.mvCdStyle ? mvCdStyle(b.id) : ''}"></span>${coverHtml}</span>
                 <span class="bl-name">
                   <span class="bl-title">${esc(b.name)}</span>${window.mvIsSongPublic && window.mvIsSongPublic(b.id) ? '<span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(b.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}
                   <span class="ab-playcount${(Number(b.playCount)||0)?'':' empty'}" data-pc-id="${b.id}" title="${esc(typeof playCountTitle==='function'?playCountTitle(b):'')}"><span class="ic ic-headphones" aria-hidden="true"></span> ${Number(b.playCount)||0}</span>
                   ${b.rating ? `<span class="bl-rating">${'★'.repeat(Math.round(b.rating/2))}</span>` : ''}
+                  ${fresh(b) ? `<button type="button" class="bl-write" onclick="event.stopPropagation();mvWriteLyrics('${b.id}')" aria-label="Skriv tekst til ${esc(b.name)}"><span class="ic ic-pen" aria-hidden="true"></span>Skriv tekst</button>` : ''}
                 </span>
                 <span class="bl-collections">${colChips}</span>
                 <span class="bl-uploader">${(window.mvUploaderName?mvUploaderName(b):b.uploadedBy) ? `<span class="bl-uploader-tag"><span class="ic ic-user" aria-hidden="true"></span> ${esc((window.mvUploaderName?mvUploaderName(b):b.uploadedBy))}</span>` : '<span style="color:var(--muted)">—</span>'}</span>
@@ -281,6 +284,7 @@
     // Lista tegnes på nytt (f.eks. når du kommer tilbake til fanen) — legg på «spilles nå» igjen,
     // ellers mister raden markeringen og CD-en slutter å snurre
     try { window.updatePlayingAnimations && window.updatePlayingAnimations(); } catch(e) {}
+    requestAnimationFrame(() => { try { window.mvFresh && window.mvFresh.play(); } catch(e) {} }); // ny låt: CD glir inn når Beats vises
   }
 
   // ── Event handlers ─────────────────────────────────────────────────────────

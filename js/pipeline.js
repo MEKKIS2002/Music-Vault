@@ -109,18 +109,23 @@
   }
 
   // Release-readiness gates → drives Sjekkliste + hero "Release-klar"
+  // Klar for release (eierens definisjon): alle låter i prosjektet har ferdig tekst og ferdig miks
+  // (steget Master eller Ferdig). Hvert krav lister låtene som mangler, så listen kan følges opp.
   function gates(project, beats) {
-    const n = beats.length;
-    const some = n > 0;
+    const some = beats.length > 0;
+    const noLyr = beats.filter(b => lyricsPct(b) < 100);
+    const noMix = beats.filter(b => flowIndex(b) < 4);
     return [
-      { label: 'Minst én låt i prosjektet',        ok: some,                                          hint: 'Legg til låter for å starte' },
-      { label: 'Alle låter har lydfil',            ok: some && beats.every(hasAudio),                  hint: 'Last opp lyd der det mangler' },
-      { label: 'Alle låter har tekst',             ok: some && beats.every(hasLyrics),                 hint: 'Skriv ferdig tekstene' },
-      { label: 'Alle seksjoner ferdigstilt',       ok: some && beats.every(b => !(b.lyricSections||[]).length || sectionsDone(b)), hint: 'Marker seksjoner som ferdige i Lyric Lab' },
-      { label: 'Alle låter mikset (≥ 75 %)',       ok: some && beats.every(b => clamp(b.done||0) >= 75), hint: 'Løft de svakeste låtene' },
-      { label: 'Prosjektomslag lastet opp',        ok: !!project.obj.cover,                            hint: 'Legg til et cover' },
-      { label: 'Alle låter 100 % ferdig',          ok: some && beats.every(b => clamp(b.done||0) >= 100), hint: 'Fullfør de siste låtene' },
+      { label: 'Alle låter har ferdig tekst', ok: some && !noLyr.length, missing: noLyr, kind: 'lyrics', hint: some ? '' : 'Legg til låter i prosjektet' },
+      { label: 'Alle låter er ferdig mikset', ok: some && !noMix.length, missing: noMix, kind: 'mix',    hint: some ? '' : 'Legg til låter i prosjektet' },
     ];
+  }
+  // Én rad i sjekklisten: krav + hvilke låter som mangler (åpnes for å se dem, hver låt er en lenke)
+  function gateRow(g) {
+    if (g.ok || !g.missing.length) return `<li class="${g.ok ? 'ok' : ''}"><span class="pl3-cue-mark" aria-hidden="true"></span><span>${esc(g.label)}${g.hint ? ` <small>${esc(g.hint)}</small>` : ''}</span><span class="sr-only">${g.ok ? 'gjort' : 'ikke gjort'}</span></li>`;
+    const what = g.kind === 'lyrics' ? b => `tekst ${lyricsPct(b)} %` : b => (window.mvStages ? mvStages.of(b).label : '');
+    return `<li><details class="pl3-cue-more"><summary><span class="pl3-cue-mark" aria-hidden="true"></span><span>${esc(g.label)} <em>${g.missing.length} mangler</em></span><span class="sr-only">ikke gjort</span></summary>
+      <ul>${g.missing.map(b => `<li><button type="button" onclick="plFocusGoto('${esc(b.id)}','${g.kind}')">${esc(b.name || 'Uten navn')}</button><span>${esc(what(b))}</span></li>`).join('')}</ul></details></li>`;
   }
   function readiness(project, beats) {
     const g = gates(project, beats);
@@ -289,8 +294,8 @@
               <div class="pl3-metric-lbl"><b>Total fremgang</b><span>Snittet av låtenes fremdrift (steg og %)</span><span>${m.done} ferdig · ${m.wip} i arbeid · ${m.todo} ikke startet</span></div>
             </div>
             <div class="pl3-metric pl3-cue">
-              <div class="pl3-metric-lbl"><b>Release-sjekkliste</b><span>${r.passed} av ${r.total} oppgaver før release er gjort</span></div>
-              <ul class="pl3-cue-list">${r.gates.map(g => `<li class="${g.ok ? 'ok' : ''}"><span class="ic ${g.ok ? 'ic-check' : ''}" aria-hidden="true"></span><span>${esc(g.label)}</span><span class="sr-only">${g.ok ? 'gjort' : 'ikke gjort'}</span></li>`).join('')}</ul>
+              <div class="pl3-metric-lbl"><b>${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</b><span>Klar når alle låter har ferdig tekst og ferdig miks</span></div>
+              <ul class="pl3-cue-list">${r.gates.map(gateRow).join('')}</ul>
             </div>
           </div>
         </div>
@@ -499,28 +504,15 @@
 
   // 4d ── Sjekkliste ───────────────────────────────────────────────────────────
   function renderChecklist(project, beats, r) {
-    const items = r.gates.map(g => `
-      <div class="pl3-check ${g.ok ? 'ok' : ''}">
-        <span class="pl3-check-box">${g.ok ? '✓' : ''}</span>
-        <span class="pl3-check-body">
-          <b>${esc(g.label)}</b>
-          ${g.ok ? '' : `<span>${esc(g.hint)}</span>`}
-        </span>
-      </div>`).join('');
-
-    const col = pctColor(r.pct);
     return `
       <div class="pl3-checklist">
         <div class="pl3-check-summary">
-          <div class="pl3-ring" style="background:conic-gradient(${col} ${r.pct*3.6}deg, rgba(255,255,255,.08) 0)">
-            <div class="pl3-ring-hole"><b style="color:${col}">${r.pct}%</b></div>
-          </div>
           <div>
-            <div class="pl3-check-sumtitle">${r.passed} av ${r.total} krav oppfylt</div>
-            <div class="pl3-check-sumsub">${r.pct === 100 ? 'Prosjektet er klart for release! ' : 'Fullfør kravene under for å bli release-klar.'}</div>
+            <div class="pl3-check-sumtitle">${r.passed === r.total ? 'Klar for release' : 'Ikke klar for release ennå'}</div>
+            <div class="pl3-check-sumsub">Et album er klart når alle låtene har ferdig tekst og ferdig miks (steget Master eller Ferdig). Åpne et krav for å se låtene som mangler.</div>
           </div>
         </div>
-        <div class="pl3-check-list">${items}</div>
+        <ul class="pl3-cue-list pl3-cue-lg">${r.gates.map(gateRow).join('')}</ul>
       </div>`;
   }
 
