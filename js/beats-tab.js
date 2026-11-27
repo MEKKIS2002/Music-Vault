@@ -285,6 +285,11 @@
     // ellers mister raden markeringen og CD-en slutter å snurre
     try { window.updatePlayingAnimations && window.updatePlayingAnimations(); } catch(e) {}
     requestAnimationFrame(() => { try { window.mvFresh && window.mvFresh.play(); } catch(e) {} }); // ny låt: CD glir inn når Beats vises
+    // «Lastet opp av» skjules når alle låtene er fra samme person (sier ingenting på en soloprofil)
+    try {
+      const who = new Set((((typeof state !== 'undefined' ? state : window.state) || {}).beats || []).filter(b => !b.archived).map(b => (window.mvUploaderName ? mvUploaderName(b) : b.uploadedBy) || ''));
+      document.getElementById('beatsTab')?.classList.toggle('beats-solo', who.size <= 1);
+    } catch(e) {}
   }
 
   // ── Event handlers ─────────────────────────────────────────────────────────
@@ -354,6 +359,10 @@
       }
 
       .beats-list { display: flex; flex-direction: column; gap: 1px; }
+      .beats-solo .bl-uploader { display: none !important; }
+      @media (min-width: 769px) {
+        .beats-solo .beats-list-header, .beats-solo .bl-row { grid-template-columns: 32px 52px minmax(160px,2fr) minmax(120px,1.5fr) 90px 60px 72px !important; }
+      }
 
       .bl-row {
         display: grid;

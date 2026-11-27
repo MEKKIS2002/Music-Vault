@@ -773,6 +773,8 @@ window.mvFresh={
     if(ch)localStorage.setItem(this.key,JSON.stringify(m));}catch(e){}}
 };
 document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-tab="beats"]'))setTimeout(()=>window.mvFresh.play(),120);},true);
+// Fremdriften på albumkort er låst til man trykker «Endre» (en tilfeldig dra skal ikke endre den)
+window.mvToggleProgressEdit=function(btn,id){const r=document.getElementById('abirange-'+id);if(!r)return;r.disabled=!r.disabled;btn.textContent=r.disabled?'Endre':'OK';btn.setAttribute('aria-expanded',String(!r.disabled));if(!r.disabled)r.focus();};
 window.mvWriteLyrics=function(id){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>typeof openInLyricLab==='function'&&openInLyricLab(id),60);};
 window.mvUploadedToast=function(beats){
   beats=(beats||[]).filter(Boolean);
@@ -820,7 +822,7 @@ function renderBeats(container,beats,albumMode){
           <strong>${esc(b.name)}</strong>
           <span>${b.lyrics?.trim()?`<span class="ic ic-pen" aria-hidden="true"></span> Tekst lagret`:"Ingen tekst"} · ${esc(b.source||"URL")}</span>
         </div>
-        <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt">${b.favorite?'★':'☆'}</button>
+        <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt"><span class="ic ic-heart" aria-hidden="true"></span></button>
         <span class="expand-arrow">▾</span>
       </div>
       <div class="beat-expand">
@@ -1213,14 +1215,14 @@ function renderAlbumBeats(beats,mode,customEl){
             <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
               ${(()=>{ const noAudio=!(b.audio_url||b.url); if(noAudio) return '<span title="Mangler lydfil" style="width:6px;height:6px;border-radius:50%;background:var(--danger);display:block;margin-right:2px"></span>'; return ''; })()}
               <button class="ab-quick-play" onclick="event.stopPropagation();playCollectionFromBeat('${b.id}','${listMode}');sessionStorage.setItem('mv_last_beat','${b.id}')" title="Spill sang" aria-label="Spill ${esc(b.name)}" style="width:28px;height:28px;border-radius:50%;background:rgb(var(--accent-rgb) / .18);border:1px solid rgb(var(--accent-rgb) / .4);color:var(--accent-ink);font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0"><span class="ic ic-play" aria-hidden="true"></span></button>
-              <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" title="Favoritt" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)">${b.favorite?'★':'☆'}</button>
+              <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" title="Favoritt" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)"><span class="ic ic-heart" aria-hidden="true"></span></button>
               <button class="ab-more-btn" type="button" onclick="event.stopPropagation();mvTrackMenu(this,'${b.id}','${listMode}')" title="Flere valg" aria-label="Flere valg for ${esc(b.name)}" aria-haspopup="menu">⋯</button>
             </div>
           </div>
           <div class="ab-stars" onclick="event.stopPropagation()">${stars}</div>
           ${listMode==="album"?`<div class="progress-wrap" onclick="event.stopPropagation()">
-            <div class="progress-label"><span>Ferdig</span><strong id="abidone-${b.id}">${b.done||0}%</strong></div>
-            <input type="range" class="ab-progress-range" id="abirange-${b.id}" min="0" max="100" value="${b.done||0}" style="--pct:${b.done||0}%" oninput="setAlbumBeatDone('${b.id}',this.value)">
+            <div class="progress-label"><span>Fremdrift</span><strong id="abidone-${b.id}">${b.done||0}%</strong><button type="button" class="ab-progress-edit" aria-controls="abirange-${b.id}" aria-expanded="false" onclick="mvToggleProgressEdit(this,'${b.id}')">Endre</button></div>
+            <input type="range" class="ab-progress-range" id="abirange-${b.id}" min="0" max="100" value="${b.done||0}" style="--pct:${b.done||0}%" disabled aria-label="Fremdrift for ${esc(b.name)}" oninput="setAlbumBeatDone('${b.id}',this.value)">
           </div>`:""}
         </div>
       </div>
@@ -1228,7 +1230,7 @@ function renderAlbumBeats(beats,mode,customEl){
         <div class="ab-expand-top-bar">
           <div id="au-wrap-${b.id}" style="display:flex;align-items:center;gap:8px;width:100%">
             <button class="primary-btn" style="font-size:12px;padding:7px 14px" onclick="playCollectionFromBeat('${b.id}','${listMode}')"><span class="ic ic-play" aria-hidden="true"></span> Spill</button>
-            <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#d68155':'rgba(255,255,255,.25)'}">${b.favorite?'★':'☆'}</button>
+            <button class="star-btn${b.favorite?" active":""}" data-fav-id="${b.id}" aria-label="Favoritt: ${esc(b.name)}" aria-pressed="${b.favorite?'true':'false'}" onclick="event.stopPropagation();toggleFav('${b.id}',this)" title="Favoritt" style="font-size:20px;background:none;border:none;cursor:pointer;padding:0;color:${b.favorite?'#d68155':'rgba(255,255,255,.25)'}"><span class="ic ic-heart" aria-hidden="true"></span></button>
             <div style="margin-left:auto">${(()=>{ const noAudio=!(b.audio_url||b.url); const noLyric=!(b.lyrics||(b.lyricSections||[]).some(s=>s.text?.trim())); if(noAudio) return '<span title="Mangler lydfil" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgb(var(--danger-rgb) / .15);color:var(--danger);border:1px solid rgb(var(--danger-rgb) / .3)">Ingen lyd</span>'; if(noLyric) return '<span title="Mangler tekst" style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgb(var(--accent-rgb) / .12);color:var(--accent-ink);border:1px solid rgb(var(--accent-rgb) / .3)">Ingen tekst</span>'; return ''; })()}</div>
           </div>
           <label class="ghost-btn ab-swap-audio" style="cursor:pointer;font-size:12px;padding:6px 12px" title="Erstatt lydfilen — den gamle slettes permanent"><span class="ic ic-music" aria-hidden="true"></span> Bytt lydfil<input type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.flac,.ogg,.aif,.aiff" hidden onchange="uploadBeatAudio('${b.id}',this.files[0]);this.value=''"></label>
