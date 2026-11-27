@@ -1163,7 +1163,10 @@ function songBorderAttrs(beatId,listMode){
   const col=beatMixtapeColor(beatId,listMode);
   return col?` class="album-beat-card mixtape-colored" style="--song-border-color:${col}"`:` class="album-beat-card"`;
 }
+// «Lastet opp av» skjules overalt (Beats og album) når alle låtene er fra samme person
+window.mvUpdateSolo=function(){try{const who=new Set((state.beats||[]).filter(b=>!b.archived).map(b=>(window.mvUploaderName?mvUploaderName(b):b.uploadedBy)||''));document.body.classList.toggle('mv-solo',who.size<=1);}catch(e){}};
 function renderAlbumBeats(beats,mode,customEl){
+  window.mvUpdateSolo();
   const listMode=mode||"album";
   const el=customEl||document.getElementById("albumBeatList");
   // View class set by applyView() in track-cards.js — don't hardcode here

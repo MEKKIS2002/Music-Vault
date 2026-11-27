@@ -194,7 +194,7 @@ select.beats-sort, select.mixtape-sort-select, select.ux-input, select.pl3-statu
 }
 .pl3-focus-list > .pl3-focus-task + .pl3-focus-task{ box-shadow:-1px 0 0 0 var(--line); }
 .pl3-focus-task:hover{ background:rgb(var(--shade-rgb) / .22) !important; }
-@media (max-width:760px){
+@media (max-width:768px){
   .pl3-focus-list > .pl3-focus-task + .pl3-focus-task{ box-shadow:0 -1px 0 0 var(--line); }
 }
 
@@ -578,3 +578,7 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 .mv-confirm-btns .mv-confirm-danger{ background: rgb(var(--danger-rgb) / .16) !important; border: 1px solid rgb(var(--danger-rgb) / .55) !important; color: var(--danger) !important; box-shadow: none !important; }
 .mv-confirm-btns .mv-confirm-danger:hover{ background: rgb(var(--danger-rgb) / .26) !important; }
 @media (max-width: 768px){ .mv-confirm{ align-items: end; } .mv-confirm-card{ border-radius: 16px 16px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); } .mv-confirm-btns > *{ flex: 1; min-height: 44px; } }
+
+/* Én artist på kontoen: «Lastet opp av» sier ingenting — skjult i albumradene som i Beats */
+body.mv-solo .ab-uploader{ display: none !important; }
+

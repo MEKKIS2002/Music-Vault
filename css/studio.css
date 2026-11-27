@@ -2088,7 +2088,7 @@ html body .mv-search{ padding-top: calc(4vh + env(safe-area-inset-top, 0px)); }
 /* Albumheader: platen litt mindre enn coveret (≈94 %), så den ikke stikker ut over/under */
 html body #albumDetailHd .album-detail-vinyl{ width: 236px !important; height: 236px !important; }
 @media (max-width: 1180px){ html body #albumDetailHd .album-detail-vinyl{ width: 218px !important; height: 218px !important; } }
-@media (max-width: 780px){ html body #albumDetailHd .album-detail-vinyl{ width: 198px !important; height: 198px !important; } }
+@media (max-width: 768px){ html body #albumDetailHd .album-detail-vinyl{ width: 198px !important; height: 198px !important; } }
 @media (max-width: 480px){ html body #albumDetailHd .album-detail-vinyl{ width: 174px !important; height: 174px !important; } }
 
 /* Farlige menyvalg i faresfarge — regelen over (.mv-gear-item …{ color: var(--text) }) var sterkere

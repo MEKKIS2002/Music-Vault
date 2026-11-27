@@ -99,7 +99,7 @@
 .mixtape-detail-copy h2{font-size:clamp(28px,4vw,46px)!important;line-height:1!important}
 .mixtape-detail-kicker{opacity:.85!important}
 .mixtape-detail-actions .primary-btn{border-radius:999px!important}
-@media(max-width:760px){
+@media(max-width:768px){
   .album-beat-card.expanded .ab-top{grid-template-columns:1fr!important}
   .album-beat-card.expanded .ab-expand{grid-template-columns:1fr!important}
   .album-beat-grid{grid-template-columns:1fr!important}

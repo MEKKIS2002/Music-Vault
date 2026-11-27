@@ -432,7 +432,7 @@
         <h2 class="ll-beat-title">${esc(beat.name)}${window.mvIsSongPublic && window.mvIsSongPublic(beat.id) && (beat._shared || !window.mvSetSongPublic) ? ' <span class="mv-public-badge' + (window.mvBadgeAttrs ? mvBadgeAttrs(beat.id) : '') + '" title="Synlig for alle med Music Vault-konto i Explore"><span class="ic ic-globe" aria-hidden="true"></span> Offentlig</span>' : ''}</h2>
         <div class="ll-song-stage"><span class="ll-stage-lbl" aria-hidden="true">Steg</span>
           <span class="ll-stage-ctl" title="Låtens steg — samme som i Pipeline og album">
-    <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
+    <select class="ll-status-pill mv-stage-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
     </select>
     <span class="ll-stage-pct" title="Låtens fremdrift (settes av deg) — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Fremdrift</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>${window.mvHelpBtn ? mvHelpBtn('lyriclab', 'Hva er steg og fremdrift?') : ''}
@@ -949,7 +949,7 @@
     mvStages.set(beat, key);
     const s = mvStages.of(beat);
     const pill = document.querySelector('.ll-status-pill');
-    if (pill) { pill.className = 'll-status-pill ll-stage-' + s.key; pill.value = s.key; void pill.offsetWidth; pill.classList.add('is-changed'); }
+    if (pill) { pill.className = 'll-status-pill mv-stage-pill ll-stage-' + s.key; pill.value = s.key; void pill.offsetWidth; pill.classList.add('is-changed'); }
     const pct = document.getElementById('llStagePct'); if (pct) pct.textContent = mvStages.fmt(mvStages.pct(beat));
     if (typeof saveState === 'function') saveState();
     if (typeof showToast === 'function') showToast('✓ Steg: ' + s.label + ' (' + mvStages.pct(beat) + ' %)');
