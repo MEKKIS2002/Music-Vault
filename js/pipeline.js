@@ -287,7 +287,9 @@
           </div>
 
           <div class="pl3-hero-statusrow">
-            <button type="button" class="pl3-stagechip" onclick="plOpenProject('${esc(project.ref)}')" title="Endre steget på ${project.type === 'mixtape' ? 'mixtapen' : 'albumet'}">${esc(status)} <span aria-hidden="true">›</span></button>
+            ${project.type === 'album' && window.mvStages && mvStages.pill
+              ? mvStages.pill({ value: status, album: true, label: 'Albumets steg', onchange: `plAlbumStage('${esc(project.obj.id)}',this.value)` })
+              : `<button type="button" class="pl3-stagechip" onclick="plOpenProject('${esc(project.ref)}')" title="Åpne mixtapen">${esc(status)} <span aria-hidden="true">›</span></button>`}
             <span class="pl3-streak"><span class="ic ic-flame" aria-hidden="true"></span> ${streak} dag${streak!==1?'er':''} på rad</span>
           </div>
 
@@ -573,6 +575,13 @@
   };
 
   // Focus task → jump to the right place
+  // Albumets steg fra Pipeline (samme velger og samme «Angre» som på albumsiden)
+  window.plAlbumStage = function (albumId, val) {
+    const a = (st().albums || []).find(x => x.id === albumId); if (!a) return;
+    const prev = a.status; a.status = val; save(); render();
+    if (typeof showToast === 'function') showToast('✓ Albumets steg: ' + val, 'Angre', () => { a.status = prev; save(); render(); });
+  };
+
   window.plFocusGoto = function (beatId, kind) {
     if (kind === 'lyrics') { window.plOpenLyric(beatId); return; }
     // ensure Oversikt is visible, then scroll + flash the card

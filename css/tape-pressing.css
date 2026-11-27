@@ -5,7 +5,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 .pl3-hero-metrics .pl3-ring[hidden]{ display: none !important; }
 .mt-tape-wrap{ display: grid !important; justify-items: center; gap: 8px; width: 340px !important; min-width: 340px; flex-shrink: 0; }
-@media (max-width: 780px){ .mt-tape-wrap{ width: 180px !important; min-width: 180px; } }
+@media (max-width: 768px){ .mt-tape-wrap{ width: 180px !important; min-width: 180px; } }
 .mt-reels{ width: 100% !important; height: auto !important; max-width: none !important; display: block; overflow: visible; }
 
 .mt-shadow{ fill: rgb(0 0 0 / .14); transform: translateY(1.4px); }

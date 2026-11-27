@@ -285,11 +285,8 @@
     // ellers mister raden markeringen og CD-en slutter å snurre
     try { window.updatePlayingAnimations && window.updatePlayingAnimations(); } catch(e) {}
     requestAnimationFrame(() => { try { window.mvFresh && window.mvFresh.play(); } catch(e) {} }); // ny låt: CD glir inn når Beats vises
-    // «Lastet opp av» skjules når alle låtene er fra samme person (sier ingenting på en soloprofil)
-    try {
-      const who = new Set((((typeof state !== 'undefined' ? state : window.state) || {}).beats || []).filter(b => !b.archived).map(b => (window.mvUploaderName ? mvUploaderName(b) : b.uploadedBy) || ''));
-      document.getElementById('beatsTab')?.classList.toggle('beats-solo', who.size <= 1);
-    } catch(e) {}
+    // «Lastet opp av» skjules når alle låtene er fra samme person (felles sjekk i db.js)
+    try { window.mvUpdateSolo && window.mvUpdateSolo(); document.getElementById('beatsTab')?.classList.toggle('beats-solo', document.body.classList.contains('mv-solo')); } catch(e) {}
   }
 
   // ── Event handlers ─────────────────────────────────────────────────────────

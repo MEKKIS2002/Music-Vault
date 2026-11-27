@@ -112,7 +112,7 @@
   box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / .2);
 }
 .pl3-focus-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-@media (max-width: 760px) { .pl3-focus-list { grid-template-columns: 1fr; } }
+@media (max-width: 768px) { .pl3-focus-list { grid-template-columns: 1fr; } }
 .pl3-focus-task {
   display: flex; align-items: center; gap: 10px; text-align: left;
   background: rgb(var(--shade-rgb) / .2); border: 1px solid var(--line);

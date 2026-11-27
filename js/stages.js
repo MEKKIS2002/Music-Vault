@@ -57,7 +57,19 @@
   LIST.forEach(s => { s.color = COLOR[s.key]; });
   function fmt(n){ const v = Math.round(Number(n) || 0); return (window.mvI18n && window.mvI18n.lang === 'en') ? v + '%' : v + '\u00a0%'; }
 
-  window.mvStages = { list: LIST, of, index, set, pct, fmt, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum };
+  // Én stegvelger overalt (låt i Lyric Lab, album på albumsiden og i Pipeline): en farget pille
+  // som er en vanlig <select> under, så den virker med tastatur og skjermleser.
+  // pill({ value: albumsteg («Miks») eller låtnøkkel («mix»), album: true|false, onchange: 'js(this.value)', label, id })
+  function pill(o){
+    const isAlbum = !!o.album;
+    const cur = isAlbum ? normalizeAlbum(o.value) : (o.value || 'idea');
+    const curKey = isAlbum ? ((LIST.find(s => s.label === cur) || LIST[0]).key) : cur;
+    const opts = LIST.map(s => { const v = isAlbum ? s.label : s.key; const on = isAlbum ? s.label === cur : s.key === cur;
+      return `<option value="${v}"${on ? ' selected' : ''}>${s.label}</option>`; }).join('');
+    return `<select class="ll-status-pill mv-stage-pill ll-stage-${curKey}"${o.id ? ` id="${o.id}"` : ''} aria-label="${o.label || 'Steg'}" onchange="${o.onchange}">${opts}</select>`;
+  }
+
+  window.mvStages = { list: LIST, of, index, set, pct, fmt, hasAudio, hasLyrics, album: ALBUM, normalizeAlbum, pill };
 
   // ── Hver låt sin egen CD ───────────────────────────────────────────────────
   // Små, faste forskjeller regnet ut fra låtens ID (samme låt = samme plate):

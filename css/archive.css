@@ -453,7 +453,7 @@ body.final-archive-active #archiveTab{display:block!important}
   @media (max-width:980px){
     #archiveTab .fa-tile--demo-group{flex:0 0 calc((100% - 24px)/2);min-width:285px;}
   }
-  @media (max-width:760px){
+  @media (max-width:768px){
     #archiveTab .fa-demo-row{grid-template-columns:48px minmax(0,1fr);}
     #archiveTab .fa-demo-row-actions{grid-column:1/-1;justify-content:flex-start;}
     #archiveTab .fa-tile--demo-group{flex-basis:100%;}
@@ -555,7 +555,7 @@ body.final-archive-active #archiveTab{display:block!important}
   #archiveTab .fa-dots{
     flex:0 0 auto!important;
   }
-  @media(max-width:760px){
+  @media(max-width:768px){
     #archiveTab .fa-stage{min-height:520px!important;}
     #archiveTab .fa-crate{transform:translateY(0);}
     #archiveTab .fa-tile:hover .fa-crate{transform:translateY(-2px)!important;}
@@ -631,7 +631,7 @@ body.final-archive-active #archiveTab{display:block!important}
     overflow:visible!important;
   }
 
-  @media(max-width:760px){
+  @media(max-width:768px){
     #archiveTab .fa-tile{padding-bottom:170px!important;}
     #archiveTab .fa-hover{width:min(96%, 360px)!important;}
     #archiveTab .fa-track{padding-bottom:175px!important;}
@@ -673,7 +673,7 @@ body.final-archive-active #archiveTab{display:block!important}
     bottom:auto!important;
   }
 
-  @media(max-width:760px){
+  @media(max-width:768px){
     body.final-archive-active #archiveTab .fa-track,
     body.clean-archive-active #archiveTab .fa-track{
       min-height:620px!important;

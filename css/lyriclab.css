@@ -48,7 +48,7 @@
   .ll-layout { grid-template-columns: 232px 1fr; }
   .ll-right   { display: none; }
 }
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .ll-layout  { grid-template-columns: 1fr; }
   .ll-left    { display: none; }
 }
