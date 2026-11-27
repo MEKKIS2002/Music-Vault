@@ -219,7 +219,7 @@
 
         <aside class="album-detail-side">
           ${(()=>{ const cur = window.mvStages ? mvStages.normalizeAlbum(album.status) : (album.status||'Idé'); const list = window.mvStages ? mvStages.album : ['Idé','Skriving','Innspilling','Miks','Master','Klar for release']; return `
-          <label class="meta-row album-status-row" for="albumStatusSel"><span>Steg</span></label>
+          <label class="meta-row album-status-row" for="albumStatusSel"><span>Steg</span>${window.mvHelpBtn ? mvHelpBtn('albumstage', 'Hva er albumets steg?') : ''}</label>
           <select class="ux-input" id="albumStatusSel" aria-label="Albumets steg" onchange="albumStatusChange('${album.id}',this.value)">
             ${list.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('')}
           </select>

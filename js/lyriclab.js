@@ -435,7 +435,7 @@
     <select class="ll-status-pill ll-stage-${stage.key}" aria-label="Låtens steg" onchange="llSetStatus(this.value)">
       ${(window.mvStages ? mvStages.list : []).map(s=>`<option value="${s.key}"${s.key===stage.key?' selected':''}>${s.label}</option>`).join('')}
     </select>
-    <span class="ll-stage-pct" title="Låtens fremdrift (settes av deg) — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Fremdrift</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>
+    <span class="ll-stage-pct" title="Låtens fremdrift (settes av deg) — tekstens fremdrift står over seksjonene"><span class="ll-stage-pct-lbl">Fremdrift</span> <span id="llStagePct">${window.mvStages ? mvStages.fmt(mvStages.pct(beat)) : '0 %'}</span></span>${window.mvHelpBtn ? mvHelpBtn('lyriclab', 'Hva er steg og fremdrift?') : ''}
   </span>
         </div>
         <div class="ll-song-meta" id="llSongMeta">${metaBits.map(b=>`<span>${b}</span>`).join('<span class="ll-dot" aria-hidden="true">·</span>')}</div>
