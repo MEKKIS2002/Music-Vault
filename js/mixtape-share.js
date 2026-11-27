@@ -56,7 +56,7 @@ window.mixtapeShareMode = async function(mixtapeId) {
     if (typeof saveState === 'function') saveState();
     _showMixtapePitchDialog(mt);
   } catch(e) {
-    showToast('Kunne ikke publisere: ' + (e.message||e));
+    console.warn('[mixtape-share]', e); showToast('Kunne ikke publisere mixtapen. Sjekk at du er på nett, og prøv igjen.');
   }
 };
 
@@ -138,7 +138,7 @@ function _showMixtapePitchDialog(mt) {
   };
 
   $m('mvPitchDisableBtn').onclick = async () => {
-    if (!confirm('Deaktivere lenken? Den slutter å virke for alle som har den.')) return;
+    if (!(await mvConfirm({ title: 'Slå av lenken?', body: 'Den slutter å virke for alle som har den. Du kan lage en ny lenke senere.', ok: 'Slå av', danger: true }))) return;
     const status = $m('mvPitchStatus');
     status.textContent = 'Deaktiverer...';
     try {

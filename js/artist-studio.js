@@ -286,9 +286,11 @@
         case 'down': swap(p.blocks, i, i + 1); return changed(true);
         case 'hide': b.hidden = !b.hidden; return changed(true);
         case 'del': {
-          const hasContent = (b.text || '').trim() || (b.tokens || []).length || (b.images || []).length || (b.links || []).some(l => l.url);
-          if (hasContent && !confirm(`Slette seksjonen «${(TYPES[b.type] || {}).label || b.type}»?`)) return;
-          p.blocks.splice(i, 1); return changed(true);
+          const removed = p.blocks.splice(i, 1)[0]; changed(true);
+          if (typeof window.showToast === 'function') window.showToast(`Seksjonen «${(TYPES[removed.type] || {}).label || removed.type}» er fjernet`, 'Angre', () => {
+            p.blocks.splice(Math.min(i, p.blocks.length), 0, removed); changed(true);
+          });
+          return;
         }
         case 't-up':   swap(b.tokens, j, j - 1); return changed(true);
         case 't-down': swap(b.tokens, j, j + 1); return changed(true);

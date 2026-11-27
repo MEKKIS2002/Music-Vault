@@ -667,7 +667,7 @@ setTimeout(updateAdminUi, 50);
       return true;
     }catch(err){
       console.error('Supabase pull-feil:', err);
-      say(`Kunne ikke hente fra Supabase: ${err.message || err}.`, 'error');
+      say('Kunne ikke hente endringer fra skyen. Sjekk at du er på nett – vi prøver igjen av oss selv.', 'error');
       // Prøv én gang til litt senere hvis ingenting er hentet ennå
       if(!_hasPulledOk && _pullRetries++ < 3) _pullAgain = true;
       return false;
@@ -790,7 +790,7 @@ setTimeout(updateAdminUi, 50);
       const hint = /metadata/i.test(err.message || '')
         ? ' Mangler metadata-kolonne.'
         : '';
-      say(`Lagring feilet (fors\u00f8k ${_pushFailCount}): ${err.message || err}.${hint}`, 'error');
+      say(`Kunne ikke lagre i skyen (forsøk ${_pushFailCount}). Endringene er trygge på denne enheten og lagres når du er på nett igjen.${hint}`, 'error');
       _updateSyncIndicator('error');
       return false;
     }
