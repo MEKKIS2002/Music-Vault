@@ -193,7 +193,7 @@
           <div class="eyebrow">Album</div>
           <h2>${esc(album.name)}</h2>
           <p class="album-detail-sub">
-            <span>${beats.length} sang${beats.length===1?'':'er'}</span>
+            <span>${beats.length} låt${beats.length===1?'':'er'}</span>
             <span>•</span>
             <span>${(()=>{const s=beats.reduce((t,b)=>t+Number(b.duration||0),0);const m=Math.floor(s/60),sec=Math.floor(s%60);return s>0?m+':'+String(sec).padStart(2,'0'):'--:--';})()}</span>
             <span>•</span>
@@ -425,7 +425,7 @@ button{font:inherit;color:inherit;cursor:pointer}
       <p class="eyebrow">Album</p>
       <h1 class="hero-title">${albumName}</h1>
       <div class="hero-meta">
-        <span>${beats.length} ${beats.length===1?'sang':'sanger'}</span>
+        <span>${beats.length} ${beats.length===1?'låt':'låter'}</span>
         ${dur?`<span class="dot">·</span><span>${dur}</span>`:''}
         <span class="dot">·</span><span>${new Date().getFullYear()}</span>
       </div>
@@ -545,7 +545,7 @@ loadComments();
   function enhanceBeatCards(mode,el){
     if(!el)return;
     if(!el.querySelector('.album-beat-card') && (!beatsFromDom(el).length))return;
-    if(el.innerHTML.includes('Ingen beats')){
+    if(el.innerHTML.includes('Ingen låter')){
       el.innerHTML=emptyState(mode==='mixtape'?'<span class="ic ic-headphones" aria-hidden="true"></span>':'<span class="ic ic-disc" aria-hidden="true"></span>',mode==='mixtape'?'Mixtapen er tom':'Albumet er tomt',mode==='mixtape'?'Last opp beats eller legg til eksisterende beats.':'Legg til beats som demoer for å starte albumet.',mode==='mixtape'?'Last opp beats':'Legg til eksisterende',mode==='mixtape'?"document.getElementById('mixtapeUploadInput').click()":"document.getElementById('addBeatsToAlbumBtn').click()");
       return;
     }
@@ -663,7 +663,7 @@ loadComments();
     if(!q){out.classList.remove('open');out.innerHTML='';return;}
     const results=[];
     (state.beats||[]).forEach(b=>{const hay=[b.name,b.source,b.lyrics,b.comments,b.structure,b.credits,b.bpm,b.key,b.priority,b.stage,b.owner,b.uploadStatus].join(' ').toLowerCase(); if(hay.includes(q))results.push({type:'Beat',title:b.name,sub:[b.bpm&&b.bpm+' BPM',b.key,b.owner,b.uploadStatus].filter(Boolean).join(' · '),go:()=>openBeatContext(b.id)});});
-    (state.mixtapes||[]).forEach(m=>{const hay=[m.name,m.description,m.status].join(' ').toLowerCase(); if(hay.includes(q))results.push({type:'Mixtape',title:m.name,sub:`${(m.beatIds||[]).length} beats · ${m.status||''}`,go:()=>{document.querySelector('[data-tab="mixtapes"]')?.click();setTimeout(()=>openMixtape(m.id),80)}});});
+    (state.mixtapes||[]).forEach(m=>{const hay=[m.name,m.description,m.status].join(' ').toLowerCase(); if(hay.includes(q))results.push({type:'Mixtape',title:m.name,sub:`${(m.beatIds||[]).length} låter · ${m.status||''}`,go:()=>{document.querySelector('[data-tab="mixtapes"]')?.click();setTimeout(()=>openMixtape(m.id),80)}});});
     (state.albums||[]).forEach(a=>{const hay=[a.name,a.status,a.assignee,a.deadline].join(' ').toLowerCase(); if(hay.includes(q))results.push({type:'Album',title:a.name,sub:`${(a.beatIds||[]).length} demoer · ${a.status||''}`,go:()=>{document.querySelector('[data-tab="albums"]')?.click();setTimeout(()=>openAlbum(a.id),80)}});});
     out.innerHTML=results.slice(0,40).map((r,i)=>`<div class="global-result" data-i="${i}"><div class="global-result-type">${safeEsc(r.type)}</div><div style="min-width:0"><div class="global-result-title">${safeEsc(r.title)}</div><div class="global-result-sub">${safeEsc(r.sub||'')}</div></div></div>`).join('')||`<div class="global-result"><div class="global-result-sub">Ingen treff.</div></div>`;
     out.classList.add('open'); $$('.global-result[data-i]',out).forEach(el=>el.onclick=()=>{results[Number(el.dataset.i)]?.go(); out.classList.remove('open');});
@@ -853,7 +853,7 @@ loadComments();
   }
 
   function archiveLabel(type,item){
-    if(type==='beat')return item.archived?'Gjenopprett sang':'Arkiver sang';
+    if(type==='beat')return item.archived?'Gjenopprett låt':'Arkiver låt';
     if(type==='album')return item.archived?'Gjenopprett album':'Arkiver album';
     return item.archived?'Gjenopprett mixtape':'Arkiver mixtape';
   }
@@ -885,7 +885,7 @@ loadComments();
       sec.className='tab-view hidden';
       sec.innerHTML=`<div class="content-panel glass">
         <div class="section-title"><h2>Arkivert</h2><span class="hint">Elementer her teller ikke med i statistikk.</span></div>
-        <p class="hint" style="margin-bottom:18px">Arkiverte beats/sanger, albumer og mixtapes skjules fra de vanlige visningene uten å bli slettet.</p>
+        <p class="hint" style="margin-bottom:18px">Arkiverte låter, albumer og mixtapes skjules fra de vanlige visningene uten å bli slettet.</p>
         <div id="archiveList" class="archive-list"></div>
       </div>`;
       integrations?.insertAdjacentElement('afterend',sec) || document.querySelector('main.app')?.appendChild(sec);
@@ -933,7 +933,7 @@ loadComments();
     </div>`;
     el.innerHTML=section('Mixtapes',archivedMixtapes.map(mixtapeCard),'Ingen arkiverte mixtapes.')+
       section('Albumer',archivedAlbums.map(albumCard),'Ingen arkiverte albumer.')+
-      section('Sanger og beats',archivedBeats.map(beatCard),'Ingen arkiverte sanger eller beats.');
+      section('Låter',archivedBeats.map(beatCard),'Ingen arkiverte låter.');
   };
 
   function installBeatArchiveButtons(listMode){
