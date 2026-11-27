@@ -481,7 +481,7 @@
   };
 
   window.adminDeleteUser = async function(userId, name){
-    if(!confirm(`Slette brukeren "${name}"?\n\nDette fjerner profilen og kan ikke angres.`)) return;
+    if(!(await mvConfirm({title:`Slette brukeren «${name}»?`,body:'Profilen fjernes og kan ikke hentes tilbake.',ok:'Slett bruker',danger:true}))) return;
     const token = await getToken();
     await fetch(`${SB_URL}/rest/v1/profiles?id=eq.${userId}`,
       {method:'DELETE', headers:{...sbH(token),'Prefer':'return=minimal'}}
@@ -518,7 +518,7 @@
   };
 
   window.adminDeleteCode = async function(code){
-    if(!confirm(`Slette koden ${code}?`)) return;
+    if(!(await mvConfirm({title:`Slette koden ${code}?`,body:'Den kan ikke brukes etterpå.',ok:'Slett kode',danger:true}))) return;
     const token = await getToken();
     await fetch(`${SB_URL}/rest/v1/invite_codes?code=eq.${code}`,
       {method:'DELETE', headers:{...sbH(token),'Prefer':'return=minimal'}}

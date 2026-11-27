@@ -675,7 +675,7 @@
       if(typeof showToast==='function') showToast(color ? '\u2713 Farge brukt' : '\u2713 Farge fjernet');
     } catch(e) {
       console.warn('[LyricLab] Color apply error:', e);
-      if(typeof showToast==='function') showToast('Feil: ' + e.message);
+      if(typeof showToast==='function') showToast('Kunne ikke bruke fargen. Marker teksten på nytt, og prøv igjen.');
     }
   };
 
@@ -786,12 +786,20 @@
   };
 
   window.llDeleteSection = function(id) {
-    if (!confirm('Slette seksjonen og teksten?')) return;
     const beat = getBeat(window.currentLyricLabBeatId);
     if (!beat) return;
-    beat.lyricSections = getSections(beat).filter(s=>s.id!==id);
+    const secs = getSections(beat), idx = secs.findIndex(s => s.id === id), removed = secs[idx];
+    if (!removed) return;
+    beat.lyricSections = secs.filter(s=>s.id!==id);
     saveSections(beat);
     document.getElementById(`llsec-${id}`)?.remove();
+    // Slettes med en gang; «Angre» legger seksjonen (med teksten) tilbake på samme plass
+    if (typeof showToast === 'function') showToast(`«${llSecTitle(removed.title)}» er slettet`, 'Angre', () => {
+      const b = getBeat(beat.id); if (!b) return;
+      const list = getSections(b).slice(); list.splice(Math.min(idx, list.length), 0, removed);
+      b.lyricSections = list; saveSections(b);
+      if (window.currentLyricLabBeatId === b.id && typeof renderLyricLab === 'function') renderLyricLab();
+    });
   };
 
   window.llDuplicateSection = function(id) {

@@ -976,7 +976,7 @@
 
   // ── Fjern artist ────────────────────────────────────────────────────────
   window.labelRemoveArtist = async function(artistId, name){
-    if(!confirm(`Fjerne ${name} fra labelen?`)) return;
+    if(!(await mvConfirm({title:`Fjerne ${name} fra labelen?`,body:'Artisten mister tilgangen til labelen. Du kan invitere på nytt senere.',ok:'Fjern',danger:true}))) return;
     const token = await getToken();
     const uid   = await getUid();
     const res = await fetch(
@@ -1245,7 +1245,7 @@
   }
 
   window.leaveLabel = async function(labelId, labelName){
-    if(!confirm(`Forlate ${labelName}?\n\nLabelen vil beholde visningstilgang til innholdet ditt i 14 dager.`)) return;
+    if(!(await mvConfirm({title:`Forlate ${labelName}?`,body:'Labelen kan se innholdet ditt i 14 dager til, så mister de tilgangen.',ok:'Forlat label',danger:true}))) return;
 
     const token = await getToken();
     const uid   = await getUid();

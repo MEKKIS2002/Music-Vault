@@ -247,7 +247,7 @@ async function playBottomIndex(i){
   try{await bottomPlayer.audio.play();}   // F7: the play count is recorded later, once ≥20% has played
   catch(e){
     console.error('Audio play failed:',e,url,beat);
-    showToast('Kunne ikke spille av. Prøv «Åpne lydfil» eller sjekk audio_url.');
+    showToast('Kunne ikke spille av låten. Lydfilen mangler eller kan ikke åpnes – bytt den via ⋯ → Mer → Bytt lydfil.');
   }
   updateBottomUI();
 }
@@ -355,7 +355,7 @@ async function uploadBeatAudio(beatId,file){
   if(!file||!isAudioFile(file)){showToast("Velg en gyldig lydfil");return;}
   const b=state.beats.find(x=>x.id===beatId);if(!b)return;
   const hadAudio=!!(b.audio_url||b.url);
-  if(hadAudio&&!confirm(`Erstatte lydfilen på «${b.name}»?\n\nNy fil: ${file.name}\n\nADVARSEL: den gamle lydfilen slettes PERMANENT for å spare lagringsplass. Den kan ikke gjenopprettes — last den ned først hvis du vil beholde den.`))return;
+  if(hadAudio&&!(await mvConfirm({title:`Bytte lydfilen på «${b.name}»?`,body:`Ny fil: ${file.name}. Den gamle lydfilen slettes for godt. Last den ned først hvis du vil beholde den.`,ok:'Bytt lydfil',danger:true})))return;
   // Lokal kopi for umiddelbar avspilling (getPlayableAudioUrl foretrekker IDB-bloben)
   await audioDB.save(beatId,file);
   b.url=beatId+":idb"; // sentinel so we know audio exists
@@ -397,7 +397,7 @@ async function uploadBeatAudio(beatId,file){
       showToast("✓ Lydfil erstattet — gammel fil slettet");
     }catch(e){
       console.error("[R2] Bytt lydfil feilet:",e);
-      showToast("R2 feilet — ny lydfil lagret lokalt");
+      showToast('Kunne ikke lagre lydfilen i skyen. Den er lagret på denne enheten – prøv igjen når du er på nett.');
     }
   }else{
     showToast("✓ Lydfil lastet opp (lokalt)");
@@ -483,12 +483,12 @@ async function downloadLocalRaw(beatId,rawId){
     const a=document.createElement("a");a.href=url;a.download=raw.name||"raw-vokal";
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
-  }catch(e){console.warn("[RAW] lokal nedlasting feilet:",e);showToast("Kunne ikke laste ned");}
+  }catch(e){console.warn("[RAW] lokal nedlasting feilet:",e);showToast("Kunne ikke laste ned filen. Sjekk at du er på nett, og prøv igjen.");}
 }
 async function deleteRawVocal(beatId,rawId){
   const b=state.beats.find(x=>x.id===beatId);if(!b||!Array.isArray(b.rawVocals))return;
   const raw=b.rawVocals.find(r=>r.id===rawId);if(!raw)return;
-  if(!confirm(`Slette RAW-vokalen «${raw.name}» permanent?`))return;
+  if(!(await mvConfirm({title:`Slette RAW-vokalen «${raw.name}»?`,body:'Den slettes for godt og kan ikke hentes tilbake.',ok:'Slett',danger:true})))return;
   try{ if(raw.idbKey) await audioDB.del(raw.idbKey); }catch(e){}
   try{ if(raw.url&&window.r2Storage?.removeKey) await window.r2Storage.removeKey(raw.key); }catch(e){console.warn("[RAW] R2-sletting feilet:",e);}
   b.rawVocals=b.rawVocals.filter(r=>r.id!==rawId);
@@ -502,7 +502,7 @@ function copyRawVocalLink(beatId,rawId){
   const raw=b&&Array.isArray(b.rawVocals)&&b.rawVocals.find(r=>r.id===rawId);
   if(!raw)return;
   if(!raw.url){showToast("Kun lagret lokalt — del-lenke lages når filen lastes opp til R2 (på live-siden)");return;}
-  navigator.clipboard.writeText(raw.url).then(()=>showToast("✓ Delingslenke kopiert"),()=>showToast("Kunne ikke kopiere"));
+  navigator.clipboard.writeText(raw.url).then(()=>showToast("✓ Delingslenke kopiert"),()=>showToast("Kunne ikke kopiere lenken. Marker og kopier den selv."));
 }
 
 // When creating beats from file upload, also store in IDB
@@ -778,7 +778,7 @@ window.mvToggleProgressEdit=function(btn,id){const r=document.getElementById('ab
 window.mvWriteLyrics=function(id){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>typeof openInLyricLab==='function'&&openInLyricLab(id),60);};
 window.mvUploadedToast=function(beats){
   beats=(beats||[]).filter(Boolean);
-  if(!beats.length){showToast('Kunne ikke laste opp — prøv igjen');return;}
+  if(!beats.length){showToast('Kunne ikke laste opp. Sjekk at du er på nett og at filen er en lydfil (mp3, wav, m4a).','Prøv igjen',()=>window.dashUploadTrigger&&dashUploadTrigger());return;}
   window.mvFresh.add(beats.map(b=>b.id));
   if(beats.length===1&&typeof openInLyricLab==='function'){const id=beats[0].id;showToast('✓ «'+beats[0].name+'» lastet opp','Skriv tekst',()=>window.mvWriteLyrics(id));}
   else showToast('✓ '+beats.length+' låt'+(beats.length>1?'er':'')+' lastet opp');
@@ -794,7 +794,7 @@ window.dashUpload=async function(files){
     catch(e){console.warn('[upload]',e);}
   }
   const inp=document.getElementById('dashUploadInput');if(inp)inp.value='';
-  if(!added.length){showToast('Kunne ikke laste opp — prøv igjen');return;}
+  if(!added.length){showToast('Kunne ikke laste opp. Sjekk at du er på nett og at filen er en lydfil (mp3, wav, m4a).','Prøv igjen',()=>window.dashUploadTrigger&&dashUploadTrigger());return;}
   saveState();
   try{renderDashboard();}catch(e){}
   try{window.beatsTab&&beatsTab.renderBeatsTab();}catch(e){}
@@ -892,7 +892,7 @@ function toggleFav(id,btn){
 }
 async function deleteBeat(id){
   if(!window.isAdminMode){showToast("Kun admin kan slette sanger");return;}
-  if(!confirm("Slette denne sangen permanent? Den fjernes fra R2 og Supabase."))return;
+  if(!(await mvConfirm({title:'Slette låten for godt?',body:'Låten og lydfilen slettes fra skyen og kan ikke hentes tilbake. Vil du bare ha den bort, kan du arkivere den i stedet.',ok:'Slett for godt',danger:true})))return;
   const beat = state.beats.find(b=>b.id===id);
   state.beats=state.beats.filter(b=>b.id!==id);
   state.albums.forEach(a=>{a.beatIds=a.beatIds.filter(x=>x!==id);});
@@ -1356,7 +1356,7 @@ window.mvShare = async function(btn) {
   // Fjern tilgang. For album/mixtape fjernes også tilgangen til låtene — bortsett
   // fra låter som mottakeren fortsatt har via en ANNEN delt samling.
   window._mvSMrevoke=async function(granteeId,name){
-    if(!confirm(`Fjerne tilgangen for ${name||'denne brukeren'} til «${contentName}»?`))return;
+    if(!(await mvConfirm({title:`Fjerne tilgangen for ${name||'denne brukeren'}?`,body:`De mister tilgangen til «${contentName}». Du kan dele på nytt senere.`,ok:'Fjern tilgang',danger:true})))return;
     const statusEl=document.getElementById('_mvSM_s');
     try{
       const del=await fetch(`${SBU}/rest/v1/content_access?owner_id=eq.${uid}&grantee_id=eq.${encodeURIComponent(granteeId)}&content_type=eq.${contentType}&content_id=eq.${encodeURIComponent(contentId)}`,
@@ -1458,7 +1458,7 @@ window.renderCollectionComments = async function(type, id) {
   el.innerHTML=`<div class="cc-wrap"><div class="cc-title"><span class="ic ic-chat" aria-hidden="true"></span> Kommentarer ${all.length?'<span class="cc-count">'+all.length+'</span>':''}</div><div class="cc-list">${all.length?all.join(''):'<div class="cc-empty">Ingen kommentarer enn\u00e5.</div>'}</div></div>`;
 };
 window.deleteCollectionComment = async function(source,commentId,type,collId) {
-  if(!confirm('Slette denne kommentaren?'))return;
+  if(!(await mvConfirm({title:'Slette kommentaren?',body:'Den kan ikke hentes tilbake.',ok:'Slett',danger:true})))return;
   const SBU=window.MV_CONFIG.SUPABASE_URL,SBK=window.MV_CONFIG.SUPABASE_ANON_KEY;
   let token=SBK;try{const {data:{session}}=await window.supabaseClient.auth.getSession();if(session?.access_token)token=session.access_token;}catch(e){}
   const hdrs={'apikey':SBK,'Authorization':'Bearer '+token};
@@ -1915,9 +1915,11 @@ document.getElementById("saveOverviewBtn").addEventListener("click",()=>{
 });
 document.getElementById("deleteDemoBtn").addEventListener("click",()=>{
   if(isProducerUser()){showToast("Produsentmodus: sletting er låst");return;}
-  const id=document.getElementById("editDemoId").value;if(!confirm("Slette demoen?"))return;
+  const id=document.getElementById("editDemoId").value;
+  const prevDemos=state.demos.slice(), prevVersions=state.versions.slice();
   state.demos=state.demos.filter(d=>d.id!==id);state.versions=state.versions.filter(v=>v.demoId!==id);
-  saveState();renderAll();document.getElementById("editDemoModal").classList.remove("open");showToast("Slettet");
+  saveState();renderAll();document.getElementById("editDemoModal").classList.remove("open");
+  showToast("Demoen er slettet","Angre",()=>{state.demos=prevDemos;state.versions=prevVersions;saveState();renderAll();showToast("✓ Demoen er tilbake");});
 });
 document.getElementById("addModalVerBtn").addEventListener("click",()=>{
   const did=document.getElementById("editDemoId").value;const t=document.getElementById("editVerInput").value.trim();if(!t)return;
@@ -2196,7 +2198,7 @@ async function uploadBeatToR2(beat, file) {
     showToast('✓ Lastet opp til R2 og synkronisert');
   } catch (e) {
     console.error('[R2] Opplasting feilet:', e);
-    showToast('R2 feilet — lydfil lagret lokalt');
+    showToast('Kunne ikke lagre lydfilen i skyen. Den er lagret på denne enheten – prøv igjen når du er på nett.');
   }
 }
 async function handleMixtapeDrop(e){
@@ -2335,6 +2337,28 @@ window.renameMixtape = function(id) {
   });
 };
 
+// Bekreftelse i appens stil (i stedet for nettleserens confirm()). Brukes bare for handlinger som
+// ikke kan angres; det som kan angres skjer med en gang og får «Angre» i meldingen nederst.
+// mvConfirm({title, body, ok, danger}) → Promise<boolean>. Esc / Avbryt / klikk utenfor = nei.
+window.mvConfirm=function(o){
+  o=typeof o==='string'?{title:o}:(o||{});
+  return new Promise(resolve=>{
+    document.getElementById('mvConfirm')?.remove();
+    const ret=document.activeElement, w=document.createElement('div');
+    w.id='mvConfirm'; w.className='mv-confirm';
+    w.innerHTML=`<div class="mv-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="mvConfirmT" aria-describedby="mvConfirmB">
+      <h2 id="mvConfirmT">${esc(o.title||'Er du sikker?')}</h2>${o.body?`<p id="mvConfirmB">${esc(o.body)}</p>`:''}
+      <div class="mv-confirm-btns"><button type="button" class="ghost-btn" data-v="0">${esc(o.cancel||'Avbryt')}</button><button type="button" class="primary-btn${o.danger?' mv-confirm-danger':''}" data-v="1">${esc(o.ok||'OK')}</button></div></div>`;
+    const done=v=>{ w.remove(); removeEventListener('keydown',key,true); ret&&ret.focus&&ret.focus(); resolve(v); };
+    const key=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); done(false); }
+      if(e.key==='Tab'){ const b=[...w.querySelectorAll('button')], i=b.indexOf(document.activeElement); e.preventDefault(); b[(i+(e.shiftKey?-1:1)+b.length)%b.length].focus(); } };
+    w.addEventListener('click',e=>{ const b=e.target.closest('[data-v]'); if(b) done(b.dataset.v==='1'); else if(e.target===w) done(false); });
+    addEventListener('keydown',key,true);
+    document.body.appendChild(w);
+    // Farlige valg: fokus på Avbryt, så Enter ikke sletter ved et uhell
+    (o.danger?w.querySelector('[data-v="0"]'):w.querySelector('[data-v="1"]')).focus();
+  });
+};
 function showDeleteConfirm(msg,cb){
   _deleteCallback=cb;
   document.getElementById('deleteConfirmTitle').textContent='Bekreft sletting';

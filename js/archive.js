@@ -314,8 +314,9 @@
     const st=stateObj();
     if(!name || name==='all')return;
     const used=['beats','albums','mixtapes'].reduce((n,k)=>n+(st[k]||[]).filter(x=>(x.archiveCollection||'')===name).length,0);
-    const ok=confirm(used?`Slette samlingen «${name}» og fjerne taggen fra ${used} elementer?`:`Slette samlingen «${name}»?`);
-    if(!ok)return;
+    // Slettes med en gang; «Angre» legger samlingen og taggene tilbake
+    const prevDeleted=(st.settings.deletedArchiveCollections||[]).slice(), prevList=(st.settings.archiveCollections||[]).slice();
+    const tagged=[]; ['beats','albums','mixtapes'].forEach(k=>(st[k]||[]).forEach(x=>{if(x.archiveCollection===name)tagged.push(x)}));
     st.settings.deletedArchiveCollections=Array.from(new Set([...(st.settings.deletedArchiveCollections||[]),name]));
     st.settings.archiveCollections=(st.settings.archiveCollections||[]).filter(c=>c!==name);
     ['beats','albums','mixtapes'].forEach(k=>(st[k]||[]).forEach(x=>{if(x.archiveCollection===name)x.archiveCollection=''}));
@@ -323,6 +324,10 @@
     save();
     if(typeof window.renderArchiveView==='function')window.renderArchiveView();
     setTimeout(()=>enhanceArchive(),30);
+    if(typeof window.showToast==='function') window.showToast(`Samlingen «${name}» er slettet`,'Angre',()=>{
+      st.settings.deletedArchiveCollections=prevDeleted; st.settings.archiveCollections=prevList; tagged.forEach(x=>{x.archiveCollection=name});
+      save(); if(typeof window.renderArchiveView==='function')window.renderArchiveView(); setTimeout(()=>enhanceArchive(),30);
+    });
   }
 
   document.addEventListener('click',function(e){

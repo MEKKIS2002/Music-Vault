@@ -567,3 +567,14 @@ html body #lyriclabTab .ll-v2 .ll-song-head{ grid-template-columns: clamp(10rem,
 .star-btn{ color: var(--muted); }
 .star-btn.active{ color: var(--accent-ink); }
 
+
+/* Bekreftelse i appens stil (mvConfirm) — bare for handlinger som ikke kan angres */
+.mv-confirm{ position: fixed; inset: 0; z-index: 9500; display: grid; place-items: center; padding: 16px; background: rgb(0 0 0 / .55); }
+.mv-confirm-card{ width: min(420px, 100%); padding: 22px 22px 18px; background: var(--surface-1, var(--panel)); color: var(--text);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 20px 60px rgb(0 0 0 / .45); }
+.mv-confirm-card h2{ margin: 0 0 8px; font-family: var(--font-display, Georgia, serif); font-size: 21px; font-weight: 600; line-height: 1.25; }
+.mv-confirm-card p{ margin: 0; font-size: 15px; line-height: 1.5; color: var(--text); }
+.mv-confirm-btns{ display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.mv-confirm-btns .mv-confirm-danger{ background: rgb(var(--danger-rgb) / .16) !important; border: 1px solid rgb(var(--danger-rgb) / .55) !important; color: var(--danger) !important; box-shadow: none !important; }
+.mv-confirm-btns .mv-confirm-danger:hover{ background: rgb(var(--danger-rgb) / .26) !important; }
+@media (max-width: 768px){ .mv-confirm{ align-items: end; } .mv-confirm-card{ border-radius: 16px 16px 0 0; padding-bottom: calc(18px + env(safe-area-inset-bottom)); } .mv-confirm-btns > *{ flex: 1; min-height: 44px; } }
