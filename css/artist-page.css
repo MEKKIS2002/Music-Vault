@@ -166,3 +166,8 @@ html body #artistpageTab .as-switch input:checked{ background: var(--accent) !im
 html body #artistpageTab .as-switch input:checked::after{ background: #fff8ee !important; }
 html body #artistpageTab .as-switch input:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* Slett seksjon står for seg selv, unna flyttepilene */
+#artistpageTab .as-icon-btn[data-act="del"]{ margin-left: 10px; position: relative; }
+#artistpageTab .as-icon-btn[data-act="del"]::before{ content: ""; position: absolute; left: -6px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }
+#artistpageTab .as-icon-btn[data-act="del"]:hover{ background: rgb(var(--danger-rgb) / .12); color: var(--danger); }
+

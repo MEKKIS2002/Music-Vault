@@ -653,7 +653,7 @@ function renderDashboard(){
   const avgDone=allDemos.length?Math.round(allDemos.reduce((s,b)=>s+Number(b.done||0),0)/allDemos.length):0;
   if(sEl){
     sEl.innerHTML=`<div id="dashSubPills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">`+
-      `<span class="ds-pill">${beats.length} ${beats.length===1?'beat':'beats'}</span>`+
+      `<span class="ds-pill">${beats.length} ${beats.length===1?'låt':'låter'}</span>`+
       `<span class="ds-pill ds-accent">${albums.length} ${albums.length===1?'album':'albumer'}</span>`+
       `<span class="ds-pill ds-accent">${mixtapes.length} ${mixtapes.length===1?'mixtape':'mixtapes'}</span>`+
       (noAudio.length?`<span class="ds-pill ds-warn" title="${noAudio.slice(0,3).map(b=>b.name).join(', ')}">${noAudio.length} uten lyd</span>`:'')+
@@ -664,13 +664,13 @@ function renderDashboard(){
     const alerts=[];const now=Date.now(),DAY=86400000;
     const inAlbum=new Set(albums.flatMap(a=>a.beatIds||[]));
     const doneNotIn=beats.filter(b=>Number(b.done||0)>=100&&!inAlbum.has(b.id));
-    if(doneNotIn.length) alerts.push({type:'info',icon:'<span class="ic ic-music" aria-hidden="true"></span>',msg:`${doneNotIn.length} sang${doneNotIn.length>1?'er er':'en er'} 100% ferdig men ikke i noe album`,detail:doneNotIn.slice(0,2).map(b=>esc(b.name)).join(', ')+(doneNotIn.length>2?' ...':''),tab:'albums'});
+    if(doneNotIn.length) alerts.push({type:'info',icon:'<span class="ic ic-music" aria-hidden="true"></span>',msg:`${doneNotIn.length} låt${doneNotIn.length>1?'er er':'en er'} 100% ferdig men ikke i noe album`,detail:doneNotIn.slice(0,2).map(b=>esc(b.name)).join(', ')+(doneNotIn.length>2?' ...':''),tab:'albums'});
     // Siste aktivitet i et album = albumet selv eller noen av låtene i det (før så det dødt ut selv om låtene ble jobbet med daglig)
     albums.forEach(a=>{const aB=(a.beatIds||[]).map(id=>beats.find(b=>b.id===id)).filter(Boolean);
       const lu=Math.max(a.updatedAt||a.createdAt||0,...aB.map(b=>b.updatedAt||b.createdAt||0));
       const avg=aB.length?aB.reduce((s,b)=>s+Number(b.done||0),0)/aB.length:0;
       if(lu&&now-lu>14*DAY&&avg<100)alerts.push({type:'info',icon:'<span class="ic ic-clock" aria-hidden="true"></span>',msg:`\u00ab${esc(a.name)}\u00bb venter p\u00e5 deg`,detail:`Sist jobbet med for ${Math.floor((now-lu)/DAY)} dager siden`,tab:'albums'});});
-    if(noAudio.length) alerts.push({type:'warn',icon:'<span class="ic ic-mute" aria-hidden="true"></span>',msg:`${noAudio.length} sang${noAudio.length>1?'er mangler':'en mangler'} lydfil`,detail:noAudio.slice(0,2).map(b=>esc(b.name)).join(', ')+(noAudio.length>2?' ...':''),tab:'beats'});
+    if(noAudio.length) alerts.push({type:'warn',icon:'<span class="ic ic-mute" aria-hidden="true"></span>',msg:`${noAudio.length} låt${noAudio.length>1?'er mangler':'en mangler'} lydfil`,detail:noAudio.slice(0,2).map(b=>esc(b.name)).join(', ')+(noAudio.length>2?' ...':''),tab:'beats'});
     if(!alerts.length) saEl.innerHTML='<div class="sa-empty">Ingen varsler akkurat n\u00e5 \u2713</div>';
     else saEl.innerHTML=alerts.map(a=>`<div class="smart-alert smart-alert-${a.type}" onclick="document.querySelector('.tab-btn[data-tab=\\'${a.tab}\\']')?.click()"><span class="sa-icon">${a.icon}</span><div class="sa-body"><div class="sa-msg">${a.msg}</div>${a.detail?`<div class="sa-detail">${a.detail}</div>`:''}</div><span class="sa-arrow">\u2192</span></div>`).join('');
   }
@@ -1167,7 +1167,7 @@ function renderAlbumBeats(beats,mode,customEl){
   const listMode=mode||"album";
   const el=customEl||document.getElementById("albumBeatList");
   // View class set by applyView() in track-cards.js — don't hardcode here
-  if(!beats||!beats.length){el.innerHTML=`<div class="empty">Ingen beats i dette ${listMode==="mixtape"?"mixtapen":"albumet"} ennå. Klikk "+ Legg til beats".</div>`;return;}
+  if(!beats||!beats.length){el.innerHTML=`<div class="empty">Ingen låter i ${listMode==="mixtape"?"mixtapen":"albumet"} ennå.</div>`;return;}
   const canDrag=!isProducerUser()&&(listMode!=="mixtape"||mixtapeSortMode==="custom");
   const hint=canDrag?`<div class="reorder-hint" style="grid-column:1/-1"><span>↕</span><span>Dra sangene for å endre rekkefølge.</span></div>`:(listMode==="mixtape"&&mixtapeSortMode!=="custom"?`<div class="reorder-hint" style="grid-column:1/-1"><span>↕</span><span>Sortert visning. Velg «Egen rekkefølge» for å dra sangene.</span></div>`:"");
   el.innerHTML=hint+beats.map((b,idx)=>{
@@ -1676,7 +1676,7 @@ document.getElementById("confirmAddBeatsBtn").addEventListener("click",()=>{
   const album=state.albums.find(a=>a.id===currentAlbumId);if(!album)return;
   const checked=[...document.querySelectorAll("#beatCheckList input:checked")];
   checked.forEach(cb=>{if(!album.beatIds.includes(cb.value))album.beatIds.push(cb.value);});
-  saveState();renderAlbumDetail();closeModal("addBeatsModal");showToast(`✓ ${checked.length} beat${checked.length===1?"":"s"} lagt til`);
+  saveState();renderAlbumDetail();closeModal("addBeatsModal");showToast(`✓ ${checked.length} ${checked.length===1?"låt":"låter"} lagt til`);
 });
 
 document.getElementById("deleteAlbumBtn").addEventListener("click",()=>{
@@ -1764,7 +1764,7 @@ function cassetteMarkup(mt,idx=0){
     <img class="cass-png" src="${png}" alt="Kassett" draggable="false">
     <div class="cass-png-label">
       <div class="cass-png-name">${esc(mt.name)}</div>
-      <div class="cass-png-meta">${tracks} beat${tracks===1?'':'s'}</div>
+      <div class="cass-png-meta">${tracks} ${tracks===1?'låt':'låter'}</div>
     </div>
   </div>`;
 }
@@ -1780,7 +1780,7 @@ function renderMixtapes(){
     const dragAttrs=isProducerUser()?`data-id="${mt.id}"`:`draggable="true" data-id="${mt.id}" ondragstart="startCardDrag(event,'mixtape','${mt.id}')" ondragover="cardDragOver(event,'mixtape','${mt.id}')" ondragleave="cardDragLeave(event,'${mt.id}')" ondrop="dropCard(event,'mixtape','${mt.id}')" ondragend="endCardDrag()"`;
     return`<div class="cassette-card" ${dragAttrs} onclick="openMixtapeFromCard(event,'${mt.id}')">
       ${cassetteMarkup(mt,idx)}
-      <div class="cass-card-title">${esc(mt.name)}<span>${n} beat${n===1?"":"s"}</span></div>
+      <div class="cass-card-title">${esc(mt.name)}<span>${n} ${n===1?"låt":"låter"}</span></div>
     </div>`;
   });
   // "Ny mixtape" uses cassette-4 with a + on the label, semi-transparent
@@ -1937,7 +1937,7 @@ document.querySelectorAll(".mtab").forEach(t=>t.addEventListener("click",()=>swi
 document.getElementById("beatFiles").addEventListener("change",async e=>{
   const files=Array.from(e.target.files).filter(f=>f.type.startsWith("audio")||/\.(mp3|wav|flac|m4a|ogg|aac)$/i.test(f.name));
   for(const f of files)state.beats.unshift(await createBeatFromFile(f));
-  saveState();renderAll();showToast(`✓ ${files.length} beat${files.length===1?"":"s"} lagt til`);
+  saveState();renderAll();showToast(`✓ ${files.length} ${files.length===1?"låt":"låter"} lagt til`);
   e.target.value="";
 });
 document.getElementById("addBeatUrlBtn").addEventListener("click",()=>{
@@ -2266,7 +2266,7 @@ document.getElementById("confirmAddBeatsToMixtapeBtn").addEventListener("click",
   const mt=state.mixtapes.find(x=>x.id===currentMixtapeId);if(!mt)return;
   const checked=[...document.querySelectorAll("#mixtapeBeatCheckList input:checked")];
   checked.forEach(cb=>{if(!mt.beatIds.includes(cb.value))mt.beatIds.push(cb.value);});
-  saveState();renderMixtapeDetail();closeModal("addBeatsToMixtapeModal");showToast(`✓ ${checked.length} beat${checked.length===1?"":"s"} lagt til`);
+  saveState();renderMixtapeDetail();closeModal("addBeatsToMixtapeModal");showToast(`✓ ${checked.length} ${checked.length===1?"låt":"låter"} lagt til`);
 });
 document.getElementById("deleteMixtapeBtn").addEventListener("click",()=>{
   if(isProducerUser()){showToast("Produsentmodus: sletting er låst");return;}

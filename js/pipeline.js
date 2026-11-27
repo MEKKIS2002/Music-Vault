@@ -7,7 +7,7 @@
 //   1. Project selector   — choose album/mixtape to focus on
 //   2. Project hero       — cover, title, total progress, release-readiness
 //   3. Dagens fokus       — 3 concrete, clickable tasks
-//   4. Tabbed workspace   — Oversikt | Board | Timeline (kravet for release står øverst)
+//   4. Tabbed workspace   — Oversikt | Board (kravet for release står øverst)
 //
 // db.js calls (window.renderPipelineV2 || renderPipeline) for the pipeline tab,
 // so defining window.renderPipelineV2 is all that's needed to take over.
@@ -77,18 +77,24 @@
     if (!secs.length) return hasLyrics(b) ? 100 : 0;
     return Math.round(secs.filter(s => s.done || (s.text && s.text.trim())).length / secs.length * 100);
   }
+  // Tekst som «2/5 seksjoner» — prosent er forbeholdt låtens fremdrift
+  function secTxt(b){
+    const secs = (b.lyricSections || []).filter(Boolean);
+    if (!secs.length) return hasLyrics(b) ? 'skrevet' : '0 seksjoner';
+    return `${secs.filter(s => s.done || (s.text && s.text.trim())).length}/${secs.length} seksjoner`;
+  }
   function nextStep(b) {
     const i = flowIndex(b);
     if (i >= 5) return null;                                            // Ferdig — ingen oppgave
     const audio = hasAudio(b), lyr = hasLyrics(b), lp = lyricsPct(b);
     const gaps = [];
     if (!audio) gaps.push('mangler lydfil');
-    if (i >= 2 && (!lyr || lp < 100)) gaps.push(lyr ? `tekst ${lp} %` : 'mangler tekst');
+    if (i >= 2 && (!lyr || lp < 100)) gaps.push(lyr ? `tekst ${secTxt(b)}` : 'mangler tekst');
     const why = gaps.join(' · ');
     if (i === 0) return audio ? { txt: 'Start på teksten', kind: 'lyrics', why: '' } : { txt: 'Last opp lydfil', kind: 'audio', why: '' };
     if (i === 1){
       if (!lyr) return { txt: 'Skriv tekst', kind: 'lyrics', why };
-      if (lp < 100 || ((b.lyricSections || []).length && !sectionsDone(b))) return { txt: 'Ferdigstill seksjoner', kind: 'lyrics', why: `tekst ${lp} %` + (audio ? '' : ' · mangler lydfil') };
+      if (lp < 100 || ((b.lyricSections || []).length && !sectionsDone(b))) return { txt: 'Ferdigstill seksjoner', kind: 'lyrics', why: (lp >= 100 ? 'seksjoner ikke markert ferdig' : `tekst ${secTxt(b)}`) + (audio ? '' : ' · mangler lydfil') };
       return { txt: 'Spill inn / skisse', kind: 'record', why };
     }
     if (i === 2) return { txt: 'Spill inn vokal', kind: 'record', why };
@@ -177,7 +183,7 @@
   }
   function getSubtab() {
     const t = localStorage.getItem('mv_pl_subtab') || 'oversikt';
-    return t === 'checklist' ? 'oversikt' : t;   // Sjekkliste-fanen er fjernet (kravet står øverst)
+    return (t === 'checklist' || t === 'timeline') ? 'oversikt' : t;   // Sjekkliste og Timeline er fjernet
   }
 
   // ── Drag state ──────────────────────────────────────────────────────────────
@@ -216,7 +222,6 @@
         <div class="pl3-tabwrap">
           ${subtab === 'oversikt'  ? renderOversikt(project, beats)      : ''}
           ${subtab === 'board'     ? renderBoard(project, beats)         : ''}
-          ${subtab === 'timeline'  ? renderTimeline(project, beats, r)   : ''}
         </div>
       </div>`;
 
@@ -340,7 +345,6 @@
     const tabs = [
       { id:'oversikt',  label:'Oversikt',  icn:'<span class="ic ic-grid" aria-hidden="true"></span>' },
       { id:'board',     label:'Board',     icn:'<span class="ic ic-list" aria-hidden="true"></span>' },
-      { id:'timeline',  label:'Timeline',  icn:'<span class="ic ic-calendar" aria-hidden="true"></span>' },
     ];
     return `
       <div class="pl3-tabs">
@@ -411,7 +415,7 @@
 
         <div class="pl3-card-tags">
           ${hasAudio(b)  ? '<span class="pl3-tag ok">Lyd ✓</span>'  : '<span class="pl3-tag no">Mangler lyd</span>'}
-          ${(() => { const lp = lyricsPct(b); return lp >= 100 ? '<span class="pl3-tag ok">Tekst ✓</span>' : lp > 0 ? `<span class="pl3-tag">Tekst ${lp} %</span>` : '<span class="pl3-tag mut">Ingen tekst</span>'; })()}
+          ${(() => { const lp = lyricsPct(b); return lp >= 100 ? '<span class="pl3-tag ok">Tekst ✓</span>' : lp > 0 ? `<span class="pl3-tag">Tekst ${secTxt(b)}</span>` : '<span class="pl3-tag mut">Ingen tekst</span>'; })()}
         </div>
 
         ${step ? `<div class="pl3-card-next"><span>Neste steg</span><b>${esc(step.txt)}</b>${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>`
@@ -461,44 +465,11 @@
         <div class="pl3-bcard-top">
           <span class="pl3-bcard-thumb">${thumb}</span>
           <span class="pl3-bcard-name" data-no-i18n lang="nb">${esc(b.name || 'Uten navn')}</span>
-          <span class="pl3-bcard-pct"><small>Fremdrift</small> ${fmt(pct)}</span>
         </div>
         <button type="button" class="pl3-bcard-play" draggable="false" title="Spill" aria-label="Spill ${esc(b.name || '')}"
           onclick="event.stopPropagation();if(typeof playSingleBeat==='function')playSingleBeat('${esc(b.id)}')"><span class="ic ic-play" aria-hidden="true"></span></button>
-        <div class="pl3-bcard-bar"><i style="width:${pct}%"></i></div>
+        <div class="pl3-bcard-meter"><div class="pl3-bcard-bar"><i style="width:${pct}%"></i></div><span class="pl3-bcard-pct"><small>Fremdrift</small> ${fmt(pct)}</span></div>
         ${step ? `<div class="pl3-bcard-next">→ ${esc(step.txt)}${step.why ? `<small class="pl3-why">${esc(step.why)}</small>` : ''}</div>` : '<div class="pl3-bcard-next done">✓ Ferdig</div>'}
-      </div>`;
-  }
-
-  // 4c ── Timeline ─────────────────────────────────────────────────────────────
-  function renderTimeline(project, beats, r) {
-    if (!beats.length) return `<div class="pl3-pane-empty">Ingen låter å plassere på tidslinjen.</div>`;
-
-    // Distribution of songs across flow stages
-    const counts = FLOW.map(() => 0);
-    beats.forEach(b => counts[flowIndex(b)]++);
-    const maxC = Math.max(1, ...counts);
-
-    const lanes = FLOW.map((stage, i) => {
-      const songs = beats.filter(b => flowIndex(b) === i);
-      return `
-        <div class="pl3-tl-stage">
-          <div class="pl3-tl-node" style="background:${stage.color}"></div>
-          <div class="pl3-tl-stagehd">
-            <b style="color:${stage.color}">${stage.label}</b>
-            <span>${songs.length}</span>
-          </div>
-          <div class="pl3-tl-bar"><i style="width:${counts[i]/maxC*100}%;background:${stage.color}"></i></div>
-          <div class="pl3-tl-songs">
-            ${songs.map(b => `<span class="pl3-tl-chip" onclick="plOpenLyric('${esc(b.id)}')">${esc(b.name || 'Uten navn')}</span>`).join('') || '<span class="pl3-tl-none">—</span>'}
-          </div>
-        </div>`;
-    }).join('');
-
-    return `
-      <div class="pl3-timeline">
-        <div class="pl3-tl-head">Hver låt plassert i produksjonsløpet — fra idé til ferdig. Klikk en låt for å åpne den.</div>
-        <div class="pl3-tl-track">${lanes}</div>
       </div>`;
   }
 

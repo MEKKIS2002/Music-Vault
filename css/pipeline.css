@@ -408,3 +408,11 @@
 #pipelineTab .pl3-bcard-pct small{ font-weight: 600; font-size: 11px; letter-spacing: .02em; margin-right: 2px; }
 #pipelineTab .pl3-slider-lbl{ font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 
+/* Runde 14: release-listen holdes smal, så navn og prosent står nær hverandre */
+#pipelineTab .pl3-cue{ flex: 0 1 380px; }
+#pipelineTab .pl3-cue-more ul{ max-width: 340px; }
+/* Board-kort: fremdriften står ved stolpen, så tittelen får hele bredden */
+#pipelineTab .pl3-bcard-meter{ display: flex; align-items: center; gap: 8px; }
+#pipelineTab .pl3-bcard-meter .pl3-bcard-bar{ flex: 1; }
+#pipelineTab .pl3-bcard-meter .pl3-bcard-pct{ font-size: 12px; }
+

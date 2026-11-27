@@ -2106,4 +2106,14 @@
     'Et album er klart for release når alle låtene er 100 % ferdige. Åpne kravet for å se låtene som mangler.': 'An album is ready for release when every song is 100% done. Open the requirement to see the songs that are missing.',
     'Fremdrift': 'Progress', 'Endre': 'Edit', 'OK': 'OK' });
   I.pat([['+{0} til', '+{0} more'], ['Fremdrift for {0}', 'Progress for {0}'], ['Fremdrift {0}', 'Progress {0}']]);
+  // Kritikk 14 — «låt/låter» overalt, tekst som seksjoner
+  I.add({ 'låt': 'song', 'låter': 'songs', 'Låter': 'Songs', 'Ingen arkiverte låter.': 'No archived songs.',
+    'Arkiverte låter, albumer og mixtapes skjules fra de vanlige visningene uten å bli slettet.': 'Archived songs, albums and mixtapes are hidden from the usual views without being deleted.',
+    'Tekst skrevet': 'Lyrics written', 'Gjenopprett låt': 'Restore song', 'Arkiver låt': 'Archive song', 'Legg til låter': 'Add songs', 'Velg en låt': 'Choose a song', 'Alle låter': 'All songs',
+    'Ingen låter ennå — last opp en låt for å komme i gang.': 'No songs yet — upload a song to get started.', 'skrevet': 'written', '0 seksjoner': '0 sections',
+    'Hvor mange seksjoner som har tekst. Låtens fremdrift (det release ser på) står ved steget øverst.': 'How many sections have lyrics. The song’s progress (what release looks at) is shown next to the stage at the top.' });
+  I.pat([['{0} låt', '{0} song'], ['{0} låter', '{0} songs'], ['{0}/{1} seksjoner', '{0}/{1} sections'], ['tekst {0}/{1} seksjoner', 'lyrics {0}/{1} sections'], ['Tekst {0}/{1} seksjoner', 'Lyrics {0}/{1} sections'],
+    ['Ingen låter matcher "{0}"', 'No songs match “{0}”'], ['Synket: {0} låter, {1} albumer, {2} mixtapes', 'Synced: {0} songs, {1} albums, {2} mixtapes'], ['✓ {0} låter lagt til', '✓ {0} songs added'], ['✓ {0} låt lagt til', '✓ {0} song added'],
+    ['{0} låter mangler lydfil', '{0} songs are missing an audio file'], ['{0} låten mangler lydfil', '{0} song is missing an audio file'], ['Ingen låter i mixtapen ennå.', 'No songs in the mixtape yet.'], ['Ingen låter i albumet ennå.', 'No songs in the album yet.']]);
+  I.add({ 'seksjoner ikke markert ferdig': 'sections not marked done' });
 })(window.mvI18n);

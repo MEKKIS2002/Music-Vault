@@ -134,7 +134,7 @@
       !b.archived && (b.audio_url||'').includes('worker')
     );
 
-    if(typeof showToast==='function') showToast(`Sjekker ${candidates.length} beats...`);
+    if(typeof showToast==='function') showToast(`Sjekker ${candidates.length} låter …`);
 
     // Sjekk Content-Type for hver
     const toConvert = [];

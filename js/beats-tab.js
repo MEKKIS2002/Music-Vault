@@ -205,7 +205,7 @@
         <div class="beats-tab-header">
           <div class="beats-tab-title">
             <h1>Beats</h1>
-            <span class="beats-count" aria-live="polite">${searchQ ? `${beats.length} av ${total}` : `${total} sanger`}</span>
+            <span class="beats-count" aria-live="polite">${searchQ ? `${beats.length} av ${total}` : `${total} ${total===1?'låt':'låter'}`}</span>
           </div>
           <div class="beats-tab-controls">
             <button type="button" class="primary-btn beats-upload-btn" onclick="dashUploadTrigger()" title="Last opp lydfiler — eller slipp dem på siden"><span class="ic ic-upload" aria-hidden="true"></span> Last opp låt</button>
@@ -244,7 +244,7 @@
         <div class="beats-list">
           ${beats.length === 0 ? `
             <div class="beats-empty">
-              ${searchQ ? `Ingen beats matcher "<strong>${esc(searchQ)}</strong>"` : 'Ingen beats ennå — last opp sanger i mixtapes eller albumer.'}
+              ${searchQ ? `Ingen låter matcher "<strong>${esc(searchQ)}</strong>"` : 'Ingen låter ennå — last opp en låt for å komme i gang.'}
             </div>
           ` : beats.map((b, i) => {
             const cols = getCollections(b.id);

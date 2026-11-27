@@ -663,7 +663,7 @@ setTimeout(updateAdminUi, 50);
       lastPullAt = Date.now();
       _resetBaseFrom(st);
       const sharedCount = sharedBeats.length + sharedAlbums.length + sharedMixtapes.length;
-      say(`Synket: ${st.beats.length} beats, ${st.albums.length} albumer, ${st.mixtapes.length} mixtapes${sharedCount ? ` (${sharedCount} delt med deg)` : ''}.`, 'success');
+      say(`Synket: ${st.beats.length} låter, ${st.albums.length} albumer, ${st.mixtapes.length} mixtapes${sharedCount ? ` (${sharedCount} delt med deg)` : ''}.`, 'success');
       return true;
     }catch(err){
       console.error('Supabase pull-feil:', err);

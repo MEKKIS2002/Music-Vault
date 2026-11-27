@@ -484,10 +484,10 @@
     </div>
 
     <div class="ll-editor-header">
-      <div class="ll-editor-progress" title="Hvor ferdig teksten er: seksjoner merket ferdig teller fullt, påbegynte delvis. Ikke det samme som «Ferdig %» på låten.">
-        <span class="ll-prog-lbl">Tekst</span>
+      <div class="ll-editor-progress" title="Hvor mange seksjoner som har tekst. Låtens fremdrift (det release ser på) står ved steget øverst.">
+        <span class="ll-prog-lbl">Tekst skrevet</span>
         <div class="ll-progbar"><div class="ll-progbar-fill" id="llProgFill" style="width:${prog}%"></div></div>
-        <span class="ll-prog-pct" id="llProgPct">${prog}%</span>
+        <span class="ll-prog-pct" id="llProgPct">${llSecCount(beat)}</span>
       </div>
       <details class="ll-color-tools ll-color-pop" id="llColorPop">
         <summary class="ll-tool-btn ll-color-sum" onmousedown="event.preventDefault()" aria-label="Fargemarkering av tekst"><span class="ll-color-sum-dot" aria-hidden="true"></span>Farge</summary>
@@ -611,7 +611,7 @@
   <div class="ll-empty-icon"><span class="ic ic-pen" aria-hidden="true"></span></div>
   <h2>Velg en låt å skrive på</h2>
   <div class="ll-empty-btns">
-    <button class="primary-btn" onclick="llPickBeat()"><span class="ic ic-music" aria-hidden="true"></span> Velg fra beats</button>
+    <button class="primary-btn" onclick="llPickBeat()"><span class="ic ic-music" aria-hidden="true"></span> Velg en låt</button>
     ${last ? `<button class="ghost-btn" onclick="openInLyricLab('${esc(last.id)}')"><span class="ic ic-clock" aria-hidden="true"></span> Åpne siste: ${esc(last.name)}</button>` : ''}
     <button class="ghost-btn" onclick="llCreateNewBeat()">+ Opprett ny låt</button>
   </div>
@@ -1046,7 +1046,7 @@
         <input id="llPickerSearch" type="text" placeholder="Søk etter låt..." class="ll-picker-search"
           oninput="llFilterPicker(this.value)">
         <div class="ll-picker-tabs">
-          <button class="ll-picker-tab active" onclick="llPickerTab(this,'all')">Alle beats</button>
+          <button class="ll-picker-tab active" onclick="llPickerTab(this,'all')">Alle låter</button>
           ${mixtapes.map(m => `<button class="ll-picker-tab" onclick="llPickerTab(this,'mt-${esc(m.id)}')">${esc(m.name)}</button>`).join('')}
           ${albums.map(a => `<button class="ll-picker-tab" onclick="llPickerTab(this,'al-${esc(a.id)}')">${esc(a.name)}</button>`).join('')}
         </div>
@@ -1113,6 +1113,13 @@
     if (typeof showToast === 'function') showToast('Opprett en sang i Mixtapes eller Albumer først');
   };
 
+  // «Tekst skrevet»: antall seksjoner med tekst (ikke prosent, så det ikke forveksles med låtens fremdrift)
+  function llSecCount(beat) {
+    const secs = (getSections(beat) || []).filter(Boolean);
+    const n = secs.length, w = secs.filter(s => (s.text || '').trim()).length;
+    return n ? `${w}/${n} seksjoner` : '0 seksjoner';
+  }
+
   // ── Smart "Mangler"-panel ─────────────────────────────────────────────────
   function missingCardHTML(beat) {
     const missing = missingSections(beat);
@@ -1175,7 +1182,7 @@
     setTxt('llStatLines',  l);
     setTxt('llStatDur',    estimateDuration(w));
     // tekstfremdrift (linja over seksjonene)
-    setTxt('llProgPct', prog + '%');
+    setTxt('llProgPct', llSecCount(beat));
     const fill = document.getElementById('llProgFill'); if (fill) fill.style.width = prog + '%';
     refreshMissing(beat);
   }
