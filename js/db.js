@@ -760,10 +760,25 @@ window.dashNewMixtape=function(){document.querySelector('.tab-btn[data-tab="mixt
 window.dashOpenLyricLab=function(){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();};
 window.dashUploadTrigger=function(){document.getElementById('dashUploadInput')?.click();};
 // Felles melding etter opplasting (Hjem, Beats, album, mixtape): én låt → «Skriv tekst» åpner den i Lyric Lab
+// Nye låter: husk dem en stund (denne fanen), så Beats kan vise dem som en CD som glir inn,
+// med «Skriv tekst» som synlig neste steg i raden (forsvinner når låten har tekst).
+window.mvFresh={
+  key:'mv_fresh_beats', ttl:30*60*1000,
+  all(){try{const m=JSON.parse(sessionStorage.getItem(this.key)||'{}');const now=Date.now();for(const k in m){if(now-m[k].t>this.ttl)delete m[k];}return m;}catch(e){return {};}},
+  add(ids){try{const m=this.all();ids.forEach(id=>{m[id]={t:Date.now(),shown:false};});sessionStorage.setItem(this.key,JSON.stringify(m));}catch(e){}},
+  has(id){return !!this.all()[id];},
+  // Spill inn-animasjonen for nye rader som ennå ikke har vist den — bare når Beats faktisk vises
+  play(){try{const t=document.getElementById('beatsTab');if(!t||!t.offsetParent)return;const m=this.all();let ch=false;
+    t.querySelectorAll('.bl-row.bl-fresh').forEach(r=>{const id=r.dataset.beatId;if(m[id]&&!m[id].shown){m[id].shown=true;ch=true;r.classList.remove('bl-arrive');void r.offsetWidth;r.classList.add('bl-arrive');}});
+    if(ch)sessionStorage.setItem(this.key,JSON.stringify(m));}catch(e){}}
+};
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('[data-tab="beats"]'))setTimeout(()=>window.mvFresh.play(),120);},true);
+window.mvWriteLyrics=function(id){document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>typeof openInLyricLab==='function'&&openInLyricLab(id),60);};
 window.mvUploadedToast=function(beats){
   beats=(beats||[]).filter(Boolean);
   if(!beats.length){showToast('Kunne ikke laste opp — prøv igjen');return;}
-  if(beats.length===1&&typeof openInLyricLab==='function'){const id=beats[0].id;showToast('✓ «'+beats[0].name+'» lastet opp','Skriv tekst',()=>{document.querySelector('.tab-btn[data-tab="lyriclab"]')?.click();setTimeout(()=>openInLyricLab(id),60);});}
+  window.mvFresh.add(beats.map(b=>b.id));
+  if(beats.length===1&&typeof openInLyricLab==='function'){const id=beats[0].id;showToast('✓ «'+beats[0].name+'» lastet opp','Skriv tekst',()=>window.mvWriteLyrics(id));}
   else showToast('✓ '+beats.length+' låt'+(beats.length>1?'er':'')+' lastet opp');
 };
 // Opplasting fra Hjem, Beats-siden og mobilknappen: legg låten(e) i biblioteket og lagre
